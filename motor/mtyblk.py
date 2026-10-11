@@ -96,6 +96,7 @@ def find(name):
     c = glob.glob(os.path.join(BLKDIR, '*__' + name + '.dxf'))
     if not c:
         raise KeyError(name)
+    c.sort(key=lambda f: os.path.basename(f).startswith('ORNEK__'))   # önce asıl kütüphane, sonra örnek dosyadan alınanlar
     return c[0]
 
 

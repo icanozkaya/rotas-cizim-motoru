@@ -18,8 +18,17 @@ runpy.run_path('/home/claude/nb/emit.py', run_name='__main__')
 if os.path.exists(base + '.dwg'):
     os.remove(base + '.dwg')
 env = dict(os.environ, LD_LIBRARY_PATH='/usr/local/lib')
-r = subprocess.run(['/home/claude/dwgtools/mkdwg', txt, base + '.dwg'], env=env, capture_output=True, text=True)
-print('mkdwg', r.returncode, r.stdout[-200:], r.stderr[-300:])
+RD = '/home/claude/acad_build/rotasdwg/bin/Release/net10.0/rotasdwg'
+ok = False
+if os.path.exists(RD):     # ACadSharp ile AutoCAD 2018 (AC1032) DWG - tercih edilen yol
+    r = subprocess.run([RD, base + '.dxf', base + '.dwg', 'AC1032'], capture_output=True, text=True)
+    print('ACadSharp', r.returncode, r.stdout.strip()[-200:], r.stderr[-300:])
+    ok = r.returncode == 0 and os.path.exists(base + '.dwg')
+if not ok:                 # yedek: LibreDWG tabanlı mkdwg (R2000)
+    if os.path.exists(base + '.dwg'):
+        os.remove(base + '.dwg')
+    r = subprocess.run(['/home/claude/dwgtools/mkdwg', txt, base + '.dwg'], env=env, capture_output=True, text=True)
+    print('mkdwg', r.returncode, r.stdout[-200:], r.stderr[-300:])
 chk = '/tmp/claude-0/p2/_chk.dxf'
 if os.path.exists(chk):
     os.remove(chk)
