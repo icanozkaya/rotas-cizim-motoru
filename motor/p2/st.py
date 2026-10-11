@@ -16,14 +16,14 @@ from gp import CS, CH, PS, PST, TSC, PSC, YBL, VN, CD, YZ, YL, YC, pipe, node, F
 import gheat as GH
 
 FLAT = pickle.load(open('/tmp/claude-0/p2/st.dxf.flat.pkl', 'rb'))
-SRC = {'B2': -1680.0, 'B2T': -1680.0, 'B1T': 0.0, 'B1': 0.0, 'Z': 1680.0, '1': 3360.0, 'C': 5040.0}
+SRC = {'B2': -1680.0, 'B1': 0.0, 'Z': 1680.0, '1': 3360.0, 'C': 5040.0}
 WIN = (12070.0, 9790.0, 13150.0, 11560.0)
 WIN_C = (12040.0, 9700.0, 13200.0, 11600.0)
 SLOT = 1500.0
-SLOTS = {'T': 0, 'B2T': 1, 'B2': 2, 'B1T': 3, 'B1': 4, 'Z': 5, '1': 6, 'C': 7}
-NAMES = {'T': 'ALTYAPI (TEMEL) PLANI', 'B2T': '2. BODRUM TAVANI PİS SU TOPLAMA PLANI', 'B1T': '1. BODRUM TAVANI PİS SU TOPLAMA PLANI', 'B2': '2. BODRUM KAT SIHHİ TESİSAT PLANI', 'B1': '1. BODRUM KAT SIHHİ TESİSAT PLANI',
+SLOTS = {'T': 0, 'B2': 1, 'B1': 2, 'Z': 3, '1': 4, 'C': 5}
+NAMES = {'T': 'ALTYAPI PLANI (ZEMİN KOTU)', 'B2': '2. BODRUM KAT SIHHİ TESİSAT PLANI', 'B1': '1. BODRUM KAT SIHHİ TESİSAT PLANI',
          'Z': 'ZEMİN KAT SIHHİ TESİSAT PLANI', '1': '1. KAT SIHHİ TESİSAT PLANI', 'C': 'ÇATI PLANI (HAVALIKLAR / YAĞMUR)'}
-KOT = {'T': '-6,60 TEMEL ALT', 'B2T': '-3,40 (1.B DÖŞEME ALTI)', 'B1T': '-0,40 (ZEMİN DÖŞEME ALTI)', 'B2': '-6,00', 'B1': '-3,00', 'Z': '±0,00 [102,55]', '1': '+3,00', 'C': '+6,00 ÇATI'}
+KOT = {'T': '±0,00 ZEMİN (KOLON DİPLERİ)', 'B2': '-6,00', 'B1': '-3,00', 'Z': '±0,00 [102,55]', '1': '+3,00', 'C': '+6,00 ÇATI'}
 FY0, FY1 = 9100.0, 11750.0          # pafta y sınırları
 HDY = -2750.0                        # ısıtma sırası
 
@@ -52,17 +52,17 @@ F_K = {
 PK1 = (13045.0, 10160.0)     # büyük banyo kolonu
 PK2 = (12960.0, 10826.0)     # küçük banyo kolonu
 MK1 = (12940.0, 10930.0)     # mutfak kolonu
-HV = (13020.0, 10128.0)      # pis su çukuru havalığı Ø70 (çatıya)
-PR = (12990.0, 10128.0)      # dalgıç pompa basma hattı
-DB = {'1': (13045.0, 10192.0), '2': (12945.0, 10795.0), '3': (12945.0, 10950.0)}   # 1. bodrum düşüşleri (2. bodrum tavanına)
+PR = (13025.0, 10100.0)      # dalgıç pompa basma hattı (PÇ'den zemin kotuna çıkar, R2'ye)
+BK = {'BPK1': PK1, 'BPK2': PK2, 'BMK1': MK1}   # 1. bodrum kolonları (üst katlardaki gibi; 2. bodrum döşeme altından PÇ'ye)
 RZ = {'DBK': (12627.0, 9900.0), 'D1': (12627.0, 9912.0), 'D3': (12627.0, 9924.0), 'ADK': (12627.0, 9936.0)}
 E_IN = (12700.0, 10110.0)    # daire girişi (hol)
 PIT = (12945.0, 10115.0, 13045.0, 10215.0)     # pis su çukuru (2. bodrum, müştemilat)
 DEPO = (12374.0, 10134.0, 12574.0, 10281.0)    # 3 m³ depo (mimari, 2. bodrum)
 HIDRO = (12596.0, 10226.0, 12716.0, 10300.0)   # hidrofor grubu
 YSD = (12300.0, 10295.0)    # depo odası yer süzgeci
-R1 = (12960.0, 9690.0)
-PB = (12960.0, 9480.0)
+R1 = (12955.0, 9655.0)     # zemin kolonları rögarı (bina dışı)
+R2 = (13095.0, 9655.0)     # pompa basma rögarı (bina dışı)
+PB = (12955.0, 9465.0)     # parsel bacası
 YB_PTS = {'YB1': (12137.0, 11529.0), 'YB2': (12992.0, 11529.0), 'YB3': (13120.0, 9769.0), 'YB4': (12335.0, 9769.0)}
 ROOF_A = 164.0
 
@@ -170,13 +170,12 @@ def temiz_kat(entry_from):
 
 
 def kolon_etiket(fk):
-    up = {'B1': 2, 'Z': 2, '1': 1}[fk]
-    for p, nm, sb, off, d in ((PK1, 'PK1', up * SB_B1, (60, 60), 100), (PK2, 'PK2', up * SB_B2, (70, -60), 100),
-                              (MK1, 'MK1', up * SB_M, (-90, 50), 70)):
+    up = {'B1': 1, 'Z': 2, '1': 1}[fk]
+    nms = ('BPK1', 'BPK2', 'BMK1') if fk == 'B1' else ('PK1', 'PK2', 'MK1')
+    for p, nm, sb, off, d in ((PK1, nms[0], up * SB_B1, (60, 60), 100), (PK2, nms[1], up * SB_B2, (70, -60), 100),
+                              (MK1, nms[2], up * SB_M, (-90, 50), 70)):
         gp.kolon_pis(p, nm, off, k=0.6 if d == 100 else 0.5)
         T((p[0] + off[0] + 2, p[1] + off[1] - 17), 'Ø%d / %d SB' % (d, sb), 7, PSC, 'L')
-    cad.KOLON(HV, 4, PS); node(HV, 'HV')
-    T((HV[0] + 8, HV[1] - 30), 'PÇ HAVALIK Ø70', 5.5, PSC, 'L')
 
 
 def gecen_kolonlar(fk):
@@ -193,16 +192,10 @@ def bodrum1():
     push(MOVE(dx('B1'), 0.0))
     for f in F_K.values():
         f.draw()
-    pis_kat(DB['1'], DB['2'], DB['3'])
-    for n, p in DB.items():
-        cad.KOLON(p, 4, PS); node(p, 'DB' + n)
-    T((12785.0, 10265.0), 'D1 DÜŞÜŞ → 2.B TAVANI → PÇ', 5.5, PSC, 'L')
-    T((12880.0, 10730.0), 'D2 DÜŞÜŞ → PÇ', 5.5, PSC, 'L')
-    T((12800.0, 10900.0), 'D3 DÜŞÜŞ → PÇ', 5.5, PSC, 'L')
-    # üst kat kolonları: 1. bodrum tavanında toplanır (ayrı TAVAN planında)
+    pis_kat(PK1, PK2, MK1)
     kolon_etiket('B1')
     cad.KOLON(PR, 4, 'MTY-PIS SU-BASMA'); node(PR, 'PR')
-    T((12760.0, 9800.0), 'PK1-PK2-MK1 VE POMPA BASMA HATTI 1. BODRUM TAVANINDA - BKZ. 1. BODRUM TAVANI PİS SU TOPLAMA PLANI', 5.5, PSC, 'L')
+    T((PR[0] + 8, PR[1] - 14), 'POMPA BASMA Ø63 ↑ (R2)', 5.5, PSC, 'L')
     # temiz su: D1 kolonu (zeminden iner) -> daire girişi
     gecen_kolonlar('B1')
     temiz_kat([RZ['D1'], (12700.0, RZ['D1'][1]), (12700.0, 10090.0)])
@@ -308,55 +301,84 @@ def bodrum2():
     PL([(px0, py0), (px1, py0), (px1, py1), (px0, py1)], PS, True, 2.0)
     PL([(px0 + 6, py0 + 6), (px1 - 6, py0 + 6), (px1 - 6, py1 - 6), (px0 + 6, py1 - 6)], PS, True, 0.0)
     DALGIC_POMPA((px0 + 30, py0 + 30), 0.9, 'MTY-CIHAZ'); DALGIC_POMPA((px0 + 62, py0 + 30), 0.9, 'MTY-CIHAZ')
-    T((px0 - 5, py1 + 30), 'PİS SU ÇUKURU (PÇ)', 8, PSC, 'R')
+    T((px0 - 5, py1 + 12), 'PİS SU ÇUKURU (PÇ)', 8, PSC, 'R')
+    T((12520.0, 9772.0), 'PİS SU ÇUKURU (PÇ) VE POMPALAR:', 6.5, PSC, 'L')
     for i, s in enumerate(PUMP_TXT):
-        T((px0 - 5, py1 + 18 - i * 9), s, 5.5, PSC, 'R')
-    for n, p in DB.items():
-        cad.KOLON(p, 4, PS)
-    T((12850.0, 10600.0), 'D1-D3 DÜŞÜŞLERİ: BKZ. 2. BODRUM TAVANI PİS SU TOPLAMA PLANI', 5.5, PSC, 'L', 90)
-    # basma hattı + havalık
-    pipe([(px1 - 25, py0 + 30), PR], 'MTY-PIS SU-BASMA', 'T', w=1.8)
+        T((12520.0, 9760.0 - i * 9), s, 5.5, PSC, 'L')
+    # 1. bodrum kolonları (BPK1 / BPK2 / BMK1): 2. bodrum döşeme altından ayrı ayrı PÇ'ye
+    BL = {'BPK1': None,
+          'BPK2': [PK2, (12940.0, PK2[1]), (12940.0, py1 + 20), (12965.0, py1 + 20), (12965.0, py1)],
+          'BMK1': [MK1, (12925.0, MK1[1]), (12925.0, py1 + 14), (12950.0, py1 + 14), (12950.0, py1)]}
+    for nm, p in BK.items():
+        cad.KOLON(p, 4, PS); node(p, nm)
+        if BL[nm]:
+            pipe(BL[nm], PS, 'P'); node(BL[nm][-1], 'PÇ')
+    T((PK1[0] + 8, PK1[1] + 10), 'BPK1 Ø100 → PÇ (DOĞRUDAN)', 5.5, PSC, 'L')
+    T((12948.0, 10450.0), 'BPK2 Ø100 DÖŞEME ALTI %2 → PÇ', 5.5, PSC, 'L', 90)
+    T((12917.0, 10600.0), 'BMK1 Ø70 DÖŞEME ALTI %2 → PÇ', 5.5, PSC, 'R', 90)
+    # pompa basma hattı (PÇ -> zemin kotu -> R2)
+    pipe([(px1 - 25, py0 + 30), (px1 - 25, PR[1]), PR], 'MTY-PIS SU-BASMA', 'T', w=1.8)
     node((px1 - 25, py0 + 30), 'PÇ'); node(PR, 'PR')
-    cad.KOLON(PR, 4, 'MTY-PIS SU-BASMA'); cad.KOLON(HV, 4, PS); node(HV, 'HV')
-    T((PR[0] - 6, PR[1] - 20), 'BASMA Ø63 ↑', 5.5, PSC, 'R')
-    T((HV[0] + 6, HV[1] - 20), 'HAVALIK Ø70 ↑ (ÇATIYA)', 5.5, PSC, 'L')
+    cad.KOLON(PR, 4, 'MTY-PIS SU-BASMA')
+    T((PR[0] + 8, PR[1] - 14), 'BASMA Ø63 ↑ (R2)', 5.5, PSC, 'L')
     pop()
 
 
 # ================================================================== ALTYAPI (TEMEL) PLANI
-R_KOT = {'R1': (-0.15, -1.05), 'PB': (-0.10, -1.25)}
+R_KOT = {'R1': (-0.30, -1.00), 'R2': (-0.30, -0.90), 'PB': (-0.25, -1.30)}
+
+
+def bina_hatti():
+    xs_, ys_ = [], []
+    for pg in COLS():
+        x0, y0, x1, y1 = pg.bounds
+        xs_ += [x0, x1]; ys_ += [y0, y1]
+    return min(xs_) - 10, min(ys_) - 10, max(xs_) + 10, max(ys_) + 10
 
 
 def temel():
+    """ALTYAPI PLANI (zemin kotu): kolon dipleri zeminde biter, zemin kotundan ayrı ayrı bina dışındaki R1'e (cazibe);
+    pompa basma hattı ayrı R2'ye; R1 ve R2 ayrı hatlarla parsel bacasına. Yağmur suyu altyapısı yoktur."""
     push(MOVE(dx('T'), 0.0))
     for pg in COLS():
         x0, y0, x1, y1 = pg.bounds
         PL(list(pg.exterior.coords), gp.ARC_K, True, 1.5)
         L((x0, y0), (x1, y1), gp.ARC_K); L((x0, y1), (x1, y0), gp.ARC_K)
-    T((12090.0, 11640.0), 'TEMEL PLANI: MİMARİ PROJEDEN YALNIZCA BETONARME KOLONLAR ALINMIŞTIR (2. BODRUM TEMEL ÜSTÜ -6,00).', 7, YZ, 'L')
-    # pis su çukuru (temelde)
-    px0, py0, px1, py1 = PIT
-    PL([(px0, py0), (px1, py0), (px1, py1), (px0, py1)], PS, True, 2.0)
-    T((px0 - 5, py1 + 12), 'PİS SU ÇUKURU -7,20 (TABAN)', 7, PSC, 'R')
-    ysp = YSD
-    mtyblk.insert('YER SUZGECI DN501', ysp, 0, 1.0); node(ysp, 'YS-D')
-    DR = [ysp, (ysp[0], 10307.0), (12900.0, 10307.0), (12900.0, 10135.0), (PIT[0], 10135.0)]
-    pipe(DR, PS, 'TT'); node(DR[-1], 'PÇ')
-    T((12460.0, 10318.0), 'DEPO ODASI YER SÜZGECİ → PÇ (DÖŞEME ALTI Ø70 %2)', 6, PSC, 'L')
-    # rögarlar
-    for nm, p, s in (('R1', R1, 30), ('PB', PB, 30)):
-        cad.ROGAR_PLAN(p, s, 'MTY-ROGAR')
-        T((p[0] + 40, p[1] + 5), '%s %s' % (nm, '60x60' if nm == 'R1' else '(PARSEL BACASI) 60x60'), 8, 'MTY-ROGAR', 'L')
-        T((p[0] + 40, p[1] - 8), 'K.Ü. %+.2f / A.K. %+.2f' % R_KOT[nm], 7, 'MTY-ROGAR', 'L')
-    # binadan gelen hatlar (1. bodrum tavanından ön cepheyi -0,60'ta delerek)
-    for x, nm, d, xe in ((12918.0, 'MK1', 70, 12935.0), (12934.0, 'PK2', 100, 12950.0), (13005.0, 'PK1', 100, 12980.0)):
-        pts = [(x, 9826.0), (x, 9790.0), (xe, R1[1] + 30)]
-        pipe(pts, PS, 'T'); node(pts[0], nm); node(pts[-1], 'R1')
-    pts = [(PR[0], 9826.0), (PR[0], 9790.0), (12965.0, R1[1] + 30)]
-    pipe(pts, 'MTY-PIS SU-BASMA', 'T', w=1.8); node(pts[0], 'PR'); node(pts[-1], 'R1')
-    T((12700.0, 9845.0), 'PK1 Ø100 / PK2 Ø100 / MK1 Ø70 (CAZİBE) + POMPA BASMA Ø63 → R1 (DIŞ CEPHE GEÇİŞİ -0,60, KILIFLI)', 6.5, PSC, 'L')
+    bx0, by0, bx1, by1 = bina_hatti()
+    PL([(bx0, by0), (bx1, by0), (bx1, by1), (bx0, by1)], 'MTY-BINA-HATTI', True)
+    T((bx0 + 10, by1 + 12), 'BİNA DIŞ HATTI', 7, gp.ARC_K, 'L')
+    T((12090.0, 11640.0), 'ALTYAPI PLANI: MİMARİ PROJEDEN YALNIZCA BETONARME KOLONLAR ALINMIŞTIR. KOLON DİPLERİ ZEMİN KOTUNDADIR.', 7, YZ, 'L')
+    # rögarlar (bina dışı)
+    for nm, p, lbl, side in (('R1', R1, 'R1 60x60 (ZEMİN KOLONLARI)', 'R'), ('R2', R2, 'R2 60x60 (POMPA BASMA)', 'L'),
+                             ('PB', PB, 'PB 60x60 (PARSEL BACASI)', 'B')):
+        cad.ROGAR_PLAN(p, 30, 'MTY-ROGAR')
+        if side == 'B':
+            tx, ty, al = p[0], p[1] - 44, 'C'
+        else:
+            tx, ty, al = (p[0] - 40 if side == 'R' else p[0] + 40), p[1] + 5, side
+        T((tx, ty), lbl, 8, 'MTY-ROGAR', al)
+        T((tx, ty - 13), 'K.Ü. %+.2f / A.K. %+.2f' % R_KOT[nm], 7, 'MTY-ROGAR', al)
+    # kolon dipleri (zemin kotu) -> R1 : her kolon ayrı, cazibe
+    inl = {'MK1': 12935.0, 'PK2': 12950.0, 'PK1': 12970.0}
+    for nm, p, x, d in (('MK1', MK1, 12918.0, 70), ('PK2', PK2, 12934.0, 100), ('PK1', PK1, 13005.0, 100)):
+        pts = [p, (x, p[1]), (x, 9790.0), (inl[nm], R1[1] + 30)]
+        pipe(pts, PS, 'T'); node(pts[-1], 'R1')
+        gp.kolon_pis(p, nm, (-70 if nm != 'PK1' else 50, 40), k=0.6 if d == 100 else 0.5)
+        TEMIZLEME_KAPAGI((p[0], p[1] - 14), 0.8)
+        lx = {'MK1': 12912.0, 'PK2': 12928.0, 'PK1': 12999.0}[nm]
+        ly = {'MK1': 10380.0, 'PK2': 10380.0, 'PK1': 9840.0}[nm]
+        T((lx, ly), '%s Ø%d %%2 (%d SB) → R1' % (nm, d, 2 * {'PK1': SB_B1, 'PK2': SB_B2, 'MK1': SB_M}[nm]), 6.0, PSC, 'L', 90)
+    # pompa basma hattı -> R2 (zemin hatlarına bağlanmaz)
+    pts = [PR, (PR[0], 9790.0), (R2[0] - 10, R2[1] + 30)]
+    pipe(pts, 'MTY-PIS SU-BASMA', 'T', w=1.8); node(PR, 'PR'); node(pts[-1], 'R2')
+    cad.KOLON(PR, 5, 'MTY-PIS SU-BASMA')
+    T((PR[0] + 8, 9840.0), 'POMPA BASMA Ø63 PE100 → R2', 6.0, PSC, 'L', 90)
+    # R1 -> PB, R2 -> PB (ayrı hatlar), PB -> SASKİ
     pipe([(R1[0], R1[1] - 30), (PB[0], PB[1] + 30)], PS, 'T'); node((R1[0], R1[1] - 30), 'R1'); node((PB[0], PB[1] + 30), 'PB')
-    T((R1[0] + 8, (R1[1] + PB[1]) / 2), 'L=%d / Q=150 / %%1 (%d SB)' % (R1[1] - PB[1] - 60, 3 * SB_D), 7.5, PSC, 'L', 90)
+    T((R1[0] + 8, (R1[1] + PB[1]) / 2), 'L=%d / Ø150 / %%1' % (R1[1] - PB[1] - 60), 7, PSC, 'L', 90)
+    pts = [(R2[0], R2[1] - 30), (R2[0], PB[1]), (PB[0] + 30, PB[1])]
+    pipe(pts, PS, 'T'); node(pts[0], 'R2'); node(pts[-1], 'PB')
+    T((R2[0] + 8, PB[1] + 40), 'Ø100 / %1', 7, PSC, 'L', 90)
     pipe([(PB[0] - 30, PB[1]), (PB[0] - 260, PB[1])], PS, 'T')
     node((PB[0] - 30, PB[1]), 'PB'); node((PB[0] - 260, PB[1]), 'SASKİ')
     ARROW((PB[0] - 275, PB[1]), 180, PS, 14)
@@ -364,34 +386,17 @@ def temel():
     # temiz su: şebeke
     pipe([(12635.0, 9400.0), (12635.0, 9560.0)], CS, 'S'); node((12635.0, 9400.0), 'ŞEBEKE'); node((12635.0, 9560.0), 'NİŞ')
     T((12627.0, 9405.0), 'ŞEBEKE Ø32 → NİŞ', 6.5, TSC, 'L', 90)
-    # yağmur
-    for nm, p in YB_PTS.items():
-        C(p, 6, YL); C(p, 3, YL)
-        front = p[1] < 10000
-        if front:
-            q = (p[0], 9450.0)
-            pipe([p, q], YL, 'Y'); node(p, nm); node(q, nm + '-K')
-            ARROW((q[0], q[1] - 12), -90, YL, 12)
-            T((p[0] + 8, q[1] + 10), 'YAĞMUR SUYU KANALINA GİDER', 6.5, YC, 'L')
-        else:
-            q = (p[0], p[1] + 80)
-            pipe([p, q], YL, 'Y'); node(p, nm); node(q, nm + '-B')
-            cad.ROGAR_PLAN(q, 18, 'MTY-ROGAR')
-            T((q[0] + 22, q[1] + 4), 'YAĞMUR SUYU SIZDIRMA BACASI (ARKA BAHÇE)', 6.5, YC, 'L')
-            T((q[0] + 22, q[1] - 8), 'KOT FARKI NEDENİYLE KANALA CAZİBE İLE BAĞLANAMAZ', 5.5, YC, 'L')
-        mtyblk.insert('MTY-KOLON NO YAGMUR', (p[0] + 30, p[1] + (-40 if front else 40)), 0, 0.55, attrs={'K': nm})
-    T((12090.0, 11690.0), 'BİNA PİS SULARI: ZEMİN VE 1. KAT KOLONLARI 1. BODRUM TAVANINDAN CAZİBE İLE, 1. BODRUM VE 2. BODRUM GİDERLERİ '
-      'PİS SU ÇUKURUNDAN POMPA İLE R1 MUAYENE BACASINA VERİLİR.', 6.5, PSC, 'L')
+    T((12090.0, 11690.0), 'ZEMİN VE 1. KAT KOLONLARI ZEMİN KOTUNDAN AYRI AYRI BİNA DIŞINDAKİ R1\'E, BODRUM GİDERLERİ PİS SU ÇUKURUNDAN '
+      'POMPA İLE AYRI HATLA R2\'YE VERİLİR.', 6.5, PSC, 'L')
     pop()
 
 
 # ================================================================== ÇATI
 def cati():
     push(MOVE(dx('C'), 0.0))
-    for nm, p, d in (('PK1', PK1, 100), ('PK2', PK2, 100), ('MK1', MK1, 70), ('HV', HV, 70)):
+    for nm, p, d in (('PK1', PK1, 100), ('PK2', PK2, 100), ('MK1', MK1, 70)):
         cad.KOLON(p, 6, PS); C(p, 10, PS)
-        T((p[0] - 14, p[1] + 8 + (14 if nm == 'HV' else 0)), '%s HAVALIK Ø%d (ÇATIDAN 50 cm YUKARI)' % (nm if nm != 'HV' else 'PÇ', d), 6.5, PSC,
-          'R')
+        T((p[0] - 14, p[1] + 8), '%s HAVALIK Ø%d (ÇATIDAN 50 cm YUKARI)' % (nm, d), 6.5, PSC, 'R')
     for nm, p in YB_PTS.items():
         C(p, 6, YL); C(p, 3, YL)
         mtyblk.insert('MTY-KOLON NO YAGMUR', (p[0] + 30, p[1] + (-40 if p[1] < 10000 else 40)), 0, 0.55, attrs={'K': nm})
@@ -401,9 +406,36 @@ def cati():
     pop()
 
 
+def yb_plan(k='1', off=8.0):
+    """yağmur inişinin kat planındaki yeri: mimari çatı planındaki iniş noktasına en yakın cephe / balkon / kolon yüzü,
+    boru yüzeye bitişik (off cm dışarıda). Böylece iniş havada durmaz, binaya yaslanır."""
+    from shapely.geometry import LineString as _LS, Point as _Pt
+    from shapely.ops import nearest_points
+    src = SRC[k]
+    W = (WIN[0] + src - 20, 9700.0, WIN[2] + src + 20, 11600.0)
+    gs = []
+    for r in FLAT:
+        if r[1] not in ('YLZ-DUVAR', 'YLZ-KORKULUK', 'YLZ-PENCERE', 'YLZ-KOLON', 'YLZ-BETON-KESİT', 'A-YALITIM PERDE'):
+            continue
+        if r[0] not in ('P', 'L'):
+            continue
+        pts = list(r[2])
+        if len(pts) < 2 or not all(W[0] <= x <= W[2] and W[1] <= y <= W[3] for x, y in pts):
+            continue
+        gs.append(_LS([(x - src, y) for x, y in pts]))
+    out = {}
+    for nm, p in YB_PTS.items():
+        P_ = _Pt(p)
+        g = min(gs, key=lambda q: q.distance(P_))
+        q = nearest_points(g, P_)[0]
+        d = max(1e-6, q.distance(P_))
+        out[nm] = (q.x + (p[0] - q.x) / d * off, q.y + (p[1] - q.y) / d * off)
+    return out
+
+
 def yagmur_kat(k):
     push(MOVE(dx(k), 0.0))
-    for nm, p in YB_PTS.items():
+    for nm, p in yb_plan().items():
         C(p, 6, YL); C(p, 3, YL)
         node(p, nm)
         mtyblk.insert('MTY-KOLON NO YAGMUR', (p[0] + 30, p[1] + (-40 if p[1] < 10000 else 40)), 0, 0.55, attrs={'K': nm})
@@ -415,13 +447,10 @@ def build_sihhi():
     for k in ('B2', 'B1', 'Z', '1', 'C'):
         floor_arch(k)
         frame_title(k, 0.0)
-    for k in ('B2T', 'B1T'):
-        floor_arch(k, furn=False)
-        frame_title(k, 0.0)
     frame_title('T', 0.0)
-    bodrum2(); bodrum1(); zemin(); kat1(); tavan_b1(); tavan_b2()
+    bodrum2(); bodrum1(); zemin(); kat1()
     temel(); cati()
-    for k in ('B2', 'B1', 'Z', '1'):
+    for k in ('Z', '1'):          # yağmur inişleri zemin katta biter (bodrumlara ve temele inmez)
         yagmur_kat(k)
 
 
@@ -633,28 +662,23 @@ def heat_floor(k):
         c['port'] = c['pidx'] + 1
         c['path'] = path
     zb = {'B1': 'B', 'Z': 'Z', '1': '1'}[k]
-    zones = {}
     for c in circ:
-        if c['room'] not in zones:
-            zones[c['room']] = len(zones) + 1
         c['zone'] = '%s%02d' % (zb, [R['name'] for R in ROOMS].index(c['room']) + 1)
-        x0, y0, x1, y1 = c['rect']
-        cx, cy = (x0 + x1) / 2, ((y0 + y1) / 2 if (y1 - y0) > 220 or c['ipart'] > 0 else y0 + 0.33 * (y1 - y0))
-        T((cx, cy + 9), 'P%d  PEX 16×2,0' % c['port'], 7.0, 'MTY-ISIKAYBIMAHAL', 'MC')
-        T((cx, cy), '%d W  -  %.1f m' % (round(c['W']), c['L']), 7.0, 'MTY-ISIKAYBIMAHAL', 'MC')
-        T((cx, cy - 9), 'ARALIK %d cm' % c['s'], 6.0, 'MTY-ISIKAYBIMAHAL', 'MC')
-        if c['ipart'] == 0:
-            hx, hy = x0 + 45, y1 - 35
-            HEXTAG((hx, hy), 'MTY-ISIKAYBIMAHAL', 'Z' + c['zone'], '%d°C' % c['ti'], 10)
-            T((hx + 40, hy + 4), c['room'], 8.0, 'MTY-ISIKAYBIMAHAL', 'L')
-            T((hx + 40, hy - 8), 'ISI KAYBI : %d W' % round(c['Qroom']), 7.0, 'MTY-ISIKAYBIMAHAL', 'L')
-            T((hx + 40, hy - 18), 'SERAMİK FAYANS' if 'BANYO' in c['room'] else 'SERAMİK / LAMİNAT KAPLAMA', 6.0,
-              'MTY-ISIKAYBIMAHAL', 'L')
-    # hol (bağlantı boruları ile ısınır)
+    # etiketler: kullanıcının MTY-RADYATOR MAHAL ve MTY-ETIKET blokları (çerçeveli, altındaki borular maskeli - boru kesilmez)
+    from shapely.geometry import box as _bx
+    w0, w1 = cad.P((kx - 40, ky - 20)), cad.P((kx + 30, ky + 22 + n * 10))
+    taken = [_bx(w0[0], w0[1], w1[0], w1[1])]
     hol = [x for x in calc if x['name'] == 'HOL'][0]
-    HEXTAG((12675.0, 10400.0), 'MTY-ISIKAYBIMAHAL', 'Z%s08' % zb, '18°C', 10)
-    T((12650.0, 10370.0), 'HOL %d W' % round(hol['Q']), 6.5, 'MTY-ISIKAYBIMAHAL', 'L')
-    T((12650.0, 10360.0), '(BAĞLANTI BORULARI)', 5.5, 'MTY-ISIKAYBIMAHAL', 'L')
+    for R in ROOMS:
+        rc = R['rects'][0]
+        cs_ = [c for c in circ if c['room'] == R['name']]
+        if R['name'] == 'HOL':
+            gp.mahal_etiket('HOL', '%s%02d' % (zb, 8), R['ti'], hol['Q'], R['A'], rc, taken, extra='(BAĞL. BORULARI)',
+                            prefer=((rc[0] + rc[2]) / 2, rc[3] - 120))
+        elif cs_:
+            gp.mahal_etiket(R['name'], cs_[0]['zone'], R['ti'], cs_[0]['Qroom'], R['A'], rc, taken, prefer=(rc[0] + 40, rc[3] - 40))
+    for c in circ:
+        gp.devre_etiket(c, c['rect'], taken, k=5.0 if (c['rect'][3] - c['rect'][1]) < 160 or (c['rect'][2] - c['rect'][0]) < 160 else 6.0)
     # kombi -> kollektör (gidiş/dönüş): kombi nişi -> mutfak kuzey duvarı -> hol batı duvarı
     km = F_K['KM']
     hg0, hd0 = km.cp('HG'), km.cp('HD')
@@ -675,7 +699,7 @@ def heat_floor(k):
 import gsheet as GS
 import gheatsheet as HS
 from gsheet import dline, wl
-SX0 = 8 * SLOT + 100.0
+SX0 = 6 * SLOT + 100.0
 OY = 9150.0
 SB_UP = lambda base: (lambda i: [0, 0, 2 * base, base][i])
 P = dict(
@@ -689,35 +713,32 @@ P = dict(
                  units={'B1': ('D1', 'daire'), 'Z': ('D2', 'daire'), '1': ('D3', 'daire')},
                  kolons=[('PK1', 680, 100, SB_UP(SB_B1)), ('PK2', 1500, 100, SB_UP(SB_B2)), ('MK1', 2120, 70, SB_UP(SB_M))],
                  bottom={'PK1': lambda yf: yf[2] - 91.0, 'PK2': lambda yf: yf[2] - 85.0, 'MK1': lambda yf: yf[2] - 79.0})],
-    yagmur=dict(names=list(YB_PTS), P=ROOF_A, dn=100, foot={'YB1': 0, 'YB2': 0, 'YB3': 2, 'YB4': 2}, tasma_to=None,
-                notes=['YB1-YB2 (arka cephe) arka bahçedeki yağmur suyu sızdırma bacalarına verilecektir.',
-                       'YB3-YB4 (ön cephe) yol yağmur suyu kanalına bağlanacaktır.']),
+    yagmur=dict(names=list(YB_PTS), P=ROOF_A, dn=100, foot={'YB1': 2, 'YB2': 2, 'YB3': 2, 'YB4': 2}, tasma_to=None, notes=[]),
 )
 
 
 def sema_ek(yf):
-    """bodrum bölümü: üst kat kolonları 1.B tavanından R1'e, 1.B giderleri PÇ'ye, pompa basma hattı (hiçbir hat üst üste binmez)"""
+    """zemin ve 1. kat kolonları zemin kotundan ayrı ayrı bina dışındaki R1'e; 1. bodrum kolonları 2. bodrum döşeme altından PÇ'ye;
+    pompa basma hattı ayrı R2'ye (zemin hatlarına bağlanmaz). PÇ'ye havalık yoktur. Hiçbir hat üst üste binmez."""
     xs = lambda d: SX0 + d
-    r1 = (xs(2478), yf[1] + 205)
+    r1 = (xs(2900), yf[2] - 60)
     cad.ROGAR_PLAN(r1, 24, 'MTY-ROGAR')
-    T((r1[0] - 30, r1[1] - 36), 'R1', 10, 'MTY-ROGAR', 'L')
-    T((r1[0] - 30, r1[1] - 48), 'A.K. -1,05', 7, 'MTY-ROGAR', 'L')
-    # kolon dipleri (1.B tavanı) -> R1 : en alttaki hat ilk döner
-    for nm, xk, yb, xt in (('PK1', 680, -91.0, 2460), ('PK2', 1500, -85.0, 2472), ('MK1', 2120, -79.0, 2484)):
-        y = yf[2] + yb
-        pts = [(xs(xk), y), (xs(xt), y), (xs(xt), r1[1] + 24)]
-        wl(pts, gp.PST)
-    T((xs(700), yf[2] - 104), 'PK1 / PK2 / MK1 → R1 : 1. BODRUM TAVANINDAN AYRI AYRI CAZİBE İLE (%2)', 6.5, PSC, 'L')
-    # R1 -> PB -> SASKİ (sola)
-    pb = (xs(2330), r1[1])
+    T((r1[0] - 24, r1[1] + 30), 'R1 (BİNA DIŞI)', 9, 'MTY-ROGAR', 'L')
+    T((r1[0] - 24, r1[1] - 36), 'A.K. -1,00', 7, 'MTY-ROGAR', 'L')
+    # kolon dipleri (zemin döşemesi altı = zemin kotu) -> R1 : üstteki hat önce yukarı döner, hiçbir hat kesişmez
+    for nm, xk, yb, xt, yu in (('MK1', 2120, -79.0, 2530, -54.0), ('PK2', 1500, -85.0, 2542, -60.0), ('PK1', 680, -91.0, 2554, -66.0)):
+        wl([(xs(xk), yf[2] + yb), (xs(xt), yf[2] + yb), (xs(xt), yf[2] + yu), (r1[0] - 24, yf[2] + yu)], PS)
+    T((xs(700), yf[2] - 104), 'PK1 / PK2 / MK1 → R1 : ZEMİN KOTUNDAN AYRI AYRI CAZİBE İLE (%2) - KOLONLAR BODRUMA İNMEZ', 6.5, PSC, 'L')
+    # R1 -> PB -> SASKİ (sağa)
+    pb = (xs(3100), r1[1])
     cad.ROGAR_PLAN(pb, 24, 'MTY-ROGAR')
-    wl([(r1[0] - 24, r1[1]), (pb[0] + 24, pb[1])], PS)
+    wl([(r1[0] + 24, r1[1]), (pb[0] - 24, pb[1])], PS)
     T((pb[0] - 24, pb[1] + 30), 'PB', 10, 'MTY-ROGAR', 'L')
-    wl([(pb[0] - 24, pb[1]), (pb[0] - 70, pb[1])], PS)
-    ARROW((pb[0] - 80, pb[1]), 180, PS, 10)
-    T((pb[0] - 80, pb[1] + 30), 'SASKİ %1', 7, 'MTY-ROGAR', 'R')
-    T((xs(2360), r1[1] + 8), 'Ø150 %d SB' % (3 * SB_D + 2), 6, PSC, 'L')
-    # pis su çukuru
+    wl([(pb[0] + 24, pb[1]), (pb[0] + 70, pb[1])], PS)
+    ARROW((pb[0] + 80, pb[1]), 0, PS, 10)
+    T((pb[0] + 30, pb[1] - 36), 'SASKİ %1', 7, 'MTY-ROGAR', 'L')
+    T((r1[0] + 30, r1[1] + 6), 'Ø150 %d SB' % (3 * SB_D + 2), 6, PSC, 'L')
+    # pis su çukuru (havalık yok)
     px = xs(2880)
     py0 = yf[0] - 130
     RECT(px - 100, py0, px + 100, yf[0], PSC)
@@ -725,27 +746,28 @@ def sema_ek(yf):
     for i, s_ in enumerate(PUMP_TXT):
         T((px - 100, py0 - 26 - i * 10), s_, 6, PSC, 'L')
     DALGIC_POMPA((px - 40, py0 + 10), 1.3, 'MTY-CIHAZ'); DALGIC_POMPA((px + 10, py0 + 10), 1.3, 'MTY-CIHAZ')
-    # 1. bodrum giderleri -> 2. bodrum tavanından PÇ : sol kolon en alt hat ve ilk döner
-    for i, xk in enumerate((680, 1500, 2120)):
+    # 1. bodrum kolonları (BPK1 / BPK2 / BMK1) -> 2. bodrum döşeme altından PÇ : sol kolon en alt hat ve ilk döner
+    for i, (nm, xk) in enumerate((('BPK1', 680), ('BPK2', 1500), ('BMK1', 2120))):
         x = xs(xk)
         yl = yf[1] - 130 + 10 * i
         xt = px - 60 + 25 * i
-        wl([(x + 4, yf[1] - 74), (x + 4, yl), (xt, yl), (xt, yf[0])], gp.PST)
-    T((xs(700), yf[1] - 150), '1. BODRUM GİDERLERİ 2. BODRUM TAVANINDAN AYRI AYRI PİS SU ÇUKURUNA', 6.5, PSC, 'L')
+        wl([(x + 4, yf[1] - 74), (x + 4, yl), (xt, yl), (xt, yf[0])], PS)
+        T((x + 12, yf[1] - 120), nm, 7, PSC, 'L')
+    T((xs(700), yf[1] - 150), '1. BODRUM KOLONLARI (BPK1 / BPK2 / BMK1) 2. BODRUM DÖŞEME ALTINDAN AYRI AYRI PİS SU ÇUKURUNA', 6.5, PSC, 'L')
     # depo odası yer süzgeci -> PÇ (döşeme altı)
     yd = yf[0] - 45
     wl([(xs(382), yd), (px - 100, yd)], PS)
     T((xs(400), yd - 12), 'DEPO ODASI YER SÜZGECİ → PÇ (DÖŞEME ALTI)', 6.5, PSC, 'L')
-    # pompa basma hattı -> 1.B tavanı -> R1
-    xb = px + 50
-    yb = yf[2] - 40.0
-    wl([(xb, py0 + 30), (xb, yb), (xs(2496), yb), (xs(2496), r1[1] + 24)], 'MTY-PIS SU-BASMA')
+    # pompa basma hattı -> zemin kotu -> R2 (bina dışı) -> PB  (zemin kolon hatlarına bağlanmaz)
+    xb = px + 90
+    r2 = (xb, yf[2] - 150)
+    wl([(xb, py0 + 30), (xb, r2[1] - 24)], 'MTY-PIS SU-BASMA')
     CEKVALF((xb, yf[0] + 40), 0.8, 90); VANA((xb, yf[0] + 70), 0.7, 90)
     T((xb + 8, yf[0] + 90), 'BASMA Ø63 PE100', 6.5, PSC, 'L', 90)
-    # pç havalığı (basma hattının doğusunda)
-    wl([(px + 85, yf[0]), (px + 85, yf[-1] + 110)], PS)
-    mtyblk.insert('MTY-KOLON HAVALIK SAPKASI', (px + 85, yf[-1] + 110), 0, 1.2)
-    T((px + 73, yf[-1] + 40), 'PÇ HAVALIK Ø70', 6.5, PSC, 'L', 90)
+    cad.ROGAR_PLAN(r2, 24, 'MTY-ROGAR')
+    T((r2[0] - 24, r2[1] - 36), 'R2 (POMPA BASMA, BİNA DIŞI)', 7, 'MTY-ROGAR', 'L')
+    wl([(r2[0] + 24, r2[1]), (pb[0], r2[1]), (pb[0], pb[1] - 24)], PS)
+    T((pb[0] + 6, r2[1] + 8), 'R2 → PB Ø100 %1', 6.5, PSC, 'L')
 
 
 NOTES = [
@@ -758,15 +780,16 @@ NOTES = [
     'Sıcak kullanma suyu her dairede mimari kombi nişindeki duvar tipi hermetik yoğuşmalı kombiden sağlanacaktır.',
     'Pis su tesisatı TS EN 1451 PVC borularla yapılacak; bina içi yatay hatlar en az %2, bacalar arası hatlar %1 eğimle döşenecektir.',
     'Mutfak ve banyo/WC giderleri birbirine bağlanmayacak; her mahal kendi kolonuna (PK1 büyük banyo, PK2 küçük banyo, MK1 mutfak) bağlanacaktır.',
-    'Zemin ve 1. kat kolonları 1. bodrum tavanından (asma tavan/kutu içinde) %2 eğimle ayrı ayrı R1 muayene bacasına cazibe ile bağlanacaktır.',
-    '1. bodrum ve 2. bodrum giderleri parsel kanal kotunun altında kaldığından pis su çukuruna toplanıp dalgıç pompa ile R1\'e basılacaktır.',
-    'Pis su çukuru sızdırmaz, havalıklı ve kapaklı olacak; pompalar şamandıralı otomatik çalışacak, seviye alarmı konulacaktır.',
-    'Pompa basma hattına çek valf ve küresel vana konulacak, basma hattı R1\'e üstten bağlanacaktır.',
-    'Pis su kolonları ve pis su çukuru havalığı çatıdan en az 50 cm yukarı çıkarılacak, uçlarına havalık şapkası takılacaktır.',
+    'Zemin ve 1. kat pis su kolonları zemin katta sonlanacak; kolon diplerinden zemin kotunda birleştirilmeden ayrı ayrı %2 eğimle bina dışındaki R1 muayene bacasına cazibe ile bağlanacaktır.',
+    '1. bodrum ıslak hacimleri üst katlardaki gibi kendi kolonlarına (BPK1, BPK2, BMK1) bağlanacak; bu kolonlar 2. bodrum döşeme altından ayrı ayrı pis su çukuruna verilecektir.',
+    'Pis su çukurundaki dalgıç pompanın basma hattı zemin kolon hatlarına bağlanmadan ayrı olarak R2 muayene bacasına, R2 de ayrı hatla parsel bacasına bağlanacaktır.',
+    'Pis su çukuru sızdırmaz ve kapaklı olacak; pompalar şamandıralı otomatik çalışacak, seviye alarmı konulacaktır.',
+    'Pompa basma hattına çek valf ve küresel vana konulacak, basma hattı R2\'ye üstten bağlanacaktır.',
+    'Pis su kolonları çatıdan en az 50 cm yukarı çıkarılacak, uçlarına havalık şapkası takılacaktır.',
     'Parsel bacası ve SASKİ kanal kotu SASKİ\'den alınacak; plandaki kotlar yaklaşık olup sahada teyit edilecektir.',
     'Hiçbir boru betonarme kolon içinden geçirilmeyecek; döşeme ve perde geçişleri kılıflı yapılacaktır.',
-    'Yağmur suları pis su hattına bağlanmayacak; ön cephe inişleri yağmur suyu kanalına, arka cephe inişleri sızdırma bacasına verilecektir.',
-    'Yerden ısıtma devreleri PEX 16x2,0 oksijen bariyerli borularla karşı akışlı salyangoz düzende döşenecektir.',
+    'Yağmur suları pis su hattına bağlanmayacak; yağmur iniş boruları cepheye kelepçeyle tespit edilecek ve zemin kotunda bırakılacaktır (yağmur suyu altyapısı bu proje kapsamında değildir).',
+    'Yerden ısıtma devreleri PEX 16x2,0 oksijen bariyerli borularla karşı akışlı salyangoz düzende, devre boyunca eksiz döşenecektir.',
     'Yerden ısıtma devre boyları (bağlantı boruları dahil) 80 m\'yi geçmeyecek; devreler debimetreli kollektörde dengelenecektir.',
     'Temiz su hatlarına 10 bar, yerden ısıtma devrelerine şap öncesi 6 bar basınç testi yapılacaktır.',
     'Tüm imalat TS 1258, TS EN 806, TS EN 12056, TS EN 1264 ve TS 825 standartlarına uygun olarak yapılacaktır.',
@@ -793,7 +816,7 @@ def build_sheets(HEAT):
         (lambda p: DALGIC_POMPA((p[0], p[1] - 10), 0.8, 'MTY-CIHAZ'), 'DALGIÇ PİS SU POMPASI'),
         (lambda p: (RECT(p[0] - 25, p[1] - 12, p[0] + 25, p[1] + 12, gp.HID), POMPA((p[0] - 8, p[1]), 7, 0, gp.HID)), 'HİDROFOR')])
     FR = []
-    for k in ('T', 'B2T', 'B2', 'B1T', 'B1', 'Z', '1', 'C'):
+    for k in ('T', 'B2', 'B1', 'Z', '1', 'C'):
         x0 = SLOTS[k] * SLOT
         FR.append(((x0, FY0, x0 + SLOT, FY1), NAMES[k], '1/50'))
     FR.append(((SX0 - 50, OY - 20, SX0 + 3420, OY + 2580), 'SIHHİ TESİSAT KOLON ŞEMASI', 'ÖLÇEKSİZ'))
@@ -816,68 +839,7 @@ def build_sheets(HEAT):
 
 
 
-# ================================================================== BODRUM TAVANI PİS SU TOPLAMA PLANLARI (ayrı pafta)
-TAV = 'MTY-PISSU-TOPLAMA-TAVAN'
-gp.EXTRA_LAYERS[TAV] = (6, 'PISSU HATTI')
-gp.WIDTH[TAV] = 4.0
-
-
-def _akis(pts, lay=TAV):
-    """hat ortasına akış oku"""
-    ls = LineString(pts)
-    for f in (0.5,):
-        c = ls.interpolate(ls.length * f); q = ls.interpolate(ls.length * f + 1.0)
-        ARROW((q.x, q.y), math.degrees(math.atan2(q.y - c.y, q.x - c.x)), lay, 12)
-
-
-def tavan_b1():
-    """zemin + 1. kat kolonları 1. bodrum tavanında ayrı ayrı R1'e (cazibe), pompa basma hattı R1'e"""
-    push(MOVE(dx('B1T'), 0.0))
-    inl = {'MK1': 12935.0, 'PK2': 12950.0, 'PR': 12965.0, 'PK1': 12980.0}
-    lines = [('MK1', MK1, 12918.0, 70), ('PK2', PK2, 12934.0, 100), ('PK1', PK1, 13005.0, 100)]
-    for nm, p, x, d in lines:
-        pts = [p, (x, p[1]), (x, 9790.0), (inl[nm], R1[1] + 30)]
-        pipe(pts, TAV, 'T'); node(pts[-1], 'R1')
-        gp.kolon_pis(p, nm, (-70 if nm != 'PK1' else 50, 40), k=0.6 if d == 100 else 0.5)
-        TEMIZLEME_KAPAGI((p[0], p[1] - 14), 0.8)
-        L_ = LineString(pts).length
-        _akis(pts[1:3])
-        lx = {'MK1': 12912.0, 'PK2': 12931.0, 'PK1': 12999.0}[nm]
-        ly = {'MK1': 10380.0, 'PK2': 10380.0, 'PK1': 9840.0}[nm]
-        T((lx, ly), '%s Ø%d L=%d cm %%2 (%d SB)' % (nm, d, L_, 2 * {'PK1': SB_B1, 'PK2': SB_B2, 'MK1': SB_M}[nm]), 6.0, PSC, 'L', 90)
-    pts = [PR, (PR[0], 9790.0), (inl['PR'], R1[1] + 30)]
-    pipe(pts, 'MTY-PIS SU-BASMA', 'T', w=2.5); node(PR, 'PR'); node(pts[-1], 'R1')
-    cad.KOLON(PR, 5, 'MTY-PIS SU-BASMA')
-    _akis(pts[:2], 'MTY-PIS SU-BASMA')
-    T((12984.0, 9840.0), 'POMPA BASMA Ø63 PE100 (ÇEK VALF+VANA)', 6.0, PSC, 'L', 90)
-    cad.ROGAR_PLAN(R1, 30, 'MTY-ROGAR')
-    T((R1[0] + 40, R1[1]), 'R1 60x60  A.K. -1,05', 8, 'MTY-ROGAR', 'L')
-    T((12090.0, 11690.0), 'ZEMİN VE 1. KAT PİS SU KOLONLARI 1. BODRUM TAVANINDA (ASMA TAVAN / ALÇIPAN KUTU İÇİNDE) BİRLEŞTİRİLMEDEN, AYRI AYRI %2 EĞİMLE', 7, PSC, 'L')
-    T((12090.0, 11675.0), 'ÖN CEPHE PERDESİ -0,60 KOTUNDA KILIFLA GEÇİLEREK R1 MUAYENE BACASINA BAĞLANACAKTIR. KOLON DİPLERİNE TEMİZLEME KAPAĞI KONULACAKTIR.', 7, PSC, 'L')
-    pop()
-
-
-def tavan_b2():
-    """1. bodrum giderleri 2. bodrum tavanında ayrı ayrı pis su çukuruna"""
-    push(MOVE(dx('B2T'), 0.0))
-    px0, py0, px1, py1 = PIT
-    PL([(px0, py0), (px1, py0), (px1, py1), (px0, py1)], PS, True, 2.0)
-    T((px0 + 5, py0 - 15), 'PİS SU ÇUKURU (PÇ) - 2.B DÖŞEMESİ', 7, PSC, 'L')
-    rows = (('D1', DB['1'], [(13030.0, DB['1'][1]), (13030.0, py1)], SB_B1),
-            ('D2', DB['2'], [(12938.0, DB['2'][1]), (12938.0, py1 + 16), (12965.0, py1)], SB_B2),
-            ('D3', DB['3'], [(12925.0, DB['3'][1]), (12925.0, py1 + 16), (12950.0, py1)], SB_M))
-    for nm, p, tail, sb in rows:
-        pts = [p] + tail
-        if nm == 'D1':
-            pts = [p, (13030.0, p[1])]
-        pipe(pts, TAV, 'T'); node(p, 'DB'); node(pts[-1], 'PÇ')
-        cad.KOLON(p, 5, PS)
-        T((p[0] + 8, p[1] + 8), '%s DÜŞÜŞ (%d SB)' % (nm, sb), 6.5, PSC, 'L')
-        if len(pts) > 2:
-            _akis(pts[1:3])
-    T((12958.0, 10300.0), 'D3 MUTFAK Ø70 / D2 KÜÇÜK BANYO Ø100 - %2', 6.0, PSC, 'L', 90)
-    T((12090.0, 11690.0), '1. BODRUM (D-1) GİDERLERİ 2. BODRUM TAVANINDA BİRLEŞTİRİLMEDEN AYRI AYRI PİS SU ÇUKURUNA İNDİRİLECEKTİR.', 7, PSC, 'L')
-    pop()
+gp.EXTRA_LAYERS['MTY-BINA-HATTI'] = (8, 'DASHED')
 
 
 gp.EXTRA_LAYERS['MTY-PIS SU-BASMA'] = (6, 'BASMA HATTI')
@@ -887,7 +849,7 @@ gp.WIDTH['MTY-PIS SU-BASMA'] = 1.8
 def run_check():
     cols = []
     base = COLS()
-    for k in ('T', 'B2T', 'B2', 'B1T', 'B1', 'Z', '1'):
+    for k in ('T', 'B2', 'B1', 'Z', '1'):
         for c in base:
             cols.append(affinity.translate(c, dx(k), 0))
     rep = gp.check(cols)
@@ -912,7 +874,7 @@ if __name__ == '__main__':
     import xcheck
     rep = xcheck.crossings()
     print('köprü', xcheck.hops(rep), 'çakışık', [r for r in xcheck.summary(rep) if r[0] == 'ÇAKIŞIK'])
-    print('yazı altı kesilen boru', xcheck.mask_texts())
+    print('yazı maskesi (boru kesilmez)', xcheck.wipe_texts())
     print('üst üste binen çizgi temizlendi', xcheck.dedupe())
     pickle.dump((cad.R, FR, cad.BLK), open('/tmp/claude-0/p2/st_R.pkl', 'wb'))
     pickle.dump(dict(HEAT=HEAT, ROOMS=ROOMS, ROOF_A=ROOF_A, NYB=len(YB_PTS), Q_PIS=Q_PIS, H_PIS=H_PIS, Q_HID=Q_HID, H_HID=H_HID,

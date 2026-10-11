@@ -3,7 +3,7 @@ import math, pickle, re, sys
 sys.path.insert(0, '/home/claude/nb')
 from shapely.geometry import Polygon, LineString, Point, box
 import cad
-from cad import L, PL, C, T, RECT, ARC, ARROW, SOL, push, pop, MOVE
+from cad import L, PL, C, T, RECT, ARC, ARROW, SOL, push, pop, MOVE, BOX
 import mtyblk
 
 # ------------------------------------------------------------------ katmanlar
@@ -216,3 +216,116 @@ def check(cols_world, shafts=()):
             if not ok:
                 rep.append(('BOŞTA UÇ', n['sys'], n['lay'], (round(e[0], 1), round(e[1], 1))))
     return rep
+
+
+# ================================================================== yerden ısıtma etiketleri (kullanıcının MTY blokları, çerçeveli + maskeli)
+def _rec_bounds(i0):
+    import tcheck
+    from shapely.geometry import box as _box
+    xs, ys = [], []
+    for r in cad.R[i0:]:
+        if r[0] == 'T':
+            b = tcheck.tbox(r).bounds
+            xs += [b[0], b[2]]; ys += [b[1], b[3]]
+        elif r[0] == 'L':
+            xs += [r[2][0], r[3][0]]; ys += [r[2][1], r[3][1]]
+        elif r[0] == 'P':
+            xs += [p[0] for p in r[2]]; ys += [p[1] for p in r[2]]
+        elif r[0] == 'C':
+            xs += [r[2][0] - r[3], r[2][0] + r[3]]; ys += [r[2][1] - r[3], r[2][1] + r[3]]
+    return (min(xs), min(ys), max(xs), max(ys)) if xs else None
+
+
+def _try_place(draw, rect, taken, margin=6.0, step=10.0, prefer=None):
+    """draw(p) çizer; kayıt sınırı oda içinde ve diğer etiketlerle çakışmıyorsa kabul. Yoksa en az taşan konum."""
+    from shapely.geometry import box as _box
+    x0, y0, x1, y1 = rect
+    px, py = prefer or ((x0 + x1) / 2, (y0 + y1) / 2)
+    cands = []
+    nx, ny = int((x1 - x0) / step) + 1, int((y1 - y0) / step) + 1
+    for i in range(nx):
+        for j in range(ny):
+            q = (x0 + i * step, y0 + j * step)
+            cands.append((math.hypot(q[0] - px, q[1] - py), q))
+    cands.sort()
+    (wx0, wy0), (wx1, wy1) = cad.P((x0, y0)), cad.P((x1, y1))          # dünya koordinatı (pafta kaydırması dahil)
+    inner = _box(min(wx0, wx1) + margin, min(wy0, wy1) + margin, max(wx0, wx1) - margin, max(wy0, wy1) - margin)
+    best = None
+    for _, q in cands[:900]:
+        n0, b0 = len(cad.R), len(cad.BLK)
+        draw(q)
+        bb = _rec_bounds(n0)
+        g = _box(*bb).buffer(2.0, join_style=2)
+        out = g.difference(inner).area
+        hit = sum(g.intersection(t).area for t in taken)
+        score = out * 3 + hit * 10
+        del cad.R[n0:]; del cad.BLK[b0:]
+        if best is None or score < best[0]:
+            best = (score, q)
+        if score == 0:
+            break
+    draw(best[1])
+    return best[1]
+
+
+def devre_etiket(c, rect, taken, k=6.0, prefer=None):
+    """MTY-ETIKET: devre no / W / modülasyon aralığı / hat uzunluğu (+ mahal, zon, sıcaklık, kcal/h, alan, kaplama)"""
+    kap = 'SERAMİK FAYANS' if ('BANYO' in c['room'] or 'WC' in c['room']) else 'SERAMİK / LAMİNAT'
+
+    def draw(p):
+        i0 = len(cad.R)
+        mtyblk.insert('MTY-ETIKET', p, 0, k, hidden=('BORU',),
+                      attrs={'NO1': str(c['port']), 'YER': '%.1f W' % c['W'], 'AR': '%.1f' % c['s'], 'UZ': '%.2f m' % c['L'],
+                             'BORU': 'PEX BORU, 16 x 2.0', 'MAHAL': c['room'], 'NO': 'Z' + c['zone'], 'DERECE': '%d°C' % c['ti'],
+                             'KCAL/H:': '%d' % round(c['W'] * 0.86), 'ALAN': '%.2f m²' % c['Ar'], 'MALZEMECINSI': kap})
+        bb = _rec_bounds(i0)                     # yalnız görünen tablo (bloktaki görünmez satırlar hariç)
+        cad.BOX_W(bb[0] - 2, bb[1] - 2, bb[2] + 2, bb[3] + 2, 'MTY-ISIKAYBIMAHAL', frame=False)
+    p = _try_place(draw, rect, taken, prefer=prefer)
+    from shapely.geometry import box as _box
+    w = [r for r in cad.R if r[0] == 'W'][-1]
+    xs = [a[0] for a in w[2]]; ys = [a[1] for a in w[2]]
+    taken.append(_box(min(xs), min(ys), max(xs), max(ys)))
+    return p
+
+
+def mahal_etiket(name, zone, ti, q, A, rect, taken, k=0.6, prefer=None, extra=None):
+    """MTY-RADYATOR MAHAL: mahal adı, zon, sıcaklık, ısı kaybı, alan - çerçeve (kare) içinde, altındaki borular maskeli"""
+    from shapely.geometry import box as _box
+
+    def draw(p):
+        i0 = len(cad.R)
+        mtyblk.insert('MTY-RADYATOR MAHAL', p, 0, k,
+                      attrs={'DERECE': '%d°C' % ti, 'MAHAL': name, 'ISIKAYBI': ('%d W' % round(q)) + (' ' + extra if extra else ''),
+                             'NO': 'Z' + zone, 'ALAN': '%.2f m²' % A})
+        bb = _rec_bounds(i0)
+        cad.BOX_W(bb[0] - 3, bb[1] - 3, bb[2] + 3, bb[3] + 3, 'MTY-ISIKAYBIMAHAL', frame=True)
+    p = _try_place(draw, rect, taken, prefer=prefer)
+    w = [r for r in cad.R if r[0] == 'W'][-1]
+    xs = [a[0] for a in w[2]]; ys = [a[1] for a in w[2]]
+    taken.append(_box(min(xs), min(ys), max(xs), max(ys)))
+    return p
+
+
+def yb_on_facade(FLAT, pts, src, win, off=8.0):
+    """yağmur inişi: çatı planındaki iniş noktasına en yakın cephe/balkon/kolon yüzüne bitişik (off cm dışarıda)"""
+    from shapely.ops import nearest_points
+    W = (win[0] + src - 60, win[1] - 120, win[2] + src + 60, win[3] + 120)
+    gs = []
+    for r in FLAT:
+        if r[1] not in ('YLZ-DUVAR', 'YLZ-KORKULUK', 'YLZ-PENCERE', 'YLZ-KOLON', 'YLZ-BETON-KESİT', 'A-YALITIM PERDE'):
+            continue
+        if r[0] not in ('P', 'L'):
+            continue
+        q = list(r[2])
+        if len(q) < 2 or not all(W[0] <= x <= W[2] and W[1] <= y <= W[3] for x, y in q):
+            continue
+        gs.append(LineString([(x - src, y) for x, y in q]))
+    out = {}
+    for nm, p in pts.items():
+        P_ = Point(p)
+        g = min(gs, key=lambda g_: g_.distance(P_))
+        q = nearest_points(g, P_)[0]
+        d = max(1e-6, q.distance(P_))
+        out[nm] = (q.x + (p[0] - q.x) / d * off, q.y + (p[1] - q.y) / d * off)
+    return out
+EXTRA_LAYERS['MTY-BINA-HATTI'] = (8, 'DASHED')

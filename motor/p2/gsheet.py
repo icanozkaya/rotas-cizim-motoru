@@ -163,8 +163,11 @@ def sihhi_sema(ox, oy, P):
         cap_temiz((xa, (yk + dy0) / 2), 90, so='ADK %s YB' % fmt(sup['ybt']), socp='Ø32', k=7)
     # sayaç grubu
     units = sup['units']               # [(ad, kat anahtarı, grup no, yb)]
+    # sayaç sırası: bodrum (sola çıkar) - üst katlar yukarıdan aşağı (yukarı çıkar) - zemin (sağa çıkar) => hatlar kesişmez
+    fkeys = [k for k, _ in fl]
+    units = sorted(units, key=lambda u: (0, 0) if u[1].startswith('B') else ((2, 0) if u[1] == 'Z' else (1, -fkeys.index(u[1]))))
     xr0 = xs(220)
-    RECT(xr0 - 30, yk - 22, xr0 + 40 * len(units) + 10, yk + 85, VN)
+    RECT(xr0 - 30, yk - 22, xr0 + 40 * len(units) + 10, yk + 110, VN)
     T((xr0 - 30, yk - 34), 'SAYAÇ GRUBU - BİNA GİRİŞİ (%d ADET)' % len(units), 7.5, VN, 'L')
     wl([(xa + (70 if sup.get('hidrofor') else 0), yk), (xr0 + 40 * (len(units) - 1), yk)], CS)
     if sup.get('hidrofor'):
@@ -173,6 +176,7 @@ def sihhi_sema(ox, oy, P):
     for j, (nm, fk, g, yb) in enumerate(units):
         x = xr0 + 40 * j
         ux[nm] = x
+        wl([(x, yk), (x, yk + 60)], CS)          # kollektör -> vana -> sayaç -> çek valf: kesintisiz hat
         VANA((x, yk + 14), 0.55, 90); mtyblk.insert('MTY-SU SAYACI', (x, yk + 34), 90, 0.6); CEKVALF((x, yk + 54), 0.5, 90)
         T((x + 6, yk + 66), nm, 6.5, VN, 'L', 90)
     # -------- gruplar (her biri kolon takımı)
@@ -194,8 +198,10 @@ def sihhi_sema(ox, oy, P):
                 wl([(x_s, yk + 60), (x_s, ycor), (gx + 40 + 6 * j, ycor), (gx + 40 + 6 * j, ylev), (gx + 120, ylev)], CS)
             elif fk == 'Z':
                 wl([(x_s, yk + 60), (x_s, yk + 72 + 6 * j), (gx + 40 + 6 * j, yk + 72 + 6 * j), (gx + 40 + 6 * j, ylev), (gx + 120, ylev)], CS)
-            else:     # bodrum: aşağı in
-                wl([(x_s, yk - 22), (x_s, yk - 40 - 6 * j), (gx + 40 + 6 * j, yk - 40 - 6 * j), (gx + 40 + 6 * j, ylev), (gx + 120, ylev)], CS)
+            else:     # bodrum: sayaç çıkışından kutunun sol dışına, sonra aşağı in (diğer hatları kesmez)
+                xb = xr0 - 40 - 6 * j
+                wl([(x_s, yk + 60), (x_s, yk + 66 + 4 * j), (xb, yk + 66 + 4 * j), (xb, yk - 40 - 6 * j),
+                    (gx + 40 + 6 * j, yk - 40 - 6 * j), (gx + 40 + 6 * j, ylev), (gx + 120, ylev)], CS)
             VANA((gx + 100, ylev), 0.6)
             T((gx + 60, ylev + 14), '%s GİRİŞ VANASI' % nm, 6.5, VN, 'L')
             if kind == 'daire':
@@ -212,8 +218,8 @@ def sihhi_sema(ox, oy, P):
                 wl([(kx - 15, y + 135), (min(hx) - 15, y + 135)], CH)
                 pts = sorted(zip(allx, allk))
                 supply_labels(gx + 120, kx, ylev, [p[0] for p in pts], [p[1] for p in pts])
-                C((kx + 110, y + 250), 34, 'MTY-PISSU-KOLONNO')
-                T((kx + 110, y + 250), nm, 18, 'MTY-PISSU-KOLONNO', 'MC')
+                C((kx + 110, y + 175), 34, 'MTY-PISSU-KOLONNO')
+                T((kx + 110, y + 175), nm, 18, 'MTY-PISSU-KOLONNO', 'MC')
             else:   # iş yeri
                 ik = G['ikeys']
                 xsi = fixture_row(xs(G['pkx']) + 120, y, ik, xs(G['pkx']))
@@ -264,15 +270,16 @@ def yagmur_sema(ox, oy, P):
     x1 = ox + 220 + (len(names) - 1) * 170
     wl([(ox + 150, ytop), (x1 + 60, ytop)], YL)
     T((ox + 150, ytop + 12), 'YAĞMUR OLUĞU (SAÇAK BOYUNCA, İNİŞE DOĞRU %0,5 EĞİMLİ)', 8, YC, 'L')
+    iz = [k for k, _ in fl].index('Z') if 'Z' in [k for k, _ in fl] else 0
     for j, nm in enumerate(names):
         x = ox + 220 + j * 170
-        ybot = yf[Y['foot'][nm]] - 80
-        wl([(x, ytop), (x, ybot)], YL)
+        foot = iz                                   # inişler zemin katta biter (bodrum/temele inmez, altyapı yok)
+        ybot = yf[foot] + 25
+        wl([(x, ytop), (x, ybot), (x + 30, ybot)], YL)
         mtyblk.insert('MTY-KOLON NO YAGMUR', (x, ytop + 55), 0, 0.9, attrs={'K': nm})
-        for i in range(Y['foot'][nm], nf):
+        for i in range(foot, nf):
             T((x - 10, yf[i] + 60), '%s - Ø%d PVC' % (nm, Y['dn']), 8, YC, 'L', 90)
-        wl([(x, ybot), (x + 40, ybot)], YL); ARROW((x + 46, ybot), 0, YL, 10)
-        T((x - 10, ybot - 30), 'YAĞMUR SUYU', 6.5, YC, 'L'); T((x - 10, ybot - 40), 'KANALINA GİDER', 6.5, YC, 'L')
+        T((x + 36, ybot - 3), 'ZEMİN KOTUNDA', 6.5, YC, 'L'); T((x + 36, ybot - 13), 'BIRAKILIR', 6.5, YC, 'L')
         if nm == Y.get('tasma_to'):
             yd = yf[-1] + 60
             L((x - 110, yd), (x, yd), CS); RECT(x - 140, yd - 15, x - 110, yd + 15, 'RAST-TEM-SU DEPOSU')
@@ -289,7 +296,7 @@ def yagmur_sema(ox, oy, P):
     T((x, y - 24 - 5 * 17 - 6), ('D = %.2f cm < 7 cm → Ø70\'lik boru UYGUNDUR.' if ok else 'D = %.2f cm ≥ 7 cm → Ø100 kullanılmalıdır.') % h['D'], 9, 'MTY-HESAP', 'L')
     T((x, y - 24 - 6 * 17 - 6), 'Uygulamada %d x Ø%d PVC iniş borusu seçilmiştir.' % (h['f'], Y['dn']), 9, 'MTY-HESAP', 'L')
     nts = ['Yağmur suları pis su tesisatına bağlanmayacaktır.', 'İniş boruları cepheye kelepçe ile tespit edilecektir.',
-           'İniş dipleri parsel yağmur suyu kanalına verilecektir.', 'Oluklar iniş yönüne %0,5 eğimle yapılacaktır.'] + Y.get('notes', [])
+           'Yağmur suyu altyapısı bu proje kapsamında değildir; iniş boruları zemin kotunda bırakılacaktır.', 'Oluklar iniş yönüne %0,5 eğimle yapılacaktır.'] + Y.get('notes', [])
     for i, n in enumerate(nts):
         T((x, y - 170 - i * 15), '%d. %s' % (i + 1, n), 8, YZ, 'L')
     return h, w

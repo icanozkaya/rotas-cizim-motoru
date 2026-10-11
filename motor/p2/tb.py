@@ -19,9 +19,9 @@ SLOT = 3400.0
 # pafta: altyapı (temel) planı solda, sonra zemin, 1. kat, 2. kat, çatı
 SLOTS = {'T': 0, 'Z': 1, '1': 2, '2': 3, 'C': 4}
 SY = {'S': 0.0, 'H': -1500.0}                  # sıhhi sıra / ısıtma sırası (y kaydırma)
-NAMES = {'T': 'ALTYAPI (TEMEL) PLANI', 'Z': 'ZEMİN KAT SIHHİ TESİSAT PLANI', '1': '1. KAT SIHHİ TESİSAT PLANI',
+NAMES = {'T': 'ALTYAPI PLANI (ZEMİN KOTU)', 'Z': 'ZEMİN KAT SIHHİ TESİSAT PLANI', '1': '1. KAT SIHHİ TESİSAT PLANI',
          '2': '2. KAT SIHHİ TESİSAT PLANI', 'C': 'ÇATI PLANI (SU DEPOSU / HAVALIKLAR / YAĞMUR)'}
-KOT = {'T': '-1,70 TEMEL ALT', 'Z': '±0,00 [33,30]  İŞ YERİ SBS +0,20', '1': '+4,00 (SBS +3,50)', '2': '+7,00 (SBS +6,50)', 'C': '+10,00 ÇATI'}
+KOT = {'T': '±0,00 ZEMİN (KOLON DİPLERİ)', 'Z': '±0,00 [33,30]  İŞ YERİ SBS +0,20', '1': '+4,00 (SBS +3,50)', '2': '+7,00 (SBS +6,50)', 'C': '+10,00 ÇATI'}
 
 
 def dx(slot):
@@ -276,7 +276,7 @@ def build_rest():
 
 
 # ================================================================== ALTYAPI (TEMEL) PLANI - solda
-R_ = {'R1': (6062.0, 15420.0), 'R2': (6560.0, 15420.0), 'R3': (6812.0, 15420.0), 'R4': (7358.0, 15420.0), 'PB': (7700.0, 15330.0)}
+R_ = {'R1': (6062.0, 15420.0), 'R2': (6560.0, 15420.0), 'R3': (6970.0, 15420.0), 'R4': (7358.0, 15420.0), 'PB': (7700.0, 15330.0)}
 R_KOT = {'R1': (-0.80, -1.30), 'R2': (-0.85, -1.35), 'R3': (-0.88, -1.38), 'R4': (-0.93, -1.44), 'PB': (-1.00, -1.50)}   # (kapak altı kot, akış kotu)
 YB_PTS = {'YB1': (5398.0, 15572.0), 'YB2': (7280.0, 15572.0), 'YB3': (8008.0, 15572.0),
           'YB4': (5430.0, 16348.0), 'YB5': (6700.0, 16348.0), 'YB6': (7975.0, 16348.0)}
@@ -289,7 +289,11 @@ def temel():
         x0, y0, x1, y1 = pg.bounds
         PL(list(pg.exterior.coords), gp.ARC_K, True, 1.5)
         L((x0, y0), (x1, y1), gp.ARC_K); L((x0, y1), (x1, y0), gp.ARC_K)
-    T((5420.0, 16420.0), 'TEMEL PLANI: MİMARİ PROJEDEN YALNIZCA BETONARME KOLONLAR ALINMIŞTIR (TEMEL ÜST KOTU -1,70 ALTI YAPI DIŞI).', 8, YZ, 'L')
+    T((5420.0, 16420.0), 'ALTYAPI PLANI: MİMARİ PROJEDEN YALNIZCA BETONARME KOLONLAR ALINMIŞTIR. KOLON DİPLERİ ZEMİN KOTUNDADIR.', 8, YZ, 'L')
+    xs_ = [c.bounds for c in COLS()]
+    bx0, by0, bx1, by1 = min(b[0] for b in xs_) - 10, min(b[1] for b in xs_) - 10, max(b[2] for b in xs_) + 10, max(b[3] for b in xs_) + 10
+    PL([(bx0, by0), (bx1, by0), (bx1, by1), (bx0, by1)], 'MTY-BINA-HATTI', True)
+    T((bx0 + 10, by1 + 12), 'BİNA DIŞ HATTI', 7, gp.ARC_K, 'L')
     for nm, p in R_.items():
         cad.ROGAR_PLAN(p, 25 if nm != 'PB' else 30, 'MTY-ROGAR')
         T((p[0] - 30, p[1] - 45), '%s  50x50' % nm if nm != 'PB' else 'PB (PARSEL BACASI) 60x60', 8, 'MTY-ROGAR', 'L')
@@ -316,14 +320,6 @@ def temel():
     node((R_['PB'][0] + 30, R_['PB'][1]), 'PB'); node((R_['PB'][0] + 160, R_['PB'][1]), 'SASKİ')
     ARROW((R_['PB'][0] + 175, R_['PB'][1]), 0, PS, 14)
     T((R_['PB'][0] + 40, R_['PB'][1] + 12), 'SASKİ ATIKSU HATTINA (KANAL KOTU SASKİ\'DEN ALINACAK)', 7.5, PSC, 'L')
-    for nm, p in YB_PTS.items():
-        C(p, 6, YL); C(p, 3, YL)
-        d = -1 if p[1] < 16000 else 1
-        pipe([p, (p[0], p[1] + d * 60)], YL, 'Y')
-        node(p, nm); node((p[0], p[1] + d * 60), nm + '-KANAL')
-        ARROW((p[0], p[1] + d * 72), 90 * d, YL, 12)
-        mtyblk.insert('MTY-KOLON NO YAGMUR', (p[0] + 30, p[1] + d * 40), 0, 0.55, attrs={'K': nm})
-        T((p[0] + 8, p[1] + d * 95), 'YAĞMUR SUYU KANALINA GİDER', 6.5, YC, 'L')
     T((5420.0, 15240.0), 'BİNA PİS SULARI KOLON DİPLERİNDEN (TEMİZLEME KAPAKLI) EN YAKIN MUAYENE BACASINA, BACALAR ARASI %1 EĞİMLE PARSEL BACASINA BAĞLANIR.', 8, PSC, 'L')
     pop()
 
@@ -365,7 +361,7 @@ def cati():
 # ================================================================== YAĞMUR İNİŞLERİ (kat planları)
 def yagmur_kat(k):
     push(MOVE(dx(k), 0.0))
-    for nm, p in YB_PTS.items():
+    for nm, p in gp.yb_on_facade(FLAT, YB_PTS, SRC['2'], WIN).items():     # iniş cepheye yaslı (havada değil)
         C(p, 6, YL); C(p, 3, YL)
         node(p, nm)
         mtyblk.insert('MTY-KOLON NO YAGMUR', (p[0] + 30, p[1] + (-40 if p[1] < 16000 else 40)), 0, 0.55, attrs={'K': nm})
@@ -588,18 +584,22 @@ def heat_floor(k):
             if c['room'] not in zones:
                 zones[c['room']] = zbase + len(zones) + 1
             c['zone'] = '%s%02d' % (k, zones[c['room']] % 100)
-            x0, y0, x1, y1 = c['rect']
-            cx, cy = (x0 + x1) / 2, ((y0 + y1) / 2 if (y1 - y0) > 220 or c['ipart'] > 0 else y0 + 0.33 * (y1 - y0))
-            T((cx, cy + 9), 'P%d  PEX 16×2,0' % c['port'], 7.0, 'MTY-ISIKAYBIMAHAL', 'MC')
-            T((cx, cy), '%d W  -  %.1f m' % (round(c['W']), c['L']), 7.0, 'MTY-ISIKAYBIMAHAL', 'MC')
-            T((cx, cy - 9), 'ARALIK %d cm' % c['s'], 6.0, 'MTY-ISIKAYBIMAHAL', 'MC')
-            if c['ipart'] == 0:
-                hx, hy = x0 + 45, y1 - 35
-                HEXTAG((hx, hy), 'MTY-ISIKAYBIMAHAL', 'Z' + c['zone'], '%d°C' % c['ti'], 10)
-                T((hx + 40, hy + 4), c['room'], 8.0, 'MTY-ISIKAYBIMAHAL', 'L')
-                T((hx + 40, hy - 8), 'ISI KAYBI : %d W' % round(c['Qroom']), 7.0, 'MTY-ISIKAYBIMAHAL', 'L')
-                T((hx + 40, hy - 18), 'SERAMİK / LAMİNAT KAPLAMA' if c['room'] != 'BANYO' else 'SERAMİK FAYANS', 6.0,
-                  'MTY-ISIKAYBIMAHAL', 'L')
+        # etiketler: kullanıcının MTY-RADYATOR MAHAL ve MTY-ETIKET blokları (çerçeveli, altındaki borular maskeli)
+        from shapely.geometry import box as _bx
+        taken = []
+        for R in ROOMS[side]:
+            rc = R['rects'][0]
+            cs_ = [c for c in circ if c['room'] == R['name']]
+            if cs_:
+                gp.mahal_etiket(R['name'], cs_[0]['zone'], R['ti'], cs_[0]['Qroom'], R['A'], rc, taken, prefer=(rc[0] + 40, rc[3] - 40))
+            elif R['name'] == 'HOL':
+                hq = [x for x in calc[side] if x['name'] == 'HOL']
+                if hq:
+                    gp.mahal_etiket('HOL', '%s%02d' % (k, zbase % 100 + 9), R['ti'], hq[0]['Q'], R['A'], rc, taken,
+                                    extra='(BAĞL. BORULARI)')
+        for c in circ:
+            r_ = c['rect']
+            gp.devre_etiket(c, r_, taken, k=5.0 if (r_[3] - r_[1]) < 160 or (r_[2] - r_[0]) < 160 else 6.0)
         # kombi -> kollektör (gidiş / dönüş)
         Qd = sum(c['W'] for c in circ)
         if side == 'a':
@@ -658,8 +658,8 @@ NOTES = [
     'Kolonların geçtiği iş yeri ve hol köşelerinde kolon kutusu (alçıpan, ses yalıtımlı) yapılacaktır.',
     'Parsel bacası kotu ve bağlantı yeri SASKİ\'den alınacak; plandaki kotlar yaklaşık olup sahada teyit edilecektir.',
     'Hiçbir boru betonarme kolon içinden geçirilmeyecek; döşeme geçişleri kiriş bantları dışında kılıflı yapılacaktır.',
-    'Yağmur suları pis su hattına bağlanmayacak; 6 adet Ø100 PVC iniş borusu ile yağmur suyu kanalına verilecektir.',
-    'Yerden ısıtma devreleri PEX 16x2,0 oksijen bariyerli borularla karşı akışlı salyangoz düzende döşenecektir.',
+    'Yağmur suları pis su hattına bağlanmayacak; 6 adet Ø100 PVC iniş borusu cepheye kelepçeyle tespit edilecek ve zemin kotunda bırakılacaktır (yağmur suyu altyapısı bu proje kapsamında değildir).',
+    'Yerden ısıtma devreleri PEX 16x2,0 oksijen bariyerli borularla karşı akışlı salyangoz düzende, devre boyunca eksiz döşenecektir.',
     'Yerden ısıtma devre boyları (bağlantı boruları dahil) 80 m\'yi geçmeyecek; devreler debimetreli kollektörde dengelenecektir.',
     'İş yerleri duvar tipi split klima ile ısıtılıp soğutulacak; dış üniteler cephe konsolu üzerine, drenajlar en yakın gidere bağlanacaktır.',
     'Temiz su hatlarına 10 bar, yerden ısıtma devrelerine şap öncesi 6 bar basınç testi yapılacaktır.',
@@ -815,7 +815,7 @@ if __name__ == '__main__':
     import xcheck
     xr = xcheck.crossings()
     print('köprü', xcheck.hops(xr), 'çakışık', [r for r in xcheck.summary(xr) if r[0] == 'ÇAKIŞIK'])
-    print('yazı altı kesilen boru', xcheck.mask_texts())
+    print('yazı maskesi (boru kesilmez)', xcheck.wipe_texts())
     print('üst üste binen çizgi temizlendi', xcheck.dedupe())
     pickle.dump((cad.R, FR, cad.BLK), open('/tmp/claude-0/p2/tb_R.pkl', 'wb'))
     pickle.dump(dict(HEAT=HEAT, KLIMA=KLIMA, ROOMS=ROOMS, ROOF_A=ROOF_A, NYB=len(YB_PTS)),

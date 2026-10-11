@@ -61,6 +61,20 @@ def PL(pts, lay, closed=False, w=0):
         R.append(('P', lay, [P(p) for p in pts], closed, w))
 
 
+def WIPE(pts, lay, frame=False):
+    """yazı altı maskesi (AutoCAD WIPEOUT): altındaki boruları kesmeden gizler; frame=True ise çerçeve de çizilir"""
+    R.append(('W', lay, [P(p) for p in pts], frame))
+
+
+def BOX(x0, y0, x1, y1, lay, frame=True):
+    WIPE([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], lay, frame)
+
+
+def BOX_W(x0, y0, x1, y1, lay, frame=True):
+    """dünya (pafta) koordinatında maske - dönüşüm uygulanmaz"""
+    R.append(('W', lay, [(x0, y0), (x1, y0), (x1, y1), (x0, y1)], frame))
+
+
 def SC():
     a, b, c, d, e, f = tf()
     return math.sqrt(abs(a * e - b * d))
@@ -235,39 +249,25 @@ def port(o, d, n, i, which):
 
 
 # ------------------------------------------------------------------ vana vb.
+def _mty(name, c, k, ang, lay):
+    import mtyblk                       # kullanıcının MTY bloğu (patlatılmaz, INSERT olarak yazılır)
+    mtyblk.insert(name, c, ang, k, def0=lay)
+
+
 def VANA(c, k=1.0, ang=0, lay='MTY-VANA'):
-    push(ROT(c, ang))
-    w, h = 6 * k, 3.6 * k
-    PL([(c[0] - w, c[1] + h), (c[0] + w, c[1] - h), (c[0] + w, c[1] + h), (c[0] - w, c[1] - h)], lay, closed=True)
-    L(c, (c[0], c[1] + 6 * k), lay)
-    L((c[0] - 3.5 * k, c[1] + 6 * k), (c[0] + 3.5 * k, c[1] + 6 * k), lay)
-    pop()
+    _mty('MTY-KURESEL VANA', c, 0.6 * k, ang, lay)
 
 
 def CEKVALF(c, k=1.0, ang=0, lay='MTY-VANA'):
-    push(ROT(c, ang))
-    w, h = 6 * k, 3.6 * k
-    PL([(c[0] - w, c[1] + h), (c[0] + w, c[1] - h), (c[0] + w, c[1] + h), (c[0] - w, c[1] - h)], lay, closed=True)
-    SOL((c[0] + w, c[1] + h), (c[0] + w, c[1] - h), c, lay)
-    pop()
+    _mty('MTY-CEKVALF VANA', c, 0.6 * k, ang, lay)
 
 
 def PISLIK_TUTUCU(c, k=1.0, ang=0, lay='MTY-VANA'):
-    push(ROT(c, ang))
-    w, h = 6 * k, 3.6 * k
-    PL([(c[0] - w, c[1] + h), (c[0] + w, c[1] - h), (c[0] + w, c[1] + h), (c[0] - w, c[1] - h)], lay, closed=True)
-    PL([(c[0], c[1]), (c[0] + 4 * k, c[1] - 7 * k)], lay)
-    PL([(c[0] + 2 * k, c[1] - 9 * k), (c[0] + 6 * k, c[1] - 5 * k)], lay)
-    pop()
+    _mty('MTY-PISLIK TUTUCU', c, 0.6 * k, ang, lay)
 
 
 def SAYAC(c, k=1.0, ang=0, lay='MTY-VANA'):
-    """Su sayacı: gövde + kadran."""
-    push(ROT(c, ang))
-    RECT(c[0] - 7 * k, c[1] - 3 * k, c[0] + 7 * k, c[1] + 3 * k, lay)
-    C(c, 4.5 * k, lay)
-    L((c[0] - 2.5 * k, c[1] - 1.5 * k), (c[0] + 2.5 * k, c[1] + 1.5 * k), lay)
-    pop()
+    _mty('MTY-SU SAYACI', c, 0.8 * k, ang, lay)
 
 
 def POMPA(c, r=10.0, ang=0, lay='MTY-CIHAZ'):

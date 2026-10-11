@@ -41,10 +41,17 @@ python3 pdfp.py  /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_ONI
 ## Kalıcı kurallar (kullanıcı talimatları)
 - ROTAŞ / MTY CAD standardı; her şey Türkçe; DWG ile birlikte DXF teslim.
 - Kolondan boru geçmez; mutfak ve WC giderleri birleştirilmez; her ıslak hacim en yakın kendi kolonuna, kolon dibinden rögara.
-- Hiçbir çizgi üst üste binmez: kesişmede köprü, yazı altında boru kesilir (`xcheck.py`).
-- Bodrum tavanı pis su toplamaları ayrı paftada, farklı katman/çizgi tipi ile gösterilir.
+- Hiçbir çizgi üst üste binmez: kesişmede köprü (boru tek parça polyline kalır); yazı altında boru KESİLMEZ, yazının altına maske (WIPEOUT) konur (`xcheck.py`).
+- MTY blokları HİÇBİR ZAMAN patlatılmaz: kullanıcının kütüphanesindeki tanımla gerçek blok + öznitelik (kullanıcı MTY programında çapları vb. güncelleyebilmeli). Vana, çek valf, pislik tutucu, sayaç da MTY bloklarıdır.
+- Yerden ısıtma devreleri patlatılmaz/kesilmez (her devre tek polyline). Etiketler kullanıcının `MTY-ETIKET` (devre) ve `MTY-RADYATOR MAHAL` (mahal) blokları ile, çerçeve içinde ve altı maskeli.
+- "Düşüş" / bodrum tavanı toplama kurgusu YAPILMAZ: bodrum ıslak hacimleri üst katlardaki gibi döşemeden kendi kolonlarına bağlanır; bodrum kolonları pis su çukuruna.
+- Bodrum varsa üst kat kolonları zemin katta biter, temele inmez; kolon diplerinden zemin kotundan ayrı ayrı doğrudan BİNA DIŞINDAKİ rögara.
+- Zemin kat kolon hatları pompa basma hattına bağlanmaz: pompa basma ayrı rögara (R2), oradan ayrı hatla parsel bacasına.
+- Pis su çukuru / pompasına havalık gösterilmez (plan ve şema).
+- Yağmur suyu altyapısı yapılmaz (kanal, sızdırma bacası yok); yağmur iniş kolonları zemin katta biter, temele/bodruma inmez. İnişler kat planlarında cepheye / balkon köşesine yaslı (havada durmaz).
+- Sayaç grubunda kollektör - vana - sayaç - çek valf hattı kesintisizdir; sayaç çıkış hatları birbirini kesmez.
 - Bodrumda ıslak hacim veya depo varsa hidrofor ve pis su çukuru + dalgıç pompa işlenir; kot farklarına göre altyapı çizilir.
-- Altyapı (temel) planı sıhhi paftaların en solunda; temel planında yalnız kolonlar.
+- Altyapı planı (zemin kotu) sıhhi paftaların en solunda; mimariden yalnız kolonlar + bina dış hattı; rögarlar bina dışında.
 - Kalem kalınlıkları polyline sabit genişliği ile verilir (1/50'de 1 cm = 0,2 mm).
 - Konut yerden ısıtma (devre ≤ 80 m), dükkan 1-2 adet duvar tipi split klima (hesabı rapora eklenir).
 - Depo: ≤10 BB 3 m³, her ek BB +0,5 m³; çatıdaysa hidrofor gerekmez; taşma/boşaltma açık uç bırakılmaz.

@@ -1,6 +1,6 @@
 """boru kesişme kontrolü + köprü (atlama) çizimi: farklı borular üst üste binmez, kesişenlerde alttaki boru köprü ile kesilir"""
 import math
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString, Point, Polygon
 from shapely.strtree import STRtree
 import cad
 import gp
@@ -46,45 +46,49 @@ def summary(rep):
     return out
 
 
+def _protected():
+    return {id(r) for b in cad.BLK for r in b['recs']}
+
+
 def hops(rep, g=4.0):
-    """KESİŞME'lerde düşük öncelikli boruyu köprü (yarım daire) ile kes"""
+    """KESİŞME'lerde düşük öncelikli boruya köprü (yarım daire) çiz - boru PARÇALANMAZ, köprü aynı polyline içine eklenir"""
     cuts = {}
+    prot = _protected()
     for k, a, b, p, l in rep:
         if k != 'KESİŞME':
             continue
         ra, rb = RANK.get(a['lay'], 5), RANK.get(b['lay'], 5)
         lo = b if rb <= ra else a
         cuts.setdefault(id(lo), (lo, []))[1].append(p)
+    n = 0
     for lo, pts in cuts.values():
         rec = cad.R[lo['ri']]
-        if rec is None or rec[0] != 'P':
+        if rec is None or rec[0] != 'P' or id(rec) in prot:
             continue
         ls = LineString(lo['pts'])
         ss = sorted(set(round(ls.project(Point(p)), 2) for p in pts))
-        # aralıklar
-        segs, s0 = [], 0.0
-        for s in ss:
-            if s - g > s0:
-                segs.append((s0, s - g))
-            s0 = s + g
-        if ls.length > s0:
-            segs.append((s0, ls.length))
-        new = []
-        for a_, b_ in segs:
-            sub = _substring(ls, a_, b_)
-            if len(sub) > 1:
-                new.append(('P', rec[1], sub, False, rec[4]) + tuple(rec[5:]))
-        for s in ss:
-            c = ls.interpolate(s)
-            q = ls.interpolate(max(0.0, s - 0.5)); r = ls.interpolate(min(ls.length, s + 0.5))
+        ss = [s_ for s_ in ss if g < s_ < ls.length - g]
+        merged = []
+        for s_ in ss:
+            if merged and s_ - merged[-1] < 2.5 * g:
+                continue
+            merged.append(s_)
+        if not merged:
+            continue
+        out, s0 = [], 0.0
+        for s_ in merged:
+            seg = _substring(ls, s0, s_ - g)
+            out += seg if not out else seg[1:]
+            c = ls.interpolate(s_)
+            q = ls.interpolate(max(0.0, s_ - 0.5)); r = ls.interpolate(min(ls.length, s_ + 0.5))
             ang = math.degrees(math.atan2(r.y - q.y, r.x - q.x))
-            arc = [(c.x + g * math.cos(math.radians(ang + 180 - t)), c.y + g * math.sin(math.radians(ang + 180 - t)))
-                   for t in range(0, 181, 15)]
-            new.append(('P', rec[1], arc, False, rec[4]) + tuple(rec[5:]))
-        cad.R[lo['ri']] = None
-        cad.R.extend(new)
-    cad.R[:] = [r for r in cad.R if r is not None]
-    return len(cuts)
+            out += [(c.x + g * math.cos(math.radians(ang + 180 - t)), c.y + g * math.sin(math.radians(ang + 180 - t)))
+                    for t in range(15, 181, 15)]
+            s0 = s_ + g
+        out += _substring(ls, s0, ls.length)[1:]
+        cad.R[lo['ri']] = ('P', rec[1], out, False, rec[4]) + tuple(rec[5:])
+        n += 1
+    return n
 
 
 def _substring(ls, a, b):
@@ -101,33 +105,37 @@ def _substring(ls, a, b):
 
 
 def mask_texts(pad=1.0):
-    """yazıların altından geçen boru çizgilerini yazı kutusunda kes (çizgi yazının üstüne binmez)"""
+    """ESKİ: boruları yazı altında keserdi - artık kullanılmaz (borular patlatılmaz). wipe_texts kullan."""
+    return wipe_texts(pad)
+
+
+def wipe_texts(pad=1.0):
+    """altından boru geçen serbest yazılara maske (WIPEOUT) koy: boru kesilmez, yazı okunur"""
     import tcheck
-    from shapely.geometry import MultiLineString
-    from shapely.ops import unary_union
     R = cad.R
-    txt = [tcheck.tbox(r).buffer(pad) for r in R if r and r[0] == 'T' and r[3].strip()]
-    if not txt:
+    prot = _protected()
+    pipes = []
+    for r in R:
+        if r and r[0] == 'P' and r[1] in tcheck.PIPE_LAYERS:
+            pipes.append(LineString(list(r[2]) + ([r[2][0]] if r[3] else [])))
+        elif r and r[0] == 'L' and r[1] in tcheck.PIPE_LAYERS:
+            pipes.append(LineString([r[2], r[3]]))
+    if not pipes:
         return 0
-    tree = STRtree(txt)
+    tree = STRtree(pipes)
+    have = [Polygon(r[2]) for r in R if r and r[0] == 'W']
     n = 0
-    new = []
-    for i, r in enumerate(R):
-        if not r or r[0] != 'P' or r[1] not in tcheck.PIPE_LAYERS:
+    for r in list(R):
+        if not r or r[0] != 'T' or not r[3].strip() or id(r) in prot:
             continue
-        ls = LineString(list(r[2]) + ([r[2][0]] if r[3] else []))
-        hits = [txt[int(j)] for j in tree.query(ls) if txt[int(j)].intersects(ls)]
-        if not hits:
+        bx = tcheck.tbox(r)
+        if any(h.contains(bx) for h in have):
             continue
-        rest = ls.difference(unary_union(hits))
-        parts = list(rest.geoms) if hasattr(rest, 'geoms') else ([rest] if not rest.is_empty else [])
-        R[i] = None
-        for p in parts:
-            if p.length > 0.5:
-                new.append(('P', r[1], list(p.coords), False, r[4]) + tuple(r[5:]))
+        if not any(pipes[int(j)].intersects(bx) for j in tree.query(bx)):
+            continue
+        g = bx.buffer(pad, join_style=2)
+        R.append(('W', r[1], [tuple(c) for c in list(g.exterior.coords)[:-1]], False))
         n += 1
-    R.extend(new)
-    R[:] = [r for r in R if r is not None]
     return n
 
 
@@ -136,6 +144,7 @@ def dedupe(extra=('MTY-PVC',)):
     import tcheck
     from shapely.ops import unary_union
     R = cad.R
+    prot = _protected()
     lays = set(tcheck.PIPE_LAYERS) | set(extra)
     idx, geo = [], []
     for i, r in enumerate(R):
@@ -165,6 +174,10 @@ def dedupe(extra=('MTY-PVC',)):
             ra, rb = RANK.get(R[idx[a]][1], 5), RANK.get(R[idx[b]][1], 5)
             lo = b if rb <= ra else a
             hi = a if lo == b else b
+            if id(R[idx[lo]]) in prot:             # blok çizgisine dokunulmaz: diğerini kes
+                lo, hi = hi, lo
+                if id(R[idx[lo]]) in prot:
+                    continue
             cut.setdefault(lo, []).append(geo[hi].buffer(0.05))
     new = []
     for k, polys in cut.items():

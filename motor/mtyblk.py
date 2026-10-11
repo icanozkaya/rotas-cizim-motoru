@@ -24,6 +24,10 @@ def _col(e):
 def _prims(entities, out):
     for e in entities:
         t = e.dxftype()
+        if e.dxf.get('invisible', 0) == 1:          # blokta görünmez işaretli parça (AutoCAD'de de görünmez)
+            if t == 'ATTDEF':                          # görünmez öznitelik: değeri yine yazılır, çizilmez
+                out.append(('A', lay, (0.0, 0.0), e.dxf.text, e.dxf.height, 0, 'L', None, e.dxf.tag, True))
+            continue
         lay = e.dxf.get('layer', '0')
         col = _col(e)
         try:
@@ -110,7 +114,7 @@ def load(name):
     return out
 
 
-def insert(name, pos, rot=0.0, scale=1.0, attrs=None, lay_override=None, sx=None, def0=None):
+def insert(name, pos, rot=0.0, scale=1.0, attrs=None, lay_override=None, sx=None, def0=None, hidden=()):
     """MTY bloğunu patlatıp yerleştir. attrs: {TAG: değer} (TAG ön eki eşleşir, _001 yok sayılır)."""
     attrs = attrs or {}
     prims = load(name)
@@ -145,6 +149,9 @@ def insert(name, pos, rot=0.0, scale=1.0, attrs=None, lay_override=None, sx=None
             if k == 'A':
                 tag = p[8].upper()
                 base = tag.split('_0')[0]
+                if (base in hidden or (len(p) > 9 and p[9])) and base in attrs:   # görünmez öznitelik: değeri yazılır, çizilmez
+                    used[p[8]] = [str(attrs[base]), None, True]
+                    continue
                 if tag in attrs:
                     text = attrs[tag]
                 elif base in attrs:
@@ -154,7 +161,7 @@ def insert(name, pos, rot=0.0, scale=1.0, attrs=None, lay_override=None, sx=None
             if not str(text).strip():
                 continue
             if k == 'A':
-                used[p[8]] = str(text)
+                used[p[8]] = [str(text), None]
             ang = (p[5] + rot) % 360
             al = p[6]
             if 90.5 < ang <= 270.5:      # okunur yön: ters yazıyı 180° çevir, hizayı aynala
@@ -166,10 +173,12 @@ def insert(name, pos, rot=0.0, scale=1.0, attrs=None, lay_override=None, sx=None
                     al = {'T': 'B', 'B': 'T'}[al[0]] + al[1:]
             cad.T(p[2], text, p[4], lay, al, rot=ang)
             _setc(p[7])
-    if not lay_override and not flip and len(cad.R) > i0:
+            if k == 'A':
+                used[p[8]][1] = len(cad.R) - 1 - i0      # öznitelik yazısının blok kayıtları içindeki sırası
+    if len(cad.R) > i0:          # her blok gerçek blok (INSERT) olarak yazılır - hiçbiri patlatılmaz
         u = name.upper()
         lay0 = def0 or ('MTY-PISSU-KOLONNO' if 'KOLON NO' in u else 'MTY-VANA' if 'SAYAC' in u else 'MTY-TEFRIS')
-        cad.BLK.append(dict(name=name, m=cad.tf(), attrs=used, lay0=lay0, recs=list(cad.R[i0:])))
+        cad.BLK.append(dict(name=name, m=cad.tf(), attrs=used, lay0=lay_override or lay0, recs=list(cad.R[i0:]), flip=flip))
     cad.pop(); cad.pop(); cad.pop()
 
 
