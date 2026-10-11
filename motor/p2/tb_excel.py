@@ -186,6 +186,7 @@ def build():
     # ---------------- ek sayfalar
     X.klima_sheet(wb, KL, P)
     X.yagmur_sheet(wb, P, round(D['ROOF_A'], 2), D['NYB'])
+    X.kombi_sheet(wb, P, [('%s %s' % (fl[1], nm), HEAT[fl[0]][side][0]) for fl in FL for side, nm in zip(('a', 'b'), fl[3])])
     for nm in ('kapak', 'TEKNİK RAPOR (2)'):
         pass
     if 'TEKNİK RAPOR (2)' in wb.sheetnames:

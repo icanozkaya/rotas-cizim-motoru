@@ -1,0 +1,2 @@
+batch-pdf.lsp - https://github.com/beastt1992/autocad-batch-plot
+Lisans: MIT (deponun README.md "License" bölümünde belirtilmiştir: "MIT — free to use, modify, and share.")

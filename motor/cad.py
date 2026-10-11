@@ -2,6 +2,7 @@
 import math
 
 R = []                      # kayıtlar
+BLK = []                    # gerçek blok (INSERT) adayları: mtyblk.insert kayıt grupları
 _TF = [(1, 0, 0, 0, 1, 0)]  # afin dönüşüm yığını (a,b,c,d,e,f): x'=a x+b y+c
 
 

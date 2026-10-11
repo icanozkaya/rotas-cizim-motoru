@@ -8,6 +8,7 @@ import gp
 from gp import YZ, CD, PEX, HGL, HDL, HCAP
 import gheat as GH
 import gklima as GK
+import ghidrolik as GHY
 
 RED = 'MTY-KAT-ADI'
 KOL = 'MTY-KOLLETOR'
@@ -80,7 +81,7 @@ def isitma_tablo(x, y, HEAT, floors):
             for d in circ:
                 q = d['W'] / d['Ar']
                 tf = d['ti'] + (q / 8.92) ** 0.91
-                lim = 33.0 if d['room'] == 'BANYO' else 29.0
+                lim = 33.0 if ('BANYO' in d['room'] or 'WC' in d['room']) else 29.0
                 ok = 'UYGUN' if tf <= lim and d['L'] <= 80 else 'KONTROL'
                 vals = [ad.replace(' KAT', ''), nm, 'P%d' % d['port'], d['room'], 'Z' + d['zone'], '%d' % d['ti'],
                         '%d cm' % d['s'], '%.1f' % d['L'], '%d' % round(d['W']), '%.0f' % q, '%.1f' % tf, ok]
@@ -90,6 +91,20 @@ def isitma_tablo(x, y, HEAT, floors):
             tot = sum(c['W'] for c in circ)
             T((x + 140, yy), '%s TOPLAMI : %d W (%d kcal/h)  -  24 kW KOMBİ YETERLİ' % (nm, round(tot), round(tot * 0.86)), 7.5,
               YZ, 'L')
+            yy -= 13
+            h = GHY.daire(circ)
+            g = h['gen']
+            T((x + 140, yy), 'POMPA: debi %d l/h, en uzun devre Δp %.1f kPa + kollektör %d kPa = %.1f kPa (%.2f mSS) %s kombi pompası '
+              '%d kPa  -  %s' % (h['Q'], h['dpmax'], GHY.DP_KOLL, h['H'], h['H_m'], '≤' if h['pompa_ok'] else '>',
+                                 GHY.KOMBI_POMPA_KPA, 'UYGUN' if h['pompa_ok'] else 'KOLLEKTÖRE POMPA GRUBU KONACAK'), 6.5, YZ, 'L')
+            yy -= 12
+            T((x + 140, yy), 'GENLEŞME: sistem suyu %.0f l, genleşme %.2f l, ön basınç %.1f bar, son %.1f bar  →  gerekli tank %.1f l '
+              '%s kombi içi %d l  -  %s' % (g['V'], g['dV'], g['P1'], g['P2'], g['Vmin'], '≤' if g['ok'] else '>',
+                                             GHY.KOMBI_TANK_L, 'YETERLİ' if g['ok'] else 'İLAVE GENLEŞME TANKI KONACAK'), 6.5,
+              YZ, 'L')
+            yy -= 12
+            T((x + 140, yy), 'PEX 16x2,0 TOPLAM %.0f m  →  %d x 200 m + %d x 500 m KANGAL (devre ortasında ek yapılmayacaktır)' %
+              (h['L'], h['kangal200'], h['kangal500']), 6.5, YZ, 'L')
             yy -= 20
     return yy
 

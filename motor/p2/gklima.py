@@ -8,7 +8,11 @@ import gp
 
 # Sakarya (Adapazarı) yaz tasarım şartları
 T_YAZ_DIS, T_YAZ_YAS, T_YAZ_IC, RH_IC = 34.0, 24.0, 26.0, 50
-W_DIS, W_IC = 0.0146, 0.0105          # kg/kg (34/24 °C dış, 26 °C %50 iç)
+import psychrolib as _ps                 # MIT, github.com/psychrometrics/psychrolib (ASHRAE Fundamentals denklemleri)
+_ps.SetUnitSystem(_ps.SI)
+P_ATM = _ps.GetStandardAtmPressure(31.0)            # Adapazarı rakım ≈ 31 m
+W_DIS = _ps.GetHumRatioFromTWetBulb(T_YAZ_DIS, T_YAZ_YAS, P_ATM)   # kg/kg
+W_IC = _ps.GetHumRatioFromRelHum(T_YAZ_IC, RH_IC / 100.0, P_ATM)
 CLTD = {'G': 10.0, 'D': 13.0, 'B': 15.0, 'K': 6.0, 'GD': 11.0, 'GB': 13.0, 'KD': 9.0, 'KB': 10.0}   # orta renk duvar
 SHG = {'G': 150.0, 'D': 420.0, 'B': 450.0, 'K': 75.0, 'GD': 300.0, 'GB': 330.0, 'KD': 250.0, 'KB': 260.0}  # W/m² maks. güneş
 SC_CAM = 0.55                          # Low-E ısıcam gölgeleme katsayısı

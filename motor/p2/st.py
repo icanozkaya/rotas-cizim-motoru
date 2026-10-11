@@ -914,6 +914,6 @@ if __name__ == '__main__':
     print('köprü', xcheck.hops(rep), 'çakışık', [r for r in xcheck.summary(rep) if r[0] == 'ÇAKIŞIK'])
     print('yazı altı kesilen boru', xcheck.mask_texts())
     print('üst üste binen çizgi temizlendi', xcheck.dedupe())
-    pickle.dump((cad.R, FR), open('/tmp/claude-0/p2/st_R.pkl', 'wb'))
+    pickle.dump((cad.R, FR, cad.BLK), open('/tmp/claude-0/p2/st_R.pkl', 'wb'))
     pickle.dump(dict(HEAT=HEAT, ROOMS=ROOMS, ROOF_A=ROOF_A, NYB=len(YB_PTS), Q_PIS=Q_PIS, H_PIS=H_PIS, Q_HID=Q_HID, H_HID=H_HID,
                      SB_D=SB_D, YB_D=YB_D), open('/tmp/claude-0/p2/st_calc.pkl', 'wb'))

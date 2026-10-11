@@ -318,3 +318,50 @@ def hidrofor_sheet(wb, P, n_daire, yb_daire, z_dep, z_top, sb_tot, z_pit, z_out)
     ws.page_setup.orientation = 'portrait'; ws.page_setup.fitToWidth = 1; ws.page_setup.fitToHeight = 0
     ws.sheet_properties.pageSetUpPr.fitToPage = True
     return ws
+
+
+# ------------------------------------------------------------------ kombi pompası + genleşme + kangal sayfası
+def kombi_sheet(wb, P, rows):
+    """rows: [(kat_daire_adı, circ)]"""
+    import ghidrolik as G
+    ws = wb.create_sheet('KOMBİ-POMPA-GENLEŞME')
+    head(ws, 'KOMBİ POMPASI, GENLEŞME TANKI VE PEX KANGAL KONTROLÜ',
+         'Pompa: H = Δp(en uzun devre, Churchill, yerel kayıp x1,3) + kollektör 5 kPa ;  '
+         'Genleşme: Vmin = (P2+1,013)/(P2-P1) x (0,01 V + ΔV) , 10→50 °C', P, 12)
+    hdr = ['DAİRE', 'YÜK (W)', 'DEBİ (l/h)', 'Δp maks (kPa)', 'H (kPa)', 'Kombi pompası (kPa)', 'POMPA',
+           'Sistem suyu (l)', 'ΔV (l)', 'P1 / P2 (bar)', 'Vmin (l)', 'TANK (kombi 8 l)']
+    for i, (h, w) in enumerate(zip(hdr, [18, 10, 10, 11, 9, 12, 12, 11, 8, 11, 9, 14])):
+        ws.column_dimensions[CL(i + 1)].width = w
+        cell(ws, '%s6' % CL(i + 1), h, True, True)
+    r = 7
+    kang = []
+    for nm, circ in rows:
+        h = G.daire(circ); g = h['gen']
+        vals = [nm, round(h['W']), round(h['Q']), round(h['dpmax'], 2), '=D%d+%g' % (r, G.DP_KOLL), G.KOMBI_POMPA_KPA,
+                '=IF(E%d<=F%d,"UYGUN","POMPA GRUBU")' % (r, r), round(g['V'], 1), round(g['dV'], 2),
+                '%.1f / %.1f' % (g['P1'], g['P2']),
+                '=(%.1f+1.013)/(%.1f-%.1f)*(0.01*H%d+I%d)' % (g['P2'], g['P2'], g['P1'], r, r),
+                '=IF(K%d<=%g,"YETERLİ","İLAVE TANK")' % (r, G.KOMBI_TANK_L)]
+        for i, v in enumerate(vals):
+            cell(ws, '%s%d' % (CL(i + 1), r), v, fmt='0.00' if i in (3, 4, 8, 10) else None)
+        kang.append((nm, h))
+        r += 1
+    r += 1
+    cell(ws, 'A%d' % r, 'PEX 16x2,0 KANGAL METRAJI (devre ortasında ek yapılmaz)', True, border=False, al='left'); r += 1
+    for i, h in enumerate(['DAİRE', 'TOPLAM (m)', '200 m kangal', '500 m kangal']):
+        cell(ws, '%s%d' % (CL(i + 1), r), h, True, True)
+    r += 1
+    for nm, h in kang:
+        for i, v in enumerate([nm, round(h['L'], 1), h['kangal200'], h['kangal500']]):
+            cell(ws, '%s%d' % (CL(i + 1), r), v)
+        r += 1
+    notes = ['Kombi pompasının kullanılabilir basma yüksekliği (%g kPa) seçilen kombinin kataloğundan teyit edilecektir.' % G.KOMBI_POMPA_KPA,
+             'Kombi içi genleşme tankı %g l, emniyet ventili 3 bar, ilk dolum basıncı 1,0-1,5 bar alınmıştır.' % G.KOMBI_TANK_L,
+             'Devre debileri kollektördeki debimetreli reglaj vanaları ile ayarlanacaktır.']
+    r += 1
+    for n in notes:
+        cell(ws, 'A%d' % r, n, al='left', border=False); r += 1
+    ws.print_area = 'A1:L%d' % r
+    ws.page_setup.orientation = 'landscape'; ws.page_setup.fitToWidth = 1; ws.page_setup.fitToHeight = 0
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    return ws

@@ -118,6 +118,9 @@ def insert(name, pos, rot=0.0, scale=1.0, attrs=None, lay_override=None, sx=None
     cad.push(cad.MOVE(pos[0], pos[1]))
     cad.push(cad.ROT((0, 0), rot))
     cad.push((sxx, 0, 0, 0, scale, 0))
+    i0 = len(cad.R)
+    flip = False
+    used = {}
     for p in prims:
         k = p[0]
         lay = lay_override or p[1]
@@ -150,9 +153,12 @@ def insert(name, pos, rot=0.0, scale=1.0, attrs=None, lay_override=None, sx=None
                     continue
             if not str(text).strip():
                 continue
+            if k == 'A':
+                used[p[8]] = str(text)
             ang = (p[5] + rot) % 360
             al = p[6]
             if 90.5 < ang <= 270.5:      # okunur yön: ters yazıyı 180° çevir, hizayı aynala
+                flip = True
                 ang = (ang + 180) % 360
                 sw = {'L': 'R', 'R': 'L'}
                 al = al[:-1] + sw.get(al[-1], al[-1]) if al else al
@@ -160,6 +166,10 @@ def insert(name, pos, rot=0.0, scale=1.0, attrs=None, lay_override=None, sx=None
                     al = {'T': 'B', 'B': 'T'}[al[0]] + al[1:]
             cad.T(p[2], text, p[4], lay, al, rot=ang)
             _setc(p[7])
+    if not lay_override and not flip and len(cad.R) > i0:
+        u = name.upper()
+        lay0 = def0 or ('MTY-PISSU-KOLONNO' if 'KOLON NO' in u else 'MTY-VANA' if 'SAYAC' in u else 'MTY-TEFRIS')
+        cad.BLK.append(dict(name=name, m=cad.tf(), attrs=used, lay0=lay0, recs=list(cad.R[i0:])))
     cad.pop(); cad.pop(); cad.pop()
 
 

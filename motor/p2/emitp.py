@@ -3,7 +3,9 @@ import sys, pickle, runpy, subprocess, os
 sys.path.insert(0, '/home/claude/nb'); sys.path.insert(0, '/home/claude/nb/p2')
 import design, gp, gklima
 src, base = sys.argv[1], sys.argv[2]
-R, FR = pickle.load(open(src, 'rb'))[:2]
+_pk = pickle.load(open(src, 'rb'))
+R, FR = _pk[:2]
+BLK = _pk[2] if len(_pk) > 2 else []
 design.LAYERS.update(gp.EXTRA_LAYERS)
 design.LAYERS.update({'MIMARI': (8, 'CONTINUOUS'), 'MTY-PEX-BORU': (1, 'CONTINUOUS'), 'MTY-KOLLETOR': (7, 'CONTINUOUS'),
                       'MTY-ISIKAYBIMAHAL': (2, 'CONTINUOUS'), 'STM-ISITMA-CAP': (41, 'CONTINUOUS'),
@@ -11,7 +13,7 @@ design.LAYERS.update({'MIMARI': (8, 'CONTINUOUS'), 'MTY-PEX-BORU': (1, 'CONTINUO
                       'MTY-PISSU-BORU-TAVANDAN': (6, 'PISSU HATTI'), 'MTY-PIS-SU-BORUSU': (6, 'PIS'),
                       'MTY-SICAKSU-BORU': (1, 'BASMA HATTI'), 'MTY-YAGMUR-BORUSU': (3, 'YAGMUR HATTI')})
 tmp = '/tmp/claude-0/p2/_emit.pkl'
-pickle.dump((R, FR, None), open(tmp, 'wb'))
+pickle.dump((R, FR, None, BLK), open(tmp, 'wb'))
 txt = base + '.txt'
 sys.argv = ['emit.py', base + '.dxf', txt, tmp]
 runpy.run_path('/home/claude/nb/emit.py', run_name='__main__')
