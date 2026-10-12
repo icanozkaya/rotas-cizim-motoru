@@ -138,3 +138,14 @@ Yazı yükseklikleri: hesap 12, kat adı 16, pafta başlığı 18–29,5, antet 
 - **Ölçüler kotlardan HESAPLANMAZ, mimarın ölçü yazılarından OKUNUR.** `araclar/asn_olcu_oku.py mimari.dxf x.dims.pkl` DIMENSION varlıklarını açar; kesit zinciri (kuyu dibi 140, 300'ler, son döşemeye 160, döşeme 10) buradan alınır. Kot yazısı çizginin ~15-20 cm üstündedir; ±0 kot yazısından türetilirse kayar (Korucuk'ta 15 cm kaydı: kuyu dibi 1,55 sanıldı, gerçek 1,40).
 - Korucuk doğru değerleri: ilk durak +1,00 (D: -3,15), kuyu dibi -0,40 (D: -4,55) = 1,40 m, son döşeme altı +17,60, üst boşluk 4,60, +16,00 çatı döşemesi (durak değil). Dış duvar A/C/D 15, B 20; ara duvar 10.
 - Kontrol listesi (her projede): durak sayısı = kat planı sayısı; kuyu dibi ölçüsü; son durak -> kuyu tavanı; döşeme kalınlığı; kuyu en/boy + kiriş; duvar kalınlıkları; kapı 90/210; 800 kg/10 kişi; daire sayısı.
+
+## 11. Makine dairesiz (MRL) kalıcı kuralları (kullanıcı talimatı 13.10.2026, Korucuk revizyonu) — bundan sonraki TÜM MRL setlerinde
+- **Makine montajı:** MRL makinesi kuyu tepesinde **yan perdeye ankrajlı duvar konsolu (2xUPN)** üzerinde, konsol altında **çapraz askılı sehpa** ile taşınır; raylara oturan kaide çizilmez. Karşıdan kesitte konsol + duvar ankraj plakası + çapraz askı (2 profil), yandan kesitte konsol altında X çapraz askı gösterilir.
+- **Makine askı kancası yoktur** (kesitlerde, son döşeme planında, notlarda). Kabin ekseninde yalnız montaj kancası kalır.
+- **Kuyu aydınlatması her katta** (her durak +1,50) + kuyu dibi + kuyu tepesi, min 50 lüks; kesitlerde her katta armatür sembolü.
+- **Hız regülatörü ana (kabin) rayının yanında**, ray ile yan duvar arasında; kabin arkasında (arka duvarda) kalmaz. Planda ve kesitlerde bu konumda.
+- **Halat: 7 x Ø6,5 mm** (gh = 0,152 kg/m), 2/1 askı. Hesapta "Halat: 7 x Ø6,5 mm", "ASANSÖR 7 x Ø6,5 mm (7 HALATLI)"; 1.2.3 başlığı "Makine Konsolu Üzerinden Kuyu Perdesine Etki Eden Kuvvetler".
+- **Kesitlerde son döşeme üst kotu** (ör. +16,00 / +17,80) kot sembolüyle işlenir (MRL: kuyu tavanı döşemesi üstü; makine daireli: çatı döşemesi üstü).
+- **Kapak düzeni:** kapak (antet) şeridin sol alt köşesine sıfırlanır, "KONTROL VE NOTLAR" paftası kapağın üstündedir (aynı sütun).
+- **Paftalar sıkıştırılır:** her pafta içeriğine göre daraltılır, paftalar arasında boşluk kalmaz; ayırıcı ve çerçeve çizgileri tek çizgi, üst üste binmez (`asansor_cizim.py` → `yerlestir()`).
+- DWG: asansör çizici R12 DXF yazar; DWG için `motor/asansor/r12_to_dwg.py` (R2018'e yükseltip ACadSharp AC1032).

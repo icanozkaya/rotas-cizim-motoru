@@ -134,6 +134,8 @@ class Asansor:
     montor: float = 150
     halat_kgm: float = 0.373          # ø10 çelik halat ~0,373 kg/m (şablon)
     halat_adet: int = 4
+    halat_cap: float = 10.0           # mm
+    mrl: bool = False                 # makine dairesiz: makine yan perdeye ankrajlı duvar konsolunda
     aski: int = 2                     # 2/1 askı
     D_tahrik: float = 0.24            # m
     verim: float = 0.8
@@ -246,17 +248,18 @@ def rapor(a: Asansor, r=None):
     L.append('1.2. ASANSÖR KUVVET HESABI')
     L.append(f'Gk (kabin kütlesi) = {f(a.P_kabin,0)} kg   Gy (beyan yükü) = {f(a.Q,0)} kg   q = {f(a.q_denge,1)}')
     L.append(f'Karşı ağırlık = Gk + q·Gy = {f(a.P_kabin,0)} + {f(a.q_denge,1)} x {f(a.Q,0)} = {f(r["KA"],0)} kg')
+    L.append(f'Halat: {a.halat_adet} x Ø{f(a.halat_cap,1)} mm çelik halat (gh = {f(a.halat_kgm,3)} kg/m), {a.aski}/1 askı')
     L.append(f'Halat kütlesi Gh = gh x lh x nh = {f(a.halat_kgm,3)} x {f(r["l_halat"],1)} x {a.halat_adet} = {f(r["Gh"],1)} kg')
     L.append('1.2.1. Kuyu Alt Boşluğu Tabanına Gelen Kuvvetler')
     L.append(f'P1 (kabin tamponu altı) = 4 x gn x (Gk + Gy) = 4 x 9,81 x ({f(a.P_kabin,0)} + {f(a.Q,0)}) = {f(r["P1_kabin_tampon"],0)} N')
     L.append(f'P2 (karşı ağırlık tamponu altı) = 4 x gn x Gka = 4 x 9,81 x {f(r["KA"],0)} = {f(r["P2_ka_tampon"],0)} N')
-    L.append('1.2.3. Kuyu Üstü Betonuna Etki Eden Kuvvetler')
+    L.append('1.2.3. Makine Konsolu Üzerinden Kuyu Perdesine Etki Eden Kuvvetler (duvar konsollu, alttan sehpalı)' if a.mrl else '1.2.3. Kuyu Üstü Betonuna Etki Eden Kuvvetler')
     L.append(f'F = gn x (Gmakina + Gsehpa + Gmontör + Gk + Gy + Gh + Gka) = 9,81 x ({f(a.makine,0)} + {f(a.sehpa,0)} + {f(a.montor,0)} + {f(a.P_kabin,0)} + {f(a.Q,0)} + {f(r["Gh"],0)} + {f(r["KA"],0)}) = {f(r["F_kuyu_ustu"],0)} N')
     L.append('1.2.4. Asansör Motor Gücü Hesabı')
     L.append(f'Smaks (artan yük) = Gk + Gh + Gy - Gka = {f(r["S_artan"],0)} kg   M = Smaks x D/2 = {f(r["M_kgm"],1)} kg.m')
     L.append(f'N = (1/η) x S x V / 102 = (1/{f(a.verim,2)}) x {f(r["S_artan"],0)} x {f(r["V"])} / 102 = {f(r["motor_kW"])} kW ({f(r["motor_HP"],1)} HP)  ->  seçilen {f(r["motor_kW_sec"],1)} kW')
     L.append(f'{a.kisi} kişilik {f(r["V"])} m/s hızında {f(r["motor_kW_sec"],1)} kW lık {r["n"]} adet insan asansörü tesis edilecektir.')
-    L.append(f'ASANSÖR {a.halat_adet} HALATLI, {a.aski}/1 ASKILI OLACAKTIR.')
+    L.append(f'ASANSÖR {a.halat_adet} x Ø{f(a.halat_cap,1)} mm ({a.halat_adet} HALATLI), {a.aski}/1 ASKILI OLACAKTIR.')
     L.append('')
     L.append('KONTROLLER')
     L.append(f'Kabin alanı {f(r["kabin_alan"])} m² ≤ EN 81-20 en büyük {f(r["en81_max_alan"])} m² : {"UYGUN" if r["en81_ok"] else "AŞIYOR"}')

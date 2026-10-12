@@ -21,17 +21,18 @@ I = T / n = 108,0 / 2 = 54,0 s  ≤ 100 s  uygundur.
 1.2. ASANSÖR KUVVET HESABI
 Gk (kabin kütlesi) = 550 kg   Gy (beyan yükü) = 800 kg   q = 0,5
 Karşı ağırlık = Gk + q·Gy = 550 + 0,5 x 800 = 950 kg
-Halat kütlesi Gh = gh x lh x nh = 0,373 x 36,2 x 4 = 54,0 kg
+Halat: 7 x Ø6,5 mm çelik halat (gh = 0,152 kg/m), 2/1 askı
+Halat kütlesi Gh = gh x lh x nh = 0,152 x 36,2 x 7 = 38,5 kg
 1.2.1. Kuyu Alt Boşluğu Tabanına Gelen Kuvvetler
 P1 (kabin tamponu altı) = 4 x gn x (Gk + Gy) = 4 x 9,81 x (550 + 800) = 52.974 N
 P2 (karşı ağırlık tamponu altı) = 4 x gn x Gka = 4 x 9,81 x 950 = 37.278 N
-1.2.3. Kuyu Üstü Betonuna Etki Eden Kuvvetler
-F = gn x (Gmakina + Gsehpa + Gmontör + Gk + Gy + Gh + Gka) = 9,81 x (320 + 100 + 150 + 550 + 800 + 54 + 950) = 28.685 N
+1.2.3. Makine Konsolu Üzerinden Kuyu Perdesine Etki Eden Kuvvetler (duvar konsollu, alttan sehpalı)
+F = gn x (Gmakina + Gsehpa + Gmontör + Gk + Gy + Gh + Gka) = 9,81 x (320 + 100 + 150 + 550 + 800 + 39 + 950) = 28.533 N
 1.2.4. Asansör Motor Gücü Hesabı
-Smaks (artan yük) = Gk + Gh + Gy - Gka = 454 kg   M = Smaks x D/2 = 54,5 kg.m
-N = (1/η) x S x V / 102 = (1/0,80) x 454 x 1,00 / 102 = 5,56 kW (7,5 HP)  ->  seçilen 7,5 kW
+Smaks (artan yük) = Gk + Gh + Gy - Gka = 439 kg   M = Smaks x D/2 = 52,6 kg.m
+N = (1/η) x S x V / 102 = (1/0,80) x 439 x 1,00 / 102 = 5,37 kW (7,2 HP)  ->  seçilen 7,5 kW
 10 kişilik 1,00 m/s hızında 7,5 kW lık 2 adet insan asansörü tesis edilecektir.
-ASANSÖR 4 HALATLI, 2/1 ASKILI OLACAKTIR.
+ASANSÖR 7 x Ø6,5 mm (7 HALATLI), 2/1 ASKILI OLACAKTIR.
 
 KONTROLLER
 Kabin alanı 1,80 m² ≤ EN 81-20 en büyük 2,00 m² : UYGUN

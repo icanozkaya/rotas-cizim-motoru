@@ -7,9 +7,9 @@ var ver = args.Length > 2 ? args[2] : "AC1032";
 CadDocument doc;
 using (var r = new DxfReader(inp)) { doc = r.Read(); }
 string first<T>(IEnumerable<T> xs, Func<T,string> f, string want) { var l = xs.Select(f).ToList(); return l.Contains(want) ? want : (l.Count > 0 ? l[0] : want); }
-doc.Header.CurrentDimensionStyleName = first(doc.DimensionStyles, x => x.Name, "Standard");
-doc.Header.CurrentTextStyleName = first(doc.TextStyles, x => x.Name, "Standard");
-doc.Header.DimensionTextStyleName = first(doc.TextStyles, x => x.Name, "Standard");
+if (doc.DimensionStyles.Count() > 0) doc.Header.CurrentDimensionStyleName = first(doc.DimensionStyles, x => x.Name, "Standard");
+if (doc.TextStyles.Count() > 0) { doc.Header.CurrentTextStyleName = first(doc.TextStyles, x => x.Name, "Standard");
+    try { doc.Header.DimensionTextStyleName = first(doc.TextStyles, x => x.Name, "Standard"); } catch { } }
 doc.Header.CurrentLayerName = first(doc.Layers, x => x.Name, "0");
 doc.Header.CurrentLineTypeName = first(doc.LineTypes, x => x.Name, "ByLayer");
 foreach (var ly in doc.Layers) if (ly.Name.EndsWith("PAFTA-SINIRI") || ly.Name == "Defpoints") ly.PlotFlag = false;   // çizilmeyen pafta sınırı

@@ -37,15 +37,10 @@ class Pafta:
     Çerçeve/ayırıcı çizgileri şerit sonunda tek sefer çizilir (çizgiler üst üste binmesin)."""
     def __init__(self, c, olcek, gen_mm, yuk_mm, baslik='', no=1):
         self.c, self.k, self.olcek = c, olcek / 10.0, olcek
-        self.bas = len(c.R)
+        self.bas = len(c.R); self.son = None
+        self.baslik, self.no = baslik, no
         self.Wmm, self.Hmm = gen_mm, yuk_mm
         self.x0, self.y0, self.W, self.H = 0.0, 0.0, gen_mm * self.k, yuk_mm * self.k
-        k = self.k
-        c.L('ASN-ANTET', (4 * k, 20 * k), (self.W - 4 * k, 20 * k))
-        c.T('ASN-BASLIK', (8 * k, 11 * k), baslik, 4.5 * k)
-        c.T('ASN-ANTET', (8 * k, 5 * k), f'ÖLÇEK : 1/{olcek}', 2.8 * k)
-        c.rect('ASN-ANTET', self.W - 26 * k, 5 * k, self.W - 4 * k, 17 * k)
-        c.T('ASN-ANTET', (self.W - 15 * k, 11 * k), f'A-{no:02d}', 5.5 * k, 0, 'MC')
 
     def ic(self):
         k = self.k
@@ -54,17 +49,51 @@ class Pafta:
     def h(self, mm):
         return mm * self.k
 
-    def tasi(self, X, Y):
+    def icerik_x(self):
+        """içerik kayıtlarının yatay sınırları (yerel)"""
+        xs = []
+        for r in self.c.R[self.bas:self.son]:
+            if r[0] == 'L': xs += [r[2][0], r[3][0]]
+            elif r[0] == 'P': xs += [q[0] for q in r[2]]
+            elif r[0] in ('C', 'A'): xs += [r[2][0] - r[3], r[2][0] + r[3]]
+            elif r[0] == 'T':
+                aci = abs((r[5] or 0) % 180)
+                x = r[2][0]
+                if 45 < aci < 135:
+                    xs += [x - r[4], x + r[4]]; continue
+                w = len(str(r[3])) * r[4] * 0.62
+                hz = (r[6] or 'L')[-1]
+                xs += [x - w, x] if hz == 'R' else ([x - w / 2, x + w / 2] if hz == 'C' else [x, x + w])
+        return (min(xs), max(xs)) if xs else (0.0, self.W)
+
+    def gerekli_mm(self, min_mm=120):
+        a, b = self.icerik_x()
+        return max(min_mm, (b - a) / self.k + 16), a
+
+    def bitir(self, gen_mm, X, Y, dx_lok):
+        """başlık bandını son genişlikle çiz, içerik + bandı şeritteki yerine taşı (dx_lok: sola yaslama)"""
+        c = self.c; k = self.k
+        self.Wmm = gen_mm; self.W = gen_mm * k
+        h0 = len(c.R)
+        c.L('ASN-ANTET', (4 * k, 20 * k), (self.W - 4 * k, 20 * k))
+        c.T('ASN-BASLIK', (8 * k, 11 * k), self.baslik, 4.5 * k)
+        c.T('ASN-ANTET', (8 * k, 5 * k), f'ÖLÇEK : 1/{self.olcek}', 2.8 * k)
+        c.rect('ASN-ANTET', self.W - 26 * k, 5 * k, self.W - 4 * k, 17 * k)
+        c.T('ASN-ANTET', (self.W - 15 * k, 11 * k), f'A-{self.no:02d}', 5.5 * k, 0, 'MC')
+        self._tasi(X, Y, [(self.bas, self.son, dx_lok), (h0, len(c.R), 0.0)])
+
+    def _tasi(self, X, Y, araliklar):
         f = SERIT_OLCEK / self.olcek
         R = self.c.R
-        mp = lambda p: (X + p[0] * f, Y + p[1] * f)
-        for i in range(self.bas, len(R)):
-            r = R[i]
-            if r[0] == 'L': R[i] = ('L', r[1], mp(r[2]), mp(r[3]))
-            elif r[0] == 'P': R[i] = ('P', r[1], [mp(q) for q in r[2]], r[3])
-            elif r[0] == 'C': R[i] = ('C', r[1], mp(r[2]), r[3] * f)
-            elif r[0] == 'A': R[i] = ('A', r[1], mp(r[2]), r[3] * f, r[4], r[5])
-            elif r[0] == 'T': R[i] = ('T', r[1], mp(r[2]), r[3], r[4] * f, r[5], r[6])
+        for i0, i1, dx in araliklar:
+            mp = lambda p, dx=dx: (X + (p[0] + dx) * f, Y + p[1] * f)
+            for i in range(i0, i1):
+                r = R[i]
+                if r[0] == 'L': R[i] = ('L', r[1], mp(r[2]), mp(r[3]))
+                elif r[0] == 'P': R[i] = ('P', r[1], [mp(q) for q in r[2]], r[3])
+                elif r[0] == 'C': R[i] = ('C', r[1], mp(r[2]), r[3] * f)
+                elif r[0] == 'A': R[i] = ('A', r[1], mp(r[2]), r[3] * f, r[4], r[5])
+                elif r[0] == 'T': R[i] = ('T', r[1], mp(r[2]), r[3], r[4] * f, r[5], r[6])
         m5 = SERIT_OLCEK / 10
         self.x0, self.y0, self.W, self.H, self.k = X, Y, self.Wmm * m5, self.Hmm * m5, m5
 
@@ -200,7 +229,11 @@ def kuyu_ic_olcu(K, k_):
     kax = (bos0 + bos1) / 2
     kc = kab_x0 + K['kabin_gen'] / 2
     xs = kax - MRL['r_ka'] - MRL['r_tahrik']          # tahrik kasnağı ekseni: K.A. halatı düşey iner
-    return dict(kab_x0=kab_x0, kab_x1=kab_x1, kab_y0=kab_y0, kab_y1=kab_y1, ym=ym, kax=kax, kaw=kaw,
+    gu0 = x0 + SIVA + 1.0                              # regülatör: sol kabin rayı yanında (yan duvar - ray arası)
+    gu1 = max(gu0 + 12.0, kab_x0 - 10.4 - 1.0)
+    gv = ym - 22.0                                       # rayın yanında (arka duvara değil)
+    return dict(gu0=gu0, gu1=gu1, gu=(gu0 + gu1) / 2, gv=gv,
+                kab_x0=kab_x0, kab_x1=kab_x1, kab_y0=kab_y0, kab_y1=kab_y1, ym=ym, kax=kax, kaw=kaw,
                 kc=kc, bos0=bos0, bos1=bos1, xs=xs, pL=kc - 30, pR=kc + 30, vh=ym + MRL['v_halat'],
                 kaide0=kab_x1 - 12, kaide1=bos1 - 1)
 
@@ -244,7 +277,7 @@ def kuyu_ic(c, K, k_, P, ang, h, detay=True, kapi=True):
             c.C('ASN-HALAT', P(hx, vh), 1.5)
         for px in (o['pL'], o['pR']):                                                       # kabin altı saptırma kasnakları
             R('ASN-MOTOR-GIZLI', px - M['r_kasnak'], vh - 3, px + M['r_kasnak'], vh + 3)
-        R('ASN-MOTOR-GIZLI', kx0 + 7, SIVA + 3, kx0 + 23, SIVA + 15)                         # hız regülatörü (kuyu tepesi)
+        R('ASN-MOTOR-GIZLI', o['gu0'], o['gv'] - 8, o['gu1'], o['gv'] + 8)                   # hız regülatörü: ana ray yanında (kuyu tepesi)
         mx0, mx1 = xs - M['r_govde'], xs + M['r_govde']
     if detay:
         dy_ = -32 if md else 0
@@ -253,8 +286,8 @@ def kuyu_ic(c, K, k_, P, ang, h, detay=True, kapi=True):
         c.T('ASN-KABIN', P(kc, ym - 18 + dy_), f"{(K['kabin_gen']*K['kabin_der'])/1e4:.2f} m²", h, ang, 'MC')
         c.T('ASN-KA', P(kax, ym - 48), 'K.A.', h * 0.8, ang, 'TC')
         if not md:
-            c.T('ASN-MOTOR', P(xs, vh - 22), 'MRL MAKİNE (kuyu tepesinde)', h * 0.6, ang, 'TC')
-            c.T('ASN-MOTOR', P(kx0 + 15, SIVA + 18), 'regülatör', h * 0.55, ang, 'BC')
+            c.T('ASN-MOTOR', P(xs, vh - 22), 'MRL MAKİNE (duvar konsolunda)', h * 0.6, ang, 'TC')
+            c.T('ASN-MOTOR', P(o['gu'], o['gv'] - 12), 'regülatör', h * 0.55, ang, 'TC')
         c.T('ASN-KAPI', P(kc, D + K['dis_duvar'] + 8), 'KAT KAPISI 90/210 TELESKOPİK OTOMATİK', h * 0.75, ang, 'BC')
     return o
 
@@ -301,7 +334,11 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
             kx0, kx1, kc, kax = X(o['kab_x0']), X(o['kab_x1']), X(o['kc']), X(o['kax'])
             xs, pL, pR = X(o['xs']), X(o['pL']), X(o['pR'])
             kw = o['kaw'] / 2
-            gx = kx0 + 15                                       # regülatör ekseni
+            gx = X(o['gu'])                                     # regülatör ekseni: sol kabin rayı yanında
+            xa_ = X(o['kaide0']) + 8; xb_ = b - SIVA - 2         # makine konsolu altındaki sehpa (çapraz askı)
+            zs0 = zkaide0 - 0.90
+            zst = lambda x_: zkaide0 - 0.90 * max(0.0, min(1.0, (x_ - xa_) / max(1.0, xb_ - xa_)))
+            isiklar = [z + 1.5 for z in K['durak_kotlari']] + [dip + 1.0, tavan - 0.35]
             eng = [(kx0, kx1, zk - 0.20, zk + 2.60),             # kabin + çerçeve
                    (pL - M['r_kasnak'], pL + M['r_kasnak'], zcp - 0.11, zcp + 0.11),
                    (pR - M['r_kasnak'], pR + M['r_kasnak'], zcp - 0.11, zcp + 0.11),
@@ -313,9 +350,9 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
                    (kx0 + 5, kx0 + 15, zk - 0.36, zk - 0.21), (kx1 - 15, kx1 - 5, zk - 0.36, zk - 0.21)]
             # raylar: kabin T89 (iki yanda), K.A. T50 (K.A. ekseninde)
             for x_ in (kx0 - 1.5, kx0 - 10.4, kx1 + 1.5, kx1 + 10.4):
-                _dik(c, 'ASN-RAY', x_, dip, zkaide0 if x_ > kx1 else tavan - 0.02, eng, Z)
+                _dik(c, 'ASN-RAY', x_, dip, zst(x_) - 0.03 if x_ > kx1 else tavan - 0.02, eng, Z)
             for x_ in (kax - 2.5, kax + 2.5):
-                _dik(c, 'ASN-RAY', x_, dip, zkaide0, eng, Z)
+                _dik(c, 'ASN-RAY', x_, dip, zst(x_) - 0.03, eng, Z)
             # ray konsolları (her ~2,5 m; duvar tarafı açık)
             zb_ = dip + 0.6
             while zb_ < zkaide0 - 0.2:
@@ -339,17 +376,20 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
             for j in range(1, 10):
                 c.L('ASN-KA', (kax - kw, Z(zka + j * hka / 10)), (kax + kw, Z(zka + j * hka / 10)))
             _kasnak(c, 'ASN-MOTOR', kax, Z(zcw), M['r_ka'])
-            # MRL makine (önden): kaide (2xUPN, rayların başına elastik takozla oturur), gövde Ø42, tahrik kasnağı Ø24
+            # MRL makine (önden): yan duvara (perde) ankrajlı konsol 2xUPN, altında çapraz askılı sehpa; gövde Ø42, tahrik kasnağı Ø24
             c.rect('ASN-MOTOR', X(o['kaide0']), Z(zkaide0), X(o['kaide1']), Z(zkaide))
             c.L('ASN-MOTOR', (X(o['kaide0']), Z(zkaide0 + 0.08)), (X(o['kaide1']), Z(zkaide0 + 0.08)))
+            c.rect('ASN-MOTOR', xb_, Z(zs0 - 0.06), b - SIVA, Z(zkaide + 0.04))                 # duvar ankraj plakası
+            for d_ in (0.0, 3.0):                                                               # sehpa / çapraz askı (2 profil)
+                c.L('ASN-MOTOR', (xa_ + d_, Z(zkaide0)), (xb_, Z(zs0) + d_))
+            for zz_ in (zs0 + 0.05, zkaide - 0.05):                                             # ankraj bulonları
+                c.C('ASN-MOTOR', (xb_ + 1.2, Z(zz_)), 0.9)
             c.C('ASN-MOTOR', (xs, Z(zax)), M['r_govde'])
             c.C('ASN-MOTOR', (xs, Z(zax)), M['r_govde'] - 3)
             _kasnak(c, 'ASN-MOTOR', xs, Z(zax), M['r_tahrik'])
             c.P('ASN-MOTOR', [(xs - 17, Z(zkaide)), (xs - 12, Z(zax - 0.14)), (xs + 12, Z(zax - 0.14)), (xs + 17, Z(zkaide))])
             for bx_ in (xs - M['r_govde'] - 6, xs + M['r_govde']):          # fren kaliperleri
                 c.rect('ASN-MOTOR', bx_, Z(zax - 0.08), bx_ + 6, Z(zax + 0.08))
-            c.L('ASN-MOTOR', (xs, Z(ztop_m)), (xs, Z(tavan)))                 # askı kancası
-            c.A('ASN-MOTOR', (xs, Z(ztop_m) + 4), 4, 180, 360)
             c.L('ASN-MOTOR', (kc, Z(tavan)), (kc, Z(tavan - 0.12)))           # montaj kancası (kabin ekseni)
             c.A('ASN-MOTOR', (kc, Z(tavan - 0.12) - 3), 3, 0, 270)
             # 2/1 halat güzergâhı: sabit uç (kaide) -> kabin altı kasnaklar -> tahrik kasnağı -> K.A. kasnağı -> sabit uç
@@ -363,27 +403,30 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
                 c.rect('ASN-HALAT', hx - 3, Z(zkaide0 - 0.10), hx + 3, Z(zkaide0 - 0.01))
             # hız regülatörü (kuyu tepesi) + gergi kasnağı ve ağırlığı (kuyu dibi), regülatör halatı
             c.rect('ASN-MOTOR', gx - 8, Z(tavan - 0.55), gx + 8, Z(tavan - 0.35)); c.C('ASN-MOTOR', (gx, Z(tavan - 0.45)), 6)
-            c.L('ASN-MOTOR', (gx, Z(tavan - 0.35)), (gx, Z(tavan)))
+            c.L('ASN-MOTOR', (gx - 8, Z(tavan - 0.45)), (a + SIVA, Z(tavan - 0.45)))          # regülatör duvar/ray konsolu
             c.C('ASN-MOTOR', (gx, Z(dip + 0.40)), 6)
             c.rect('ASN-MOTOR', gx - 5, Z(dip + 0.12), gx + 5, Z(dip + 0.28)); c.L('ASN-MOTOR', (gx, Z(dip + 0.28)), (gx, Z(dip + 0.40) - 6))
+            eng_i = [(a, a + SIVA + 3.5, z_ - 0.05, z_ + 0.05) for z_ in isiklar]
             for x_ in (gx - 6, gx + 6):
-                _dik(c, 'ASN-HALAT', x_, dip + 0.40, tavan - 0.45, eng[:1] + eng[8:], Z)
+                _dik(c, 'ASN-HALAT', x_, dip + 0.40, tavan - 0.45, eng[:1] + eng[8:] + eng_i, Z)
             # tamponlar (zemine oturur - alt kenar açık)
             for tx_ in (kc - 30, kc + 30):
                 c.P('ASN-YUK', [(tx_ - 7, Z(dip)), (tx_ - 7, Z(dip + 0.45)), (tx_ + 7, Z(dip + 0.45)), (tx_ + 7, Z(dip))])
             c.P('ASN-YUK', [(kax - 5, Z(dip)), (kax - 5, Z(dip + 0.40)), (kax + 5, Z(dip + 0.40)), (kax + 5, Z(dip))])
-            # kat kapıları (kabinin olmadığı duraklar) ve kuyu aydınlatması
+            # kat kapıları (kabinin olmadığı duraklar); kuyu aydınlatması HER KATTA + kuyu dibi + tepe (sol yan duvarda)
             for z in K['durak_kotlari']:
                 if abs(z - zk) > 0.01:
                     c.rect('ASN-KAPI', kc - 45, Z(z + 0.02), kc + 45, Z(z + 2.10)); c.L('ASN-KAPI', (kc, Z(z + 0.02)), (kc, Z(z + 2.10)))
-                    c.C('ASN-MOTOR', (kc + 20, Z(z + 2.55)), 3)
-            c.C('ASN-MOTOR', (kc + 20, Z(dip + 1.0)), 3); c.C('ASN-MOTOR', (kc + 20, Z(zk + 2.85)), 3)
+            for z_ in isiklar:
+                q_ = (a + SIVA + 2.5, Z(z_)); c.C('ASN-ELEKTRIK', q_, 2.5)
+                c.L('ASN-ELEKTRIK', (q_[0] - 1.7, q_[1] - 1.7), (q_[0] + 1.7, q_[1] + 1.7)); c.L('ASN-ELEKTRIK', (q_[0] - 1.7, q_[1] + 1.7), (q_[0] + 1.7, q_[1] - 1.7))
             if i == len(ky) - 1:
-                et += [(xs, Z(tavan) - 2, 'MAKİNE ASKI KANCASI (min 2000 kg)'),
-                       (xs + M['r_govde'], Z(zax + 0.1), 'MRL DİŞLİSİZ MAKİNE (PM senkron, ~5,5-7,5 kW)'),
-                       (xs - M['r_tahrik'] * 0.6, Z(zax - 0.06), 'TAHRİK KASNAĞI Ø240 (8xØ6,5 halat)'),
-                       (X(o['kaide1']) - 4, Z(zkaide0 + 0.04), 'MAKİNE KAİDESİ 2xUPN (rayların başına, elastik takozlu)'),
-                       (gx + 8, Z(tavan - 0.45), 'HIZ REGÜLATÖRÜ'),
+                et += [(xs + M['r_govde'], Z(zax + 0.1), 'MRL DİŞLİSİZ MAKİNE (PM senkron, ~5,5-7,5 kW)'),
+                       (xs - M['r_tahrik'] * 0.6, Z(zax - 0.06), 'TAHRİK KASNAĞI Ø240 (7xØ6,5 halat)'),
+                       (X(o['kaide1']) - 4, Z(zkaide0 + 0.04), 'MAKİNE DUVAR KONSOLU 2xUPN (yan perdeye ankrajlı)'),
+                       ((xa_ + xb_) / 2, Z((zkaide0 + zs0) / 2), 'ALTTAN SEHPA / ÇAPRAZ ASKI (2 profil)'),
+                       (b - SIVA - 1, Z(zs0 + 0.05), 'DUVAR ANKRAJ PLAKASI (kimyasal dübel, statik onaylı)'),
+                       (gx + 8, Z(tavan - 0.45), 'HIZ REGÜLATÖRÜ (ana ray yanında)'),
                        (kc, Z(tavan - 0.12) - 6, 'MONTAJ KANCASI (kabin ekseni)'),
                        (kx1 - 20, Z(zk + 2.52), 'KABİN ÜST KÖPRÜSÜ / SÜSPANSİYON ÇERÇEVESİ'),
                        (kx1 - 10, Z(zk + 1.6), f"KABİN {K['kabin_gen']*10:.0f}x{K['kabin_der']*10:.0f} / {K['Q']:.0f} kg / {K['kisi']} kişi"),
@@ -395,7 +438,7 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
                        (kax + 2.5, Z(zka + hka + 1.5), 'K.A. RAYI T50'),
                        (kax + kw, Z(zka + 1.2), 'KARŞI AĞIRLIK (P + 0,5Q)'),
                        (kax + M['r_ka'], Z(zcw), 'K.A. KASNAĞI'),
-                       (kc + 23, Z(K['durak_kotlari'][-2] + 2.55), 'KUYU AYDINLATMASI (min 50 lüks)'),
+                       (a + SIVA + 5, Z(K['durak_kotlari'][-2] + 1.5), 'KUYU AYDINLATMASI (her katta + dip + tepe, min 50 lüks)'),
                        (kc + 45, Z(K['durak_kotlari'][-2] + 1.0), 'KAT KAPISI 900x2100 TELESKOPİK'),
                        (gx + 6, Z(dip + 0.40), 'REGÜLATÖR GERGİ KASNAĞI + AĞIRLIĞI'),
                        (kc + 37, Z(dip + 0.3), 'KABİN TAMPONLARI'),
@@ -405,11 +448,11 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
         D = K['derinlik']
         X = lambda v: xs0 + v
         cy0, cy1, ym, vh = X(o['kab_y0']), X(o['kab_y1']), X(o['ym']), X(o['vh'])
-        a = X(0); gx = X(SIVA + 9)
+        a = X(0); gx = X(o['gv'])
         g0 = vh + M['kasnak_en'] / 2
         eng = [(cy0, cy1, zk - 0.20, zk + 2.60), (vh - 4, vh + 4, zcp - 0.11, zcp + 0.11),
                (ym - 35, ym + 35, zka, zka + hka), (vh - 4, vh + 4, zcw - 0.11, zcw + 0.11),
-               (vh - 15, vh + 65, zkaide0, ztop_m), (gx - 8, gx + 8, tavan - 0.55, tavan - 0.35)]
+               (vh - 15, vh + 65, zkaide0 - 0.95, ztop_m), (gx - 8, gx + 8, tavan - 0.55, tavan - 0.35)]
         for x_ in (ym - 4.45, ym + 4.45):                       # kabin rayı (yandan flanş)
             _dik(c, 'ASN-RAY', x_, dip, zkaide0, eng, Z)
         for x_ in (ym - 43.5, ym - 38.5, ym + 38.5, ym + 43.5):  # K.A. rayları
@@ -437,17 +480,18 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
         c.rect('ASN-MOTOR', g0 + M['govde_boy'], Z(zax - 0.15), g0 + M['govde_boy'] + M['fren_boy'], Z(zax + 0.15))
         c.L('ASN-MOTOR', (g0 + 5, Z(zkaide)), (g0 + 5, Z(zax - M['r_govde'] / 100)))
         c.L('ASN-MOTOR', (g0 + M['govde_boy'] - 5, Z(zkaide)), (g0 + M['govde_boy'] - 5, Z(zax - M['r_govde'] / 100)))
-        c.L('ASN-MOTOR', (g0 + M['govde_boy'] / 2, Z(ztop_m)), (g0 + M['govde_boy'] / 2, Z(tavan)))
-        c.A('ASN-MOTOR', (g0 + M['govde_boy'] / 2, Z(ztop_m) + 4), 4, 180, 360)
+        zs0 = zkaide0 - 0.90                                    # konsol altı sehpa: yan perdede çapraz askı
+        c.L('ASN-MOTOR', (vh - 15, Z(zkaide0)), (vh + 65, Z(zs0))); c.L('ASN-MOTOR', (vh + 65, Z(zkaide0)), (vh - 15, Z(zs0)))
+        c.rect('ASN-MOTOR', vh - 17, Z(zs0 - 0.06), vh + 67, Z(zs0))
         # halat demeti (2 kenar çizgisi), kasnak hizasında
         for x_ in (vh - 3, vh + 3):
             _dik(c, 'ASN-HALAT', x_, zcw + 0.11, zax - M['r_tahrik'] / 100, eng[:2], Z)
         # regülatör + gergi
-        c.rect('ASN-MOTOR', gx - 8, Z(tavan - 0.55), gx + 8, Z(tavan - 0.35)); c.L('ASN-MOTOR', (gx, Z(tavan - 0.35)), (gx, Z(tavan)))
+        c.rect('ASN-MOTOR', gx - 8, Z(tavan - 0.55), gx + 8, Z(tavan - 0.35)); c.C('ASN-MOTOR', (gx, Z(tavan - 0.45)), 6)
         c.C('ASN-MOTOR', (gx, Z(dip + 0.40)), 6); c.rect('ASN-MOTOR', gx - 5, Z(dip + 0.12), gx + 5, Z(dip + 0.28))
         c.L('ASN-MOTOR', (gx, Z(dip + 0.28)), (gx, Z(dip + 0.40) - 6))
         for x_ in (gx - 6, gx + 6):
-            _dik(c, 'ASN-HALAT', x_, dip + 0.40, tavan - 0.55, [], Z)
+            _dik(c, 'ASN-HALAT', x_, dip + 0.40, tavan - 0.55, eng[:3], Z)
         # tamponlar
         for tx_ in (ym - 22, ym + 22):
             c.P('ASN-YUK', [(tx_ - 7, Z(dip)), (tx_ - 7, Z(dip + 0.45)), (tx_ + 7, Z(dip + 0.45)), (tx_ + 7, Z(dip))])
@@ -459,18 +503,17 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
         c.L('ASN-KAPI', (X(gen - 25), Z(dip)), (X(gen - 25), Z(alt_kat + 1.0)))
         c.L('ASN-KAPI', (X(gen - 8), Z(dip)), (X(gen - 8), Z(alt_kat + 1.0)))
         c.rect('ASN-ELEKTRIK', X(gen - 45), Z(dip + 0.90), X(gen - 33), Z(dip + 1.15))
-        for z in K['durak_kotlari']:
-            if abs(z - zk) > 0.01:
-                c.C('ASN-MOTOR', (X(SIVA + 30), Z(z + 2.55)), 3)
-        c.C('ASN-MOTOR', (X(SIVA + 30), Z(dip + 1.0)), 3); c.C('ASN-MOTOR', (X(SIVA + 30), Z(zk + 2.85)), 3)
+        for z_ in [z + 1.5 for z in K['durak_kotlari']] + [dip + 1.0, tavan - 0.35]:      # kuyu aydınlatması her katta
+            q_ = (X(SIVA + 2.5), Z(z_)); c.C('ASN-ELEKTRIK', q_, 2.5)
+            c.L('ASN-ELEKTRIK', (q_[0] - 1.7, q_[1] - 1.7), (q_[0] + 1.7, q_[1] + 1.7)); c.L('ASN-ELEKTRIK', (q_[0] - 1.7, q_[1] + 1.7), (q_[0] + 1.7, q_[1] - 1.7))
         # kumanda panosu (son durak, kat kapısı yanında - kuyu dışında)
         kpx = X(D + K['dis_duvar'] + 4)
         c.rect('ASN-ELEKTRIK', kpx, Z(zk + 0.80), kpx + 14, Z(zk + 2.00))
-        et += [(g0 + M['govde_boy'] / 2, Z(tavan) - 2, 'MAKİNE ASKI KANCASI (min 2000 kg)'),
-               (g0 + M['govde_boy'], Z(zax + 0.1), 'MRL DİŞLİSİZ MAKİNE + FREN'),
-               (vh + M['kasnak_en'] / 2, Z(zax - 0.05), 'TAHRİK KASNAĞI Ø240'),
-               (vh + 65, Z(zkaide0 + 0.08), 'MAKİNE KAİDESİ (ray başlarına)'),
-               (gx + 8, Z(tavan - 0.45), 'HIZ REGÜLATÖRÜ'),
+        et += [(g0 + M['govde_boy'], Z(zax + 0.1), 'MRL DİŞLİSİZ MAKİNE + FREN'),
+               (vh + M['kasnak_en'] / 2, Z(zax - 0.05), 'TAHRİK KASNAĞI Ø240 (7xØ6,5)'),
+               (vh + 65, Z(zkaide0 + 0.08), 'MAKİNE DUVAR KONSOLU 2xUPN'),
+               (vh + 25, Z(zkaide0 - 0.45), 'ÇAPRAZ ASKILI SEHPA (perdeye ankrajlı)'),
+               (gx + 8, Z(tavan - 0.45), 'HIZ REGÜLATÖRÜ (ana ray yanında)'),
                (ym + 12, Z(zk + 2.52), 'KABİN ÜST KÖPRÜSÜ'),
                (cy1 - 10, Z(zk + 1.6), 'KABİN (son durakta)'),
                (cy1 + 4, Z(zk + 1.0), 'KABİN KAPISI'),
@@ -479,7 +522,7 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
                (ym + 4.45, Z(zka + hka + 1.0), 'KABİN RAYI T89'),
                (ym + 43.5, Z(zka + hka + 2.0), 'K.A. RAYLARI T50'),
                (ym + 35, Z(zka + 1.2), 'KARŞI AĞIRLIK'),
-               (X(SIVA + 33), Z(K['durak_kotlari'][-2] + 2.55), 'KUYU AYDINLATMASI'),
+               (X(SIVA + 5), Z(K['durak_kotlari'][-2] + 1.5), 'KUYU AYDINLATMASI (her katta)'),
                (kpx + 14, Z(zk + 1.4), 'KUMANDA PANOSU (son durak)'),
                (X(gen) + 13, Z(K['durak_kotlari'][-2] + 1.6), 'KAT KAPISI (teleskopik)'),
                (gx + 6, Z(dip + 0.40), 'REGÜLATÖR GERGİ KASNAĞI'),
@@ -789,38 +832,47 @@ def ciz(K, cikis):
     a = Asansor(proje=K['blok'], bina='konut', daireler=[tuple(d) for d in K['daireler']], durak=len(K['durak_kotlari']),
                 ana_durak_ustu=K['ana_durak_ustu'], kat_yuk=(K['durak_kotlari'][-1] - K.get('ana_durak_kotu', K['durak_kotlari'][0])) / K['ana_durak_ustu'], seyir=K['seyir'],
                 kisi=K['kisi'], Q=K['Q'], kabin_gen=int(K['kabin_gen'] * 10), kabin_der=int(K['kabin_der'] * 10),
-                n_asansor=len(K['kuyular']), kuyu_dibi=K['kuyu_dibi'], kuyu_ustu=K['kuyu_ustu'], P_kabin=K['P_kabin'], aski=aski)
+                n_asansor=len(K['kuyular']), kuyu_dibi=K['kuyu_dibi'], kuyu_ustu=K['kuyu_ustu'], P_kabin=K['P_kabin'], aski=aski,
+                **({} if md else dict(halat_adet=K.get('halat_adet', 7), halat_cap=K.get('halat_cap', 6.5), halat_kgm=K.get('halat_kgm', 0.152), mrl=True)))
     r = hesapla(a)
     paftalar = []
     proje = K['proje']; proje['blok'] = K['blok']
     m5 = SERIT_OLCEK / 10
     SOL = 20 * m5                        # cilt payı
-    yer = dict(x=SOL, ust_gen=0.0)       # sütun takibi (model birimi)
     hucreler = []                        # (X, Y, W, H) ayırıcı çizgiler için
-    bekleyen = []
+    sutunlar = []                        # sıkıştırılmış dizilim: her sütun = 1 tam pafta veya üst + alt
+    aktif = []
 
-    def bitir():
-        while bekleyen:
-            pf, X, Y = bekleyen.pop()
-            pf.tasi(X, Y)
+    def kapat():
+        if aktif:
+            aktif[0].son = len(c.R); aktif.clear()
 
     def yeni(olcek, gen_mm, baslik, konum='tam'):
-        """konum: 'tam' (594 yükseklik), 'ust' / 'alt' (297 yükseklik, aynı sütun)."""
-        bitir()
-        if konum == 'alt':
-            X, Y, H = yer['x'], 0.0, 297
-        elif konum == 'ust':
-            X, Y, H = yer['x'], 297 * m5, 297
-        else:
-            X, Y, H = yer['x'], 0.0, SERIT_H
+        """konum: 'tam' (594 yükseklik), 'ust' / 'alt' (297 yükseklik, aynı sütun). Genişlik sonda içeriğe göre daraltılır."""
+        kapat()
+        H = SERIT_H if konum == 'tam' else 297
         p = Pafta(c, olcek, gen_mm, H, baslik, len(paftalar) + 1)
-        paftalar.append((baslik, p)); bekleyen.append((p, X, Y)); hucreler.append((X, Y, gen_mm * m5, H * m5))
-        if konum == 'ust':
-            yer['ust_gen'] = gen_mm * m5
+        paftalar.append((baslik, p)); aktif.append(p)
+        if konum == 'alt' and sutunlar and sutunlar[-1]['acik']:
+            sutunlar[-1]['oge'].append((p, 'alt')); sutunlar[-1]['acik'] = False
         else:
-            yer['x'] += max(gen_mm * m5, yer['ust_gen'] if konum == 'alt' else 0)
-            yer['ust_gen'] = 0.0
+            sutunlar.append(dict(oge=[(p, konum)], acik=(konum == 'ust'), min_mm=0))
         return p
+
+    def yerlestir():
+        """paftaları içerik genişliğine göre daralt, aralarında boşluk bırakmadan soldan sağa diz"""
+        kapat()
+        X = SOL
+        for sut in sutunlar:
+            ol = [(p, kn) + p.gerekli_mm() for p, kn in sut['oge']]
+            W = max([g for _, _, g, _ in ol] + [sut['min_mm']])
+            for p, kn, g, a in ol:
+                Y = 297 * m5 if kn == 'ust' else 0.0
+                p.bitir(W, X, Y, 8 * p.k - a)
+                hucreler.append((X, Y, W * m5, p.Hmm * m5))
+            sut['X'] = X
+            X += W * m5
+        return X
 
     ky = kuyu_yerlesim(K, None)
     ust_kat = K['durak_kotlari'][-1]
@@ -837,10 +889,8 @@ def ciz(K, cikis):
           (790, 1093): '90 (teleskopik)', (790, 1058): ' + '.join(f"{k_['gen']:.0f}x{K['derinlik']:.0f}" for k_ in ky),
           (790, 1023): f"{K['kabin_gen']*10:.0f}x{K['kabin_der']*10:.0f}", (790, 988): f'{aski}/1', (790, 953): 'T89 / T50',
           (170, 249): f"{K['blok']} BLOK", (615, 248): K.get('tip_kapak', 'MAKİNE DAİRESİZ ÇİFT'), (783, 574): f"{proje['ilce']} BELEDİYESİ"}
-    bitir()
-    kw, kh = sablon_yapistir(c, 'kapak_sablon', SOL, 297 * m5, 'ASN-ANTET', 'ASN-ANTET', kd)
-    hucreler.append((SOL, 297 * m5, kw, kh)); yer['ust_gen'] = kw
-    p = yeni(50, 210, 'KONTROL VE NOTLAR', 'alt'); k = p.k; X0, Y0, X1, Y1 = p.ic()
+    p = yeni(50, 210, 'KONTROL VE NOTLAR', 'ust'); k = p.k; X0, Y0, X1, Y1 = p.ic()
+    sutunlar[-1]['acik'] = False; sutunlar[-1]['min_mm'] = 210; sutunlar[-1]['kapak'] = kd
     def sar(satirlar, n=118):
         out = []
         for s_ in satirlar:
@@ -1000,12 +1050,12 @@ def ciz(K, cikis):
             c.rect('ASN-SIVA', a0, sy0, a1, sy0 + D * s)
             kc = kabin_x0(K, k_) + K['kabin_gen'] / 2
             o = kuyu_ic(c, K, k_, lambda u, v: (sx0 + u * s, sy0 + v * s), 0, 2.0 * k, False, kapi=False)
-            # makine askı kancası (makine ekseni) ve montaj kancası (kabin ekseni)
-            for (qx, qy, ad_) in ((o['xs'], o['vh'] + 34, 'MAKİNE ASKI KANCASI'), (kc, o['ym'] - 45, 'MONTAJ KANCASI')):
+            # yalnız montaj kancası (kabin ekseni); makine duvar konsolunda olduğundan makine askı kancası yoktur
+            for (qx, qy, ad_) in ((kc, o['ym'] - 45, 'MONTAJ KANCASI'),):
                 q = (sx0 + qx * s, sy0 + qy * s)
                 c.C('ASN-MOTOR', q, 4); c.C('ASN-MOTOR', q, 1.5)
                 c.T('ASN-MOTOR', (q[0], q[1] - 6), ad_, 1.4 * k, 0, 'TC')
-            c.T('ASN-MOTOR', (sx0 + o['xs'] * s, sy0 + (o['vh'] + 77) * s), 'MRL MAKİNE + KAİDE', 1.5 * k, 0, 'BC')
+            c.T('ASN-MOTOR', (sx0 + o['xs'] * s, sy0 + (o['vh'] + 77) * s), 'MRL MAKİNE + DUVAR KONSOLU (kesikli)', 1.5 * k, 0, 'BC')
             c.T('ASN-BASLIK', ((a0 + a1) / 2, sy0 - 30), k_['ad'], 2.2 * k, 0, 'TC')
             c.rect('ASN-MOTOR', a1 - 45, sy0 + 10, a1 - 10, sy0 + 40)
             c.L('ASN-MOTOR', (a1 - 45, sy0 + 10), (a1 - 10, sy0 + 40)); c.L('ASN-MOTOR', (a1 - 45, sy0 + 40), (a1 - 10, sy0 + 10))
@@ -1013,12 +1063,13 @@ def ciz(K, cikis):
             c.olcu('ASN-OLCU', (a0, sy0 + D + tw), (a1, sy0 + D + tw), 30, 2.0 * k, f"{k_['gen']:.0f}")
         c.olcu('ASN-OLCU', (sx0 + toplam + tw, sy0), (sx0 + toplam + tw, sy0 + D), -30, 2.0 * k, f'{D:.0f}')
         c.T('ASN-UYARI', (sx0, sy0 + D + 100), f"SON DÖŞEME: alt +{f(tavan)} / üst +{f(tavan + kalin / 100)} - min {kalin:.0f} cm betonarme", 2.6 * k)
-        c.T('ASN-BASLIK', (sx0, sy0 + D * s + 70), 'MOTORUN ASILDIĞI SON DÖŞEME (KUYU TAVANI) PLANI Ö:1/20', 3 * k)
+        c.T('ASN-BASLIK', (sx0, sy0 + D * s + 70), 'SON DÖŞEME (KUYU TAVANI) PLANI Ö:1/20', 3 * k)
         sd = [f"Son döşeme alt kotu +{f(tavan)}  (son durak +{f(ust_kat)} -> kuyu üst boşluğu {f(tavan-ust_kat)} m)",
-              f"Mimaride döşeme kalınlığı {K['mimari_son_doseme_kalinlik']:.0f} cm -> motor asılacağı için en az {kalin:.0f} cm betonarme (statik hesaplı).",
-              f"Her kuyu için döşemeye gelen düşey yük F = {f(r['F_kuyu_ustu']/1000,1)} kN (statik); dinamik katsayı statikçe uygulanacak.",
-              'Makine: dişlisiz MRL, kuyu tepesinde kabin rayı ve K.A. rayı başlarına oturan 2xUPN kaide üzerinde (kesikli çizgi).',
-              'Makine ekseninde askı kancası + kabin ekseninde montaj kancası (min 2000 kg, kapasite üzerine yazılır).',
+              f"Mimaride döşeme kalınlığı {K['mimari_son_doseme_kalinlik']:.0f} cm -> en az {kalin:.0f} cm betonarme (statik hesaplı).",
+              'Makine: dişlisiz MRL, kuyu tepesinde YAN PERDEYE ankrajlı 2xUPN duvar konsolu üzerinde; konsol altında çapraz askılı sehpa (kesikli).',
+              f"Makine konsolu ile perdeye aktarılan düşey yük F = {f(r['F_kuyu_ustu']/1000,1)} kN (her kuyu); ankraj ve perde statikçe kontrol edilecektir.",
+              'Makine askı kancası yoktur; kabin ekseninde yalnız montaj kancası (min 2000 kg, kapasite üzerine yazılır).',
+              'Hız regülatörü ana (kabin) rayının yanında, ray ile yan duvar arasında; kabin arkasında kalmaz.',
               'Kuyu tavanında duman tahliye açıklığı (kuyu kesitinin en az %1i) bırakılır.']
         yazi_blok(c, sx0, sy0 - 50, sd, 2.0 * k)
 
@@ -1089,7 +1140,7 @@ def ciz(K, cikis):
         if md:
             pass
         else:
-            c.T('ASN-UYARI', (xs0 - tw, Z(tavan + kalin / 100) + 8), f'SON DÖŞEME (makine askı) alt +{f(tavan)} - min {kalin:.0f} cm BA', 2.2 * k, 0, 'BL')
+            c.T('ASN-UYARI', (xs0 - tw, Z(tavan + kalin / 100) + 26), f'SON DÖŞEME alt +{f(tavan)} / üst +{f(tavan + kalin / 100)} - min {kalin:.0f} cm BA', 2.2 * k, 0, 'BL')
         # kat döşemeleri (duvara bitişik kenar açık)
         for ad_, z in zip(K['durak_adlari'], K['durak_kotlari']):
             xa = xs0 - tw
@@ -1106,6 +1157,8 @@ def ciz(K, cikis):
             c.T('ASN-KOT', (xs0 - tw - 118, Z(zd) + 4), '±0,00 ZEMİN DÜKKÂN', 1.7 * k, 0, 'BL')
             c.T('ASN-KOT', (xs0 - tw - 118, Z(zd) - 4), f"(dükkân h={f(K.get('dukkan_yuk', 4))} m)", 1.5 * k, 0, 'TL')
         c.kot('ASN-KOT', xs0 - tw - 70, Z(dip), f(dip), 2.0 * k)
+        zsd = (K['makine_dairesi']['cati_ust'] if md else tavan + kalin / 100)
+        c.kot('ASN-KOT', xs0 + gen + tw + 8, Z(zsd), '+' + f(zsd) + ' SON DÖŞEME', 2.0 * k)
         if md:
             c.kot('ASN-KOT', xs0 - tw - 25, Z(tavan), '+' + f(tavan) + ' kuyu tavanı', 1.6 * k)
         else:
@@ -1133,21 +1186,23 @@ def ciz(K, cikis):
             c.C('ASN-YAZI', (tx, ty), 1.2)
             c.T('ASN-YAZI', (LX, ly), metin, hy, 0, 'ML')
         c.T('ASN-BASLIK', (X0, Y1 - 6 * k), f'ASANSÖR KUYUSU DİKİNE KESİTİ - {tur} GÖRÜNÜŞ', 3.2 * k)
-        c.T('ASN-BASLIK', (X0, Y1 - 12 * k), ('Ölçek 1/50 - Makine daireli, 1/1 askı, makine çatıdaki makine dairesinde kaide üzerinde' if md else 'Ölçek 1/50 - Makine dairesiz (MRL), 2/1 askı, makine kuyu tepesinde raylara oturan kaide üzerinde'), 2.4 * k)
-        nt = K['kesit_notlari'] if md else [f"Kuyu dibi {f(dip)} (mimaride: {K['mimari_kuyu_dibi']}). Son döşeme alt +{f(tavan)}, min {kalin:.0f} cm BA, askı kancalı.",
-              'Makine: dişlisiz senkron (PM), Ø240 tahrik kasnağı, 8xØ6,5 halat; tip/ölçü seçilen firmaya göre kesinleşir.',
-              'Kumanda panosu son durak kat kapısı yanında (kapı kasası/duvar dolabı); kurtarma ve fren açma oradan yapılır.',
-              'Kuyu dibine pis su süzgeci konmaz, su yalıtımı yapılır; kuyu aydınlatması min 50 lüks.']
+        c.T('ASN-BASLIK', (X0, Y1 - 12 * k), ('Ölçek 1/50 - Makine daireli, 1/1 askı, makine çatıdaki makine dairesinde kaide üzerinde' if md else 'Ölçek 1/50 - Makine dairesiz (MRL), 2/1 askı, makine kuyu tepesinde duvar konsolunda (çapraz askılı, alttan sehpalı)'), 2.4 * k)
+        nt = K['kesit_notlari'] if md else [f"Kuyu dibi {f(dip)} (mimaride: {K['mimari_kuyu_dibi']}). Son döşeme alt +{f(tavan)} / üst +{f(tavan + kalin / 100)}, min {kalin:.0f} cm BA.",
+              'Makine: dişlisiz senkron (PM), Ø240 tahrik kasnağı, 7xØ6,5 halat; yan perdeye ankrajlı duvar konsolu + alttan çapraz askılı sehpa; makine askı kancası yoktur.',
+              'Hız regülatörü ana ray yanında (kabin arkasında değil); kumanda panosu son durak kat kapısı yanında, kurtarma oradan yapılır.',
+              'Kuyu aydınlatması her katta + kuyu dibi + kuyu tepesi, min 50 lüks; kuyu dibine pis su süzgeci konmaz, su yalıtımı yapılır.']
         yazi_blok(c, X0, Y1 - 19 * k, nt, 2.1 * k)
 
-    # ---------------- ELEKTRİK DETAYLARI (kullanıcının standart elektrik paftaları - her asansör setinin sonuna)
-    bitir()
-    ex = yer['x'] + 4 * m5
-    ew, eh = sablon_yapistir(c, 'elektrik_detay', ex, (SERIT_H * m5 - 2920) / 2, 'ASN-ELEKTRIK', 'ASN-ELEKTRIK-YAZI')
-    hucreler.append((yer['x'], 0, ew + 8 * m5, SERIT_H * m5))
+    # ---------------- sıkıştırılmış yerleşim + kapak (sol alt köşe, notlar üstünde) + ELEKTRİK DETAYLARI (setin sonunda, boşluksuz)
+    xe = yerlestir()
+    for sut in sutunlar:
+        if sut.get('kapak'):
+            kw, kh = sablon_yapistir(c, 'kapak_sablon', sut['X'], 0.0, 'ASN-ANTET', 'ASN-ANTET', sut['kapak'])
+            hucreler.append((sut['X'], 0.0, kw, kh))
+    ew, eh = sablon_yapistir(c, 'elektrik_detay', xe, (SERIT_H * m5 - 2920) / 2, 'ASN-ELEKTRIK', 'ASN-ELEKTRIK-YAZI')
+    hucreler.append((xe, 0, ew, SERIT_H * m5))
     paftalar.append(('ELEKTRİK DETAYLARI', None))
-    yer['x'] += ew + 8 * m5
-    x = yer['x']
+    x = xe + ew
 
     # ---------------- şerit çerçevesi + hücre ayırıcıları (tek çizgi)
     c.rect('ASN-CERCEVE', 0, 0, x + 5 * m5, SERIT_H * m5)
