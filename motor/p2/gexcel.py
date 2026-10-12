@@ -365,3 +365,12 @@ def kombi_sheet(wb, P, rows):
     ws.page_setup.orientation = 'landscape'; ws.page_setup.fitToWidth = 1; ws.page_setup.fitToHeight = 0
     ws.sheet_properties.pageSetUpPr.fitToPage = True
     return ws
+
+
+def logo_temizle(wb):
+    """şablondan gelen yabancı logo/resimleri tüm sayfalardan kaldır (ROTAŞ dışı logo kullanılmaz)"""
+    n = 0
+    for ws in wb.worksheets:
+        n += len(getattr(ws, '_images', []))
+        ws._images = []
+    return n

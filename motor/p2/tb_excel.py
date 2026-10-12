@@ -191,6 +191,7 @@ def build():
         pass
     if 'TEKNİK RAPOR (2)' in wb.sheetnames:
         del wb['TEKNİK RAPOR (2)']
+    print('kaldırılan logo/resim', X.logo_temizle(wb))
     wb.save(OUT)
 
 
