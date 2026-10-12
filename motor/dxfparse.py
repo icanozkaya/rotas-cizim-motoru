@@ -98,6 +98,11 @@ def read(path):
         elif t == 'INSERT':
             if c == '2': cur['name'] = v
             elif c in ('10', '20', '41', '42', '50'): cur[c] = float(v)
+        elif t == 'DIMENSION':
+            if c == '2': cur['name'] = v
+            elif c == '1': cur['text'] = v
+            elif c in ('10', '20', '13', '23', '14', '24', '42', '50'): cur[c] = float(v)
+            elif c == '70': cur['dt'] = int(v)
         elif t == 'HATCH':
             pass
     if cur is not None and target is not None:
@@ -159,6 +164,10 @@ def flatten(blocks, ents, depth=0, m=(1, 0, 0, 0, 1, 0), out=None, layer_over=No
                 x, y = e.get('10', 0), e.get('20', 0)
             s = math.hypot(m[0], m[3])
             out.append(('T', lay, (xf(m, x, y), e.get('text', ''), e.get('40', 0) * s), path))
+        elif t == 'DIMENSION':
+            sc = math.hypot(m[0], m[3])
+            out.append(('D', lay, (xf(m, e.get('13', 0), e.get('23', 0)), xf(m, e.get('14', 0), e.get('24', 0)),
+                                   xf(m, e.get('10', 0), e.get('20', 0)), e.get('42', 0) * sc, e.get('text', '')), path))
         elif t == 'INSERT' and depth < 6:
             nm = e.get('name')
             if nm not in blocks: continue
