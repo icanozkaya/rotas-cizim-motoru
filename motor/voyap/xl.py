@@ -89,7 +89,7 @@ for r_ in res:
 # ---- 3. boru metrajı
 ws = wb.create_sheet('METRAJ')
 head(ws, '', 'BORU VE MALZEME METRAJI (%10 fire hariç)')
-caps = ['1"', '1 1/4"', '1 1/2"', '2"', '2 1/2"', '3"', '4"']
+caps = ['DN25', 'DN32', 'DN40', 'DN50', 'DN65', 'DN80', 'DN100', 'DN150']
 L = {i: {c: 0.0 for c in caps} for i in range(4)}
 for i in range(4):
     for e in R[i]['ts']['edges']: L[i][e['cap']] += e['L'] / 100.0

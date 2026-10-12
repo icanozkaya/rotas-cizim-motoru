@@ -19,7 +19,7 @@ LAY = {
     "MTY-YANGIN-DOLAP-BORU": 1, "MTY-YANGIN-DOLAP": 1, "MTY-YANGIN-KOLON": 6, "MTY-YANGIN-VANA": 1,
     "MTY-YANGIN-POMPA": 30, "MTY-YANGIN-DEPO": 4, "MTY-YANGIN-SEMA": 7, "MTY-YANGIN-YAZI": 7, "MTY-YANGIN-TABLO": 7,
     "MTY-YANGIN-ITFAIYE": 1, "MTY-YANGIN-MASKE": 7, "MTY-YANGIN-TARAMA": 8, "MIM-BODRUM-GUNCEL": 8, "MTY-YANGIN-NOT": 1,
-    "MTY-VANA": 1,
+    "MTY-VANA": 1, "MTY-SPRINKLER-KORUMA": 8,
 }
 for n, c in LAY.items():
     if n not in doc.layers: doc.layers.add(n, color=c)
@@ -29,7 +29,8 @@ BORU, CAPL, DOLB, DOL, KOL, VAN, POM, DEP, SEM, YAZ, TAB, ITF, MSK = (
     "MTY-YANGIN-VANA", "MTY-YANGIN-POMPA", "MTY-YANGIN-DEPO", "MTY-YANGIN-SEMA", "MTY-YANGIN-YAZI", "MTY-YANGIN-TABLO",
     "MTY-YANGIN-ITFAIYE", "MTY-YANGIN-MASKE")
 
-WD = {'1"': 0.0, '1 1/4"': 0.0, '1 1/2"': 1.5, '2"': 2.0, '2 1/2"': 2.5, '3"': 3.0, '4"': 4.0}
+WD = {'DN25': 0.0, 'DN32': 0.0, 'DN40': 1.5, 'DN50': 2.0, 'DN65': 2.5, 'DN80': 3.0, 'DN100': 4.0, 'DN150': 5.0,
+      '1"': 0.0, '1 1/4"': 0.0, '1 1/2"': 1.5, '2"': 2.0, '2 1/2"': 2.5, '3"': 3.0, '4"': 4.0, '6"': 5.0}
 
 
 def T(x, y, s, h=10.0, lay=YAZ, al=TA.BOTTOM_LEFT, rot=0.0, mask=False, w=0.8):
@@ -80,12 +81,11 @@ def import_mty(src_dxf):
     return sdoc
 
 
-def HEAD(p, typ, cap='1"', no='1'):
-    name = "MTY-PENDANT TIP SPRINKLER-1" if typ in ('P', 'ARA') else "MTY-UPRİGHT TIP SPRINKLER-1"
+def HEAD(p, typ, cap='DN25', no='1'):
+    """Aselsan 02-Yangın lejantı: dik tip (upright) tek daire Ø25, pendent iç içe çift daire; koruma dairesi r=195 ayrı katmanda"""
+    name = {'U': 'ASL-SPR-UP', 'P': 'ASL-SPR-PE', 'ARA': 'ASL-SPR-PE'}[typ]
     ins = msp.add_blockref(name, (p[0], p[1]), dxfattribs={"layer": "MTY-SPRINKLER"})
-    ins.add_auto_attribs({"SP": no, "SPCP": cap})
-    for at in ins.attribs:
-        at.dxf.owner = ins.dxf.handle          # ACadSharp/AutoCAD ATTRIB sahibini arar
+    msp.add_circle((p[0], p[1]), 195.0, dxfattribs={"layer": "MTY-SPRINKLER-KORUMA"})
     return ins
 
 
@@ -253,11 +253,15 @@ def define_blocks():
 
 def INS(name, p, rot=0.0, s=1.0, lay=VAN, mask=None):
     if mask: MASKC(p, mask)
+    if name in ALIAS:
+        name, k_ = ALIAS[name]; s = s * k_
     return msp.add_blockref(name, (p[0], p[1]), dxfattribs={"layer": lay, "rotation": rot, "xscale": s, "yscale": s})
 
 
 def CEK(p, rot=0.0, s=1.0, lay=VAN, mask=None):
     if mask: MASKC(p, mask)
+    if "ASL-CEK" in doc.blocks:
+        return msp.add_blockref("ASL-CEK", (p[0], p[1]), dxfattribs={"layer": lay, "rotation": rot, "xscale": s * 0.45, "yscale": s * 0.45})
     return msp.add_blockref("MTY-CEKVALF VANA", (p[0], p[1]), dxfattribs={"layer": lay, "rotation": rot, "xscale": s, "yscale": s})
 
 
@@ -279,3 +283,49 @@ def HATCH_RECT(x0, y0, x1, y1, lay):
     h = msp.add_hatch(dxfattribs={"layer": "MTY-YANGIN-TARAMA"})
     h.set_pattern_fill("ANSI31", scale=1.5)
     h.paths.add_polyline_path([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], is_closed=True)
+
+
+# ------------------------------------------------------------------ Aselsan 02-Yangın lejant sembolleri (bloklar)
+import pickle as _pk, os as _os
+ASL = _pk.load(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'asel_sym.pkl'), 'rb'))
+ASL_AD = {'KELEBEK VANA': 'ASL-KELEBEK', 'İZLENEBİLİR KELEBEK VANA': 'ASL-IZL-KELEBEK', 'YÜKSELEN MİLLİ VANA': 'ASL-OSY',
+          'ÇEK VANA': 'ASL-CEK', 'PISLIK TUTUCU': 'ASL-PISLIK', 'KOMPANSATÖR': 'ASL-KOMP', 'TEST DRENAJ SETİ': 'ASL-TEST',
+          'İTFAİYE BAĞLANTI AĞZI / 2 x 2 1/2"': 'ASL-ITFAIYE', 'ISLAK ALARM VANA ISTASYONU': 'ASL-WAV',
+          'BASINÇ DÜŞÜRÜCÜ DENGELEME VANASI': 'ASL-BDV', 'MANOMETRE': 'ASL-MANO', 'POST İNDİKATÖR VANA': 'ASL-PIV',
+          'YANGIN DOLABI (KAT PLANI)': 'ASL-YD-PLAN', 'YANGIN DOLABI (KOLON ŞEMASI)': 'ASL-YD-KOLON'}
+
+
+def define_asel_blocks():
+    for key, ad in ASL_AD.items():
+        if ad in doc.blocks or key not in ASL: continue
+        b = doc.blocks.new(ad)
+        prim = ASL[key]['prim']
+        if key == 'İTFAİYE BAĞLANTI AĞZI / 2 x 2 1/2"':
+            pass
+        for pr in prim:
+            if pr[0] == 'L': b.add_line(pr[1][0], pr[1][1], dxfattribs={"layer": "0"})
+            elif pr[0] == 'P': b.add_lwpolyline(pr[1], dxfattribs={"layer": "0"})
+            elif pr[0] == 'C':
+                if pr[1][2] <= max(ASL[key]['w'], ASL[key]['h']): b.add_circle(pr[1][:2], pr[1][2], dxfattribs={"layer": "0"})
+            elif pr[0] == 'T' and pr[3] > 0:
+                t = b.add_text(str(pr[2]), height=pr[3], dxfattribs={"layer": "0", "style": "ROTAS"}); t.set_placement(pr[1])
+    # flow switch: lejanttaki iki sembolden vanalı olan (F.S)
+    if 'ASL-FS' not in doc.blocks and 'FLOW SWITCH' in ASL:
+        pr_ = [pr for pr in ASL['FLOW SWITCH']['prim'] if (pr[0] in 'LP' and min(q[0] for q in pr[1]) > 20) or (pr[0] == 'C' and pr[1][0] > 20) or (pr[0] == 'T' and pr[1][0] > 0)]
+        xs = [q[0] for pr in pr_ if pr[0] in 'LP' for q in pr[1]]; ys = [q[1] for pr in pr_ if pr[0] in 'LP' for q in pr[1]]
+        cx = (min(xs) + max(xs)) / 2; cy = (min(ys) + max(ys)) / 2
+        b = doc.blocks.new('ASL-FS')
+        for pr in pr_:
+            if pr[0] == 'L': b.add_line((pr[1][0][0] - cx, pr[1][0][1] - cy), (pr[1][1][0] - cx, pr[1][1][1] - cy), dxfattribs={"layer": "0"})
+            elif pr[0] == 'P': b.add_lwpolyline([(q[0] - cx, q[1] - cy) for q in pr[1]], dxfattribs={"layer": "0"})
+            elif pr[0] == 'C': b.add_circle((pr[1][0] - cx, pr[1][1] - cy), pr[1][2], dxfattribs={"layer": "0"})
+    # sprinkler başlıkları (Aselsan plan sembolü ölçüsünde: Ø25)
+    if 'ASL-SPR-UP' not in doc.blocks:
+        b = doc.blocks.new('ASL-SPR-UP'); b.add_circle((0, 0), 12.5, dxfattribs={"layer": "0"})
+        b = doc.blocks.new('ASL-SPR-PE'); b.add_circle((0, 0), 12.5, dxfattribs={"layer": "0"}); b.add_circle((0, 0), 5.0, dxfattribs={"layer": "0"})
+
+
+# eski sembol adı -> (Aselsan bloğu, ölçek)
+ALIAS = {'Y-KELEBEK': ('ASL-IZL-KELEBEK', 0.45), 'Y-OSY': ('ASL-OSY', 0.45), 'Y-ALARM': ('ASL-WAV', 0.30), 'Y-AKIS': ('ASL-FS', 0.40),
+         'Y-TEST': ('ASL-TEST', 0.30), 'Y-MANO': ('ASL-MANO', 0.40), 'Y-ITFAIYE': ('ASL-ITFAIYE', 0.30), 'Y-SPR-U': ('ASL-SPR-UP', 0.8),
+         'Y-SPR-P': ('ASL-SPR-PE', 0.8)}

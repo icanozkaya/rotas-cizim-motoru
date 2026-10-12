@@ -27,7 +27,7 @@ def free(bx):
     return not any(g.intersects(q) for q in PLACED)
 
 
-def label_run(pts, txt, h=9.0, lay=CAPL):
+def label_run(pts, txt, h=9.0, lay=CAPL, ust=None):
     """borunun en uzun parçasına, boruya paralel ve 7 cm yanına; çakışmada kaydır"""
     segs = sorted(zip(pts[:-1], pts[1:]), key=lambda s: -math.dist(*s))
     for a, b in segs[:3]:
@@ -43,12 +43,15 @@ def label_run(pts, txt, h=9.0, lay=CAPL):
             for side in (1, -1):
                 cx = a[0] + (b[0] - a[0]) * f + nx_ * (7 + h * 0.5) * side
                 cy = a[1] + (b[1] - a[1]) * f + ny_ * (7 + h * 0.5) * side
-                hw = abs(ux) * tw / 2 + abs(nx_) * h / 2 + 2
-                hh = abs(uy) * tw / 2 + abs(ny_) * h / 2 + 2
+                hk = h * (1.9 if ust else 1.0)
+                hw = abs(ux) * tw / 2 + abs(nx_) * hk / 2 + 2
+                hh = abs(uy) * tw / 2 + abs(ny_) * hk / 2 + 2
                 bx = (cx - hw, cy - hh, cx + hw, cy + hh)
                 if free(bx):
                     PLACED.append(sbox(*bx))
                     T(cx, cy, txt, h, lay, TA.MIDDLE_CENTER, ang, mask=True)
+                    if ust:
+                        T(cx + nx_ * h * 0.95 * side, cy + ny_ * h * 0.95 * side, ust, h * 0.6, lay, TA.MIDDLE_CENTER, ang, mask=True)
                     return True
     return False
 
@@ -101,14 +104,13 @@ def draw_tree(i):
         ALL_LINES[i].append(r['pts'])
     for r in runs_of(ts):
         L_ = sum(math.dist(a, b) for a, b in zip(r['pts'][:-1], r['pts'][1:]))
-        if r['cap'] != '1"' and L_ >= 60:
-            label_run(r['pts'], r['cap'])
+        if r['cap'] != 'DN25' and L_ >= 60:
+            label_run(r['pts'], r['cap'], ust=str(r['n']))
 
 
 def heads(i):
     for k, h in enumerate(HS[i]):
         PLACED.append(sbox(h['p'][0] - 10, h['p'][1] - 10, h['p'][0] + 10, h['p'][1] + 10))
-        if not h['yeni']: continue
         HEAD(h['p'], h['t'])
         if h['t'] == 'ARA':
             T(h['p'][0] + 12, h['p'][1] - 16, "ARA SEVİYE", 6, "MTY-SPRINKLER-YAZI")
@@ -116,15 +118,18 @@ def heads(i):
 
 def kolon(i, p, lab, sub, up=True, down=False):
     INS("Y-KOLON", p, lay=KOL, mask=10)
-    T(p[0] - 14, p[1] + 6, lab, 10, KOL, TA.BOTTOM_RIGHT, mask=True)
-    T(p[0] - 14, p[1] - 6, sub, 7, KOL, TA.TOP_RIGHT, mask=True)
+    bx = (p[0] - 34, p[1] + 2)                       # Aselsan kolon numarası: çift daire içinde
+    MASKC(bx, 15); C(bx, 14, KOL); C(bx, 12, KOL)
+    T(bx[0], bx[1], lab, 6.5, KOL, TA.MIDDLE_CENTER)
+    L((bx[0] + 14, bx[1]), (p[0] - 9, p[1]), KOL)
+    T(p[0] - 50, p[1] - 14, sub, 6, KOL, TA.TOP_RIGHT, mask=True)
     PLACED.append(sbox(p[0] - 90, p[1] - 18, p[0] + 10, p[1] + 20))
 
 
 def dolap(i, want, yk, no):
     back, ang, front = snap_dolap(i, want)
-    INS("Y-DOLAP", back, ang, lay=DOL, mask=None)
     a = math.radians(ang)
+    INS("ASL-YD-PLAN", (back[0] + math.cos(a + math.pi / 2) * 33, back[1] + math.sin(a + math.pi / 2) * 33), ang, 0.9, lay=DOL, mask=None)
     # bağlantı: kolondan dolap arka-orta noktasına (önce dik, sonra yatay)
     c = (back[0] + math.cos(a + math.pi / 2) * 6, back[1] + math.sin(a + math.pi / 2) * 6)
     if abs(math.cos(a)) > 0.7:     # dolap yatay duvarda
@@ -159,7 +164,7 @@ def kat_kontrol(i, src):
     q = (p3[0] + nx_ * 22, p3[1] + ny_ * 22)
     PL([p3, q], BORU, 0)
     INS("Y-TEST", q, ang, 0.8)
-    T(q[0] + nx_ * 14, q[1] + ny_ * 14, "TEST/DRENAJ 1 1/4\"", 6, VAN, TA.MIDDLE_CENTER, ang, mask=True)
+    T(q[0] + nx_ * 14, q[1] + ny_ * 14, "TEST/DRENAJ DN32", 6, VAN, TA.MIDDLE_CENTER, ang, mask=True)
     PLACED.append(sbox(min(a[0], p3[0]) - 25, min(a[1], p3[1]) - 25, max(a[0], p3[0]) + 25, max(a[1], p3[1]) + 25))
     return p1
 
@@ -179,11 +184,11 @@ def floor(i):
     k1 = W(i, K1L); yk1 = W(i, YK1L); yk2 = W(i, K2L)
     # kolonlar
     if i == 0:
-        kolon(i, k1, "SK", '4" yukarı (Z-1-2)')
+        kolon(i, k1, "SP-1", 'DN150 yukarı (Z-1-2)')
     else:
-        kolon(i, k1, "SK", '4"' + (' yukarı' if i < 3 else ''))
-    kolon(i, yk1, "YK1", '3"' + (' yukarı' if i < 3 else ''))
-    kolon(i, yk2, "YK2", '2 1/2"' + (' yukarı' if i < 3 else ''))
+        kolon(i, k1, "SP-1", 'DN150' + (' yukarı' if i < 3 else ''))
+    kolon(i, yk1, "Y-1", 'DN80' + (' yukarı' if i < 3 else ''))
+    kolon(i, yk2, "Y-2", 'DN65' + (' yukarı' if i < 3 else ''))
     # dolaplar
     if i == 0:
         d1 = dolap(i, (248470.0, -452200.0), yk1, "B1")
@@ -196,7 +201,7 @@ def floor(i):
         d1 = dolap(i, (248485.0, -452330.0), yk1, kk + "1")
         d2 = dolap(i, (248610.0, -456300.0), yk2, kk + "2")
     for d in (d1, d2):
-        label_run(d, '2"', 8, DOL)
+        label_run(d, 'DN50', 8, DOL)
     if i > 0:
         kat_kontrol(i, RT[i]['src'])
         T(k1[0] - 14, k1[1] + 22, "KAT KONTROL İST.", 7, VAN, TA.BOTTOM_RIGHT, mask=True)
@@ -215,7 +220,7 @@ def itfaiye(i, yk1):
     CEK((p[0] + 60, p[1]), 0, 1.0, mask=8)
     T(p[0] - 30, p[1] + 26, "İTFAİYE BAĞLANTISI", 9, ITF, TA.BOTTOM_LEFT, mask=True)
     T(p[0] - 30, p[1] + 14, "2x2 1/2\" STORZ + ÇEK VALF, h=+0,80", 6.5, ITF, TA.BOTTOM_LEFT, mask=True)
-    label_run(pts, '3"', 8, ITF)
+    label_run(pts, 'DN80', 8, ITF)
 
 
 def pompa_dairesi():
@@ -234,14 +239,14 @@ def pompa_dairesi():
     T(x0 + 60, -450925, "MENHOL 60x60", 6, DEP, TA.BOTTOM_CENTER)
     INS("Y-SAMANDIRA", (x1 - 60, -450950), 180, 1.0, lay=DEP)
     T(x1 - 60, -450925, "ŞEBEKE DOLUM 1\" (şamandıralı)", 6, DEP, TA.BOTTOM_CENTER)
-    T(x1 - 80, -451000, "TAŞMA 3\" + HAVALIK 2\"", 6, DEP, TA.BOTTOM_CENTER)
+    T(x1 - 80, -451000, "TAŞMA DN80 + HAVALIK DN50", 6, DEP, TA.BOTTOM_CENTER)
     T(x0 + 60, -451010, "SEVİYE GÖSTERGESİ", 6, DEP, TA.BOTTOM_CENTER)
     T(x0 + 60, -451630, "BOŞALTMA 2\" (pompa çukuruna)", 6, DEP, TA.BOTTOM_CENTER)
     # ---- pompalar (emiş depodan güneye, basma kollektöre)
     YC = -452050.0
-    pumps = [(248300.0, "E", "ELK. ANA POMPA", "Q=70 m³/h H=60 mSS 22 kW", '6"', '4"'),
-             (248420.0, "D", "DİZEL YEDEK POMPA", "Q=70 m³/h H=60 mSS 30 kW", '6"', '4"'),
-             (248545.0, "J", "JOKEY POMPA", "Q=3 m³/h H=70 mSS 1,5 kW", '1 1/2"', '1"')]
+    pumps = [(248300.0, "E", "ELK. ANA POMPA", "Q=70 m³/h H=60 mSS 22 kW", 'DN150', 'DN100'),
+             (248420.0, "D", "DİZEL YEDEK POMPA", "Q=70 m³/h H=60 mSS 30 kW", 'DN150', 'DN100'),
+             (248545.0, "J", "JOKEY POMPA", "Q=3 m³/h H=70 mSS 1,5 kW", 'DN40', 'DN25')]
     for x, tag, ad, ozl, de, db in pumps:
         big = tag != "J"; s = 1.0 if big else 0.6
         ys = y0 - 25                          # depo perdesi alt yüzü
@@ -265,8 +270,8 @@ def pompa_dairesi():
     # emniyet vanası (dizel) + sirkülasyon
     L((248420, -451915), (248400, -451915), POM); INS("Y-EMNIYET", (248400, -451915), 90, 0.8)
     # kollektör
-    PL([(248300, YC), (248880, YC)], POM, 4.0)
-    T(248650, YC + 8, 'KOLLEKTÖR 4" (DN100)', 7, POM, TA.BOTTOM_CENTER, mask=True)
+    PL([(248300, YC), (248880, YC)], POM, 5.0)
+    T(248650, YC + 8, 'KOLLEKTÖR DN150', 7, POM, TA.BOTTOM_CENTER, mask=True)
     # jokey membranlı tank + basınç anahtarları
     INS("Y-MTANK", (248620, -451960), 0, 0.9, lay=POM)
     PL([(248620, -451978), (248620, YC)], POM, 1.0)
@@ -278,27 +283,27 @@ def pompa_dairesi():
     PL(tl, POM, 2.5)
     INS("Y-DEBI", (248820, -451900), 0, 1.0, lay=POM, mask=9)
     INS("Y-OSY", (248820, -451960), 90, 0.8, mask=8)
-    T(248836, -451900, "TEST HATTI 3\" + DEBİMETRE (depoya dönüş)", 6, POM, TA.MIDDLE_LEFT, 90)
+    T(248836, -451900, "TEST HATTI DN80 + DEBİMETRE (depoya dönüş)", 6, POM, TA.MIDDLE_LEFT, 90)
     # AV1: bodrum sprinkler
-    PL([(248880, YC), (248880, SRC0[1]), SRC0], BORU, 4.0)
+    PL([(248880, YC), (248880, SRC0[1]), SRC0], BORU, 5.0)
     INS("Y-ALARM", (248880, -452005), 90, 0.9, mask=12)
-    T(248895, -452030, "AV1 4\" - BODRUM", 7, VAN, TA.BOTTOM_LEFT, 90, mask=True)
+    T(248895, -452030, "AV1 DN150 - BODRUM", 7, VAN, TA.BOTTOM_LEFT, 90, mask=True)
     # AV2: üst katlar -> SK
     k1 = K1L
-    PL([(k1[0], YC), (k1[0], k1[1] + 9)], BORU, 4.0)
+    PL([(k1[0], YC), (k1[0], k1[1] + 9)], BORU, 5.0)
     INS("Y-ALARM", (k1[0], -452105), -90, 0.9, mask=12)
-    T(k1[0] + 14, -452120, "AV2 4\" - Z/1/2 KAT", 7, VAN, TA.BOTTOM_LEFT, 0, mask=True)
+    T(k1[0] + 14, -452120, "AV2 DN150 - Z/1/2 KAT (SP-1)", 7, VAN, TA.BOTTOM_LEFT, 0, mask=True)
     # dolap çıkışı -> YK1 ve YK2
     xd = 248520.0
     yk1 = YK1L
     dl = [(xd, YC), (xd, yk1[1]), (yk1[0] + 9, yk1[1])]
     PL(dl, DOLB, 3.0); ALL_LINES[0].append(dl)
     INS("Y-OSY", (xd, -452100), 90, 0.8, mask=8)
-    T(xd + 12, -452100, "DOLAP HATTI 3\"", 7, DOL, TA.MIDDLE_LEFT, 0, mask=True)
+    T(xd + 12, -452100, "DOLAP HATTI DN80", 7, DOL, TA.MIDDLE_LEFT, 0, mask=True)
     # YK2 besleme (bodrum tavanından, A*)
     r = router_line(0, (xd, yk1[1]), K2L)
     PL(r, DOLB, 2.5); ALL_LINES[0].append(r)
-    label_run(r, '2 1/2"', 8, DOL)
+    label_run(r, 'DN65', 8, DOL)
     # panolar (doğu duvarı) + yakıt tankı + egzoz
     for k, (yy, t) in enumerate(((-451790, "ELK. POMPA PANOSU"), (-451850, "DİZEL POMPA PANOSU"), (-451910, "JOKEY PANOSU"))):
         INS("Y-PANO", (248915, yy), 90, 0.9, lay=POM)

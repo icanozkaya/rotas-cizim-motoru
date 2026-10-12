@@ -21,12 +21,12 @@ SPINE = {   # zincirler: her zincir art arda noktadan noktaya (ilk zincir kaynak
     2: [[None, (248460.0, -452140.0), (249960.0, -452140.0)], [(248460.0, -452140.0), (248460.0, -453300.0), (248560.0, -453480.0), (248545.0, -455950.0)]],
     3: [[None, (248460.0, -452140.0), (249960.0, -452140.0)], [(248460.0, -452140.0), (248460.0, -453300.0), (248560.0, -453480.0), (248545.0, -455950.0)]],
 }
-# OH boru tablosu (EN 12845 / NFPA 13 ön hesaplı): çap -> max başlık
-TABLO = [(2, '1"', 25), (3, '1 1/4"', 32), (5, '1 1/2"', 40), (10, '2"', 50), (20, '2 1/2"', 65), (40, '3"', 80), (100, '4"', 100)]   # 100 üstü: hidrolik hesapla DN100 yeterli (hız < 3 m/s)
+# Sprinkler boru çap tablosu: Aselsan 02-Yangın uygulaması (BORUYUK katmanından ölçüldü) = NFPA 13 OH boru tablosu, 100 üstü DN150
+TABLO = [(2, 'DN25', 25), (3, 'DN32', 32), (5, 'DN40', 40), (10, 'DN50', 50), (20, 'DN65', 65), (40, 'DN80', 80), (100, 'DN100', 100)]
 def cap(n):
     for m, s, dn in TABLO:
         if n <= m: return s, dn
-    return '4"', 100
+    return 'DN150', 150
 
 def make_grid(G, st=5.0):
     x0, y0, x1, y1 = G['win']
