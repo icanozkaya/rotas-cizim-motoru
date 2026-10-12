@@ -37,8 +37,13 @@
  "yibf": "2606439",
  "daireler": [
   [
-   34,
+   32,
    1,
+   1
+  ],
+  [
+   4,
+   2,
    1
   ]
  ],
@@ -94,8 +99,8 @@
   "Kiriş kuyu içine taşıyor: o kuyuda net genişlik kiriş yüzüyle sınırlı. Kiriş kuyu yüzüne çekilmeli ya da net ölçü esas alınmalı.",
   "Esas alınan net ölçü (her iki kuyu): ~195 x 185 cm. Kabin 1200x1500 + yan karşı ağırlık sığıyor, derinlik sıkı: firma teyidi gerekir.",
   "Kuyu dibinde genişlik daralmamalı (hatıl/temel kirişi kuyu içine taşmaz).",
-  "C blok daire sayısı planlardan sayıldı (1. kat 7 + 2-4. katlar 9'ar = 34 adet 1+1) - teyit edilecek.",
-  "Dış kuyu duvarı mimaride 15 cm, ara duvar 10 cm (ölçülerden)."
+  "Dış kuyu duvarı mimaride 15 cm, ara duvar 10 cm (ölçülerden).",
+  "C blok daire sayısı vaziyet planı tablosu ve sığınak hesabından (32x2 + 4x3 = 76 kişi): 32 adet 1+1 + 4 adet 2+1, zeminde 6 dükkân."
  ],
  "koordinasyon": [
   "Asansör kuyusundan ve kuyu tavanından asansöre ait olmayan boru/kablo geçmez.",

@@ -1,6 +1,6 @@
 1. ASANSÖR AVAN PROJESİ
 1.1. ASANSÖR TRAFİK HESABI
-Binada bulunan toplam insan sayısı  B = Σb + n·Σb = 102 + 30%·102 = 132,6 kişi
+Binada bulunan toplam insan sayısı  B = Σb + n·Σb = 112 + 30%·112 = 145,6 kişi
 Ana durak üzerindeki kat adedi  N = 4   Kabin kapasitesi = 10 kişi (800 kg)
 P  = %80 doluluk = 0,8 x 10 = 8,0 kişi
 H  = Ortalama en yüksek dönüş katı = 3,94
@@ -13,7 +13,7 @@ tp = Kişi transfer zamanı = 2,2 s
 T = 2·H·tv + (S+1)·ts + 2·P·tp = 2 x 3,94 x 3,00 + (3,77 + 1) x 10,30 + 2 x 8,0 x 2,2 = 108,0 s
 1.1.1.2. Gerekli Asansör Sayısının Hesabı
 R = 5 x 60 x P / T = 300 x 8,0 / 108,0 = 22,21 kişi (5 dakikada bir asansörün taşıdığı)
-L = B x k / R = 132,6 x 0,075 / 22,21 = 0,45  ->  2 adet asansör
+L = B x k / R = 145,6 x 0,075 / 22,21 = 0,49  ->  2 adet asansör
 1.1.1.3. Bekleme Zamanı
 I = T / n = 108,0 / 2 = 54,0 s  ≤ 100 s  uygundur.
 10 kişilik 1,00 m/s hızında 2 adet asansör seçilmesi uygundur.
@@ -36,5 +36,5 @@ ASANSÖR 4 HALATLI, 2/1 ASKILI OLACAKTIR.
 KONTROLLER
 Kabin alanı 1,80 m² ≤ EN 81-20 en büyük 2,00 m² : UYGUN
 İmar (dar kenar ≥ 1,20 m, alan ≥ 1,80 m², kapı ≥ 0,90 m): UYGUN
-Eski TS yöntemi çapraz kontrol: TR=54,0 s, N=5,55 sefer/5dk, B3=111,0 > B2=7,6 : UYGUN
+Eski TS yöntemi çapraz kontrol: TR=54,0 s, N=5,55 sefer/5dk, B3=111,0 > B2=8,4 : UYGUN
 Kuyu mesafesi ≈ kuyu dibi 1,40 + seyir 12,00 + kuyu üstü 4,60 = 18,00 m
