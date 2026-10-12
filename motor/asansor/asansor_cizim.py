@@ -14,50 +14,61 @@ SIVA = 2.5
 
 
 def katmanlar(c):
-    for ad, rk, tip in [('ASN-CERCEVE', 7, 'CONTINUOUS'), ('ASN-ANTET', 7, 'CONTINUOUS'), ('ASN-YAZI', 7, 'CONTINUOUS'),
+    for ad, rk, tip in [('ASN-CERCEVE', 7, 'CONTINUOUS'), ('ASN-ANTET', 4, 'CONTINUOUS'), ('ASN-YAZI', 4, 'CONTINUOUS'),
                         ('ASN-BASLIK', 5, 'CONTINUOUS'), ('ASN-DUVAR', 7, 'CONTINUOUS'), ('ASN-TARAMA', 8, 'CONTINUOUS'),
                         ('ASN-SIVA', 8, 'CONTINUOUS'), ('ASN-KIRIS', 1, 'DASHED'), ('ASN-KABIN', 5, 'CONTINUOUS'),
                         ('ASN-RAY', 1, 'CONTINUOUS'), ('ASN-KA', 30, 'CONTINUOUS'), ('ASN-KAPI', 3, 'CONTINUOUS'),
                         ('ASN-EKSEN', 8, 'CENTER'), ('ASN-OLCU', 3, 'CONTINUOUS'), ('ASN-KOT', 2, 'CONTINUOUS'),
                         ('ASN-MOTOR', 6, 'CONTINUOUS'), ('ASN-HALAT', 6, 'CONTINUOUS'), ('ASN-YUK', 1, 'CONTINUOUS'),
                         ('ASN-UYARI', 1, 'CONTINUOUS'), ('ASN-MIMARI', 8, 'CONTINUOUS'), ('ASN-ISARET', 1, 'CONTINUOUS'),
-                        ('ASN-TABLO', 7, 'CONTINUOUS')]:
+                        ('ASN-TABLO', 4, 'CONTINUOUS')]:
         c.lay(ad, rk, tip)
 
 
 # ---------------------------------------------------------------------------- pafta çerçevesi
+KALEM = {7: 0.50, 5: 0.35, 6: 0.35, 1: 0.30, 30: 0.30, 4: 0.25, 3: 0.18, 2: 0.18, 8: 0.13}   # renk -> mm (ozalit ctb)
+SERIT_H = 594            # ozalit şerit yüksekliği (mm) - tüm paftalar aynı yükseklikte
+SERIT_OLCEK = 50         # şeridin çizim ölçeği; diğer ölçekler geometriyle ölçeklenir
+
+
 class Pafta:
-    """A3 (420x297) veya A1 (841x594) kağıt; ölçek ile model cm'e çevrilir."""
-    def __init__(self, c, x0, olcek, kagit='A3', baslik='', proje=None, no=1):
-        self.c, self.k = c, olcek / 10.0          # kağıt mm -> model cm
-        W, H = {'A3': (420, 297), 'A1': (841, 594), 'A2': (594, 420), 'A2D': (420, 594), 'A1D': (594, 841)}[kagit]
-        self.x0, self.y0, self.W, self.H = x0, 0.0, W * self.k, H * self.k
+    """Ozalit şeridinin bir paftası. Yerel çizim: model cm gerçek ölçü, k = ölçek/10 (kağıt mm -> model).
+    Pafta bitince kayıtlar 50/ölçek ile ölçeklenip şeritteki yerine taşınır (şerit 1/50 çizilir)."""
+    def __init__(self, c, olcek, gen_mm, baslik='', proje=None, no=1, ilk=False):
+        self.c, self.k, self.olcek = c, olcek / 10.0, olcek
+        self.bas = len(c.R)
+        self.Wmm, self.Hmm = gen_mm, SERIT_H
+        self.x0, self.y0, self.W, self.H = 0.0, 0.0, gen_mm * self.k, SERIT_H * self.k
+        self.sol = 20 if ilk else 0           # katlama/cilt payı yalnız şeridin solunda
         k = self.k
-        c.rect('ASN-CERCEVE', x0, 0, x0 + self.W, self.H)
-        c.rect('ASN-CERCEVE', x0 + 20 * k, 5 * k, x0 + self.W - 5 * k, self.H - 5 * k)
-        # antet şeridi (alt sağ)
-        ax0, ax1, ay1 = x0 + self.W - 185 * k, x0 + self.W - 5 * k, 5 * k + 32 * k
-        c.rect('ASN-ANTET', ax0, 5 * k, ax1, ay1)
-        c.L('ASN-ANTET', (ax0, 5 * k + 16 * k), (ax1, 5 * k + 16 * k))
-        c.L('ASN-ANTET', (ax0 + 70 * k, 5 * k), (ax0 + 70 * k, ay1))
-        c.L('ASN-ANTET', (ax1 - 25 * k, 5 * k), (ax1 - 25 * k, ay1))
-        p = proje or {}
-        c.T('ASN-ANTET', (ax0 + 2 * k, ay1 - 6 * k), 'ROTAŞ MÜHENDİSLİK PROJE MÜŞAVİRLİK', 3.2 * k)
-        c.T('ASN-ANTET', (ax0 + 2 * k, ay1 - 12 * k), 'Makine Mühendisi', 2.5 * k)
-        c.T('ASN-ANTET', (ax0 + 72 * k, ay1 - 6 * k), p.get('sahip', ''), 3.0 * k)
-        c.T('ASN-ANTET', (ax0 + 72 * k, ay1 - 12 * k), f"{p.get('blok','')} BLOK - MAKİNE DAİRESİZ ASANSÖR AVAN PROJESİ", 2.5 * k)
-        c.T('ASN-ANTET', (ax0 + 2 * k, 5 * k + 9 * k), baslik, min(3.2, 66.0 / max(1, len(baslik)) * 1.6) * k)
-        c.T('ASN-ANTET', (ax0 + 2 * k, 5 * k + 3 * k), f'ÖLÇEK : 1/{olcek}', 2.5 * k)
-        c.T('ASN-ANTET', (ax0 + 72 * k, 5 * k + 9 * k), f"Ada {p.get('ada','')} / Parsel {p.get('parsel','')} - {p.get('mahalle','')} / {p.get('ilce','')}", 2.5 * k)
-        c.T('ASN-ANTET', (ax0 + 72 * k, 5 * k + 3 * k), f"Tarih: {p.get('tarih','')}   Avan - Taslak", 2.5 * k)
-        c.T('ASN-ANTET', ((ax1 - 25 * k + ax1) / 2, 5 * k + 12 * k), f'A-{no:02d}', 6 * k, 0, 'MC')
+        # pafta sağ sınırı ve alt başlık şeridi
+        c.L('ASN-CERCEVE', (self.W, 5 * k), (self.W, self.H - 5 * k))
+        c.L('ASN-ANTET', ((self.sol + 2) * k, 22 * k), (self.W - 2 * k, 22 * k))
+        c.T('ASN-BASLIK', ((self.sol + 6) * k, 13 * k), baslik, 5.0 * k)
+        c.T('ASN-ANTET', ((self.sol + 6) * k, 7 * k), f'ÖLÇEK : 1/{olcek}', 3.0 * k)
+        c.rect('ASN-ANTET', self.W - 28 * k, 7 * k, self.W - 4 * k, 20 * k)
+        c.T('ASN-ANTET', (self.W - 16 * k, 13.5 * k), f'A-{no:02d}', 6 * k, 0, 'MC')
 
     def ic(self):
         k = self.k
-        return self.x0 + 25 * k, 42 * k, self.x0 + self.W - 10 * k, self.H - 10 * k
+        return (self.sol + 8) * k, 30 * k, self.W - 8 * k, self.H - 10 * k
 
     def h(self, mm):
         return mm * self.k
+
+    def tasi(self, X):
+        """Pafta kayıtlarını şerit ölçeğine çevir ve X (model, 1/50) konumuna taşı."""
+        f = SERIT_OLCEK / self.olcek
+        R = self.c.R
+        mp = lambda p: (X + p[0] * f, p[1] * f)
+        for i in range(self.bas, len(R)):
+            r = R[i]
+            if r[0] == 'L': R[i] = ('L', r[1], mp(r[2]), mp(r[3]))
+            elif r[0] == 'P': R[i] = ('P', r[1], [mp(q) for q in r[2]], r[3])
+            elif r[0] == 'C': R[i] = ('C', r[1], mp(r[2]), r[3] * f)
+            elif r[0] == 'A': R[i] = ('A', r[1], mp(r[2]), r[3] * f, r[4], r[5])
+            elif r[0] == 'T': R[i] = ('T', r[1], mp(r[2]), r[3], r[4] * f, r[5], r[6])
+        self.x0, self.W, self.H, self.k = X, self.Wmm * SERIT_OLCEK / 10, SERIT_H * SERIT_OLCEK / 10, SERIT_OLCEK / 10
 
 
 def yazi_blok(c, x, y, satirlar, h, lay='ASN-YAZI', ara=1.65):
@@ -220,14 +231,20 @@ def ciz(K, cikis):
     r = hesapla(a)
     paftalar = []
     x = 0.0
-    GAP = 300.0
     proje = K['proje']; proje['blok'] = K['blok']
+    GEN = {'A3': 420, 'A2': 594, 'A2D': 420, 'A1': 841}
+
+    def bitir():
+        nonlocal x
+        if paftalar:
+            pf = paftalar[-1][1]
+            pf.tasi(x)
+            x += pf.Wmm * SERIT_OLCEK / 10
 
     def yeni(olcek, kagit, baslik):
-        nonlocal x
-        p = Pafta(c, x, olcek, kagit, baslik, proje, len(paftalar) + 1)
+        bitir()
+        p = Pafta(c, olcek, GEN[kagit], baslik, proje, len(paftalar) + 1, ilk=not paftalar)
         paftalar.append((baslik, p))
-        x += p.W + GAP
         return p
 
     ky = kuyu_yerlesim(K, None)
@@ -237,29 +254,75 @@ def ciz(K, cikis):
     tavan = K['son_doseme_alt']
     kalin = K['son_doseme_kalinlik_oneri']
 
-    # ---------------- 1 KAPAK
-    p = yeni(50, 'A3', 'KAPAK / ASANSÖR ÖZELLİKLERİ'); k = p.k; X0, Y0, X1, Y1 = p.ic()
-    c.T('ASN-BASLIK', (X0, Y1 - 12 * k), 'ROTAŞ MÜHENDİSLİK PROJE MÜŞAVİRLİK', 7 * k)
-    c.T('ASN-YAZI', (X0, Y1 - 20 * k), 'Makine Mühendisliği - Asansör Avan Projesi', 3.5 * k)
-    c.T('ASN-BASLIK', (X0, Y1 - 36 * k), proje.get('sahip', ''), 5 * k)
-    c.T('ASN-BASLIK', (X0, Y1 - 46 * k), f"{K['blok']} BLOK - MAKİNE DAİRESİZ ÇİFT ASANSÖR AVAN PROJESİ", 5 * k)
+    # ---------------- 1 KAPAK / ANTET (ROTAŞ kapak şablonu düzeninde)
+    p = yeni(50, 'A3', 'KAPAK / ANTET'); k = p.k; X0, Y0, X1, Y1 = p.ic()
+    Wt = X1 - X0
+    y = Y1
+    # başlık kutusu
+    c.rect('ASN-ANTET', X0, y - 42 * k, X1, y)
+    c.C('ASN-ANTET', (X0 + 25 * k, y - 21 * k), 16 * k)
+    c.T('ASN-BASLIK', (X0 + 25 * k, y - 21 * k), 'R', 16 * k, 0, 'MC')
+    c.T('ASN-BASLIK', (X0 + 50 * k, y - 12 * k), 'ROTAŞ MÜHENDİSLİK PROJE MÜŞAVİRLİK', 8 * k)
+    c.T('ASN-YAZI', (X0 + 50 * k, y - 22 * k), 'Makine Mühendisliği - Tesisat ve Asansör Projeleri', 3.5 * k)
+    c.T('ASN-YAZI', (X0 + 50 * k, y - 30 * k), 'Adapazarı / SAKARYA', 3.0 * k)
+    y -= 46 * k
+    c.rect('ASN-ANTET', X0, y - 26 * k, X1, y)
+    c.T('ASN-BASLIK', (X1 - 6 * k, y - 13 * k), proje.get('sahip', ''), 6.5 * k, 0, 'MR')
+    y -= 30 * k
     sat = [['İL', proje['il'], 'BEYAN YÜKÜ', f"{K['Q']:.0f} kg ({K['kisi']} kişi) x {len(ky)} adet"],
            ['İLÇE', proje['ilce'], 'BEYAN HIZI', f"{f(r['V'])} m/s"],
            ['MAHALLE', proje['mahalle'], 'SEYİR MESAFESİ', f"{f(K['seyir'])} m"],
-           ['ADA / PARSEL', f"{proje['ada']} / {proje['parsel']}", 'DURAK SAYISI', f"{len(K['durak_kotlari'])} ({', '.join(K['durak_adlari'])})"],
+           ['ADA / PARSEL', f"{proje['ada']} / {proje['parsel']}", 'KAPI ÖLÇÜSÜ', '900x2100 teleskopik otomatik'],
            ['YİBF', K.get('yibf', '-'), 'KUYU ÖLÇÜSÜ (kaba)', ' + '.join(f"{k_['gen']:.0f}x{K['derinlik']:.0f}" for k_ in ky)],
            ['KAT ADEDİ', str(K['kat_adedi']), 'KUYU NET (sıva/kiriş)', ' + '.join(f"{k_['net']:.1f}x{K['derinlik']-2*SIVA:.1f}" for k_ in ky)],
-           ['ASANSÖR TİPİ', 'MAKİNE DAİRESİZ', 'KABİN ÖLÇÜSÜ', f"{K['kabin_gen']*10:.0f}x{K['kabin_der']*10:.0f} mm"],
-           ['ASANSÖR SAYISI', f"{len(ky)}", 'KAPI', '900x2100 teleskopik otomatik'],
-           ['ASKI TİPİ', '2/1', 'RAY (kabin / K.A.)', 'T89/B / T50'],
-           ['MOTOR', f"{f(r['motor_kW_sec'],1)} kW dişlisiz (gearless)", 'SON DÖŞEME (motor asma)', f"alt +{f(tavan)} / min {kalin:.0f} cm BA"],
+           ['DURAK SAYISI', f"{len(K['durak_kotlari'])}", 'KABİN ÖLÇÜSÜ', f"{K['kabin_gen']*10:.0f}x{K['kabin_der']*10:.0f} mm"],
+           ['ASANSÖR TİPİ', 'MAKİNE DAİRESİZ', 'ASKI TİPİ', '2/1'],
+           ['ASANSÖR SAYISI', f"{len(ky)} (çift)", 'RAY KALINLIKLARI', 'T89/B kabin - T50 K.A.'],
+           ['MOTOR', f"{f(r['motor_kW_sec'],1)} kW dişlisiz", 'SON DÖŞEME (motor asma)', f"alt +{f(tavan)} / min {kalin:.0f} cm BA"],
            ['KUYU DİBİ', f"{f(K['kuyu_dibi'])} m (kot {f(dip)})", 'KUYU ÜST BOŞLUĞU', f"{f(tavan-ust_kat)} m"]]
-    tablo(c, X0, Y1 - 60 * k, [38 * k, 80 * k, 55 * k, 95 * k], [['', '', '', '']] + sat, 3.0 * k, 'ASANSÖRÜN ÖZELLİKLERİ')
-    yy = Y1 - 60 * k - 13 * 6 * k - 10 * k
-    tablo(c, X0, yy, [60 * k, 80 * k, 60 * k, 68 * k],
-          [['PROJE MÜELLİFİ', 'ADI SOYADI', 'ODA SİCİL NO', 'İMZA'],
-           ['Makine Mühendisi', '', '', ''], ['Elektrik Mühendisi', '', '', '']], 3.0 * k)
-    c.T('ASN-UYARI', (X0, Y0 + 2 * k), 'AVAN TASLAK - mimari ve statik ile koordinasyon notları hesap paftasındadır.', 2.5 * k)
+    y = tablo(c, X0, y, [Wt * 0.15, Wt * 0.30, Wt * 0.22, Wt * 0.33], sat, 3.0 * k)
+    y -= 6 * k
+    c.rect('ASN-ANTET', X0, y - 12 * k, X1, y); c.T('ASN-BASLIK', ((X0 + X1) / 2, y - 6 * k), 'PROJE MÜELLİFİ', 4.5 * k, 0, 'MC')
+    y -= 15 * k
+    for unv in ('MAKİNE MÜHENDİSİ', 'ELEKTRİK MÜHENDİSİ'):
+        yb = tablo(c, X0, y, [Wt * 0.17, Wt * 0.33], [['ADI - SOYADI', ''], ['ÜNVANI', unv], ['ODA SİCİL NO', '']], 3.0 * k)
+        c.rect('ASN-ANTET', X0 + Wt * 0.52, yb, X1, y)
+        c.T('ASN-YAZI', (X0 + Wt * 0.54, (y + yb) / 2), f"Proje Müellifi Onayı ({unv.split()[0].title()} M.)", 3.5 * k, 0, 'ML')
+        y = yb - 5 * k
+    # yapı denetim ve belediye
+    hb = 62 * k
+    c.rect('ASN-ANTET', X0, y - hb, X0 + Wt * 0.49, y)
+    c.L('ASN-ANTET', (X0, y - 12 * k), (X0 + Wt * 0.49, y - 12 * k))
+    c.T('ASN-BASLIK', (X0 + Wt * 0.245, y - 6 * k), 'YAPI DENETİM ONAYI', 4 * k, 0, 'MC')
+    for i, t in enumerate(['Firma Yetkilisi', 'Makine Müh. Proje Denetçisi', 'Elektrik Müh. Proje Denetçisi']):
+        xx = X0 + Wt * 0.49 * i / 3
+        c.L('ASN-ANTET', (xx, y - 12 * k), (xx, y - hb))
+        c.T('ASN-YAZI', (xx + 2 * k, y - 17 * k), t, 2.4 * k)
+    c.rect('ASN-ANTET', X0 + Wt * 0.51, y - hb, X1, y)
+    c.L('ASN-ANTET', (X0 + Wt * 0.51, y - 12 * k), (X1, y - 12 * k))
+    c.T('ASN-BASLIK', (X0 + Wt * 0.755, y - 6 * k), f"{proje['ilce']} BELEDİYESİ", 4 * k, 0, 'MC')
+    c.L('ASN-ANTET', (X0 + Wt * 0.755, y - 12 * k), (X0 + Wt * 0.755, y - hb))
+    c.T('ASN-YAZI', (X0 + Wt * 0.52, y - 17 * k), 'İnceleme/Kontrol (Mekanik)', 2.4 * k)
+    c.T('ASN-YAZI', (X0 + Wt * 0.765, y - 17 * k), 'İnceleme/Kontrol (Elektrik)', 2.4 * k)
+    y -= hb + 6 * k
+    # alt kutu: blok / ölçek / proje adı
+    c.rect('ASN-ANTET', X0, y - 28 * k, X0 + Wt * 0.30, y)
+    c.T('ASN-BASLIK', (X0 + Wt * 0.15, y - 10 * k), f"{K['blok']} BLOK", 7 * k, 0, 'MC')
+    c.T('ASN-YAZI', (X0 + Wt * 0.15, y - 21 * k), 'ÖLÇEK : 1/50 - 1/20 - 1/10', 3 * k, 0, 'MC')
+    c.rect('ASN-ANTET', X0 + Wt * 0.32, y - 28 * k, X1, y)
+    c.T('ASN-BASLIK', (X0 + Wt * 0.66, y - 9 * k), 'MAKİNE DAİRESİZ ÇİFT', 6 * k, 0, 'MC')
+    c.T('ASN-BASLIK', (X0 + Wt * 0.66, y - 20 * k), 'ASANSÖR AVAN PROJESİ', 6 * k, 0, 'MC')
+    y -= 34 * k
+    # kalem kalınlıkları (ozalit)
+    kal = [['Renk', 'Kalem (mm)', 'Kullanım']] + [[str(rk), f'{mm:.2f}', u] for rk, mm, u in [
+        (7, 0.50, 'duvar, çerçeve'), (5, 0.35, 'kabin, başlık'), (6, 0.35, 'motor, halat'), (1, 0.30, 'ray, kiriş, yük, uyarı'),
+        (30, 0.30, 'karşı ağırlık'), (4, 0.25, 'yazı, tablo, antet'), (3, 0.18, 'ölçü, kapı'), (2, 0.18, 'kot'),
+        (8, 0.13, 'tarama, sıva, mimari, eksen')]]
+    tablo(c, X0, y, [Wt * 0.10, Wt * 0.14, Wt * 0.30], kal, 2.4 * k, 'KALEM KALINLIKLARI (ozalit / ctb)')
+    c.T('ASN-UYARI', (X0 + Wt * 0.58, y - 6 * k), 'AVAN TASLAK', 6 * k)
+    c.T('ASN-YAZI', (X0 + Wt * 0.58, y - 14 * k), 'Şerit 1/50 çizilmiştir; 1/20 ve 1/10 paftalar', 2.6 * k)
+    c.T('ASN-YAZI', (X0 + Wt * 0.58, y - 19 * k), 'kendi ölçeklerinde büyütülmüştür (pafta altlarında).', 2.6 * k)
+    c.T('ASN-YAZI', (X0 + Wt * 0.58, y - 24 * k), 'Kağıt yüksekliği 594 mm - ozalit rulo.', 2.6 * k)
 
     # ---------------- 2 KONUM PLANI (mimariden)
     if K.get('mimari'):
@@ -285,15 +348,15 @@ def ciz(K, cikis):
              f"Durak kotları: " + ', '.join(f'{ad} {f(z)}' for ad, z in zip(K['durak_adlari'], K['durak_kotlari'])) + f"   Seyir = {f(K['seyir'])} m",
              f"Ana durak: Zemin kat. Ana durak üzerindeki kat sayısı N = {K['ana_durak_ustu']}" + ('  (bodrum durağı hesaba katılmaz)' if alt_kat < 0 else ''),
              f"Ortalama kat yüksekliği h = seyir / (durak-1) = {f(a.kat_yuk)} m.  Asansör sayısı n = {len(ky)} (çift asansör)", '']
-    yy = yazi_blok(c, X0, Y1 - 5 * k, giris, 2.6 * k)
-    yazi_blok(c, X0, yy, ['# ' + metin[0], '# ' + metin[1]] + metin[2:i2], 2.6 * k)
+    yy = yazi_blok(c, X0, Y1 - 5 * k, giris, 3.0 * k)
+    yazi_blok(c, X0, yy, ['# ' + metin[0], '# ' + metin[1]] + metin[2:i2], 3.0 * k)
     p = yeni(50, 'A3', 'HESAP-2 KUVVET / MOTOR / KONTROLLER'); k = p.k; X0, Y0, X1, Y1 = p.ic()
     kv = ['# ' + metin[i2]] + metin[i2 + 1:]
     kv = ['# ' + s if s and s[0].isdigit() and '.' in s[:6] and s.split(' ')[0].count('.') >= 2 else s for s in kv]
-    yy = yazi_blok(c, X0, Y1 - 5 * k, kv, 2.5 * k)
+    yy = yazi_blok(c, X0, Y1 - 5 * k, kv, 2.8 * k)
     notlar = ['', '# KUYU İÇ ÖLÇÜLERİ VE SON DÖŞEME KONTROLÜ (mimariden ölçülmüştür)'] + K['olcu_notlari'] + \
              ['', '# KOORDİNASYON NOTLARI'] + K['koordinasyon']
-    yazi_blok(c, X0, yy - 2 * k, notlar, 2.5 * k)
+    yazi_blok(c, X0, yy - 2 * k, notlar, 2.8 * k)
 
     # ---------------- 5 TABLOLAR
     p = yeni(50, 'A3', 'TABLOLAR'); k = p.k; X0, Y0, X1, Y1 = p.ic()
@@ -321,7 +384,7 @@ def ciz(K, cikis):
     # ---------------- 6 KUYU PLANI 1/20
     p = yeni(20, 'A3', 'KUYU YERLEŞİM PLANI'); k = p.k; X0, Y0, X1, Y1 = p.ic()
     toplam = ky[-1]['x0'] + ky[-1]['gen']
-    ox = X0 + (X1 - X0 - toplam) / 2 - 40; oy = Y0 + 70
+    ox = X0 + (X1 - X0 - toplam) / 2 - 40; oy = Y0 + (Y1 - Y0) * 0.50
     kuyu_plan(c, ox, oy, K, 1.0, True, 2.5 * k)
     D = K['derinlik']; tw = K['dis_duvar']
     for k_ in ky:
@@ -331,7 +394,7 @@ def ciz(K, cikis):
     c.olcu('ASN-OLCU', (ox + toplam + tw, oy), (ox + toplam + tw, oy + D), -35, 2.2 * k, f'{D:.0f} (kaba)')
     c.olcu('ASN-OLCU', (ox + toplam + tw, oy + SIVA), (ox + toplam + tw, oy + D - SIVA), -70, 2.2 * k, f'net {D-2*SIVA:.0f}')
     tx = X0 + 2 * k
-    tablo(c, X1 - 135 * k, Y1 - 6 * k, [32 * k, 50 * k, 50 * k], [['', ky[0]['ad'], ky[-1]['ad'] if len(ky) > 1 else ''],
+    tablo(c, X0 + 20 * k, Y0 + 95 * k, [40 * k, 70 * k, 70 * k], [['', ky[0]['ad'], ky[-1]['ad'] if len(ky) > 1 else ''],
           ['Kuyu kaba (cm)', f"{ky[0]['gen']:.0f} x {D:.0f}", f"{ky[-1]['gen']:.0f} x {D:.0f}"],
           ['Kuyu net (cm)', f"{ky[0]['net']:.1f} x {D-2*SIVA:.1f}", f"{ky[-1]['net']:.1f} x {D-2*SIVA:.1f}"],
           ['Kabin (mm)', f"{K['kabin_gen']*10:.0f} x {K['kabin_der']*10:.0f}", f"{K['kabin_gen']*10:.0f} x {K['kabin_der']*10:.0f}"],
@@ -494,7 +557,7 @@ def ciz(K, cikis):
     # ---------------- 10 DETAYLAR 1/10
     p = yeni(10, 'A3', 'KAT KAPISI / KABİN / BUTONYER DETAYLARI'); k = p.k; X0, Y0, X1, Y1 = p.ic()
     # kat kapısı görünüşü 90/210
-    gx, gy = X0 + 60, Y0 + 80
+    gx, gy = X0 + 50, Y0 + (Y1 - Y0) * 0.52
     c.rect('ASN-DUVAR', gx - 40, gy, gx + 170, gy + 260)
     c.rect('ASN-KAPI', gx + 20, gy, gx + 110, gy + 210)
     c.L('ASN-KAPI', (gx + 65, gy), (gx + 65, gy + 210))
@@ -503,10 +566,10 @@ def ciz(K, cikis):
     c.C('ASN-KAPI', (gx + 131, gy + 117), 2.2); c.C('ASN-KAPI', (gx + 131, gy + 108), 2.2)
     c.T('ASN-YAZI', (gx + 140, gy + 112), 'çağrı butonu', 2.0 * k, 0, 'ML')
     c.olcu('ASN-OLCU', (gx + 20, gy), (gx + 110, gy), -20, 2.0 * k, '90')
-    c.olcu('ASN-OLCU', (gx + 110, gy), (gx + 110, gy + 210), -25, 2.0 * k, '210')
+    c.olcu('ASN-OLCU', (gx + 20, gy), (gx + 20, gy + 210), 25, 2.0 * k, '210')
     c.T('ASN-BASLIK', (gx - 40, gy - 45), 'KAT KAPISI GÖRÜNÜŞÜ (teleskopik otomatik, E120/EI60 yangın sınıfı)', 2.5 * k)
     # kabin planı
-    kx, kyy = X0 + 280, Y0 + 80
+    kx, kyy = X0 + 245, gy + 40
     c.rect('ASN-KABIN', kx, kyy, kx + K['kabin_gen'], kyy + K['kabin_der'])
     c.rect('ASN-KABIN', kx + 3, kyy + 3, kx + K['kabin_gen'] - 3, kyy + K['kabin_der'] - 3)
     c.L('ASN-KAPI', (kx + 15, kyy + K['kabin_der']), (kx + 105, kyy + K['kabin_der']))
@@ -516,9 +579,9 @@ def ciz(K, cikis):
     c.T('ASN-YAZI', (kx + 10, kyy + 15), 'tutamak h=90', 1.8 * k)
     c.olcu('ASN-OLCU', (kx, kyy), (kx + K['kabin_gen'], kyy), -20, 2.0 * k, f"{K['kabin_gen']:.0f}")
     c.olcu('ASN-OLCU', (kx, kyy), (kx, kyy + K['kabin_der']), 20, 2.0 * k, f"{K['kabin_der']:.0f}")
-    c.T('ASN-BASLIK', (kx, gy - 45), f"KABİN PLANI {K['kabin_gen']*10:.0f}x{K['kabin_der']*10:.0f} - engelli erişimine uygun", 2.5 * k)
+    c.T('ASN-BASLIK', (kx, kyy - 45), f"KABİN PLANI {K['kabin_gen']*10:.0f}x{K['kabin_der']*10:.0f} - engelli erişimine uygun", 2.5 * k)
     # butonyer
-    bx, by = X0 + 470, Y0 + 80
+    bx, by = X0 + 60, Y0 + 60
     c.rect('ASN-KABIN', bx, by, bx + 25, by + 120)
     for i in range(len(K['durak_kotlari'])):
         c.C('ASN-KABIN', (bx + 12.5, by + 20 + i * 14), 4)
@@ -527,29 +590,30 @@ def ciz(K, cikis):
     c.T('ASN-YAZI', (bx + 30, by + 105), 'gösterge', 1.8 * k, 0, 'ML')
     c.T('ASN-YAZI', (bx + 30, by + 20), 'kat butonları (Braille)', 1.8 * k, 0, 'ML')
     c.T('ASN-YAZI', (bx + 30, by + 8), 'alarm / kapı aç-kapa', 1.8 * k, 0, 'ML')
-    c.T('ASN-BASLIK', (bx, gy - 45), 'KABİN BUTONYERİ', 2.5 * k)
+    c.T('ASN-BASLIK', (bx, by - 20), 'KABİN BUTONYERİ', 2.5 * k)
+
+    # ---------------- şerit çerçevesi
+    bitir()
+    m5 = SERIT_OLCEK / 10
+    c.rect('ASN-CERCEVE', 0, 0, x, SERIT_H * m5)
+    c.rect('ASN-CERCEVE', 20 * m5, 5 * m5, x - 5 * m5, (SERIT_H - 5) * m5)
+    for i in range(1, int(x / (210 * m5)) + 1):          # A4 katlama işaretleri (alt kenar)
+        xx = 20 * m5 + i * 190 * m5
+        if xx < x - 30 * m5:
+            c.L('ASN-EKSEN', (xx, 0), (xx, 4 * m5))
 
     # ---------------- yaz
     os.makedirs(cikis, exist_ok=True)
     ad = f"KORUCUK_{K['blok']}_BLOK_ASANSOR_AVAN"
     c.dxf(os.path.join(cikis, ad + '.dxf'))
-    # önizleme PDF (pafta başına sayfa)
-    import matplotlib
-    matplotlib.use('Agg')
-    from matplotlib.backends.backend_pdf import PdfPages
-    import matplotlib.pyplot as plt
-    from PIL import Image
+    # ozalit PDF: tek sayfa, gerçek kağıt boyu (594 mm x şerit boyu), siyah-beyaz, kalem kalınlıklı
+    gen_mm = x / m5
+    c.png(os.path.join(cikis, ad + '_OZALIT.pdf'), (0, 0, x, SERIT_H * m5), gen_mm / 25.4, 72, siyah=True, kalem=KALEM)
     pngs = []
-    for i, (bas, pf) in enumerate(paftalar):
+    for i, (bas, pf) in enumerate(paftalar):          # hızlı kontrol görüntüleri
         yol = os.path.join(cikis, f'_p{i+1:02d}.png')
-        c.png(yol, (pf.x0, 0, pf.x0 + pf.W, pf.H), 16.5, 110)
+        c.png(yol, (pf.x0, 0, pf.x0 + pf.W, pf.H), 12, 110, siyah=True, kalem=KALEM)
         pngs.append(yol)
-    with PdfPages(os.path.join(cikis, ad + '_ONIZLEME.pdf')) as pdf:
-        for yol in pngs:
-            im = Image.open(yol)
-            fig = plt.figure(figsize=(16.5, 16.5 * im.size[1] / im.size[0]))
-            plt.imshow(im); plt.axis('off'); plt.subplots_adjust(0, 0, 1, 1)
-            pdf.savefig(fig, dpi=110); plt.close(fig)
     with open(os.path.join(cikis, ad + '_HESAP.txt'), 'w', encoding='utf-8') as fh:
         fh.write(rapor(a, r))
     return r, paftalar, pngs

@@ -145,7 +145,8 @@ class Cizim:
         return []
 
     # ------------------------------------------------------------------ önizleme
-    def png(self, yol, pencere, gen_inch=16.5, dpi=150, renk=None):
+    def png(self, yol, pencere, gen_inch=16.5, dpi=150, renk=None, siyah=False, kalem=None, model_mm=5.0):
+        """model_mm: kağıt 1 mm = kaç model birimi (1/50 şerit, cm modelde 5)."""
         import matplotlib
         matplotlib.use('Agg')
         import matplotlib.pyplot as plt
@@ -155,11 +156,12 @@ class Cizim:
         ax = fig.add_axes([0, 0, 1, 1])
         ACI = {1: '#d00000', 2: '#b8a000', 3: '#008a00', 4: '#008a8a', 5: '#0030d0', 6: '#b000b0', 7: '#000000',
                8: '#8c8c8c', 9: '#b4b4b4', 30: '#e07000', 140: '#3070a0', 250: '#555555'}
-        segs, cols, ls = [], [], []
+        segs, cols, ls, lws = [], [], [], []
         ppu = gen_inch * 72 / (x1 - x0)
         for r in self.R:
             rk, tip = self.layers.get(r[1], (7, 'CONTINUOUS'))
-            c = ACI.get(rk, '#000000')
+            c = '#000000' if siyah else ACI.get(rk, '#000000')
+            lw = (kalem.get(rk, 0.18) * 72 / 25.4 * (gen_inch * 25.4) / ((x1 - x0) / model_mm)) if kalem else 0.45
             k = r[0]
             if k == 'L': pts = [r[2], r[3]]
             elif k == 'P': pts = r[2] + ([r[2][0]] if r[3] else [])
@@ -182,10 +184,12 @@ class Cizim:
                 continue
             else:
                 continue
-            segs.append(pts); cols.append(c); ls.append('--' if tip == 'DASHED' else ('-.' if tip == 'CENTER' else '-'))
+            segs.append(pts); cols.append(c); ls.append('--' if tip == 'DASHED' else ('-.' if tip == 'CENTER' else '-')); lws.append(lw)
         for stil in ('-', '--', '-.'):
             S = [s for s, l in zip(segs, ls) if l == stil]
+            if not S: continue
             C = [c for c, l in zip(cols, ls) if l == stil]
-            if S: ax.add_collection(LineCollection(S, colors=C, linewidths=0.45, linestyles=stil))
+            W = [w for w, l in zip(lws, ls) if l == stil]
+            ax.add_collection(LineCollection(S, colors=C, linewidths=W, linestyles=stil))
         ax.set_xlim(x0, x1); ax.set_ylim(y0, y1); ax.set_aspect('equal'); ax.axis('off')
         fig.savefig(yol, dpi=dpi); plt.close(fig)
