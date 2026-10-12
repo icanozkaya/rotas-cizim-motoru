@@ -145,7 +145,10 @@ Yazı yükseklikleri: hesap 12, kat adı 16, pafta başlığı 18–29,5, antet 
 - **Kuyu aydınlatması her katta** (her durak +1,50) + kuyu dibi + kuyu tepesi, min 50 lüks; kesitlerde her katta armatür sembolü.
 - **Hız regülatörü ana (kabin) rayının yanında**, ray ile yan duvar arasında; kabin arkasında (arka duvarda) kalmaz. Planda ve kesitlerde bu konumda.
 - **Halat: 7 x Ø6,5 mm** (gh = 0,152 kg/m), 2/1 askı. Hesapta "Halat: 7 x Ø6,5 mm", "ASANSÖR 7 x Ø6,5 mm (7 HALATLI)"; 1.2.3 başlığı "Makine Konsolu Üzerinden Kuyu Perdesine Etki Eden Kuvvetler".
-- **Kesitlerde son döşeme üst kotu** (ör. +16,00 / +17,80) kot sembolüyle işlenir (MRL: kuyu tavanı döşemesi üstü; makine daireli: çatı döşemesi üstü).
 - **Kapak düzeni:** kapak (antet) şeridin sol alt köşesine sıfırlanır, "KONTROL VE NOTLAR" paftası kapağın üstündedir (aynı sütun).
 - **Paftalar sıkıştırılır:** her pafta içeriğine göre daraltılır, paftalar arasında boşluk kalmaz; ayırıcı ve çerçeve çizgileri tek çizgi, üst üste binmez (`asansor_cizim.py` → `yerlestir()`).
 - DWG: asansör çizici R12 DXF yazar; DWG için `motor/asansor/r12_to_dwg.py` (R2018'e yükseltip ACadSharp AC1032).
+- **Döşeme kalınlıkları mimarideki gibi** (kuyu tavanı mimaride 10 cm ise 10 cm çizilir); "min 20 cm BA" gibi öneri, alt/üst kot yazıları son döşemeye veya başka yere yazılmaz.
+- **Son kat (çatı) döşemesi** (ör. +16,00) kesitlerde kat döşemeleri gibi kot ve adıyla işlenir (`son_kat_doseme_kotu`).
+- Katman (kalem) adları `SCOTT-` önekli (eski `ASN-`).
+- Mimari düzleştirme depoda saklanır (`proje/<proje>/mimari/*.flat.pkl`); R12 DXF'ten kurtarırken POLYLINE da okunur.

@@ -40,7 +40,7 @@ python3 pdfp.py  /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_ONI
 ```
 
 ## Kalıcı kurallar (kullanıcı talimatları)
-- MRL asansör: makine yan perdeye ankrajlı duvar konsolunda (çapraz askılı, alttan sehpalı), makine askı kancası yok, kuyu aydınlatması her katta, regülatör ana ray yanında (kabin arkasında değil), halat 7xØ6,5, kesitlerde son döşeme üst kotu, kapak sol alt köşede notlar üstünde, paftalar boşluksuz sıkıştırılır ve çizgiler üst üste binmez (`ornekler/asansor/ASANSOR_STANDARDI.md` §11).
+- MRL asansör: makine yan perdeye ankrajlı duvar konsolunda (çapraz askılı, alttan sehpalı), makine askı kancası yok, kuyu aydınlatması her katta, regülatör ana ray yanında (kabin arkasında değil), halat 7xØ6,5, kesitlerde son kat döşemesi (+16,00 gibi) işlenir, döşeme kalınlıkları mimarideki gibi (öneri/kot yazısı yok), katmanlar SCOTT-, kapak sol alt köşede notlar üstünde, paftalar boşluksuz sıkıştırılır ve çizgiler üst üste binmez (`ornekler/asansor/ASANSOR_STANDARDI.md` §11).
 - Sprinkler boru çapı (Aselsan 02-Yangın pratiği): DN25 ≤2, DN32 3, DN40 ≤5, DN50 ≤10, DN65 ≤20, DN80 ≤40, DN100 ≤100, DN150 >100 başlık; ana kolon ve kat besleme buna göre; çap etiketi "DN.." ve üstünde başlık sayısı. Lejant/semboller `kutuphane/ornek_mekanik/aselsan_teknopark/`.
 - Her çizim teslim öncesi kolon kontrolünden geçer: boru (yağmur dahil) ve sembol hiçbir betonarme kolon/perde poligonunu kesmez (`motor/gungoren/kolon_kontrol.py`); iniş kolona denk gelirse üst kat tavanında kolon yüzüne ötelenir ve (*) ile işaretlenir.
 - ROTAŞ / MTY CAD standardı; her şey Türkçe; DWG ile birlikte DXF teslim.

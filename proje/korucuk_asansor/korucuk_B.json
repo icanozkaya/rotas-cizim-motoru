@@ -92,7 +92,7 @@
  "olcu_notlari": [
   "Zemin kat dükkân katıdır (±0,00, kat yüksekliği 4,00 m). Asansör girişi (konut girişi) +1,00 kotundadır; asansör durakları +1,00 / +4,00 / +7,00 / +10,00 / +13,00 -> girişten itibaren durak arası 3,00 m.",
   "Seyir mesafesi 12,00 m (+1,00 -> +13,00). Trafik hesabında ana durak +1,00, ortalama kat yüksekliği 3,00 m.",
-  "Motorun asıldığı son döşeme (mimari kesit ölçü zinciri: son durak üstü 300 + 160): alt kotu +17,60, mimaride 10 cm. Son durak +13,00 -> kuyu üst boşluğu 4,60 m (yeterli). Döşeme min 20 cm BA + askı kancası (statik). +16,00 çatı döşemesidir, durak değildir.",
+  "Kuyu tavanı (son döşeme) (mimari kesit ölçü zinciri: son durak üstü 300 + 160): alt kotu +17,60, mimaride 10 cm. Son durak +13,00 -> kuyu üst boşluğu 4,60 m (yeterli). +16,00 son kat (çatı) döşemesidir, durak değildir.",
   "Kuyu dibi (mimari kesit ölçüsü 140 cm): ilk durak +1,00 -> kuyu dibi -0,40, derinlik 1,40 m (imar min 1,40 m - sınırda uygun, azaltılamaz). Kuyu dibi dükkân döşemesinin 40 cm altında; su yalıtımı yapılır.",
   "Kuyu mesafesi (kuyu dibi -> son döşeme altı): 18,00 m.",
   "Kuyu ölçüleri (kaba / sıvalı): kuyu 200 / 195 ; kuyu 215 / 210 / kiriş altı 197,5 ; derinlik 190 / 185. Tüm katlarda aynı yerde ve aynı ölçüde.",
@@ -111,5 +111,6 @@
  ],
  "dukkan_kotu": 0.0,
  "dukkan_yuk": 4.0,
- "ana_durak_kotu": 1.0
+ "ana_durak_kotu": 1.0,
+ "son_kat_doseme_kotu": 16.0
 }
