@@ -1,0 +1,108 @@
+{
+ "proje": {
+  "sahip": "HASAN KAYA MİM. MÜH. MOB. VE OTO. İNŞ. TAAH. LTD. ŞTİ.",
+  "il": "SAKARYA",
+  "ilce": "ADAPAZARI",
+  "mahalle": "KORUCUK",
+  "ada": "3346",
+  "parsel": "13",
+  "tarih": "12.10.2026"
+ },
+ "derinlik": 190,
+ "ara_duvar": 10,
+ "dis_duvar": 20,
+ "kisi": 10,
+ "Q": 800,
+ "kabin_gen": 120,
+ "kabin_der": 150,
+ "P_kabin": 550,
+ "kuyu_dibi": 1.5,
+ "son_doseme_alt": 17.45,
+ "son_doseme_kalinlik_oneri": 20,
+ "mimari_son_doseme_kalinlik": 10,
+ "mimari_kuyu_dibi": "-0,55 (55 cm)",
+ "ana_durak_ustu": 4,
+ "kat_adedi": 5,
+ "kuyular": [
+  [
+   215,
+   197.5
+  ],
+  [
+   200,
+   null
+  ]
+ ],
+ "kiris_taraf": "sol",
+ "yibf": "2606438",
+ "daireler": [
+  [
+   32,
+   1,
+   1
+  ],
+  [
+   4,
+   2,
+   1
+  ]
+ ],
+ "mimari": {
+  "flat": "/home/claude/korucuk/out/b.flat.pkl",
+  "pencere": [
+   36750,
+   7100,
+   40650,
+   9050
+  ],
+  "kat_adi": "ZEMİN KAT PLANI",
+  "kuyu_kutulari": [
+   [
+    38433,
+    7564,
+    38623,
+    7779
+   ],
+   [
+    38433,
+    7789,
+    38623,
+    7989
+   ]
+  ]
+ },
+ "blok": "B",
+ "durak_kotlari": [
+  0.0,
+  4.0,
+  7.0,
+  10.0,
+  13.0
+ ],
+ "durak_adlari": [
+  "ZEMİN",
+  "1. KAT",
+  "2. KAT",
+  "3. KAT",
+  "4. KAT"
+ ],
+ "seyir": 13.0,
+ "kuyu_ustu": 4.45,
+ "olcu_notlari": [
+  "Kuyu ölçüleri (kaba / sıvalı): kuyu 200 / 195 ; kuyu 215 / 210 / kiriş altı 197,5 ; derinlik 190 / 185. Tüm katlarda aynı yerde ve aynı ölçüde.",
+  "Kiriş kuyu içine taşıyor: o kuyuda net genişlik kiriş yüzüyle sınırlı. Kiriş kuyu yüzüne çekilmeli ya da net ölçü esas alınmalı.",
+  "Esas alınan net ölçü (her iki kuyu): ~195 x 185 cm. Kabin 1200x1500 + yan karşı ağırlık sığıyor, derinlik sıkı: firma teyidi gerekir.",
+  "Motorun asıldığı son döşeme: alt kotu +17,45, mimaride 10 cm. Son durak +13,00 -> kuyu üst boşluğu 4,45 m (yeterli). Döşeme min 20 cm BA + askı kancası.",
+  "Kuyu dibi: mimaride -0,55 (55 cm). İmar min 1,40 m -> 1,50 m alındı (dip kotu -1,50).",
+  "Kesitte kuyu dibinde genişlik 215 -> 190'a daralıyor (hatıl). Kuyu dibinde de tam genişlik korunmalı.",
+  "B blok mimari dosyasında 1-4. kat planları boş; kuyu yalnız zemin ve çatıda ölçüldü.",
+  "B blok daire sayısı A ile aynı kabul edildi (32 adet 1+1 + 4 adet 2+1) - teyit edilecek."
+ ],
+ "koordinasyon": [
+  "Asansör kuyusundan ve kuyu tavanından asansöre ait olmayan boru/kablo geçmez.",
+  "Kuyu dibine pis su süzgeci/bağlantısı yapılmaz; kuyu dibi su yalıtımlı.",
+  "Rögar ve altyapı hatları kuyu dibi altından ve asansör kapı önlerinden geçmez.",
+  "Ray konsolları için kuyu duvarları betonarme (mimaride 10 cm ara duvar var; perde/hatıl statikle).",
+  "Asansör kuyusu ve önü ısıtılmaz; kuyu tavanında duman tahliye açıklığı bırakılır."
+ ]
+}

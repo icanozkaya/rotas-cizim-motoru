@@ -104,3 +104,10 @@ Yazı yükseklikleri: hesap 12, kat adı 16, pafta başlığı 18–29,5, antet 
 3. Kontroller UYGUN değilse kullanıcıya bildirilir: hız, kapasite veya asansör sayısı artırılır.
 4. Paftalar şablon DWG düzeniyle çizilir: kapak → yerleşim → hesap → tablolar → kuyu planları → kesitler → makine dairesi veya detaylar.
 5. Teslim: DWG + DXF + PDF önizleme. Her şey Türkçe.
+
+## 8. Çizim motoru (12.10.2026, ilk uygulama: Korucuk A-B-C-D)
+- `motor/asansor/asansor_cizim.py proje.json çıkış/` -> DXF (R12, ANSI_1254, bağımlılıksız `dxfyaz.py`) + PDF önizleme + hesap metni.
+- Proje girdisi örneği: `proje/korucuk_asansor/korucuk_A.json` (kuyular [kaba genişlik, kiriş altı net], derinlik, durak kotları, son döşeme alt kotu, kuyu dibi, mimari konum penceresi).
+- **Kullanıcı talimatı: motorun asıldığı son döşeme (kuyu tavanı) ve kuyu iç ölçüleri her projede tek tek kontrol edilir.** Kontrol: her katta kaba/sıvalı/kiriş altı net ölçü; asansör kesitinde kuyu dibi döşemesi, son döşeme alt kotu ve kalınlığı, son durak -> üst boşluk.
+- Yardımcı ölçüm: `araclar/asn_kuyu_bul.py` (çift kuyu bulucu), `araclar/asn_olc.py` (noktadan duvara ışın: kaba/sıva/kiriş mesafeleri).
+- DWG: bu oturumda DWG yazıcı (ACadSharp/ezdxf) kurulamadı; DXF teslim edildi, AutoCAD'de SAVEAS ile DWG yapılır.

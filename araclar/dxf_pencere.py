@@ -32,7 +32,7 @@ ppu = W * 100 / (x1 - x0)
 for r in flat:
     if r[0] == 'T':
         p, s, h = r[2]
-        if ins(p) and h * ppu > 3:
+        if ins(p) and h * ppu > 3 and h < float(__import__("os").environ.get("HMAX","40")):
             ax.text(p[0], p[1], clean(s)[:80], fontsize=max(2.5, h * ppu * 0.62), color='#0030c0')
 ax.set_xlim(x0, x1); ax.set_ylim(y0, y1); ax.set_aspect('equal'); ax.axis('off')
 fig.savefig(sys.argv[2], dpi=100); plt.close(fig)
