@@ -112,3 +112,18 @@ Yazı yükseklikleri: hesap 12, kat adı 16, pafta başlığı 18–29,5, antet 
 - Yardımcı ölçüm: `araclar/asn_kuyu_bul.py` (çift kuyu bulucu), `araclar/asn_olc.py` (noktadan duvara ışın: kaba/sıva/kiriş mesafeleri).
 - DWG: bu oturumda DWG yazıcı (ACadSharp/ezdxf) kurulamadı; DXF teslim edildi, AutoCAD'de SAVEAS ile DWG yapılır.
 - **Ozalit düzeni (kullanıcı talimatı 12.10.2026):** A4 gibi ayrı sayfa verilmez. Tüm paftalar 594 mm yükseklikte tek şeritte yan yana çizilir. Şerit 1/50; 1/20 ve 1/10 paftalar büyütülür. Sol kenarda 20 mm cilt payı ve A4 katlama işaretleri bulunur. Kapak ROTAŞ antet şablonu düzenindedir. PDF tek sayfa, gerçek kağıt boyunda (594 mm x şerit boyu), siyah-beyaz ve kalem kalınlıklıdır; renk -> mm tablosu kapakta.
+
+## 9. Pafta düzeni ve elektrik detayları (kullanıcı talimatı 12.10.2026, ikinci örnek)
+- Örnek proje: `sablon/ORNEK_MRL_ELEKTRIKLI_2026-10-12.dxf.xz`. Kapak: `sablon/KAPAK_ANTET_2026-10-12.dwg`.
+- **Düzen (örnekteki gibi):** 594 mm ozalit şeridi, A4/A3 hücreler iki sıra halinde. Sıra şöyledir:
+  1. Kapak (kullanıcının kapak şablonu, alanlar doldurulur; altında kontrol notları ve kalem tablosu)
+  2. Konum/yerleşim planı (tam yükseklik)
+  3. Hesap-1 / Hesap-2
+  4. Tablolar / kuyu yerleşim planı 1/20
+  5. Detaylar 1/20 / kuyu dibi yükleri ve son döşeme 1/20
+  6. Kesit yandan 1/50 (tam yükseklik)
+  7. Kesit karşıdan 1/50 (tam yükseklik)
+  8. **Elektrik detayları**
+- **ELEKTRİK DETAYLARININ TAMAMI her asansör setinin sonuna eklenir (bu proje ve bundan sonraki tüm dosyalar).** Kaynak: `kutuphane/asansor/elektrik_detay.json`. İçerik: kumanda pano ve kuyu dibi güvenlik devresi bağlantıları (KBK 10-11, EN81-20), kuyu ve kabin beslemesi, kat kapıları tam otomatik / kapı kilit kontakları, kuyu dibi kutusu / revizyon el terminali, güvenlik devresi, şebeke beslemesi / dağıtım panosu.
+- Kapak şablonu: `kutuphane/asansor/kapak_sablon.json`. Çıkarma aracı: `araclar/asn_sablon_cikar.py` (yeni örnek gelirse yeniden çıkarılır). Kapakta müellifler: Elektrik M. Hasan Daldal, Makine M. Bayram Genç (şablondaki gibi).
+- Kapaktaki sorumluluk paragrafının sonu ("... yapı müteahhidine ve şantiye şefine aittir.") DWG dönüşümünde kesik geldiği için tamamlandı; kullanıcı teyit edecek.

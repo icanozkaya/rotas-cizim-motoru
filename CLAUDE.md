@@ -8,3 +8,4 @@ Bu depo Can Özkaya'nın (ROTAŞ Mühendislik) mekanik proje çizim motorudur. Y
 5. Teslim: DWG (ACadSharp, AC1032) + DXF + önizleme PDF + hesap Excel; her şey Türkçe.
 6. Asansör projesi gelirse önce `ornekler/asansor/ASANSOR_STANDARDI.md` oku. Asansör tipini kullanıcıya sor (makine daireli / dairesiz). Hesabı `motor/asansor/asansor_hesap.py` ile yeniden yap.
 7. Kurulumda kök dizine tar açılamazsa LibreDWG `araclar/libredwg_yamali.tar.xz` dosyası `/home/claude/libredwg` içine açılır. `libredwg.so.0` sembolik bağı oluşturulur ve `LD_LIBRARY_PATH=/home/claude/libredwg/usr/local/lib` ile çalıştırılır.
+8. Asansör setlerinde: düzen ozalit şeridi (594 mm, A4/A3 hücreler, örnek proje sırası); kapak kullanıcının kapak şablonundan; **elektrik detaylarının tamamı her asansör setinin sonuna eklenir** (`kutuphane/asansor/elektrik_detay.json`).
