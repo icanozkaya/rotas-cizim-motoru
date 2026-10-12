@@ -45,22 +45,23 @@ def _daire_blok(x, y, side_nm, circ, tot, step=200):
     return c1 + 15
 
 
-def isitma_sema(ox, oy, HEAT, floors):
+def isitma_sema(ox, oy, HEAT, floors, W=3700.0, step=200, title_x=None):
     """HEAT: {kat: {'a': (circ, calc), 'b': ...}}; floors: [(kat, ad, daire_a, daire_b)] alttan üste"""
     top = oy + 60 + len(floors) * 540 + 60
-    T((ox + 1850, top + 30), 'YERDEN ISITMA KOLON ŞEMASI', 26, YZ, 'C')
-    T((ox + 1850, top + 2), '(HER DAİREDE 1 ADET 24 kW HERMETİK YOĞUŞMALI KOMBİ - KOLLEKTÖR - PEX 16x2,0 DEVRELER, 45/35 °C)', 9,
+    tx_ = ox + (W / 2.0 if title_x is None else title_x)
+    T((tx_, top + 30), 'YERDEN ISITMA KOLON ŞEMASI', 26, YZ, 'C')
+    T((tx_, top + 2), '(HER DAİREDE 1 ADET 24 kW HERMETİK YOĞUŞMALI KOMBİ - KOLLEKTÖR - PEX 16x2,0 DEVRELER, 45/35 °C)', 9,
       YZ, 'C')
     for i, fl in enumerate(floors):
         k, ad, names = fl[0], fl[1], fl[2:]
         y = oy + 60 + i * 540
-        L((ox + 60, y), (ox + 3700, y), 'MTY-SEMA')
-        T((ox + 3720, y + 20), ad, 15, RED, 'L', 90)
+        L((ox + 60, y), (ox + W, y), 'MTY-SEMA')
+        T((ox + W + 20, y + 20), ad, 15, RED, 'L', 90)
         xa = ox + 130
-        for side, nm in zip(('a', 'b'), names):
+        for side, nm in zip(list(HEAT[k].keys()), names):
             circ, calc = HEAT[k][side]
             tot = sum(c['W'] for c in circ)
-            xa = _daire_blok(xa, y, nm, circ, tot) + 160
+            xa = _daire_blok(xa, y, nm, circ, tot, step=step) + 160
 
 
 def isitma_tablo(x, y, HEAT, floors):
@@ -76,7 +77,7 @@ def isitma_tablo(x, y, HEAT, floors):
     yy -= 18
     for fl in floors:
         k, ad, names = fl[0], fl[1], fl[2:]
-        for side, nm in zip(('a', 'b'), names):
+        for side, nm in zip(list(HEAT[k].keys()), names):
             circ, calc = HEAT[k][side]
             for d in circ:
                 q = d['W'] / d['Ar']
@@ -109,8 +110,8 @@ def isitma_tablo(x, y, HEAT, floors):
     return yy
 
 
-def klima_tablo(x, y, KL):
-    T((x, y), 'ZEMİN KAT İŞ YERLERİ - DUVAR TİPİ SPLİT KLİMA ISI KAZANCI VE SEÇİMİ', 16, YZ, 'L')
+def klima_tablo(x, y, KL, title='ZEMİN KAT İŞ YERLERİ - DUVAR TİPİ SPLİT KLİMA ISI KAZANCI VE SEÇİMİ'):
+    T((x, y), title, 16, YZ, 'L')
     T((x, y - 20), 'Dış: %d °C KT / %d °C YT (Sakarya), iç: %d °C %%%d.  Duvar U=%.2f, cam U=%.2f W/m²K, SC=%.2f, CLF=%.2f, '
       '%d m²/kişi, aydınlatma %d W/m², cihaz %d W/m², taze hava %d l/s.kişi, emniyet %%10.' %
       (GK.T_YAZ_DIS, GK.T_YAZ_YAS, GK.T_YAZ_IC, GK.RH_IC, GK.U_DUVAR, GK.U_CAM, GK.SC_CAM, GK.CLF_CAM, GK.KISI_M2,

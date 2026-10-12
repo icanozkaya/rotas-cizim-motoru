@@ -6,7 +6,8 @@ ROTAŞ Mühendislik — MTY CAD standardında sıhhi tesisat, yerden ısıtma, k
 | Klasör | Ne var |
 |---|---|
 | `motor/` | Çekirdek: `cad.py` (kayıt), `emit.py` (DXF + DWG metni), `mtyblk.py` (MTY blokları), `spiral3.py` (yerden ısıtma salyangozu), `dxfparse.py`, Cafer Göktaş (`cg2_*`), ekipman kütüphanesi (`ekipman.py`) |
-| `motor/p2/` | Genel proje motoru: `gp.py`, `gsheet.py` (kolon/yağmur şeması, antet), `gheat.py` (ısı kaybı), `gheatsheet.py`, `gklima.py`, `gufh.py` (devre ayağı optimizasyonu), `gexcel.py`, `xcheck.py` (kesişme/köprü/çakışma temizliği), `ghidrolik.py` (kombi pompası, genleşme tankı, PEX kangal), `psychrolib.py` (MIT, psikrometri), `tcheck.py` (yazı çakışması), `emitp.py`, `pdfp.py` + projeler `tb.py`, `st.py`, `tb_excel.py`, `st_excel.py` |
+| `motor/p2/` | Genel proje motoru: `gp.py`, `gsheet.py` (kolon/yağmur şeması, antet), `gheat.py` (ısı kaybı), `gheatsheet.py`, `gklima.py`, `gufh.py` (devre ayağı optimizasyonu), `gexcel.py`, `xcheck.py` (kesişme/köprü/çakışma temizliği), `ghidrolik.py` (kombi pompası, genleşme tankı, PEX kangal), `psychrolib.py` (MIT, psikrometri), `tcheck.py` (yazı çakışması), `emitp.py`, `pdfp.py` + projeler `tb.py`, `st.py`, `tb_excel.py`, `st_excel.py`; `router.py` (A* boru güzergâhı: duvar dibi, kapı/oda/kolon kaçınma) |
+| `motor/p3/` | Emine Tunce (2 dükkân + 8 ofis, SASKİ altyapılı): `et.py`, `et_excel.py`, `rooms.py` (mahal poligonu çıkarma) |
 | `araclar/` | `dwgtools/mkdwg.c` (DWG yazıcı), yamalı LibreDWG (`libredwg_yamali.tar.xz`), önizleme yardımcıları |
 | `kutuphane/` | MTY blok kütüphanesi (`/tmp/claude-0/blk` + `blklib.pkl`) |
 | `sablon/` | Örnek yerden ısıtma Excel şablonu (`ornek_yi.xlsx`) |
@@ -58,6 +59,12 @@ python3 pdfp.py  /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_ONI
 - Projede klima varsa klimalar ŞEMAYA da eklenir (iç/dış ünite, bakır boru, drenaj; kat bantlarında) - mevcut iki projeye uygulanmayacak, sonraki dosyalardan itibaren.
 - Depo: ≤10 BB 3 m³, her ek BB +0,5 m³; çatıdaysa hidrofor gerekmez; taşma/boşaltma açık uç bırakılmaz.
 - Su sayaçları bina girişinde tek yerde; yağmur inişleri hesaplı, plan ve şemada.
+- Temiz su kolonları her katta AYNI HİZADA; tamamı ortak alanda (merdiven holü / merdiven köşesi) kolon kutusu içinde. Başka bağımsız bölümün (dükkân, ofis) içinden üst katlara taşınmaz; sayaçtan kolonlara hatlar ortak alan asma tavanından.
+- Şebeke / temiz su hatları kapı önlerinden ve kapı kanadından geçmez; ofis/daireye kapı dışındaki duvardan girilir.
+- Temiz ve sıcak su hatları odalardan geçmez: hol ve ıslak hacim duvarlarından gider (A* güzergâhta odalar kapalı - `p2/router.py`).
+- Zemin katta (veya alt katta) dükkân / koridor ortasına düşen pis su kolonu asma tavanda en yakın duvara kaydırılır, oradan zemin kotuna iner.
+- Kombiler dış cepheye bitişik mahalde; baca doğrudan dış atmosfere (iç mahalde kalan kombi ofis içinde dış cepheye alınır).
+- Yerden ısıtma bağlantı ayakları yalnız kendi bağımsız bölümünün holünden ve odanın kapısından geçer (duvar içinden, ortak alandan, başka odadan geçmez).
 - Excel: örnek yerden ısıtma şablonu formüller bozulmadan, yazdırma alanları ayarlı, mahal m² mimariyle aynı. Şablondaki yabancı logo (dcm makina) hiçbir dosyada kullanılmaz (gexcel.logo_temizle).
 
 ## Asansör avan projesi (12.10.2026)
