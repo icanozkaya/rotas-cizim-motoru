@@ -1,0 +1,599 @@
+﻿MEKANİK TESİSAT ÖZEL TEKNİK ŞARTNAMESİ  
+	
+    1. GENEL ESASLAR
+
+Bu bölüm, her bölümde ayrıca belirtilmediği takdirde, bu projenin tüm mekanik tesisat bölümleri için geçerli olacaktır.
+	
+    1.1 . PROJELER
+
+Şirketçe verilen mekanik tesisat projeleri UYGULAMA projeleridir. YÜKLENİCİ işin ehli sıfatı ile kendisine verilen bu projeleri, yapıya ait diğer projeler ile karşılaştırarak (mimari, statik, elektrik, dekorasyon) inceleyecektir.
+
+YÜKLENİCİ, imalat sırasında, işin daha mükemmel olması için düşündüğü hususları varsa her safhada İŞVEREN’e bildirecek, İŞVEREN’in onayı halinde gerekli tadilat projelerini hazırlayıp onaya verecektir. Uygulama onayı müteakip yapılacaktır. Mekanik tesisat sisteminin tatbikatının tüm sorumluluğu YÜKLENİCİ’ye aittir. 
+
+    1.2 . İMALAT ÇİZİMLERİ			
+
+Çizim paftalarının boyutları norm ölçekte olacaktır. Çizimler; kat planlarını, kesit görünüşlerini, elektrik tesisatı şemalarını, ekipman montaj detaylarını ve önerilen yerleşimi belirleyen ve gösteren ekipman boşluklarını, teçhizat parçalarının yerleşim ve düzenini, kontrol panolarını, yardımcı donanımını, boruları, kanal işini ve eşgüdümlü bir donanım sağlamak için belirtilmesi gereken diğer ayrıntıları içerecektir. Elektrik tesisatı, şemaları, devre terminallerini belirtecek ve teçhizatın her parçası arasındaki bağlantı ile teçhizatın her parçasının dahili elektrik tesisat düzenini gösterecektir. Çizimler işletme, bakım ve işler durumdaki teçhizat parçalarının değiştirilmesi için yeteri açıklık bulunduğunu gösterecektir. Teçhizat onaylanmadığı takdirde, çizimler kabul edilebilecek teçhizatı sağlayacak şekilde düzeltilecek ve tekrar onaya sunulacaklardır. Yüklenici, imalat ve montajdan önce tüm iş için onayı alınmış belgelere sahip olacaktır. Ana tatbikat projeleri dışında her bölüm için ayrıca uygulamaya ve imalata yönelik detay ve ölçülendirme için projeler yapılacaktır. Yüklenici bu uygulama projelerinin mimari, mekanik ve elektrik projeleri ile uyumlu olmasını ve çakıştırılmasını sağlayacak, statik yönden kırma, delme gibi binayı etkileyecek ve estetiği bozacak uygulamaların olmamasını koordine edecek, sorumlu olacak ve bu projeler için ayrıca bir bedel talep etmeyecektir.
+
+    1.3 . ONAY			
+
+Mekanik tesisat uygulama projelerinde yer alan tüm malzemelere ait imalat çizimleri, imalatçı verileri ve ekipmanları, malzeme ile ilgili belgeler, her bölümde belirtilen her bir sistem ile ilgili detaylar YÜKLENİCİ tarafından İŞVEREN’in onayına sunulacak ve malzemeler sipariş edilmeden önce onayları alınacaktır. 
+
+Onaya sunulacak belgeler, imalatçının adını, ticari unvanını, katalog model veya numarasını, etiket verilerini, boyutları, yerleşim ölçülerini, kapasitesini, proje özelliklerini ve referans paragraflarını, ilgili Türk ve uluslararası geçerliliği olan (EN, DIN, NFPA, ASHRE, ASTM vb…) endüstriyel ve teknik yayın referanslarını ve YÜKLENİCİ’nin temin etmek istediği her parçanın kontrata uygunluğunu sağlamak için gerekli diğer bilgileri kapsayacaktır.
+
+
+
+    1.4 . STANDARTLARA UYGUNLUK	
+
+Malzeme veya teçhizatın İŞVEREN tarafından uygunluğu kabul edilebilecek uluslararası standartlar veya Türk Standartları Enstitüsü (TSE) gibi kuruluşların standartlarına uyması gerektiğinde bu uygunluğun kanıtı onay için idareye sunulacaktır. Bölümlerde ayrıca belirtilmediği takdirde, bir kuruluş temin ettiği malzeme veya teçhizatın belirli bir standarda uygunluğunu göstermek için etiket ya da liste kullandığı takdirde bu etiket veya liste kabul edilebilir bir kanıt olacaktır. Yüklenici etiket veya liste yerine kabul edilebilir şekilde test yapmaya yetkili bağımsız bir test kuruluşundan alacağı bir belgeyi de İŞVEREN’e sunup onayını alabilecektir. Bu belgede ilgili malzemenin, belirtilen kuruluşun test metotlarına göre test edildiği ve malzemenin belirtilen kuruluşun standardına uygun olduğu yazılı olacaktır. Standartlara veya şartnamelere uygunluğu tescil edilmemiş malzeme ve teçhizatla ilgili olarak kendi liste veya etiketini uygunluk kanıtı olarak kullanılan kuruluş, imalatçıdan temin edeceği bir uygunluk belgesini onaya sunacaktır. Belge imalatçıyı, ürünü ve kullanılan standardı belirtecek ve ürünün proje özelliklerini tüm şartlarına ve kullanılan standart listesine uyduğuna dair imalatçının yazılı onayı da içerecektir. Bazı malzemeler veya özellikleri değişik ulusal veya uluslararası standartlara atıf yapılarak tarif edilmişlerdir. Bunlar öncelikle TSE, daha sonra İŞVEREN tarafından kabul edilebilecek uluslararası standartlardır.
+		
+    1.5 . İMALAT KONTROLLERİ								       
+
+Verilen imalat projelerinin onayını takiben hangi cihazın hangi ara safhada kontrol edileceği bir protokolle tespit edilecek ve imalat bu esaslar içinde yürütülecektir.  Ara imalat kontrolü yapılmadan, bir sonraki safhaya geçilmeyecektir. 										 
+    1.6 . İMALAT TESTLERİ								       
+
+İmalat projelerinin onayından sonra hangi cihazın hangi imalat testine tabii tutulacağı bir protokolle tespit edilecek ve imalatın bitiminde bu protokol gereğince davranılacaktır.	
+					
+    1.7 . MONTAJ TESTLERİ								       
+
+Kanal ve boru işleri basınç testine tutulmadan izolasyon işlerine geçilmeyecektir. Sistemler işletme basıncının asgari bir buçuk katı bir test basıncı ile denenecektir. Durum taraflarca gözlenip bir tutanakla tespit edilecektir.	
+									
+    1.8 . İŞLETME TESTLERİ								       
+
+Tesisin işletmeye alınmasında, cihazların imalat proje değerlerine uygunluğu kontrol edilecek, yetersiz gözüken cihazlarda kesin ölçümleme İŞVEREN tarafından istenebilecektir. Bunun için gerekli her türlü alet, montaj, malzeme, işçilik v.s. YÜKLENİCİ tarafından sağlanacak ve bu iş için ayrı bir bedel ödenmeyecektir. Eksik değer bulunması halinde, cihazın proje değerine getirilmesi için her türlü tadilat, gerekiyorsa yeni imalat YÜKLENİCİ tarafından bedelsiz olarak yapılacaktır. Tesisat işletmeye alındığında proje dizayn şartlarına yakın bir günde yaz/kış,  iç/dış sıcaklık ölçümleri yapılarak, tesisatın yeterliliği bir zabıtla saptanacak; yetersizliği halinde gerekli sonuca varacak her türlü tadilat, yüklenici tarafından bedelsiz olarak yapılacaktır.	
+
+
+
+
+    1.9 . İŞLETMEYE ALMA								      
+
+Geçici kabulden sonra tesis, bir ay süreyle yüklenicinin mesuliyetinde çalıştırılacak; bu arada görevli personel eğitilecektir. YÜKLENİCİ ayrıca her türlü cihaza ait imalat projesi, katalog, işletme ve bakım talimatnamelerini 2 takım halinde işletmeye verecektir.	
+
+    1.10 . İŞLETME VE BAKIM KILAVUZU
+
+Ekipmanların her parçası için bir işletme ve bakım kılavuzu sağlanacak ve bunlar komple bir işletme ve bakım kılavuzu halinde 3 takım olarak dosya halinde İŞVEREN’e teslim edilecektir. Bu kılavuzlar komple olarak bir kopyası ekipman testlerinin yapılmasından önce sağlanacak ve bu kılavuzların geçici kabulden önce İŞVEREN’e teslimi yapılacaktır. Dosya kapağında 'IŞLETME VE BAKIM KILAVUZU" yazılı olacak, binanın adı ve yeri, YÜKLENİCİ adı ve kontrat numarası ile birlikte, her ekipmanın montaj taşeronunun adları, adresleri ve telefon numaraları ve teçhizatın her parçası için yerel temsilciliklerin ad, adres ve telefon numaraları bulunacaktır. İlave olarak kılavuzda, "içindekiler" listesi bulunacak, konuyu içeren talimatların önüne yerlerini belirleyecek sayfalar konularak düzenlemesi "içindekiler" bölümüne uygun olarak yapılacaktır. Talimatlar okunaklı olacak, içine katlanmış büyük paftalarla çizimler bulunacaktır. Kılavuz ayrıca şunları da içerecektir:
+
+Teçhizatın her parçasının işletme ve kontrol detaylarını anlatan bilgiler bulunan elektrik tesisatı ve kontrol şemaları; yol verme, işletme ve kapatmayı anlatan kumanda sırası; teçhizatın her ana parçasının işlevinin anlatımı; yol verme yöntemi işletme yöntemi, kapatma talimatları; montaj talimatları; bakım talimatları; tip, sınıf, ısı aralığı ve frekansı içeren yağlama tarifesi; güvenlik önlemleri; şemalar ve resimler; test yöntemleri, performans verileri ve parça listesi. Ekipmanlarla ilgili parça listelerinde, temin edildiği kaynak, önerilen yedek parçalar ve proje sahasına en uygun kuruluşları belirtilecektir. Kılavuz teçhizat, kumanda, yardımcı donanım ve temin edilen ilgili aksam açısından her bakımdan eksiksiz olacaktır.
+
+    1.11 . İŞLETME TALİMATLARININ ASILMASI
+
+İşletme ve bakım personelinin kullanması için ekipmanların her ana parçası için onaylı işletme talimatları temin edilecektir. İşletme talimatları kapsamında elektrik tesisatı şemaları, kontrol şemaları ve teçhizatın her ana parçası için kumanda sırası bulunacaktır. İşletme talimatları basılmış ve camla çerçevelenmiş ve onaylanmış olarak bir plastik ile kaplanacak, İŞVEREN tarafından gösterilen yere asılacaktır. İşletme talimatları yol verme, doğru ayar, işletme, yağlama, kaplama, güvenlik önlemleri, ekipmanın bozulması durumunda yapılacak işlemler ve parça imalatçısının önerdiği diğer talimat maddeleri ekipmanın her ana birimine iliştirilecek veya yanına asılacaktır. Havadan etkilenebilecek işletme talimatları havaya dayanıklı malzemeden yapılacak veya havadan korunacak biçimde yerleştirilecektir. İşletme talimatları, güneş ışığı ile solma, kolay çıkarılma ve yırtılmayı önleyecek şekilde korunacaklardır.
+
+    1.12 . İDARİ PERSONELİN EĞİTİMİ
+
+YÜKLENİCİ, ekipman veya belirtilen sistemin ilgili güvenlik tedbirleri de dahil olmak üzere ayar, işletme ve bakım işlerinde görevlendirilen personeli tamamıyla yönlendirecek uzman eğitimcilerin gerekli hizmeti vermelerini sağlayacaktır. Her eğitimci montaj işleminin tüm detaylarını bilecek ve eğitim işletme ekipman veya sistemi kabul edilip idareye normal işletme için teslim edildikten sonraki ilk normal çalışma haftası içinde verilecektir. Eğitim bir hafta süre olarak belirlenmiştir. Kontrata bağlı olarak ekipman veya sistemle ilgili önemli değişiklik ya da düzeltmeler yapılırsa, işletme personelini değişiklik veya düzeltmeye alıştırmak için ek eğitim de sağlanacaktır.
+
+    1.13 . NAKLİYE VE DEPOLAMA
+
+Ekipman ve malzemeler, imalatçının önerileri ve İŞVEREN’in onayı doğrultusunda dikkatle taşınacak, uygun şekilde depolanacak ve montajdan önce, montaj sırasında ve sonrasında zedelenmeyi önleyecek şekilde korunacaktır. Zarar gören ya da bozuk parçalar İŞVEREN’in görüşü alınarak yenisiyle değiştirilecek veya İŞVEREN’e ek bir masraf getirmeden İŞVEREN’in öngördüğü şekilde onarılacaktır.
+
+    1.14 . GÜVENLİK ŞARTLARI
+
+Kayışlar, makaralar, zincirler, dişliler, kaplinler, ayar vidaları, anahtarlar ve diğer döner parçalar, herhangi bir kişinin yakın çevresine gelmesi olasılığına karşı tamamen muhafazalı ya da uygun şekilde korumalı olacaktır. Personele zarar verebilecek veya yangın çıkarabilecek şekilde yerleştirilmiş yüksek ısılı ekipman ve borular gerektiği gibi korunacak veya burada belirlenen tipte yalıtım malzemesi ile yalıtılacaktır. İskeleler,  merdivenler ve parmaklıklar gibi parçalar gerektiği durumlarda ekipmanların emniyetli bir şekilde çalışması ve bakımı için bulundurulacaktır.
+
+    1.15 . İMALATÇI TAVSİYELERİ
+
+Herhangi bir malzemenin montaj işlerinin imalatçısının tavsiyelerine uygun olması istendiğinde imalatçı önerilerinin basılı kopyaları montajdan önce İŞVEREN’e teslim edilecektir. İmalatçı önerileri alınana ve İŞVEREN tarafından onaylanana kadar parça montajının sürdürülmesine izin verilmeyecektir. Bu önerilerin sağlanmaması malzemenin reddedilmesine neden olabilecektir.
+
+    1.16 . TEÇHİZAT VE TESİS SEÇİMİ
+
+Genel olarak teçhizatın tipi, kapasiteleri ve karakteristikleri tablolarda, projelerde veya bu şartname içerisinde verilmektedir. Tablolarda bu tip bilgiler için referans yapılacaktır. Verilen kapasiteler minimum kapasitelerdir. Karakteristiklerde değişikliklere sadece İŞVEREN’in yazılı onayı ile izin verilecektir.
+
+a.Tüm aynı tip parçalar aynı imalatçının olacaktır. Montaj talimatlarının şartnamede veya planlar üzerinde belirtilmediği yerlerde imalatçının talimatlarına uyulacaktır.
+
+b.Yükseklikten etkilenen tüm teçhizat tesis edilecekleri yükseklikte çalışacak şekilde ayarlanacaktır.
+
+c.YÜKLENİCİ teçhizatı, ayrı ayrı satın alma sorumluluğundan kurtulmak için "paket" halinde satın alacaktır, (örneğin; tamamı imalatçı tarafından monte edilmiş ve uygulama için önerilmiş motor, tahrik donanımı, kayış muhafazası, kaidesi, yay ve lastik takozu ve gerekli yerlerde ses azaltıcıları ile birlikte vantilatör)
+
+d.İŞVEREN, YÜKLENİCİ tarafından işin ehline yaptırılmayan her türlü vantilatör, pompa veya diğer benzeri parçaları kabul etmeyecektir.
+
+e.Susturucular, veya ses kesiciler gerektiği takdirde belirtilen gürültü kriter seviyelerini sağlamak için tercihen vantilatör imalatçısı vs. tarafından seçilecek imal edileceklerdir. Böylece birlikte kullanılacakları teçhizatın karakteristiklerine uygun olabileceklerdir.
+
+f.Pompaların, vantilatörlerin ve diğer teçhizatın kapasite ve çalışma basınçlarının belirli basınç düşüş ölçüleri v.s.ye göre hesaplanmasına dikkat edilecektir. Bu ölçüler değiştirildiği takdirde YÜKLENİCİ değişikliği kabul edip tesis ebadını ona göre değiştirecektir.
+
+    1.17 . SİSTEME YOL VERME
+
+YÜKLENİCİ, cihazı çalıştırmadan önce aşağıdaki kontrolleri yapacaktır. Ayrıca projelerde seçilen cihazlar için uygulanacak "Startup" (Yol verme) prosedürleri İŞVEREN’in de onayı alınarak imalatçı firmalardan istenecektir.
+
+a. Havalandırma ve Klima Cihazları
+
+-Yağlama için vantilatör yataklarını kontrol edin. Vantilatör yataklarının ayarını kontrol edin.
+-Vantilatör kayışının gerginliğini kontrol edin.
+-Motor yataklarını yağ ya da gresle yağlayın. Fırça kavislerini kontrol edin.
+-Kavrama ve kasnakların mile doğru tespit edildiğini ve birbirine bağlantılarını kontrol edin.
+-Isıtıcı gerilim ve amperini kontrol edin.
+-Isıtıcı terminallerinin sıkılığını kontrol edin.
+-Filtrede meydana gelen statik basıncı kontrol edin. Filtre bağlantılarını sızıntı açısından kontrol edin.
+-Filtreleri temizleyin ve/veya şartnamelerin izin verdiği en yüksek değeri geçen basınç düşmesi durumunda kullanıp atılan cins malzemeleri yenileyin.
+-Vantilatör motor gövdesini ve hava geçiş yerini temizleyin. Motor hızını kontrol edin.
+-Motorun anında hız aldığını kontrol edin ve sağlayın.
+-Damper kanatlarının çalışmasını ve burçlarını kontrol edin.
+
+b. Kazanlar
+
+-Su sızıntısı açısından kazanı kontrol edin.
+-Gaz sızıntısı açısından kazan brülörünü kontrol edin. Sızıntılar açısından kazanın duman borusunu kontrol edin.
+-Kazan termostatının çalışmasını kontrol edin.
+-Kazan yüksek sıcaklık sınırlama termostatının çalışmasını kontrol edin.
+-Ateş tuğlası dahil olmak üzere yanma odasını kontrol edin (çatlak ve pislik olmadığından iyice emin olun).
+-Brülör ateşleme sisteminin düzgün çalıştığını kontrol edin.
+-Brülör memesini kontrol edin "temiz olduğundan ve tesisin kapasite şartları açısından doğru ebatta olduğundan emin olun. Ayrıca sıkılığından emin olun. Tüm elektrik bağlantılarının sıkılıklarından emin olmak için kontrol edin.
+-Elektrik sistemlerinde herhangi bir kısa devre olmadığından emin olmak için kontrol edin.
+-Kazana bir drenaj sübabı takıldığından emin olmak için kontrol edin. Kazan basınç göstergesini kontrol edin.
+-Kazan suyu termometresini kontrol edin.
+
+c. Isı Değiştiriciler
+
+-Sıcaklık değiştiricisinden ve boru bağlantılarından sızıntı olup olmadığın kontrol edin.
+-Termometreleri kontrol edin.
+-Otomatik kontrol vanasını düzgün tesis edilip edilmediğini ve çalışmasını kontrol edin.
+-Elektrik bağlantılarını sıkılıkları açısından kontrol edin.
+-Bir drenaj vanasının takıldığından emin olmak için kontrol edin.
+
+d. Pompalar
+
+-Aşırı sızıntıya karşı salmastra kutusunu kontrol edin.
+-Pürüzsüzlük ve sıcaklık açısından yatakları kontrol edin. Kavrama ayarlarını kontrol edin.
+-Pervane ve bilezikleri kontrol edin.
+-Pompa muhafazasını temizleyin ve boyayın. Yatakları kontrol edin.
+
+e. Vantilatörler
+
+- V kayışlarının gerginliğini kontrol edin. Yatakların yağ seviyesini kontrol edin. Yatak ayarlarını kontrol edin.
+- Vantilatör çark balansını kontrol edin. Tespit vidalarını sıkıştırın.
+- Muhafaza ve çarkı temizleyin.
+
+Denge Ayar ve Test Verileri
+
+Tüm teçhizat ve tesis, proje şartlarını karşıladığından emin olmak için muayene edilecek ve denge ayarı yapılacaktır. Aşağıdaki veri sayfaları YÜKLENİCİ’nin test, denge ayar ve çalışma raporlarında kullanması için dahil edilmiştir. YÜKLENİCİ, bu kontroller, test ve denge ayar sayfalarından komple bir rapor meydana getirmek için gerektiği kadar nüsha hazırlayacaktır.
+
+Tamamlandıkları zaman test ve denge ayarı YÜKLENİCİ tarafından imzalanacak ve İŞVEREN’in onayına sunulacaktır.
+
+    1.18 . ÇALIŞMALARIN KOORDİNE EDİLMESİ
+
+a. Betonarme strüktürü, bölmelerin, duvarların yapılması hususları ihalenin diğer şartnamelerine göre yapılacaktır. Ancak YÜKLENİCİ bu kısımların yapımı sırasında tesisat donanımı için gerekecek tesisat kanal ve şaftlarını, boru kılıflarını, bacaları, pencereleri ve açıklıkları gerekli noktalarda eksiksiz hazırlatmak zorundadır.
+
+b. YÜKLENİCİ değişik işlerin yapımını üstlenecek işçi ve ustaların işi mükemmel ve beğenilecek özellikte yapacak, bu işte yeterli bilgiye sahip olanlardan seçecek ve personeline yapacağı işin gerektirdiği bilgi ve teçhizatı temin edecektir.
+
+c. İŞVEREN’in beğenmediği taşeron, teknik sorumlu veya işçi İŞVEREN’in yazılı tebligatı üzerine en geç üç gün içerisinde iş yerinden uzaklaştırılacaktır.
+
+d. Ayrıca aynı mahalde yapılacak değişik sistemlerin işçileri birbirlerinin işlerine engel olmayacak şekilde organize edilecektir.
+
+    1.19 . DIŞ DUVARLARDAKİ AÇIKLIKLAR
+
+Çalışma gereği geçici olarak dış duvarlarda açılacak olan delik, kapak ve buna benzer açıklıklardan özellikle zemin seviyesinde ve daha aşağıda olanlar en iyi şekilde kapatılmış ve çevreleri ilgili teknikte belirtildiği gibi mükemmel bir şekilde kalafatlanmış ve içeri su sızdırmaz durumda olacaktır. Sağanak, sel ve su basması gibi ihtimaller için gerekli tedbir alınmışsa üzerinde çalışılmakta olan kısımlarda sorumluluk YÜKLENİCİ’ye ait olmak üzere bu husus aranmayabilir. Ancak işin sonunda yüklenicin sorumlu olduğu açıklıklar devamla kalıcı şekilde su geçirmez ve kalafatlı olacaktır.
+
+    1.20 . İZİN VE RUHSATNAMELER
+
+a. YÜKLENİCİ gerek belediyeler gerekse diğer kuruluşlardan alınacak izin veya ruhsatnameler için gerekli ödemeleri, denemeleri, çalışmaları ve işlemleri yaparak işi devam ettirmek zorundadır. Su, doğal gaz, elektrik vb gibi belediye hizmetlerinin sağlanması için yapılacak tetkik ve denemeleri tamamlattırarak gerekli masrafları ödeyecektir. Bu harcamalar genel masraflardan kabul edilecek ve YÜKLENİCİ’ye bunlar için ayrı bir bedel ödenmeyecektir.
+
+b. Bu deneme, muayene ve kontrollerin iyi netice verdiğini ve isteğin kabul edildiğini belirtir belgelerini YÜKLENİCİ muhafaza edecek işin tesliminde kabul heyetine teslim edecektir. Tanıtma, işletme ve bakım el kitabına bunların fotokopileri konacaktır.
+
+    1.21 . KANUN, TÜZÜK VE YÖNETMELİKLER
+
+a. YÜKLENİCİ tesisin yapımı, denenmesi ve işletilmesi ile ilgili her türlü kanun, tüzük ve yönetmeliklere, çevre kirliliğinin önlenmesi ve genel sağlığın korunması ile ilgili olanlara dahil olmak üzere, uygun iş yapacaktır. Herhangi bir şekilde nizama bağlanmamış konularda ise YÜKLENİCİ geçerli olan kurallara uygun iş yapacaktır. 
+
+b. YÜKLENİCİ projelerde, teknik şartnamelerde belirtilen malzeme tariflerinde kanunlara, tüzüklere, yönetmeliklere, mecburi olarak yürürlükte olan standartlara veya mahalli şartlara, usullere ve kurallara uygun olduğunu tetkik edecektir. Eğer uygun olmayan herhangi bir husus mevcut ise İŞVEREN’i yazı ile ikaz edecektir. İşin sonunda ikaz etmediği, herhangi bir aykırılık ortaya çıkarsa, YÜKLENİCİ bu hususu düzeltmek için yapacağı masrafa karşılık hiçbir ücret talep edemeyecektir.
+
+    1.22 . AS – BUILD PROJELER							      
+
+“As-build” projeler YÜKLENİCİ tarafından bedelsiz olarak hazırlanacak ve işin bitiminde İŞVEREN’e teslim edilecektir. 
+
+    1.23 . SES ŞİDDETİ 
+
+Tesisatta yer alan elektrik motorlu cihazlar projede belirtilen NR değerlerindeki ses şiddetine sahip olacak tip ve modelde teklif ve imal edilecektir. Ara kontrollerde uygun görülmüş olsa dahi, işletmeye alındığında konfor çizgisini aşacak şekilde gürültülü çalışan cihazlar, bedelsiz olarak tadil ve tashih edilecek, gerekirse yenileriyle değiştirilecektir.
+
+    1.24 . BETON İŞLERİ     
+
+Cihaz montajı sırasında cihaz imalatçısı firmanın tavsiyelerine uyulacaktır. Kaide inşaat işleri ve işçiliği, malzemede dahil olmak üzere YÜKLENİCİ tarafından verilen projesine uygun olarak İŞVEREN tarafından yapılacaktır. Hatalı projeden kaynaklanan sorumluluk ve maliyet YÜKLENİCİ’YE aittir.		
+				
+	
+    1.25 . DELİK AÇMA – KAPAMA 
+
+Kaba inşaat zamanında bırakılmış tesisat delikleri, kontrol edilecek, gerekirse projeye uygun olarak yenileri YÜKLENİCİ tarafından işaretlenerek İŞVEREN tarafından açılacak ve kapatılacaktır. Duvarlardan, bölmelerden ve döşemelerden geçecek borular için açılacak delikler izolesiz borularda boru dış çapından, izoleli borularda ise izolasyonun dış çapından 5 cm. daha büyük çaplı kılıflara haiz olacaklardır. Kılıflar iç duvarlarda ve bölmelerde sıva dış yüzü ile aynı hizada, döşemelerde ise üst döşeme bitmiş yüzeyinden 2,5 cm. taşacak şekilde yerleştirilecektir.
+
+Kılıf ile boru veya kılıf ile izolasyon arası boşluk mastik veya poliüretan ile düzgün ve sızdırmaz bir şekilde kapatılacaktır.
+                    
+    1.26 . ELEKTRİK İŞLERİ							      
+
+Bütün cihazlara ait kumanda ve dağıtım tabloları YÜKLENİCİ’nin vereceği bilgilere göre elektrik tesisatı yüklenicisi tarafından temin ve tesis edilecektir. Elektrik tesisatı yüklenicisi, tabloların ana besleme hatlarını çekerek ve tablo ana giriş sigortalarına bağlayacaktır. Kumanda ve dağıtım tablolarından itibaren bilumum elektrik hatları besleme kumanda, sinyal, kontrol v.s. elektrik yüklenicisi tarafından çekilecektir. 	       
+
+Bu hatların gerek cihazlara gerekse cihazların tablosuna bağlantıları YÜKLENİCİ’nin nezaretinde elektrik tesisatı yüklenicisi tarafından yapılacaktır. Ancak cihazların devreye alınmaları YÜKLENİCİ’nin mesuliyeti altındadır. YÜKLENİCİ cihazları ampermetre kontrolü ile devreye alacaktır. Cihaz etiket akımı ile devreye alma esnasındaki akımlara dair liste YÜKLENİCİ tarafından yapılacak, normal olmayan durumlar belirlenerek incelenecek ve düzeltilecektir. Motorların “overload” durumlarının ve bunların damperlerle ilişkilerinin işletme personeline açıklamasının yapılması gerekmektedir.	
+						
+    1.27 . TANIMLAMA									      
+
+Tesisatın lüzumlu yerlerine ve bütün kollektör ve ana hatlar üzerine bunların kullanılma yeri ve görevlerini gösterir etiketler takılacaktır. Tüm cihazların üzerinde cihazın karakteristiklerini belirtir etiket bulunacaktır.			      
+                    
+    1.28 . ULAŞABİLME İMKÂNI
+
+Bütün mekanik tesisat cihazları işletme, bakım, tamir ve kontrolü için kolaylıkla ulaşılabilecek yerlere monte edilecektir. Bunun için gerekli ise projelerde ufak değişikliklere gidilebilir. Bu değişikliklerin yazılı onayı YÜKLENİCİ tarafından İŞVEREN’den alındıktan sonra yapılacaktır.      
+
+    1.29 . ANKRAJ İŞLERİ      
+
+Ankraj işleri için hiçbir yerde bina zedelenmeyip, askı ve benzeri işlerin tamamı tabanca ile çakmak veya teknik icaplara göre çelik dübel kullanmak suretiyle yapılacaktır. Tavana monte edilecek askılar birden fazla dübel sistemi ile taşıtılacaktır.		
+          
+    1.30 . ASKI İŞLERİ:									      
+
+Tesisattaki boru donanımları ile hava kanallarının askı işleri detay projeler ve B.B. Yapı İşleri Makine Tesisatı Genel Teknik Şartnamesi esaslarına uygun olarak yapılacaktır.	
+
+    1.31 . ŞARTNAME EKLERİ							      
+
+Kullanılacak her türlü malzeme ve yapılacak her türlü montaj, aksi belirtilmedikçe Bayındırlık Bakanlığı Yapı İşleri Makine Tesisatı Genel Teknik Şartnameleri, Tesisat Seridöprileri, NFPA Standartları, Türk Standartları, DIN Normları, ASHRAE ve SMACNA Normlarına uygun olacaktır. Tesisat projeleri mimari, betonarme, elektrik ve dekorasyon projeleri ile bir bütün olup tesisat işlerinin ayrılmaz ekleridir. Özel tarif ve seridöprilerde uluslararası standartlar geçerlidir.	     
+
+    1.32 . MALZEME KALİTESİ
+	
+Sistemde yer alacak tüm malzeme birinci sınıf ve TSE kalite belgesine veya İŞVEREN kontrolünce onaylanmış malzeme kalitelerine sahip olacaktır.
+
+    1.33 . SÖKÜM İŞLERİ
+         
+Her çeşit cihaz, armatür, boru, hava kanalı vb. malzeme ve mamullerinin teklifteki birim fiyatlarının % 25 ‘inin montaj bedeli olarak kabul edilmiş olup İŞVEREN’in istemi halinde birim söküm bedeli olarak montaj bedelinin % 50 si ödenir. Bu bedele ayrıca genel gider ve kar payı eklenmeyecektir. Söküm esnasında diğer malzemelere mümkün olduğunca  zarar verilmeyecektir.
+
+    1.34 . TANITMA, İŞLETME VE BAKIM EL KİTABI
+         
+YÜKLENİCİ 5 nüsha kitap şeklinde ciltlenmiş olarak el kitabı hazırlayacak ve İŞVEREN’in kontrol mühendisine teslim edecektir. Bu el kitabı şu bilgileri ihtiva edecektir.
+
+-Her bir sistemin basit tarifi, bakımı ve işletme esaslarının izahını, 
+
+-Teçhizat detaylarında, kontrol diyagramlarında ve kontrol cihazlarının elektrik diyagramlarında gösterilen sistemin fonksiyonel parçalarını imalatçı tarafından verilen parça listelerini ve bu listelerde sistem, parça, model numaralarının satıcı detay numarası ile bir yıllık çalışma için tavsiye edeceği yedek parçaların listesini, 
+
+-Her bir vananın yapacağı vazifeyi, yerini ve plaka numarasını belirtir tabloları,
+
+-Her tip cihazın bakımı ile ilgili bilgileri,
+
+-Her tip cihazın olası arızaları ve bunların tamiriyle ilgili bilgileri,
+
+-Her cihaz için en yakın mahalli satın alma, bakım, tamir ve yedek parça servisinin firma adı, adresi ve telefon numarası,
+
+-Otomatik kontrol paneli ve elektrik tesisatı donatım şema ve projelerinde mevcut her bir teçhizat elemanım tarif eden, işleyişini açıklayan imalatçı kataloğu veya literatür,
+
+-Mevcut diğer cihazlara ait elektrik motorlarının yardımcı röle, uzaktan kumandalı kilitleme, koruyucu röle gibi teçhizatını gösteren monte edildiği şekliyle hazırlanmış elektrik donatım şemaları.
+
+YÜKLENİCİ gerekli bilgilerin tamam olup olmadığı konusunda kontrol teşkilatı ile temaslar yapacak,  son haliyle hazırladığı el kitabının fihristini hazırlayacak ve İŞVEREN’in kontrol mühendisine onanmak üzere yazıyla verecektir. Onaylı fihristin bir kopyası kitapta bulunacaktır. 
+
+Bütün el kitabinin içeriği geçici kabulden en az 4 hafta önceden İŞVEREN’e teslim edilecektir.
+
+    2. SIHHİ TESİSAT
+
+        2.1. GENEL
+
+Sıhhi tesisatın genel yerleşim düzeni çizimlerde gösterildiği gibi olacaktır. Bu bölümde belirtilen teçhizat, malzemeler ve donatım, bu inşaat şartnamelerine uygun olarak temin edilecek, eksiksiz ve çalışır bir sistem sağlayacak şekilde tam ve doğru olarak tesis edileceklerdir. Her teçhizat ve armatür gereken bütün tespit plakaları, ankrajları ve bağlantı elemanları ile birlikte temin edilecektir. Sıva altı tespit plakaları korozyona mukavim yüzeyli ve sağlam yapılı olacaklardır.
+
+YÜKLENİCİ, çizimleri dikkatlice inceleyecek ve esaslı bir değişiklik olmaksızın malzeme ve ekipmanların belirtilen şekilde uygun montajlarından sorumlu tutulacaktır. YÜKLENİCİ şehir şebeke suyu ve kanalizasyon bağlantısından sorumlu olacaktır. YÜKLENİCİ belediyeye sunmak üzere ilgili izinleri alıp gerekli dokümanları hazırlayacaktır. Bütün bu belirtilen (proje ve inşaat) işleri İŞVEREN’e ek masraf getirmeden yapılacaktır. 
+
+Hiç bir sıhhi tesisat armatürü, cihazı veya borusu, içme ya da kullanma suyu dağıtan besleme borusu ile kirli su drenaj sistemi veya pis su borusu arasında yerleştirilmeyerek pis su yada kirli suyun temiz su besleme hattına ters akış yapma ihtimali önlenecektir.
+
+Boru ağızları montaj süresince kapak veya tapa takılarak ya da diğer uygun bir yolla kapalı tutulacaktır. Armatür ve teçhizat sıkı bir şekilde örtülecek ve tozun, suyun veya kimyasal maddelerin olumsuz etkilerinden korunacaktır.
+
+        2.2. ALT YAPI SİSTEMLERİ
+
+Su ve drenaj boruları bina dışında ana hatlara bağlanacakları noktalara kadar uzatılacak ve bağlantı sonradan yapılacaksa, yapılacak bağlantılar esnasında tekrar açılmak üzere ağız kısımlarına tapa ya da kapak takılacaktır. Servis hatları toprak donma seviyesinin altında döşenecektir. Boruların ana şebekeye olan bağlantıları yapılmadan kanallar kapatılmış veya boru hatları bir başka yöntemle örtülmüşse her sıhhi tesisat servis hattının ağız kısımlarının yerleşimleri kazıklarla işaretlenerek veya bir başka kabul edilebilir yöntemle belirlenecektir.
+
+        2.3. ÇİZİMLER
+
+Boru sisteminin genel yerleşim düzeni çizimlerde gösterilmiştir, ancak iş yeri şartları nedeniyle değişik bir uygulama gereken yerlerde YÜKLENİCİ bu değişiklikleri içeren çizimleri İŞVEREN’’in onayına sunacaktır. Çizimlerin küçük ölçekli olması nedeniyle bütün dirseklerin, boru ek parçalarının ve aksesuarların gösterilmesi mümkün değildir. Yüklenici tüm yapısal ve nihai hususları göz önüne alarak, gereken miktarda ekleme parçalarını, sifonları, vanaları ve aksesuarları temin edecek ve yapacağı işleri bu hususlara göre düzenleyecektir.
+
+        2.4. MALZEME, ARMATÜR VE TECHİZATIN SEÇİMİ
+
+Şartnamelerin bu bölümü veya tamamı ile ilgili olan, bu ihale kapsamında temin ve tesis edilen tüm malzemeler, armatürler ve teçhizat birinci kalite ve adı geçen malzemeler, armatürler ve teçhizatın imalat ve/veya üretimiyle uğraşan tanınmış bir imalatçının standart ürünü olacaktır. 
+
+        2.5. MALZEMELERİN, DONATIMIN VE TEÇHİZATIN ONAYI
+
+Mümkün olan en kısa zamanda ve herhangi bir malzeme, donatım veya teçhizat satın alınmadan önce, YÜKLENİCİ, imalatçı adı ve adresi, katalog numaraları ve ticari adını da kapsamak suretiyle malzemeleri, armatürleri ve teçhizatı içeren bir listeyi üç kopya halinde tasdik edilmeleri için İŞVEREN’e verecektir. Listeler, tam ve kullanışlı bir tesisat için gerekli malzemeleri, donatım ve teçhizatın tüm parçalarını gösterecek şekilde yeteri kadar detaylı ve birinci sınıf olacaktır. YÜKLENİCİ çeşitli kalemler hakkında istenilen diğer detaylı bilgileri de temin edecektir. Şartname hususlarına uygun olmayan herhangi bir malzeme, armatür ve teçhizat reddedilebilir. YÜKLENİCİ tam açıklamasını içeren bir rapor sağlayacak, aynı zamanda bazı istisnaları da şartnameye dahil edebileceklerdir. Böyle bir raporun verilmemesi o teçhizatın, şartnamelerin tüm koşullarını sağladığı şeklinde yorumlanacaktır.
+
+        2.6. KESME VE TAMİRAT
+
+Tüm iş önceden dikkatli olarak planlanacak ve binada herhangi bir delme işlemi ancak İŞVEREN’in yazılı izni ile olacaktır. Delme işlemi dikkatle yapılacaktır. Montaj amacıyla yapılan kesme işleminden dolayı binalara, borulara, kablolara veya cihazlara gelecek zararlar konu ile ilgili tecrübeli teknik elemanlar tarafından, İŞVEREN’e ek bir masraf çıkarmaksızın onarılacaktır. 
+
+        2.7. DONATIM MALZEMELERİ VE TEÇHİZAT
+
+Montaj esnasında boru ağızları montaj süresince kapak veya tapa takılarak kapalı tutulacaktır. Donatım ve teçhizat sıkı bir şekilde örtülecek ve toza, suya, kimyasal maddelere ve mekanik bir hasara karşı korunacaktır. İşin bitiminde donatım, malzemeler ve teçhizat iyice temizlenecek ve iyi bir durumda İŞVEREN’e teslim edilecektir.
+
+        2.8. STANDART İMALAT
+
+Bu şartname ile temin edilecek teçhizatlar ve malzemeler imalatçının standart imalatı olacaktır. Aynı sınıf teçhizattan iki ya da daha fazlasına ihtiyaç duyulduğunda, hepsi bir tek imalatçının imalatı olacak fakat teçhizatın tüm parçalarının aynı imalatçıya ait olması şartı aranmayacaktır.
+
+        2.9. BORU TESTİ
+
+Boru sistemleri gömme, boya veya tecrit işleminden önce işletme basıncının 1.5 katı kadar bir basınçla teste tabi tutup, 30 dakika süreyle herhangi bir basınç düşüklüğü olmadığı görülecek, bilahare takibeden işlemlere geçile bilinecektir. Herhangi bir cihaz veya armatürdeki sızıntı tamir edilmeyip, yenisi ile değiştirilmesi yoluna gidilecektir.
+
+Test işlemi işletme ve şantiye kontrol yetkililerine 24 saat önceden bildirilecek ve sonuçları İŞVEREN ile birlikte tanzim edilmiş bir zapta bağlanacaktır. Test edilip, sonucun müspet olduğu zapta bağlanmamış bölümlerde, itirazsız, sistem yeniden açılıp, normal yollarla denendikten sonra takibeden işlemlere geçilecektir.  
+
+        2.10. BOYA İŞLERİ
+
+Çekilen borular, basınç testini takiben, istenilen renkte iki kat yağlı boya ile boyanacaktır. Gömme, ankastre bölümler özel kaplama (bitüm, ruberoit v.s.) ile sarıldıktan sonra kapatılacaktır. 
+
+Boya işleminden önce boru yüzeyleri kir, pas, yağ inşaat artığı v.s. gibi malzemelerden arındırılacaktır. 
+
+        2.11. CİHAZLAR
+
+Tesisatta yer alacak tüm cihazların montajında, cihazların satın alınması sırasında imalatçı firma tarafından verilen montaj talimatlarına aynen uyulacaktır.
+
+        2.12. TEMİZ SU TESİSATI
+
+Temiz su tesisatı “TS 828” “Binalarda Temiz Su Tesis Kuralları” standartlarına uygun olarak yapılacaktır.
+
+Lavabo ve eviyelerin bağlantılarında ara kesici musluk kullanılacaktır. 	
+
+Boru montaj safhasında boruların içlerinin kirlenmesini önlemek maksadı ile boruların uçları geçici olarak kapalı tutulacaktır.
+
+        2.13. SICAK SU TESİSATI
+
+Temiz sıcak su tesisatı TS standartlarına uygun olarak yapılacaktır. Lavabo ve eviyelerin bağlantılarında ara kesici musluk kullanılacaktır. Boru montaj safhasında boruların içlerinin kirlenmesini önlemek maksadı ile boruların uçları geçici olarak kapalı tutulacaktır.
+
+        2.14. PİS SU TESİSATI
+
+Pis su tesisatı boruları projede aksi belirtilmemiş ise % 1 eğimle döşenecektir. Pis su tesisatı “TS 827” standartlarına uygun olarak yapılacaktır. Bütün yer süzgeçleri bitmiş döşeme kotundan 3 mm. aşağıda kalacak şekilde monte edilecektir. Pis su borularının üzerine havalandırma boru ve şapkası konacak ve uçları açık havaya çıkarılacaktır. Boruların, açık, bitirilmemiş, üzerinde çalışılmakta olan veya bağlantısı yapılmamış uçları tapalanmış bulundurularak temiz tutulmaları sağlanacaktır.
+
+    3. KALORİFERE TESİSATI
+
+        3.1. GENEL
+
+Soğutma ve ısıtma tesisatının genel yerleşim düzeni proje çizimlerinde gösterilmiştir. YÜKLENİCİ tarafından proje çizimlerinde değişiklikler yapılması gerekli görülürse bu değişikliklerin detayları ve nedenleri mümkün olan en kısa sürede yazılı olarak İŞVEREN’e onay için iletilecektir. Hiçbir değişiklik İŞVEREN’in yazılı onayı alınmadan yapılmayacaktır. Teçhizat ve borular giriş, servis ve bakım için yeterli ve uygun açıklığı sağlayacak şekilde düzenlenecektir.
+
+        3.2. ETİKETLER
+
+Teçhizatın her ana birimine üzerinde imalatçı adını, adresini, katalog ve model numarasını içeren ve sağlam bir şekilde tespit edilmiş bir pirinç levha konulacaktır.			
+
+        3.3. BOYUTLARIN TAHKİKİ
+
+Proje çizimleri ısıtma ve soğutma tesisatının kapsamını ve genel yerleşimi göstermektedir. Yüklenici, iş ve iş şartlarını tetkik edecek ve herhangi bir değişiklik gerektiği takdirde bir iş yapmadan İŞVEREN’e haber verecektir.
+
+        3.4. STANDART ÜRETİMLER
+
+Bu şartname altında sağlanacak teçhizat, düzenli olarak bu tür ürünlerin üretimi ile uğraşan imalatçıların standart üretimleri olacaktır. Teçhizat kalemleri, ihale açılmasından önce en az iki yıldır tatminkâr bir şekilde kullanılmakta olan teçhizatın eşi olacak, ayrıca uygun olduğu, İŞVEREN’in onayına sunulacaktır. Malzeme ve teçhizat ilgili yayınlara ve belirtilen diğer şartlara uygun olacaktır. Aynı cins iki veya daha fazla cihaz istendiği yerlerde, bu cihazlar tek bir imalatçının ürünleri olacaktır; ancak sistemin tamamlayıcı parçalarının aynı imalatçıya ait olmasına gerek yoktur.
+
+        3.5. TEÇHİZAT VE MALZEMELERİN ONAYI
+
+İşe başlama talimatı alındıktan sonra malzeme veya teçhizatla ilgili herhangi bir tesis işine başlatmadan önce, YÜKLENİCİ projede kullanılacak malzeme ve teçhizat listesini İŞVEREN’in onayına sunacaktır. Bunların bir kopyası onaylandıktan sonra YÜKLENİCİ’ye geri verilecektir. YÜKLENİCİ tarafından proje çizimlerinde değişiklikler gerekli görülürse, bu tür ürünün ilgili bölümlerindeki değişiklikleri de kapsayarak değişikliklerin detayları ve nedenleri proje çizimleri ile birlikte verilecektir. Onaylanan değişiklikler İŞVEREN’e ek bir masraf çıkarmadan yapılacaktır. Malzemeler ve teçhizat listesi, onarım parçaları stoğu olan en yakın servis ve bakım kuruluşunun isim ve adresi ve şartname ilkelerine olan uygunluğu göstermek için kataloglar, katalog alıntıları, diyagramlar veya imalatçı tarafından yayınlanan diğer veriler gibi açıklayıcı malzemelerle donatılacaktır. Sadece katalog numaraları kabul edilmez. Bir sistemin parçaları olarak görev yapan kalemlerin listesi bir defada verilecektir, aksi takdirde zaman zaman verilen kısmi listeler dikkate alınmayacaktır. Bu koşullar altındaki teçhizatın onaylanması, İŞVEREN’in dikkati çekilmedikçe, şartnameden herhangi bir sapma yapılmasına yetki verilebileceği şeklinde yorumlanmayacaktır. Belirtilenden farklı olan teçhizat, YÜKLENİCİ’nin bu farklılıkları belirtmesinin ve şartnamenin gerekli ilkelerinin karşılanmasının sağlanması ile teklif edilebilir. Bu koşullar altında teklif edilen teçhizat, İŞVEREN’in fikrince, belirtilene eşit veya daha iyiyse, düşünülebilir.
+
+        3.6. MALZEME VE TEÇHİZAT
+
+Kullanılacak malzeme alet ve cihazlar işletme ve çalışma esnasında maruz kalacakları şartlara uygun olacaktır.
+
+Korozyon olması muhtemel kısımlarda önceden kabul edilmiş korozyona dayanıklı malzeme ve montaj metotları kullanılacak, bu anlamda pil reaksiyonu göstermeleri muhtemel bir birine uygun olmayan malzeme izole edilecektir. Şartname ve projelerde aksi belirtilmemişse korozyona karşı dayanıklılık önceden kabul edilmiş ana malzemeler ve kaplamalar kullanılarak önlenmiş olacaktır.
+
+Sistemlerin bütün elemanları işletme sırasında maruz kalabilecekleri tüm sıcaklık aralığında doğru çalışmayı ve beklenen performansı gerçekleştirecek şekilde tanzim edilmiş ve ayarlanılarak dengelenmiş olacaktır.
+
+Komple çalışır bir sistem meydana getirmek için gerekli bütün kontrol cihazları, elektrik bağlantıları, boru donanımları, vanalar, hava boru ve kanalları, yardımcı parçalar ve diğer cihazlar tesise monte edilmiş olacaktır.
+
+Bütün cihazlar ve donanımlar özellikle ilgili Türk Standartlarını, Kanunlara, Tüzüklere ve Yönetmeliklere uygun olarak imal ve monte edilmiş olacaktır. Herhangi bir mevzuatın henüz yürürlüğe konmamış olduğu mevzularda İŞVEREN tarafından kabul edilecek uluslararası bir standarda uygunluk aranacaktır. Bunların dışında kalan hususlarda tesisat, teknik şartnamelere ve alışılmış usul ve kaidelere uygun olarak imal ve monte edilmiş olacaktır. Cihazların montajında imalatçı firma tavsiyelerine de uyulacaktır.
+
+Bütün elektrik motorları, şalterleri, starterleri ve kontrol cihazları elektrik iç tesisat yönetmeliği ve teknik şartnamesi ile Bayındırlık ve İskân Bakanlığı Elektrik Tesisatı Şartnamesine uygun olarak imal ve monte edilmiş olacaktır.
+
+Isıtma santrallerinin yerleştirilmesi ve donatılmasında TSE 2192 ye uyulacaktır.
+
+Tesisatın sismik koruması için gerekli tedbirler alınacaktır.
+
+        3.7. KAZAN DAİRESİNİN BOYUTLANDIRMA VE DÜZENLENMESİ
+
+Isıtma cihazlarının teknik kaidelere uygun bir tarzda işletilmelerini mümkün kılmak ve rahatça tamir ve bakımlarını sağlamak maksadıyla ısıtma santrallerinin ölçüleri yeterli boyutlarda olacaktır. Kazan daireleri TS 1257 ve TSE 2192 ye ve binaların yangından korunması hakkındaki yönetmeliğe uygun olacaktır.
+
+Kazan dairesinin arka tarafı ile kazanların arka kısmı arasında en az bir (1) metre boşluk bırakılacaktır.
+
+Kazan dairesine giriş ve bodese çıkış için yapılacak merdivenler yeterli kalınlıkta baklavalı sacdan ve korkuluklu olacaktır. Büyük ölçülü kazanlarda ölçü ve kontrol aletlerine gerektiğinde müdahale etmek için, tabanı yeterli kalınlıkta baklavalı sacdan, taşıyıcı kısmı yeterli kesitte çelik profilden yapılmış, muhafazalı bodesin (İŞVEREN’ce onaylı) projesine göre yapılacaktır.
+
+Kazanların önü ve arkası ile sağ ve sol yanında her türlü bakım, onarım ve müdahalenin yapılmasına imkân sağlayacak açıklık bırakılacaktır.
+
+        3.8. İMALAT VE MONTAJ DETAYLARI
+
+Projelere, detaylara, birim fiyat tariflerine, yönetmeliklere ve teknik şartnamelere ilaveten yüklenici aşağıda açıklanan hususları yerine getirecektir.
+
+-İmalat projeleri, imalatçının atölye teknik resimlerini ve kataloglarını, şartnamede talep edilmiş (tarif edici literatürü, cihazın komple karakteristiklerini, ana ölçülerini, kapasitesini, basınç kaybını, standart ve yönetmelikler icabı gereken özelliklerini, elektrik motorlarını akuple ediliş şeklini ve denemelerini, vs…) her türlü bilgiyi veren resim, yazı, belge ve grafikleri ihtiva edecektir.
+
+-YÜKLENİCİ tarafından verilecek yerleştirme ve montaj detayları, belirli hacimde boruları, cihazları ve yapı elemanlarını, cihazların aksesuarını, bunların çap, boyut ve bağlantı şekillerini, aralarındaki açıklıklarını, boru geçiş yerleri, yatay ve dikey şaftları, asma tavan kesitinin planda ve kolon şemasında (kesitte) açıkça gösteren teknik resimleri, taşıyıcı yapı strüktürünü, tespit saplamalarının yerlerini ve bunlarla ilgili komple bilgi ve şemaları kapsayacaktır.
+
+Bütün pompalar için belgelenmiş performans eğrileri verilecektir.
+
+Kullanılacak izolasyon malzemelerinin numuneleri İŞVEREN’e verilecektir.
+
+Bütün cihazların elektrik ve kontrol bağlantı şemaları hazırlanarak İŞVEREN’ce tasdik edilecektir.
+
+YÜKLENİCİ imalat ve montaj resimleri ve prospektüsler tasdik edildikten, teklif ettiği cihazlar İŞVEREN’ce kabul edildikten ve bu hususlar yazılı olarak kendisine tebliğ edildikten sonra imalata, ihsarata ve montaja başlayabilecektir.
+
+Yükleniciye gerekli izin ve talimatlar verilmeden yapılan imalat, ihsarat ve montaj işlerinden doğacak zarar YÜKLENİCİ’ye ait olacaktır.
+
+        3.9. EĞİTİM 
+
+İşletmeye alınacak ısı merkezinde çalışacak personel işin yapımını üstlenen uzman firmalar tarafından yeterli sürede eğitim ve kursa tabi tutulacak, kurs süresi sorunsuz bir işletmenin tesisine kadar devam edecektir.
+      	      
+    4. MÜŞTEREK TESİSAT
+
+    4.1 . TEMİZ SU BORULARI 
+
+Sıhhi tesisatta kullanılacak temiz su boruları TS 301/2’ye uygun dikişli galvanizli borular olacaktır. Bütün bağlantılar dişli olarak ve döküm galvaniz fittigslerle yapılacaktır. Borular düşey veya yatay çekilip gerekli ankraj sistemlerini ihtiva edecektir. Konsol sistemi ve sabitleme noktaları gerekli uzama/kısalma imkânlarını getirecek şekilde tesis edilecektir. Konsollama, borunun yerine ve çapına göre 2,5 ila 3,5 metre aralıklarla yapılacaktır. Bütün duvar, döşeme ve tavan geçişlerinde dikişli galvaniz borudan uygun çapta kovanlar konulacak, kovanın iki ucu bitmiş inşai eleman seviyesinde olacaktır. Kovan-boru arası tecrit malzemesi ile doldurulacaktır. 
+
+    4.2 . PLASTİK BORULAR 
+
+Pis su boruları TSE sertifikası standartlarına sahip olacaktır.
+
+
+
+
+    4.3 . VANALAR 
+
+Kullanılacakları akışkan, basınç ve sıcaklığına uygun seçilecektir. Vanalar, bir bölümün tamir ve bakımı için diğer kısımları durdurmayacak tarzda monte edilecek, montaj ve demontajları sırasında sistemin diğer elemanlarına zarar gelmeyecek tarzda monte edilmesine dikkat edilecektir. Her vana mutlaka demonte edilebilecek ara parçaları (rakor, flanş, v.s.) ihtiva edecektir.
+
+Özellikle ana ve ara borular ile santrallerde yer alan vanalar, fonksiyonlarını belirleyen tanıtıcı özel renk ve etiketlerle teçhiz edilecektir.
+
+    4.4 . POMPALAR 
+
+Sistemde kullanılacak olan soğuk su sirkülasyon pompaları tercihen “ In line” tip olarak seçilmiştir. Pompalar 1.500 (d/dk) lı, mekanik salmastralı, paslanmaz çelik milli, ND 16 ve kullanıldığı şartlara uygun olacaktır. 
+
+Marka ve model olarak verim eğrilerini ihtiva eden kataloglar temin edilmek suretiyle onaylandıktan sonra izhar edilecektir.
+
+Isıtma sirkülasyon pompaları düz boruya takılan tip, ıslak rotorlu ve 1500  d/dk’lıdır. 
+120 oC sıcaklığa dayanıklı elektrik motorları ile direkt akuple bağlıdırlar. Elektrik motor gücü azami yükteki akımı karşılayacak şekilde seçilecektir. 
+
+Pompaların önünde ve arkasındaki armatürlerin ağırlıkları pompaya yüklenmeyecektir. Pompalar tamir için söküldüğünde bu armatürler kendi kendilerini taşıyabilecek şekilde monte edileceklerdir.
+
+    4.5 . ARMATÜRLER 
+
+Tesisatta kullanılacak kovsa vana, radyatör musluğu, şiber vana, sürgülü vana, pislik tutucu, kondenstop, geri tepme ventili, emniyet ventili, genleşme parçaları işletme basınç ve sıcaklığına uygun seçilip, Türk Standartlarına uygun, kalite belgeli malzemelerden seçilecektir. 
+
+Bütün armatürler demontaj imkânı verecek, ara bağlantı parçaları (rakor, flanş v.s.) ile monte edileceklerdir.
+
+    4.6 . BORU TESTLERİ 
+
+Borular çekildikten sonra işletme basıncının 1,5 katı soğuk su basıncı uygulanacak, hiçbir sızıntı-akıntı olmadan bir saat basınç altında tutulacaktır. Herhangi bir arıza halinde, gerekli düzeltme yapıldıktan sonra test tekrarlanarak herhangi bir kaçak olmadığı saptanacaktır. Test yapılacağı, 24 saat önceden işletme yetkililerine bildirip, sonuç müşterek bir tutanak ile kayıt altına alınacaktır.. İşin akışı açısından ısıtıcılar bağlanmadan bu işlem yapılmışsa, bilahare ısıtıcılar devreye alınarak tekrarlanacaktır. 
+
+    4.7 . BORULARIN İÇİNİN TEMİZLENMESİ 
+
+Basınç testinden sonra sistem temiz su ile doldurulup iki saat sirküle edildikten sonra boşaltılıp, pislik tutucular temizlenecek ve yeniden su doldurulup devreye alınacaktır.   
+
+    4.8 . SOĞUTMA VE ISITMA BORULARI
+
+Soğuk ve sıcak su boruları TS 301/2 ye uygun dikişli siyah boru olacak ve kaynaklı işlenecektir.
+
+    5. HAVALANDIRMA TESİSATI
+ 
+    5.1 . KLİMA SANTRALLERİ
+
+Sistemde kullanılacak klima santralları, keşiflerde belirlenen kapasite ve evsafta üniteleri ihtiva eden, her kısmın demonte edilmesine imkân veren bölmeler şeklinde imal edilmiş, her bölüme ait, kontrol kapakları ile galvaniz sactan imal edilmiş muhafazalar içinde olacaktır. Klima ve havalandırma santralleri EUROVENT sertifikalı olacaktır.
+
+Kaide ve oturma alanı ayarlanabilir ayakları ihtiva edecektir. Hareketli cihazlar ile kaide arasında titreşim yutucular bulunacaktır. Her bölüm, en az bir adet kontrol kapısını ve/veya kontrol penceresini ihtiva edecektir. Bu kapıların hepsi aynı tarafta bulunacaktır. Kapılar pozitif basınç olan bölümlerde dışarı doğru, negatif basınç olan bölümlerde içeri doğru açılır olacak ve üzerlerinde menteşeleri, emniyet zincirleri ve kilit düzenleri bulunacaktır. Bunlar, sızdırmazlığı temin eden aksesuar ile teçhiz edilecektir. Bu sızdırmazlık santral iç basıncı ve vakumunda kaçak yapmayacak şekilde düzenlenecektir. Muhtelif bölümlerin birleştirilmesinde kuvvetli bağlantılar ile sızdırmazlık temin edilecektir. Tüm gövde modülleri 2500 Pa iç basınca dayanıklı ve bu basınçta sızdırmaz olacaktır. Klima santrallerinin EN 1886’ya göre sağlaması gereken minimum test değerleri aşağıdadır:
+
+-Isıl Geçirgenlik Sınıfı - T2
+-Isı Köprü Faktörü Sınıfı - TB2
+-Hava Sızdırmazlık Sınıfı - L1(M)
+-Mekanik dayanım Sınıfı – D1(M)
+-Filtre By-Pass Kaçağı - F9
+
+Bütün bölümlerin ölçüleri bir birine uygun olarak yapılacaktır. Bölüm kesitlerinde maksimum hava hızları ve hava kaçak miktarları VDI 3803’te belirtildiği şekilde olacaktır. Her türlü kablo, ölçüm aygıtlarının monte edildiği delikler hava sızdırmayacak şekilde olacaktır. Her bölümün üzerinde o bölümle ilgili teknik bilgileri haiz etiketler olacaktır. Dış boya kontrol teşkilatının isteğine göre RAL renklerine uygun olacak şekilde seçilecektir. 
+
+Klima santralleri muhafazası çift cidarlı (galvaniz sac) ve içerden ısı tecridi ve ses izolasyonu yapılacak (minimum 20 mm cam yünü), işletme şartlarında, cihaz yüzeyinde hiçbir kondenzasyon gözükmeyecektir. 
+
+Aksine bir sınırlama getirilmedikçe sabit hava debili klima santralleri seçiminde herhangi bir santral hücresinin hava akış yönüne dik olan net iç kesitinde hava hızı en fazla 2,5 m/sn alınacaktır.
+
+Değişken hava debili VAV klima santralleri seçiminde ise herhangi bir santral hücresinin hava akış yönüne dik olan net iç kesitinde hava hızı en fazla 2,5 m/sn alınacaktır.
+
+Klima santrallerinin montajında santral şasisi ile santralin oturduğu beton temel arasına şasi travers genişliğinden en az 50 mm. daha uzun lastik neopren titreşim önleyici özel vibrasyon önleme levhaları konacaktır. Vibrasyon levhası özelliklerinin seçimi santralin işletme ağırlığına ve 13 Hz lik doğal frekansa göre olacaktır. Titreşim önleme levha genişliği en az 150 mm. olacak ve levhalar 1200 mm. aralıklarla altına yerleştirilecektir.
+
+Klima santrallerinde 2 kademe filtreleme yapılacaktır. 1. Kademe filtreler panel filtre, 2. kademe filtreler ise torba filtre olacaktır. Filtre sınıfları keşifte belirtildiği şekilde olacaktır. Bütün havalandırma kanaları ve filtreler monte edilmeden ve fanlar çalıştırılmadan evvel tamamen temizlenmiş olacaktır. Klima santrallerinde filtre kirliliği kontrolü için her bir filtre için ayrı ayrı uygun bir gösterge olmalıdır.
+
+Geçici kabulden sonra klima santralleri İŞVEREN’e teslim edilirken tüm filtreler yenileri ile değiştirilecek ve bu işlem için hiçbir bedel ödenmeyecektir.
+
+Santraller içindeki cihazlar ve gerekli bağlantı kanalları proje değerlerine uygun özellikte olacaktır.
+
+Santraller üzerindeki ısıtıcı ve soğutucular bakır boru alüminyum kanatlı olacak ve genel sistemi bozmadan demontaj imkânı verecek şekilde imal ve monte edilecektir. Bataryada yoğuşan sular için paslanmaz malzemeden mamul drenaj tavası olacak ve toplanan suyun tahliyesini sorunsuz şekilde sağlayacaktır.
+
+Santrallerde, damperler, otomatik kontrol cihazları için montaj yerleri ve bunlar için kontrol kapakları da tanzim edilmiş olacaktır.
+
+Cihazların elektrik bağlantıları, ‘Yapı İşleri Elektrik Tesisatı Genel Teknik Şartnamesine’ uygun olacaktır.
+
+Santrallerde bağımsız nemlendirici hücreleri bulunacak ve nemlendiriciler sulu (munters tip) olacaktır. Munters tip sulu nemlendirici pompa ve gerekli diğer ekipmanlara da sahip olacaktır.
+
+Isı geri kazanım istemi mevcut olan santrallerde çift serpantinli ısı geri kazanım sistemi kullanılacaktır. Isı geri kazanım serpantinleri de bakır boru alüminyum kanatlı olacaktır.
+
+Vantilatör ve aspiratörler, statik ve dinamik yönden dengelenmiş olacak, belirtilen devirde, belirtilen debi ve statik basma yüksekliğini sağladığını gösteren verim eğrileriyle onayı sunulacak, bilahare imalatına geçilecektir. Fanlarla birlikte, artı-eksi yüzde on debi değişikliğine imkan veren kasnaklar, ilaveten temin edilecek ve elektrik motor güçleri, azami yükte gereken takatin, yüzde yirmisi kadar yüksek seçilecektir. Tüm fan motorları EFF-1 sınıfı olacaktır.
+
+Vantilatörler asgari 10 cm. boyunda fleksibl branda irtibatı ile bağlanacaktır. Cihazlar keşifte belirtilen gürültü seviyesinin üstünde ses çıkarttıkları takdirde itirazsız, bedelsiz olarak tadil edilecek veya yenileri konulacaktır. Vantilatörler titreşim izolasyonu düzenine sahip olacaklardır. 
+
+Tekliflerde klima santralleri ile marka tip ve tüm teknik özellikler belirtilecek, uygulama sırasında klima santrallerine ait katalog ve prospektüslerin onayı zorunlu olacaktır.
+
+Klima santralleri “CE” belgeli olacak üretici firmada ISO9001-2000 kalite belgesi aranacaktır.
+
+    5.2 . HAVA KANALLARI 
+
+Hava kanalları imalatında her klima santralindeki basınç dikkate alınmak kaydı ile  SMACNA şartları esas alınarak imalat yapılacaktır.
+
+Sistemde yer alacak hava kanalları galvanizli saçtan imal edilecek ve saç kalınlıkları aşağıdaki tabloda verildiği gibi olacaktır.
+
+En geniş kenar	:	600 mm.	0.60 mm.
+En geniş kenar	:	1249 mm.	0.80 mm.
+En geniş kenar	:        2.499 mm.		1.00 mm.
+En geniş kenar	:        2.500 mm.		1.20 mm.
+
+Kanallar duct mate (flanşlı olarak) imal edilecektir.
+
+Kanal eklemlerinde hava kaçışına mani olacak şekilde conta ve silikon kullanılacaktır. 
+
+Kanallar, iç yüzeyleri temiz bir tarzda imal ve monte edilip hiçbir sarkmaya imkan vermeyecek tarzda uygun köşebentlerle asılacaktır.
+
+Yuvarlak dirsekler iç yuvarlanma çapı kanal genişliğinden az olmayacak ve dirsek içlerine yöneltici parçalar perçinlenecektir.
+
+Kanallarda bindirmeler hava akışı yönünden yapılacak, iç satıhta herhangi bir çıkıntı v.s. bulunmayacaktır. 
+
+Redüksiyonlarda mümkün mertebe 15den büyük açı kullanılmayacaktır. 
+
+Kanal titreşime, sarkmaya, sarsıntıya ve hava sızmasına mani olacak tarzda, sağlam imal edilip birleştirilecek ve kesin bir şekilde hava sızdırmazlığı sağlanacaktır. Cihazlara, kanal bağlantıları yapılırken, gerekli bakım ve işletme mesafeleri kalmasına özen gösterilecektir. Kanalların, duvar, döşeme v.s. gibi inşai elemanları geçtiği kısımlara, uygun ölçüde bir kasa çevrilecektir. 
+
+Mutfak pişirme davlumbazlarına bağlı dikdörtgen veya dairesel kesitli egzoz kanalları siyah sacdan kaynaklı birleştirme yöntemiyle imal edilecek ve taş yünü ile izole edilecektir.  Kullanılacak sac ve izolasyon kalınlıkları ile izolasyon malzemesi yoğunluğu keşif listesinde verilmiştir. Davlumbaz egzoz kanallarında en fazla 3m aralıklarla temizleme kapakları bulunacaktır.
+
+Buhar odası, sauna, hama gibi mahallerin havalandırılması için kullanılacak kanallar ise keşif listesinde verilen kalınlıkta 304 kalite paslanmaz sacdan flanşlı olarak imal edilecektir. 
+ 
+    5.3 . KANAL AKSESUARLARI 
+
+Elle kumandalı damperler asgari 1,5 mm. kalınlığında galvaniz sacdan fabrikasyon imalat olacak, ayar kolu, yatakları ve sabitleme tertibatını haiz olacaktır. Kanat genişliği 100 mm.yi, konsollanmamış kanat boyu ise 900 mm. geçmeyecektir. Yangın damperleri,  galvaniz sacdan fabrikasyon imalat olup, devre dışı pozisyonda eriyebilir telin ağırlığını karşılayabileceği tarzda imal edilecektir. Kontrol kapakları asgari 1 mm. kalınlıkta köşebent çerçeveli menteşe ve contalı olarak ikmal edilecektir. Tecritli kanallardaki kontrol kapakları da tecritli olacaktır.
+
+Fleksible bağlantılar takriben 100 mm. genişliğinde, metal ağza rahatça bağlanabilecek branda bezli olup, kanal ve cihazlara azami 100 mm. aralıkta cıvatalarla tespit edilecektir.
+
+    5.4 . KANAL İZOLESİ (ISIL VE AKUSTİK İZOLASYON) 
+
+Köşelerin, köşebent takviyesi 30-40 cm. ara ile çemberlenmesi yapılacaktır.
+
+Taze hava ve egzoz kanalları izole edilmeyecektir. İzole, kanalların askı sistemi olan kısımlarında da sürdürülüp, izoleye uygun detayda bir askı sistemi uygulanacaktır. 	       
+
+    5.5 . MENFEZLER 
+
+Anemostatlar ve menfezler için katalog ve numune vermek suretiyle onaylatılacaktır. 
+
+Bu elemanlar herhangi bir gürültüye sebebiyet vermeyecek kesit ve konstrüksiyona sahip olacaktır. Menfezler, panjurlar alüminyumdan imal edilmiş ve İŞVEREN tarafından istenilen renkte fırın boyalı olacaktır. 
+
+    5.6 . GERİ AKIŞI ÖNLEME DAMPERİ (BACK-DRAFT DAMPER)
+
+SMACNA standartlarına uygun, kanatlar min. 0.8 mm. kalınlıkta alüminyum, gövde min. 1.6 mm. kalınlıkta galvaniz çelik sac, kanat genişliği 150 mm., kanat uzunluğu ve buna bağlı damper genişliği max. 1000 mm. olacaktır.
+
+1000 mm. den daha geniş olanlar için birbirine eşit 2 damper seksiyonu kullanılacaktır.
+
+Kanat milleri paslanmaz çelikten en az 6 mm. çapta, mil yatakları lamine malzeme ve yatak çalışma yüzeyleri teflon malzemeden olacaktır. Bütün damper kanatları birbirinden bağımsız olarak yataklanacak ve kanatlardaki karşı ağırlıklar hava akımına min. direnç gösterecek şekilde tertiplenecektir.
+
+    5.7 . KANAL ASKILARI 
+
+Projede aksi gösterilmediği takdirde bütün havalandırma sistemi kanalları perfore L ve/veya U profil ile bina elemanlarına asılacaktır. Askı arası mesafe 2.5 m’yi aşamaz. Bütün dönüşlerde cihaz bağlantı noktalarında ve projede gösterilen her yerde askı tesis edilecektir. Bağlandıkları cihazlar kanalların asılması için kullanılmayacaktır. Askı metotları en son SMACNA kanal yapım standartlarında tavsiye edildiği gibi olacaktır. Bütün kanallar bina elemanlarına asılacaktır.
+
+Kanallar ve askıları düzgün ve aynı seviyede monte edilecektir. Kanal askıları ve kanal arasına mutlaka izolasyon konacaktır.
+
+    5.8 . KANAL TEMİZLİĞİ 
+
+Bütün hava kanalları ve hava sistemi filtreler monte edilmeden ve fanlar çalıştırılmadan evvel tamamen temizlenmiş olacaktır. Kirlenmeyi önlemek amacı ile hava kanallarının montajının devam ettiği durumlarda kanallar gün sonlarında geçici kapaklar ile kapatılacaktır.
+
+
+
+
+    6. YANGIN TESİSATI
+
+        6.1 . GENEL ESASLAR
+
+Yangın tesisatı; yangın dolapları, yangın suyu girişi, bina içindeki yangın suyu besleme nozülleri ve bina dışındaki hidrant sisteminden oluşacaktır. Tedarik edilen ekipman ve malzemeler, binanın ihtiyaçlarını yönetmeliklere uygun olarak karşılayacak kapasiteye ve özelliklere sahip olacak ve sistemler İşveren’e eksiksiz ve işler bir şekilde teslim edilecektir.
+
+Binalar için yangın suyu pompa sistemi ile sağlanacaktır. Binaların ihtiyaç duyduğu su debisi ve basıncının pompalar tarafından sağlandığını gösteren hidrolik hesaplar YÜKLENİCİ tarafından sunulacaktır.
+
+Tasarlanan sistemde, hidrantlar tesisin dışına ve ilgili standartlara uygun olarak belirli aralıklarla yerleştirilecektir. Yangın tesisatında kullanılan vanalar da izleme anahtarları olacaktır.
+ 
+Donma sıcaklığının altına düşebilecek ısıtılmamış yerlerden geçen ıslak sistem yangın hatlarına ısı yalıtımı uygulanacaktır. Yangın tesisatı borularının bina dilatasyon bağlantı noktalarından geçiş noktalarında dilatasyon kompansatör kullanılacaktır.
+
+Toprak altına döşenecek yangın tesisat boruları donmaya karşı koruma sağlayacak derinlikte monte edilecektir. Destek betonu, yeraltı yangın tesisat dönüş noktalarında NFPA 24 standardına göre hesaplanacak, hesaplamalar Kontrol Mühendisi tarafından onaylanacak ve onaylandıktan sonra imalat yapılacaktır.
+
+Yangın tesisat hatlarında binanın bulunduğu bölgenin deprem koşullarına uygun olarak sismik koruma sağlanacaktır.
+
+        6.2. STANDARTLAR
+
+EN 12845 standartlarına uygun olacaktır. Bu düzenlemelerin ve standartların yetersiz olduğu yerlerde, NFPA standartları dikkate alınacaktır.
+
+        6.3. KAPASİTELER
+
+Ekipman ve malzemelerin kapasiteleri projelerde belirtilen değerlerden daha düşük olmayacak ve / veya projelerde farklı değerler belirtilmiş olsa bile sistemin standartlara uygun çalışmasına izin verecek değerlerden daha az olmayacaktır.
+
+        6.4. STANDART İMALAT
+
+Bu şartnameye göre sağlanacak ekipman ve malzemeler üreticinin standart üretimi olacaktır. Aynı sınıftan iki veya daha fazla ekipmana ihtiyaç duyulduğunda, bunların hepsi tek bir üretici tarafından üretilecek ve sistemin tüm parçalarının aynı üreticiye ait olması şartı aranmayacaktır..
+
+
+
+
+
+        6.5. İMALAT ÇİZİMLERİ
+
+Malzeme ve ekipman listesinin geçici olarak onaylanmasından sonra ve kurulumlardan önce YÜKLENİCİ, Kontrol Mühendisi’ne imalat çizimlerine ve şartnamelere uyduklarını kanıtlayan ek bilgiler sağlayacaktır.
+
+YÜKLENİCİ’nin gerekli görmesi halinde proje ile ilgili ihale belgelerinde bazı değişiklikler yapılırsa, bu değişiklikler ve nedenleri çizimlerle birlikte İşveren’e sunulacak ve sadece onaylanan değişiklikler İşverene ek maliyet getirmeyecek şekilde yapılacaktır. .
+

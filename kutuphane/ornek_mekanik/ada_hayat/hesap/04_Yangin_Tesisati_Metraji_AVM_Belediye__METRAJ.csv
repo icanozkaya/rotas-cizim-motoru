@@ -1,0 +1,248 @@
+﻿,,ADAHAYAT KARMA KOMPLEKS PROJESİ,,,,,,,,,,46301.0
+,,( AVM - BELEDIYE BİNASI ),,,,,,,,,,REV : 0
+,,YANGIN TESİSATI
+B.B
+Poz No,Proje Kodu,Yapılacak işin cinsi,Marka,Seçilen Marka,Miktar,Br.,Malzeme ,İşçilik ,Genel Gider,Kâr,"Toplam 
+Birim Fiyat ","Toplam
+Fiyat"
+
+,"YNP-01-A, YNP-01-B",ELEKTRİKLİ YANGIN POMPASI,"Fairbanks Nijhuis, Peerless, ITT.",,2,Ad.
+,,Q = 750 GPM ( 170 m3/h ) ;  H = 12.0 bar ( 174 PSI )
+,,"1 Asıl, 1 Yedek"
+,,"Pompa tek kademeli çift emişli,yatay milli,bölünebilir gövdeli (Split case) Class 30 dökme demir"
+,,"gövdelidir. Pompa,NFPA 20'ye standartlarına uygun olacaktır. Pompa gövdesi dökme demir"
+,,(GGG) veya çelik döküm olacak ve çalışma basıncının testine tabi tutulacaktır. Pompa gövde 
+,, malzemesinin 20ºC de kopma mukavemeti 172 MPa'dan düşük olmayacaktır. Pompa mili ve
+,,pompa çarkı bronz olacaktır. Pompa salmastraları yumuşak tip olacaktır. Pompa yatakları 5000
+,,saatlik ömre (L10 değeri) göre seçilmiş rulmanlı yatak olacaktır. Pompa gövdesinin dizaynı emme
+,,ve basma boruların sökmeden pompa çarkının veya diğer iç aksamın sökülerek dışarı 
+,,alınabilmesini mümkün kılacak şekilde olacaktır. Pompa gövdesinin altına korozyona mukavim bir 
+,,drenaj tapası bulunacaktır. Pompa çarkı içerisinde su pasajları minimum 8 mm çapında küresel
+,,parçaçıkların geçebilmesine müsait olacaktır. Pompa çarkı dinamik olarak balanslanmış olacaktır. 
+,,Pompa ve motoru bir elastik kaplin vasıtası ile akuple olacak ve ortak bir kaide (base plate) üzerine 
+,,"monte edilmiş olacaktır. Elastik kaplin, pompanın ve motorun ayrı ayrı sökülebilmesine imkan veren"
+,,tipte olacak ve muhafazası bulunacaktır. Pompa ve motorun fabrikasında monte edilip kaplin
+,,ayarları yapılacak ve işyerine montajlı vaziyette gelecektir. 
+,,"Pompa, sıfır debide basma yüksekliğinin %120'sini geçmemeli ve işletme noktasındaki basıncının %65'inde işletme debisinin en az %150'sini basmaya muktedir olacaktır."
+,,"Pompa seti komple ,NFPA-20 standartlarına uygun,UL listesinde ve FM onaylı olacaktır."
+,,Elektrikli yangın pompası aşagıdaki aksesuarları sahip olacaktır.
+,,"- Gövde relief valfi,(Elektrikli pompa için)"
+,,- Emiş ve basma monometresi
+,,- Kaplin muhafazası
+,,- Otomatik hava tahliye valfi
+,,"Pompa elektrik motoru 2950 d/d, 3 fazlı , 380 V, 50 Hz. de çalışan, bilya yataklı, endüksiyon tipi, "
+,,izolasyon  sınıfı F olacaktır. Pompa elektrik motoru gücü ... HP olacaktır. Pompa elektrik motoru 
+,,"ODP korumalı olacak, yıldız üçgen kalkışlı olacaktır."
+,,"Pompa kontrol paneli duvar veya yer tipi, NEMA2 koruma sınıfında olacak ve yangın pompası "
+,,kontrolü NFPA'e uygun ve FM onaylı UL listeli olmalıdır. Kontrol paneli otomatik UL listeli FM onaylı 
+,,transfer switch dahil olacaktır. Pompa kontrol paneli aşağıdaki özellikleri standart olarak sağlaması
+,,gerekmektedir.
+,,- Mikroprosesör Kontrol Elemanı
+,,"- Basınç, Voltaj ve Akım Göstergesi"
+,,- Alarm&Durum Led Sinyallari
+,,- LCD Mesaj Kazanımı
+,,- Basınç Transducer- Max. 600 PSI
+,,- Geçen Zaman Saati
+,,- Çalışma Periyot Saati
+,,- Ardışık Çalışma Saati
+,,- Haftalık Test Saati
+,,- Alarm Rölesi&Kontakları
+,,- NEMA 2 koruma
+,,- Acil Çalışma İlave Çıkış Rölesi
+,,Ayrıca kontrol panelinin üzerinde aşağıdaki durum ve alarm ikaz lambaları bulunmalıdır.
+,,Durum İkaz Lambaları
+,,- “Çalışıyor”  Pilot Lambası
+,,- “ Pompa Çalışıyor” alarm kontakları
+,,- “Düşük Basınç” pilot lambası
+,,Alarm İkaz Lambaları :
+,,- “Faz ters gösterimi” pilot lambası
+,,- “Faz Hatası” pilot lambası
+,,- “Çalışma Hatası”pilot lambası
+,,- “Düşük Voltaj” pilot lambası
+,,- “Yüksek voltaj” pilot lambası
+,,- Düşük basınç manometresi
+,,- Acil Çalışma
+,,"Yukarıda tanımı verilen malzemenin işyerinde temini, tüm elektrik ve mekanik montajı, testi ve işletmeye alınması, çalışır vaziyette teslimi"
+,,*Satın alma öncesi metrajda verilen tüm pompa basınçları mekanik yüklenici tarafından 
+, ,shop-drawing projelere göre yeniden hesaplanacaktır.
+
+,YNP-02,JOCKEY POMPA,"Fairbanks Nijhuis, Peerless, ITT.",,1,Ad.
+,,Q = 15 GPM ( 3.4 m3/h ) ; H = 12.5 bar ( 182 PSI )
+,,"Jokey pompası santrifüj direk akuple dikey tip, mekanik salmastralı, emme ve basma kısımları "
+,,"döküm demir, fanları, mili ve akışkanla temasta olan kısımları paslanmaz çelik olmalıdır. Pompa "
+,,3 Faz 50 Hz 380 Volt direk akuple dikey açık-su damlası geçirmez motor ile akuple olmalıdır. Jokey 
+,,"pompa kontrolü sigortalı tip ayırma, manuel-stop-otomatik seçicili anahtar ve bir basınç anahtarı ile"
+,,"donatılmalıdır. Kontrol paneli 5 HP, 3 Faz 50 Hz 380 Volt operasyona uygun dizayn edilmelidir. "
+,,Minimum koruma sınıfı NEMA Tip 2 olmalıdır. Kumanda panosu ile komple temin edilecektir.
+,,Kapasitesi proje değerlerine uygun olacaktır.
+,,"Yukarıda tanımı verilen malzemenin işyerinde temini,tüm elektrik ve mekanik montajı, testi ve işletmeye alınması, çalışır vaziyette teslimi"
+,,*Satın alma öncesi metrajda verilen tüm pompa basınçları mekanik yüklenici tarafından 
+, ,shop-drawing projelere göre yeniden hesaplanacaktır.
+
+,,ISLAK ALARM VANASI
+,,"8"", 20.5 bar, test basıncı 24 bar olan, gövdesi demir dökümden mamul ","Reliable, Victaulic, Globe, Grinnell, Viking.",,5,Ad.
+,,"Flanşlı tip sprinkler alarm vanası takımı, bir adet çek valf ve bağlantı elemanları, bir adet basınç anahtarı, bir adet motor gongu ve geciktirme hücresi ile komple olacaktır, Alarm vanası dik konumda monte edilebilir  olacak ve üzerinde iki adet monometresi, boşaltma musluğu ve aksesuarlarının tamamı UL listesi ve FM onaylı olacaktır."
+,,Çek vananın gövdesi hafif alaşımlı dökümden ve ASTM A – 536 Grade 65–45–12 ye uygun olacaktır. Klapesi Aliminyum bronz’dan klape yatak contası EPDM kauçuktan ve yayı paslanmaz çelik olacaktır. Bağlantı uçları yivli (Grooved) olacaktır. 
+,,"Islak alarm vana istasyonunun tüm bölümlerindeki ekipmanların minimum çalışma basıncı 300 PSI (20.5 BAR) ve U.L. (Underiwter’s Laboratories) listeli, (Factory Mutual) onaylı olacaktır."
+,,"Yukarıda tanımı verilen malzemenin işyerinde temini,montajı, testi ve işletmeye alınması, çalışır vaziyette teslimi."
+
+,,YÜKSELEN MİLLİ VANA
+,,"Çap: 2"" (Jokey pompa emme hattı üzerinde)","Reliable, Victaulic, Weflo.",,1,Ad.
+,,"Çap: 6"" (Pompaların ve su depolarının emme hatları üzerinde)","Reliable, Victaulic, Weflo.",,4,Ad.
+,,"Vanalar mili yükselen tipte, gate vana olacaktır. Gövdesi kır döküm ASTM A126 Clas B, mili kurşunlu manganezli bronz ASTM B584 Alaşım 867, sit ve dük ringleri bronz döküm ASTM  B62 Alaşım 836’dan mamul olacaktır. Vanaların çalışma basıncı 20.5 bar olacaktır."
+,,Vanaların tümü uzaktan açık ya da kapalı olduğunu izleyebilmek için izleme anahtarlı (Süpervizör switch) ve anahtarın bulunduğu kutu toz geçirmez  (weatherproof) olacaktır.
+,,"UL,FM onaylı"
+,,"Yukarıda tanımı verilen malzemenin işyerinde temini,montajı, testi ve işletmeye alınması, çalışır vaziyette teslimi."
+
+,,KELEBEK VANA
+,,"Çap: (3"") 80 mm.(Zon girişlerinde, F1-A detayı üzerinde, süpervizyon switchli)","Victaulic, Global Safety, Reliable, Nibco.",,2,Ad.
+,,"Çap: (4"") 100 mm.(Zon girişlerinde, F1-A detayı üzerinde, süpervizyon switchli)","Victaulic, Global Safety, Reliable, Nibco.",,5,Ad.
+,,"Çap: (5"") 125 mm.(Zon girişlerinde, F1-A detayı üzerinde, süpervizyon switchli)","Victaulic, Global Safety, Reliable, Nibco.",,1,Ad.
+,,"Çap: (6"") 150 mm.(Zon girişlerinde, F1-A detayı üzerinde, süpervizyon switchli)","Victaulic, Global Safety, Reliable, Nibco.",,13,Ad.
+,,"Çap: (8"") 200 mm.(Zon girişlerinde, F1-A detayı üzerinde, süpervizyon switchli)","Victaulic, Global Safety, Reliable, Nibco.",,15,Ad.
+,,Kelebek kesme vanaları gövdeleri döküm ve ASTM A –536 olacaktır. Diski döküm ve EPDM kauçuk ile kaplı olacaktır. Bağlantı uçları yivli (grooved) olacaktır. 
+,,Vanaların tümü uzaktan açık ya da kapalı olduğunu izleyebilmek için izleme anahtarlı (Süpervizör switch) ve anahtarın bulunduğu kutu toz geçirmez  (weatherproof) olacaktır. Vanaların çalışma basıncı minimum 175 PSI (12.1 BAR) olup UL (Underwriter’s Laboratories)  listeli ve FM (Factory Mutual) onaylı olacaktır.
+,,"Yukarıda tanımı verilen malzemenin işyerinde temini, montajı, testi ve işletmeye alınması, çalışır vaziyette teslimi."
+
+,,KELEBEK VANA
+,,"Çap: (5"") 125 mm.(Süpervizyon switchli)","Victaulic, Global Safety, Reliable, Nibco.",,4,Ad.
+,,"Çap: (6"") 150 mm.(Süpervizyon switchli)","Victaulic, Global Safety, Reliable, Nibco.",,2,Ad.
+,,"Çap: (8"") 200 mm.(Süpervizyon switchli)","Victaulic, Global Safety, Reliable, Nibco.",,5,Ad.
+,,Kelebek kesme vanaları gövdeleri döküm ve ASTM A –536 olacaktır. Diski döküm ve EPDM kauçuk ile kaplı olacaktır. Bağlantı uçları yivli (grooved) olacaktır. 
+,,"Vanaların tümü uzaktan açık ya da kapalı olduğunu izleyebilmek için izleme anahtarlı (Süpervizör switch) ve anahtarın bulunduğu kutu toz geçirmez  (weatherproof) olacaktır. Vanaların çalışma basıncı minimum 300 PSI (20,5 BAR) olup UL (Underwriter’s Laboratories)  listeli ve FM (Factory Mutual) onaylı olacaktır."
+,,"Yukarıda tanımı verilen malzemenin işyerinde temini, montajı, testi ve işletmeye alınması, çalışır vaziyette teslimi."
+
+,,FLOW SWITCH
+,,"Çap: (3"") 80 mm. (Zon girişlerinde, F1-A detayı üzerinde, süpervizyon switchli)","System – Sensor, Potter.",,2,Ad.
+,,"Çap: (4"") 100 mm. (Zon girişlerinde, F1-A detayı üzerinde, süpervizyon switchli)","System – Sensor, Potter.",,5,Ad.
+,,"Çap: (5"") 125 mm. (Zon girişlerinde, F1-A detayı üzerinde, süpervizyon switchli)","System – Sensor, Potter.",,1,Ad.
+,,"Çap: (6"") 150 mm. (Zon girişlerinde, F1-A detayı üzerinde, süpervizyon switchli)","System – Sensor, Potter.",,13,Ad.
+,,"Çap: (8"") 200 mm. (Zon girişlerinde, F1-A detayı üzerinde, süpervizyon switchli)","System – Sensor, Potter.",,15,Ad.
+,,"175 PSI (12.1 BAR) basınca kadar çalışabilen kolye priz bağlantılı, kontakları C Formunda 2 set SPTD olan kontak değeri 10 A - 250VAC veya 2,5A - 24VDC olan, 0 ila 70 sn arasında gecikme ayarı yapılabilen akış anahtarının temini "
+,,"UL,FM onaylı"
+,,"Yukarıda tanımı verilen malzemenin işyerinde temini,montajı, testi ve işletmeye alınması, çalışır vaziyette teslimi."
+
+,,DEBİ ÖLÇÜM CİHAZI,"Gerand, Global Vision.",,1,Ad.
+,,"Çap: 5"""
+,,"Sistemi periyodik zamanlarda test etmek amacıyla veya sistem devreye girdiğinde sistemde oluşacak değerleri okumak için kullanılır. Üzerinde litre/dak veya GPM cinsinden akış göstergesi ve diferansiyel basınç bağlantı hortum ağızları olacaktır. 500 PSI çalışma basıncına uygun, kaynaklı tip ve FM (Factory Mutual) onaylı olacaktır. "
+,,Cihaz venturi prensibi ile ölçüm yapacaktır. Cihaz kapasitesi 750 GPM lik debiyi ölçecektir.
+
+,,İTFAİYE BAĞLANTI ELEMANI,"Giacomini, Croker.",,1,Ad.
+,,"İtfaiyenin, her hangi bir nedenle su ihtiyacı olduğunda, dışarıdan sisteme su verebilmesi için kullanılacaksa olan itfaiye bağlantı ağzı bronz döküm, klapeli, gövdesi 4” çıkış ağızları 2 ½” 2 adet olacaktır. Bağlantı ağızları itfaiye hortumlarına uygun storz kaplinli olacaktır. Duvar rozeti ve otomatik damlatma vanası bulunacaktır. UL (Underwriter’s Laboratories) listeli FM (Factory Mutual) onaylı olacaktır. "
+,,"Yukarıda tanımı verilen malzemenin işyerinde temini,montajı, testi ve işletmeye alınması, çalışır vaziyette teslimi."
+
+,,İTFAİYE HORTUM VANASI (BASINÇ SINIRLAYICI İTFAİYE BAĞLANTI VANASI),"Giacomini (A155/A156), Croker (5066/5070).",,31,Ad.
+,,"Merdiven sahanlıklarında, itfaiye su alma ağzı olarak kullanılmak üzere bronzdan imal, doğrusal  (giriş ve çıkışı arasında 180 ° olacak ),  65 mm çapında, 300 PSI sınıfında, basınç sınırlayıcılı (restricting) tipte, çıkışında itfaiyenin kullandığı tip bağlantıya uygun storz adaptör, kapak ve zinciri de bulunan hortum bağlantı vanası temin edilmelidir. Vana, akış anında çıkış basıncının ayarlanabileceği bir yapıya sahip olmalıdır. Basıncı sınırlayana pin, itfaiyenin tam akış alabilmesi için çıkartılabilir özellikte olmalıdır. Vanalar UL listeli veya FM onaylı olmalıdır."
+
+,,TEST VE DRENAJ VANASI
+,,"Çap: Giriş:1"", Drenaj: 1/2"" (Zon girişlerinde, F1-A detayı üzerinde, süpervizyon switchli)","Giacomini, Sure Test, AGF.",,36,Ad.
+,,"Sistemin hem suyunu boşaltmak hem de bir sprinkler kafası aktive olmuş gibi test etmek amacıyla kullanılacaktadır. Test ve drenaj vanası 1” çapında, orifisi sprinklere uygun, suyun akışını görebilmek için gözetleme camı bulunan, çalışma basıncı 175 PSI (12.1 BAR) olup UL (Underwriter’s Laboratories) listeli F.M. (Factory Mutual) onaylı olacaktır. "
+,,"Yukarıda tanımı verilen malzemenin işyerinde temini,montajı, testi ve işletmeye alınması, çalışır vaziyette teslimi"
+
+,,KÜRESEL VANA
+,,"Çap: (2"") 50 mm. (Süpervizyon switchli)","Victaulic, Reliable, Nibco.",,1,Ad.
+,,"Küresel kesme vanaları gövdeleri pirinç ve ASTM B124, diski krom kaplı çelik, vana mili 316 paslanmaz çelik olacaktır. Bağlantı uçları yivli (grooved) olacaktır. "
+,,Vanaların tümü uzaktan açık ya da kapalı olduğunu izleyebilmek için izleme anahtarlı (Süpervizör switch) ve anahtarın bulunduğu kutu toz geçirmez  (weatherproof) olacaktır. Vanaların çalışma basıncı minimum 300 PSI (20.5 BAR) olup UL (Underwriter’s Laboratories)  listeli ve FM (Factory Mutual) onaylı olacaktır.
+,,"Yukarıda tanımı verilen malzemenin işyerinde temini, montajı, testi ve işletmeye alınması, çalışır vaziyette teslimi."
+
+25.320.2400,,KÜRESEL VANA ( PN16 )
+25.320.2401,,"15 mm - 1/2""","Unival, Ayvaz, ECA.",,7,Ad.
+
+,,MANOMETRE,Pakkens.,,45,Ad.
+,,"Çap: 100 mm., 0 - 16 atü, madeni tip"
+,,Musluğu ile birlikte.
+
+,,UPRIGHT TİP SPRİNKLER," Reliable, Victaulic, Viking, Grinnell.",,5144,Ad.
+,,Tip : Yukarı bakan tip 
+,,"Kullanılacak olan sprinkler dik tip (upright), ½” dişli bağlantılı, “K” faktörü 80 metrik (5.6 USA), çalışma basıncı 175 PSI (12,1 BAR) hidrostatik test basıncı 500 PSI (34,5 BAR) ve standart cevap (cam ampul kalınlığı 5 mm) olacaktır. Pirinç gövde, aktivasyon sıcaklığı (cam ampulün patlama sıcaklığı ) 68 °C (Kırmızı renkli) olacaktır. Sprinkler başlıkları UL (Underwriter’s Laboratories) listeli F.M (Factory Mutual) onaylı olacaktır. "
+
+,,UPRIGHT TİP SPRİNKLER," Reliable, Victaulic, Viking, Grinnell.",,28,Ad.
+,,Tip : Yukarı bakan tip 
+,,"Kullanılacak olan sprinkler dik tip (upright), ½” dişli bağlantılı, “K” faktörü 80 metrik (5.6 USA), çalışma basıncı 175 PSI (12,1 BAR) hidrostatik test basıncı 500 PSI (34,5 BAR) ve hızlı cevap (cam ampul kalınlığı 3 mm) olacaktır. Pirinç gövde, aktivasyon sıcaklığı (cam ampulün patlama sıcaklığı ) 93 °C (Yeşil renkli) olacaktır. Sprinkler başlıkları UL (Underwriter’s Laboratories) listeli F.M (Factory Mutual) onaylı olacaktır. "
+
+,,AŞAĞI BAKAN ( PENDENT ) GİZLİ TİP SPRİNKLER,"Victaulic, Viking, Grinnell, Reliable.",,4284,Ad.
+,,Tip : Aşağı bakan gizli tip ( Asma tavanlarda kullanmak için ) Kromajlı
+,,"Boru üzerine montaja uygun tipte olacaktır. 68ºC (kırmızı renkli) sıcaklıkta ergil lehimin erimesi ile  deflektörü kendiliginden düşen, suyu pulvarize bir şekilde püskürten, püskürtme ağzı 1/2” olan NPT dişli, prinç, ""K"" faktörü US sistemine göre 5.6, metrik sisteme göre 80 ve standart tepkimeli, çalışma basıncı 175 PSI olacaktır. UL listeli ve FM onaylı olacaktır. 57 ºC (135 ºF) sıcaklıkta ergil lehimin erimesi ile düşen, 13 mm kadar ayarlanabilir, beyaz renkli kapağı ile beraber olacaktır."
+
+,,AŞAĞI BAKAN ( PENDENT ) GİZLİ TİP SPRİNKLER - KORUMA KAFESLİ - 141 °C,"Reliable, Victaulic, Viking, Grinnell.",,10,Ad.
+,,Tip : Aşağı bakan gizli tip ( Asma tavanlarda kullanmak için ) Kromajlı
+,,"Boru üzerine montaja uygun tipte olacaktır. 141 ºC (mavi renkli) sıcaklıkta ergil lehimin erimesi ile deflektörü kendiliginden düşen, suyu pulvarize bir şekilde püskürten, püskürtme ağzı 1/2” olan NPT dişli, prinç, ""K"" faktörü US sistemine göre 5.6, metrik sisteme göre 80 ve hızlı tepkimeli, çalışma basıncı 175 PSI olacaktır. UL listeli ve FM onaylı olacaktır."
+
+,,DUVAR TİPİ ( SIDE WALL ) SPRİNKLER ( GENİŞ KAPSAMA ALANLI ),"Victaulic, Viking, Grinnell, Reliable.",,14,Ad.
+,,Tip : Duvar tipi
+,,"Kullanılacak olan sprinkler duvar tipi , 3/4” dişli bağlantılı, ""K"" faktörü US sistemine göre 8.0, metrik sisteme göre 115, çalışma basıncı 175 PSI (12,1 BAR) hidrostatik test basıncı 500 PSI (34,5 BAR) ve hızlı cevap ( cam ampül kalınlığı 3 mm ) olacaktır. Beyaz renkli , aktivasyon sıcaklığı (cam ampülün patlama sıcaklığı) 68 °C (Kırmızı renkli) olacaktır. Sprinkler başlıkları UL (Underwriter’s Laboratories) listeli F.M (Factory Mutuel) onaylı olacaktır. Beyaz tek parça rozeti ile beraber olacaktır."
+
+,,SPRİNKLER BAĞLANTI ELEMANI (FLEX BAĞLANTI SETİ),"Unival, Ayvaz, Reliable.",,4294,Ad.
+,,Aşağı bakan (Gizli Tip) asma tavanlardaki sprinkler ara bağlantı fleks bağlantı seti.
+,,"Çap: 1"""
+,,Hortum Malzemesi: 316 L Paslanmaz çelik
+,,Örgü Teli Malzemesi: 304 Paslanmaz çelik
+,,İşletme Basıncı: PN16
+,,Tüm bağlantı elemanları ile birlikte komple olarak.
+
+25.700.1203,,YANGIN DOLABI,"Norm Teknik, Fetaş, Noha.",,108,Ad.
+,,Tip : Sıva altı veya üstü.(Mimariye göre saptanacaktır.)
+,,"Elektrostatik toz boyalı, beyaz renkli, EN 671-1 normlarına uygun 2"" köşe kesme vanalı, 1"" 30 m yarı sert hortumlu, jet sprey açma kapama yapabilen nozullu, sıva üstü veya sıva altı tipte, TSE belgeli olmalıdır. Dolap içinde 6 kg'lık ABC tip söndürücü tüp olmalıdır."
+,,Yangın dolaplarında su basıncı en fzla 9.0 bar olabilir. Bu değerin aşıldığı yangın dolabı bağlantılarında orifis plakası kullanılacaktır. 
+
+,,ÇEK VANA
+,,"3"" (Zon girişlerinde, F1-A detayı üzerinde)","Victaulic, Weflo, Kennedy, Reliable.",,2,Ad.
+,,"4"" (Zon girişlerinde, F1-A detayı üzerinde)","Victaulic, Weflo, Kennedy, Reliable.",,5,Ad.
+,,"5"" (Zon girişlerinde, F1-A detayı üzerinde)","Victaulic, Weflo, Kennedy, Reliable.",,1,Ad.
+,,"6"" (Zon girişlerinde, F1-A detayı üzerinde)","Victaulic, Weflo, Kennedy, Reliable.",,13,Ad.
+,,"8"" (Zon girişlerinde, F1-A detayı üzerinde)","Victaulic, Weflo, Kennedy, Reliable.",,15,Ad.
+,,"Çek vana gövdesi döküm ASTM a –395’e uygun, klapesi aliminyim bronzdan imal edilmiş, yataklarda EPDM contalı olup yayları paslanmaz çelikten imal edilecektir ve çalışma basıncı 175 PSI olacaktır. Bağlantı uçları yivli (Grooved) olacaktır. Vana UL (Underwriter’s Laboratories) listeli, FM (Factory Mutual) onaylı olacaktır. "
+
+,,ÇEK VANA
+,,"2"" (Jokey pompa basma hattı üzerinde)","Victaulic, Weflo, Kennedy, Reliable.",,1,Ad.
+,,"4"" (İtfaiye bağlantı ağzı borusu üzerinde)","Victaulic, Weflo, Kennedy, Reliable.",,1,Ad.
+,,"6"" (Yangın pompaları basma hattı üzerinde)","Victaulic, Weflo, Kennedy, Reliable.",,2,Ad.
+,,"Çek vana gövdesi döküm ASTM a –395’e uygun, klapesi aliminyim bronzdan imal edilmiş, yataklarda EPDM contalı olup yayları paslanmaz çelikten imal edilecektir ve çalışma basıncı 300 PSI olacaktır. Bağlantı uçları yivli (Grooved) olacaktır. Vana UL (Underwriter’s Laboratories) listeli, FM (Factory Mutual) onaylı olacaktır. "
+
+25.245.1000,,KOLLEKTÖR
+25.245.1108,,"12"" - 324/5.6 mm dikişli boru",,,8,m.
+
+25.245.2000,,KOLLEKTÖR AĞIZLIKLARI
+25.245.2001,,"Ağız çapı 15 mm - 1/2""",,,2,Ad.
+25.245.2006,,"Ağız çapı 50 mm - 2""",,,2,Ad.
+25.245.2009,,"Ağız çapı 100 mm - 4""",,,1,Ad.
+25.245.2011,,"Ağız çapı 150 mm - 6""",,,6,Ad.
+25.245.2011,,"Ağız çapı 200 mm - 8""",,,5,Ad.
+
+25.300.1000,,ÇELİK BORULAR
+25.300.1100,,"Dikişli  borular; Siyah boru, Vidalı TS EN 10255+A1'e uygun (malzemesi Fe.33)"
+25.300.1103,,"1""           (DN 25)","Borusan, Tosçelik, Çayırova.",,9262,m.
+25.300.1104,,"11/4""      (DN 32)","Borusan, Tosçelik, Çayırova.",,3445,m.
+25.300.1105,,"11/2""      (DN 40)","Borusan, Tosçelik, Çayırova.",,1365,m.
+25.300.1106,,"2""           (DN 50)","Borusan, Tosçelik, Çayırova.",,3175,m.
+25.300.1107,,"21/2""      (DN 65)","Borusan, Tosçelik, Çayırova.",,1784,m.
+25.300.1108,,"3""           (DN 80)","Borusan, Tosçelik, Çayırova.",,939,m.
+25.300.1109,,"4""           (DN 100) ","Borusan, Tosçelik, Çayırova.",,550,m.
+25.300.1110,,"5""           (DN 125) ","Borusan, Tosçelik, Çayırova.",,432,m.
+25.300.1111,,"6""           (DN 150) ","Borusan, Tosçelik, Çayırova.",,383,m.
+
+,,Düz-spiral kaynaklı borular: (S235jr (St37) kalite) (TS EN 10217-1)
+25.300.1305,,"8""           (DN 200) ","Borusan, Tosçelik, Çayırova.",,902,m.
+
+25.300.2100,,Bina içinde vidalı döşenmiş boru montaj malzemesi,,,30,%
+25.300.2200,,Bina içinde kaynaklı döşenmiş boru montaj malzemesi,,,25,%
+,,Bina içinde victaulic esaslı ı döşenmiş boru montaj malzemesi,,,100,%
+
+25.365.1000,,BORU BOYANMASI
+25.365.1100,,SÜLYEN İLE
+25.365.1101,,"1/2""-2"" arası",,,17247,m.
+25.365.1102,,"21/2""-4""  arası",,,3273,m.
+25.365.1103,,"5""-6"" arası",,,815,m.
+25.365.1104,,"8""",,,902,m.
+25.365.1200,,YAĞLI BOYA İLE
+25.365.1201,,"1/2""-2"" arası",,,17247,m.
+25.365.1202,,"21/2""-4""  arası",,,3273,m.
+25.365.1203,,"5""-6"" arası",,,815,m.
+25.365.1204,,"8""",,,902,m.
+
+,,BORU TESİSATININ YIKANMASI,HydroSafe.,,1,Tk.
+,,Boru tesisatının BSRIA AG 1/2001 standardına uygun şekilde kimyasal ile yıkanması.
+
+,,TEST VE DEVREYE ALMA,,,1,Tk.
+
+,,TOPLAM

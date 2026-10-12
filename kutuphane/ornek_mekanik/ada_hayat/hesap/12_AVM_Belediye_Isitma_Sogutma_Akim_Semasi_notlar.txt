@@ -1,0 +1,7 @@
+# 12_AVM_Belediye_Isitma_Sogutma_Akim_Semasi - DWG içi hesap/not metinleri (anahtar: NOT, HESAP, DEBİ, POMPA, DEPO, m3/h, mSS, bar, kW, l/s)
+
+## Anahtar kelime geçen tekil metinler (4)
+(162075, -114095) h=25.0 [T-LEGEND-TURKCE] SİRKÜLASYON POMPASI
+(147438, -117608) h=20.0 [T-TEXT] ISITMA POMPALARI
+(145274, -120690) h=20.0 [T-TEXT] SOĞUTMA POMPALARI
+(148983, -126787) h=20.0 [T-TEXT] POMPALARI

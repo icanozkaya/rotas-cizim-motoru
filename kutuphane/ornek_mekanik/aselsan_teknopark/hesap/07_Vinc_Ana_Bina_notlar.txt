@@ -1,0 +1,7 @@
+# 07_Vinc_Ana_Bina - DWG içi hesap/not metinleri (anahtar: NOT, HESAP, DEBİ, POMPA, DEPO, m3/h, mSS, bar, kW, l/s)
+
+## Anahtar kelime geçen tekil metinler (4)
+(519041, 56688) h=17.0 [S-COLS-CONC] ELEKTRİKSEL GÜÇLER KALDIRMA, İNDİRME MOTORU: 1,1 kW x 1 Adet ARABA YÜRÜTME MOTORU: 0,25 kW x 1 Adet KÖPRÜ YÜRÜTME MOTORLARI:0,25 kW x 2 Adet = 0,5 kW TOPLAM:1,85 kW
+(486665, 56297) h=22.2 [-M-MAHAL-ETIKET-NOT] A.2.3 DEPO
+(497332, 55210) h=22.2 [-M-MAHAL-ETIKET-NOT] DEPO
+(504096, 51073) h=25.0 [S-COLS-CONC] ELEKTRİKSEL GÜÇLER KALDIRMA, İNDİRME MOTORU: 2,2 kW x 1 Adet ARABA YÜRÜTME MOTORU: 0,25 kW x 1 Adet KÖPRÜ YÜRÜTME MOTORLARI:0,25 kW x 2 Adet = 0,5 kW TOPLAM: 2,95 kW

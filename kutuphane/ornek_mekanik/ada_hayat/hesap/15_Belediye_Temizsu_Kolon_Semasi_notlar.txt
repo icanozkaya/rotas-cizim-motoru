@@ -1,0 +1,12 @@
+# 15_Belediye_Temizsu_Kolon_Semasi - DWG içi hesap/not metinleri (anahtar: NOT, HESAP, DEBİ, POMPA, DEPO, m3/h, mSS, bar, kW, l/s)
+
+## Anahtar kelime geçen tekil metinler (9)
+(16153, 5865) h=17.8 [ST-TEMIZ-CAP] KSS SİRKÜLASYON POMPASI
+(9685, 1905) h=25.0 [ST-CIHAZ-NO] YAĞMUR SUYU DEPOSU
+(10874, 1905) h=25.0 [ST-CIHAZ-NO] YANGIN SUYU DEPOSU-1
+(12021, 1905) h=25.0 [ST-CIHAZ-NO] YANGIN SUYU DEPOSU-2
+(14389, 1902) h=25.0 [ST-CIHAZ-NO] KULLANMA SUYU DEPOSU-2
+(9685, 1874) h=25.0 [ST-CIHAZ-NO] 3 KAT, 135 ad x 1.25 m3 = 170 m3
+(10874, 1874) h=25.0 [ST-CIHAZ-NO] 3 KAT, 108 ad x 1.25 m3 = 135 m3
+(12021, 1874) h=25.0 [ST-CIHAZ-NO] 3 KAT, 78 ad x 1.25 m3 = 97.5 m3
+(14389, 1871) h=25.0 [ST-CIHAZ-NO] 3 KAT, 29 ad x 1.25 m3 = 108.0 m3

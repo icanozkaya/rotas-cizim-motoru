@@ -1,0 +1,28 @@
+# 05_Temiz_Su_Tesisati_Ana_Bina - lejant 1 (metin-yürüyüş)
+# başlık: TEMİZ SU TESİSAT SEMBOLLERİ
+# bölge: [527810, 51115, 533295, 52866]
+TEMİZ SU TESİSAT SEMBOLLERİ
+CİHAZ LİSTESİ
+NO | CIHAZ ADI | AD. | CIHAZ OZELLIKLERI | ELK.GÜCÜ
+SOĞUK KULLANMA SUYU TESİSATI BORUSU
+B-09 | BOYLER | 2 | 600 Lt.HACİMLİ MİNİMUM SICAK SU ÇIKIŞ DEBİSİ 910 LT BAKIR BORULU TEK SERPANTİNLİ HIZLI BOYLER | -
+SICAK KULLANMA SUYU TESİSATI BORUSU
+P-39 | KULLANMA SUYU SİRKÜLASYON POMPASI | 1 | 5,0 m³/h - 6,5 mSS FREKANS KONVERTÖRLÜ TEKLİ TİP İNLINE POMPA (1 ADET YEDEK) | 2 x 0,2 Kw
+SICAK SU SİRKÜLASYON TESİSATI BORUSU
+YUMUŞAK SU TESİSATI BORUSU
+DRENAJ TESİSATI BORUSU
+KÜRESEL VANA
+PİSLİK TUTUCU | DEİYONİZE SU SİSTEMİ CİHAZ LİSTESİ
+ÇEKVALF | NO | CIHAZ ADI | AD. | CIHAZ OZELLIKLERI | ELK.GÜCÜ
+T | 40 | DEİYONİZASYON KOLON SETİ | 4 | 5,0 m³/h Deiyonize Su FRP Gövdeli, PLC RO Kontrollü (Kuvvetli Anyonik Exchanger Twin Set, Kuvvetli Katyonik Exchanger Twin Set) | -
+TERMOMETRE
+M | 41 | HİDROFOR SETİ | 1 | Paket Tip İkiz Hidrofor - Debi: 5,0 m³/h Basıncı: 40-60 mSS | 11,0 Kw
+MANOMETRE
+42 | SAF SU DEPOSU | 2 | 500 lt. Saf Su Tankı Plastik Mat | -
+KOMPANSATÖR
+43 | DEİYONİZE SAF SU CİHAZI (ANA SİSTEM) | 1 | 2 m³/h Deiyonize Saf Su Cihazı | -
+EMNİYET VANASI | 44 | AKTİF KARBON FİLTRE | 1 | 5 m³/h 1200 IODIN Food Grade Aktif Karbon | -
+FK
+POMPA TEKLİ / FREKANS KONVERTÖRLÜ | 45 | ULTRAVIYOLET DEZENFEKSİYON | 2 | 5 m³/h Ultraviyole Dezenfeksiyon Cihazı-100W Mikrokontrollü, Hidrofor Sinyal Otomasyonlu | 2 x 0.1 Kw
+TSX | TEMİZ SU KOLONU NUMARASI | 46 | MOBİL ULTRA SAF SU CİHAZI (LABRATUVAR) | 1 | 0,06 m³/h Mobil Ultra Saf Su Cihazı -Depo Kapasitesi 150 lt | -
+KOMPANSATÖR

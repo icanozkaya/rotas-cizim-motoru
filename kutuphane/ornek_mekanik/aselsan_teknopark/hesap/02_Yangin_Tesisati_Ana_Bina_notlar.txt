@@ -1,0 +1,10 @@
+# 02_Yangin_Tesisati_Ana_Bina - DWG içi hesap/not metinleri (anahtar: NOT, HESAP, DEBİ, POMPA, DEPO, m3/h, mSS, bar, kW, l/s)
+
+## Anahtar kelime geçen tekil metinler (7)
+(526209, 57418) h=3.1 [0-KRCN-YNG-CIHAZ] DO NOT RETURN
+(486650, 56217) h=22.2 [-M-MAHAL-ETIKET-NOT] A.2.3 DEPO
+(527712, 55760) h=21.5 [0-KRCN-IST-YAZI] 5,2 m³/h 8 Atm BASINÇLI HAVA KOMPRESÖRÜ, (DEPO HACMİ: 500 lt.)
+(528764, 55758) h=20.0 [0-KRCN-IST-YAZI] 1,1 Kw.
+(512820, 55540) h=5.0 [0-KRCN-MİMARİ-220526] 500m³/h
+(512819, 55517) h=5.0 [0-KRCN-MİMARİ-220526] 2000m³/h
+(464895, 55285) h=22.2 [-M-MAHAL-ETIKET-NOT] DEPO

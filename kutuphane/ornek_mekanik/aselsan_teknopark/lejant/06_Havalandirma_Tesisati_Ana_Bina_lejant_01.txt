@@ -1,0 +1,78 @@
+# 06_Havalandirma_Tesisati_Ana_Bina - lejant 1 (çerçeve)
+# başlık: HAVALANDIRMA TESİSATI SEMBOLLERİ
+# bölge: [508498, 54842, 516474, 59149]
+A | B | C | D | F | I | J
++18.70 | +18.95
++18.60 | +18.35
+ÇATI (+18.35)
+HAVALANDIRMA TESİSATI SEMBOLLERİ
+T-03 ATIŞ TERASI | T-02 OPTİK ATIŞ PLATFORMU
++14.75 | +14.75
+J | I | F | D | C | ÜFLEME KANALI | B
++13.85 | +13.85
+ÇATI KATI (+13.50) | +13.50 | 5.14- | 0.60 | 3 | +13.50 | +13.50 | EMİŞ KANALLARI
+3300 | -650x300 | -65x30 | m/h
+550 | x | 350 | 4.23- | 0.61 | 3 | BUSBAR | +18.95 | +18.70 | WC EMİŞ KANALLARI
+1500 | -300x250 | -30x25 | m/h | +18.60
+350 | x | 300 | YANGIN | DN150 | +18.35
+Ø25 | Ø40 | Ø40 | Ø63 | Ø40 | 5.17- | 0.58 | 3 | HASSAS KLİMA ÜFLEME KANALI
+3'' | 2'' | 2'' | 1 1/4'' | 1 1/4'' | Ø50 | 2'' | 3600 | -850x500 | -85x50 | m/h
+600 | x | 350 | HASSAS KLİMA EMİŞ KANALLARI
+FLEX BAĞLANTI KANALI (İZOLELİ / İZOLESİZ)
+1-04 A.13 AMBAR | 1-08 ANA KORİDOR | 1-02a A.6 KART ÜRETİM
+KARDEX | EGZOST HAVASI ATIŞ PANJURU
+T-02 OPTİK ATIŞ PLATFORMU | T-03 ATIŞ TERASI
++14.75 | +14.75
+TAZE HAVA ALIŞ PANJURU
+5.48- | 0.78 | +13.85 | +13.85
++13.50 | 2850 | -500x250 | -50x25 | m/h | 3 | +13.50 | +7.40 | +13.50
+650 | x | 250 | +7.00 | +7.10 | +7.00 | YUVARLAK KANAL ÜFLEME MENFEZİ
+1. KAT (+7.00)
+20300 | 9.15- | 0.85 | 3 | 12800 | 7.72- | 0.73 | 3
+Ø25 | Ø40 | Ø50 | Ø63 | Ø40 | YANGIN | DN150 | -1400x500 | -140x50 | m/h | -850x350 | -85x35 | m/h
+1400 | x | 500 | 1150 | x | 450
+3'' | 3/4'' | 3/4'' | Ø65 | 1 1/4'' | 1 1/4'' | 2 1/2'' | 2 1/2'' | YUVARLAK KANAL EMİŞ MENFEZİ
+1-02a A.6 KART ÜRETİM | 1-08 ANA KORİDOR | 1-04 A.13 AMBAR | ÜFLEME SLOT DİFÜZÖRÜ
+KARDEX
+Z-04 A.13 AMBAR | Z-13 ANA KORİDOR | Z-02 A.1 MEKANİK TALAŞLI İMALAT
+EMİŞ SLOT DİFÜZÖRÜ
++7.40
++7.00 | +7.10 | +7.00
++0.10 | 17.68- | 17.68- | 18.48 | +0.10 | GEMİCİ ANEMOSTADI
++0.10 | 2000 | X | +0.10 | m/h | 3
+ZEMİN KAT (±0.00 978.90) | Ø | 200 | 10 Pa | 0 W | 5.38- | 0.63 | 3
+6.20- | 6.20- | 0.71 | 3 | VAV | 3750 | -600x350 | -60x35 | m/h
+5500 | X | m/h | 6.01- | 6.01- | 0.77 | 3 | Ø250 | 1250 | 4.26- | 0.69 | 3 | 600 | x | 350
+Ø | 560 | 4250 | X | m/h | -350x250 | -35x25 | m/h | MİFT SIRA MENFEZ DİFÜZÖRÜ
+Ø | 500 | 350 | x | 250
+A | B | C | D | F | 5.29- | 0.56 | 5500 | 5.93- | 0.63 | 3 | I | J
+4250 | m/h | 3 | -700x400 | -70x40 | m/h
+700 | -700x350 | -70x35 | x | 350 | 700 | x | 400 | SWIRL DİFÜZÖR
+A-A KESİTİ | Z-02 A.1 MEKANİK TALAŞLI İMALAT | Z-13 ANA KORİDOR | Z-04 A.13 AMBAR
++18.70 | +18.95
++18.60 | +18.35 | PERFORE MENFEZ
+ÇATI (+18.35)
+HASSAS KLİMA
++0.10 | +0.10 | +0.10 | +0.10
+EMİŞ MENFEZİ (TEK SIRA KANATLI)
+T-03 ATIŞ TERASI | T-02 OPTİK ATIŞ PLATFORMU
++14.75 | +14.75 | DUVAR TİPİ ASPİRATÖR
++13.85 | +13.85
+ÇATI KATI (+13.50) | +13.50 | 5.14- | 0.60 | 3 | +13.50 | +13.50 | JET CAP
+3300 | -650x300 | -65x30 | m/h
+550 | x | 350 | 4.23- | 0.61 | 3 | BUSBAR
+1500 | -300x250 | -30x25 | m/h | YANGIN | DN150
+350 | x | 300
+Ø25 | Ø40 | Ø40 | Ø63 | Ø40 | 4.42- | 4.42- | 0.57 | 5.17- | 0.58 | 3 | D-D KESİTİ | ÇATI TİPİ ASPİRATÖR
+3'' | 2'' | 2'' | 1 1/4'' | 1 1/4'' | Ø50 | 2000 | X | m/h | 3 | 2'' | 3600 | -850x500 | -85x50 | m/h
+Ø | 400 | 600 | x | 350
+HASSAS KLİMA KANAL KESİT
+KANAL TİPİ ASPİRATÖR
+1-04 A.13 AMBAR | 1-08 ANA KORİDOR | 1-02a A.6 KART ÜRETİM
+KARDEX
+KANAL AYIRMA KLAPE KOLU
+KESİT - 2 ÖLÇEK 1/100
+FD | 650x350 | FD | 0
+5.48- | 0.78 | 3 | +7.40 | YANGIN DAMPERİ
+2850 | -500x250 | -50x25 | m/h | +7.10
+650 | x | 250 | +7.00 | +7.00 | BDD | 850x500 | BDD | 0

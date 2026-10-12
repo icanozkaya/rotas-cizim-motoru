@@ -1,0 +1,577 @@
+﻿,,ADAHAYAT KARMA KOMPLEKS PROJESİ,,,,,,,,,,46301.0
+,,( BELEDİYE BİNASI ),,,,,,,,,,REV : 0
+,,ISITMA - SOĞUTMA TESİSATI
+B.B
+Poz No,Proje Kodu,Yapılacak işin cinsi,Marka,Seçilen Marka,Miktar,Br.,Malzeme ,İşçilik ,Genel Gider,Kâr,"Toplam 
+Birim Fiyat ","Toplam
+Fiyat"
+
+,,YOĞUŞMALI KAZANLAR
+,,Aşağıda detayları ve spesifikasyonları belirtilen kendinden yoğuşmalı kazanlar; otomatik kontrol
+,,"panosu, emniyet teçhizatı ( emniyet ventilleri, dönüş suyu kontrolü için sıcaklık sensörleri, gidiş suyu"
+,,"sıcaklık sensörleri, dış hava sensörü, düşük su seviye limitatörü, basınç prosestatı vb. ) monte"
+,,"edilmiş ve ısı izolasyonu gerçekleştirilmiş olarak teknik dokümanlarıyla birlikte temin edilip, tüm boru,"
+,,aksesuar ve elektrik bağlantıları yapılarak işletmeye alınacaktır. Gaz Yakıtlı Cihazlar Yönetmeliği'ne
+,,uygun CE sertifikasına ve ISO 9001 kalite sertifikasına sahip olmalıdır. 
+,,"a. Kazan, istenilen ısıtma kapasitesini verilen su rejiminde sağlamalıdır."
+,,b. Kazan düşük yanma odası yükü sayesinde azotoksit emisyonları ile diğer zararlı madde
+,,emisyonları düşük yanma sağlamalıdır. NOx değeri 36 mg/kWh değerini aşmamalıdır. CO değeri
+,,25 mg/Nm3 değerini aşmamalıdır.
+,,c. Yüksek ısı transferi ve yoğuşma oranı için kazanın suyla temas eden tüm ısıtma yüzeyleri
+,,paslanmaz çelikten imal edilmiş olmalıdır
+,,"d. Yoğuşmalı tip kazan, yüksek su hacmi sayesinde değişken düşük kazan suyu sıcaklıklarında"
+,,"işletilebilen, herhangi bir işletme kısıtlaması olmayan ( brülör yükü, min. su debisi sınırı vb.), "
+,,çok düşük kazan suyu sıcaklıklarında bile yüksek ısı transferi gerçekleştirebilen yapıda olmalıdır. 
+,,"e. Kazan işletiminde min dönüş suyu sıcaklığı, gidiş-dönüş suyu sıcaklık farkı veya minimum su "
+,,debisi kısıtlaması olmamalıdır.
+,,f. 4 adetten az kazanın kaskad çalıştırılması halinde kazanlara özel primer pompalar ile hidrolik
+,,ayırıcı veya plakalı ısı eşanjörü kullanılması gerekli olmamalıdır.
+,,g. Kazana dönüş suyu bağlantısı için iki adet dönüş bağlantı ağzı bulunmalıdır. 
+,,h. Kazan gövdesi min. 80 mm kalınlıkta çepeçevre mineral esaslı etkin bir izolasyon malzemesi 
+,,(taş yünü) ile izole edilmiş ve fırın boyalı / elektrostatik toz boyalı sac ile kaplanmış olacaktır. 
+,,"i. Yer tipi yoğuşmalı kazan kendinden brülörlü olmalıdır, kazan brülörü fabrika montajlı olmalıdır."
+,,j. Brülör ön karışımlı ve %22 - %100 aralığında modülasyonlu tip olmalıdır. 
+,,k. Brülör Doğal Gaz/LPG/LNG yakmalıdır. Gerekli halde sadece yakma kafasındaki değişim veya
+,,yenileme/orifiste ek bir ekipmanla ile dönüşüm yapılabilmelidir.
+,,l. Brülörde ses basınç seviyesi 1 m de max. 68 dB düzeyinde olmalıdır. 
+,,m. Kazan kumandası kaskad sisteme uygun olmalı; bu panel kazan kontrol panellerini kumanda
+,,"edebilmeli, 8 adede kadar olan çok kazanlı sistemi dış hava kompanzasyonlu değişken kazan suyu"
+,,"sıcaklıklarında işletebilmeli, ısı ihtiyacı doğrultusunda modülasyonlu brülörleri kumanda edebilmeli"
+,,"ve kazanları sıralı çalıştırabilmelidir. İlave olarak, kontrol paneli 1 adet direkt ısıtma devresi ve 1 adet"
+,,boyler devresini de kontrol edebilmelidir.
+
+,B-K-01,ISITMA KAZANI,"Hoval, Viessmann, Buderus.",,1,Ad.
+,,"Zemine oturan tip, yoğuşmalı ısıtma kazanı"
+,,Isıtma Kapasitesi : 740000 Watt 
+,,Su Rejimi : 80/60 °C
+,,İşletme Basıncı : 6 bar ( en az )
+,,Yakıt Cinsi : Doğalgaz
+,,- İmalatçı ISO 9001 belgeli olacaktır.
+,,- Kazan CE belgeli olacaktır.
+,,"- Zemine oturan tip yoğuşmalı kazana entegre, elektronik ateşlemeli, modülasyonlu premix brülör"
+,,ile otomasyonu standart olarak mevcut olacaktır ve kazan fiyatına dahildir.
+,,- Kazan kontrol panolarının kaskad özelliği olmalı ve bu panel kazan kontrol panelleri ile
+,,haberleşerek kazan panellerine kumanda edebilmelidir. BMS ile haberleşmek için gerekli olan
+,,"LONWORKS, MODBUS, BACNET veya eşdeğeri iletişim sistemlerinden biriyle uyumlu olacaktır."
+,,"- Baca hesabı sonucunda gerekmesi halinde, baca bağlantısında kullanılacak motorlu klapeler "
+,,fiyata dahildir.
+
+,,NÖTRALİZASYON SİSTEMİ,Ekin Endüstriyel.,,1,Tk.
+,,"Tüm kazanlar için ortak olarak kullanılacak nötralizasyon sistemi PP/HDPE nötrolizasyon kutusu, "
+,,"granüller, sifon ve atık su gider bağlantı setinden oluşmaktadır."
+,,"1000 kW kazan kapasitesine kadar, "
+,,"Debi : 120 lt/h, LxWxH : 60x45x40 cm, Giriş/Çıkış Bağlantı Çapları : 1 1/2"""
+
+,,KAZAN EMNİYET ELEMANLARI ( Herbir kazan için )
+,,Alman normlarına göre imalatçı tarafından en az aşağıdaki elemanları içeren emniyet 
+,,cihazları verilecektir.
+,,"Modülasyonlu elektrikli kazan termostatı, 100 C ye kadar bölüntülü",,,1,Ad.
+,,"Yüksek Sıcaklık Kesicisi, Elle Reset Edilebilir Tip, TUV Onaylı",,,1,Ad.
+,,"Yüksek Sıcaklık Kesicisi, Alet Kullanılarak Reset Edilebilir Tip, TUV Onaylı",,,1,Ad.
+,,Su Eksikliği Kontrol Cihazı ( Low Level Control ),,,1,Ad.
+
+,B-CH-01,HAVA SOĞUTMALI SU SOĞUTMA GRUBU,"Carrier, Clivet, Clint.",,1,Ad.
+,,Soğutma kapasitesi : 1000 kW
+,,Evaporatör su rejimi : 6 / 11 °C ( %20 glikollü su )
+,,Kompresör tipi : Vidalı ( Frekans invertörlü )
+,,Kompresör adedi : 2 ad. ( en az )
+,,Bağımsız devre adedi : 2 ad. ( en az )
+,,Soğutucu akışkan : R134A / R410A / R513A
+,,Kapasite kontrolu : %15…%100 ( kademesiz )
+,,SEER : 5.3 ( en az )
+,,Çalışma yeri : Adapazarı
+,,Dış hava sıcaklığı : 35 °C KT
+,,Rakım : 31 m
+,,Gruptan 10 m mesafede ses basıncı : 70 dB(A) ( en fazla )
+,,Aksesuarlar : 
+,,"Soğutma grubunda, grup imalatçısı tarafından temin edilecek orijinal, grup ile aynı gövde içerisine"
+,,yerleştirilen hidronik kit ( sirkülasyon pompaları ) montajlı olarak bulunacaktır.
+,,"Sirkülasyon pompası : 198 m3/h, 16 mSS, sabit devirli, 2 adet ( 1 asıl, 1 yedek )"
+,,( Verilen sirkülasyon pompası basıncı tesisat için chiller ( evaporatör ) harici gereken basınçtır. )
+,,"Kuru rotorlu, inline tip. "
+,,- İmalatçı ISO 9001 belgeli olacaktır.
+,,- Soğutma grubu EUROVENT belgeli olacaktır.
+,,- Cihaz gövdesi dış hava koşullarından etkilenmeyecek özellikte olacaktır.
+,,- Orijinal yaylı tip titreşim alıcılar grup imalatçısı tarafından temin edilecektir.
+,,- Evaporatör yüzeyinde donmaya karşı elektrikli ısıtıcı olacaktır.
+,,- Alüminyum microchannel kondenserin dış yüzeyinde tel koruma kafesi bulunacaktır.
+,,"- Elektrik panosu cihaz üzerinde, metal kutu içerisinde ve IP54 koruma sınıfında olacaktır."
+,,Pano içerisinde ana beslemeyi kesecek bir şalter bulunacaktır. Mikroprosesör kontrollu 
+,,cihazın kontrol paneli sayesinde set değerleri ve parametreleri değiştirilebilecek ve 
+,,cihazın çalışma parametreleri ile arıza bilgileri izlenebilecektir. Kontol paneli sayesinde 
+,,"cihaz, evaporatör gidiş ya da dönüş suyu sıcaklığına göre kontrol edilebilmelidir. "
+,,"BMS ile haberleşmek için gerekli olan LONWORKS, MODBUS, BACNET iletişim "
+,,sistemlerinden biriyle uyumlu olacaktır. 
+
+,,SOĞUTMA DEVRESİ FLOW SWITCH
+,,Isıtma ve soğutma tesisatları boru hatlarında akışkanın hareketini algılamak ve sisteme sinyal 
+,,"göndermek amacıyla kullanılan, iki konumlu (açık/kapalı) elektromekanik çalışma prensibine sahip, "
+,,akışkan etkisiyle hareket eden ve farklı boru çaplarına uyum sağlayabilen ayarlanabilir palet
+,,"mekanizmasına sahip, basınç ayar elemanları AISI 304 paslanmaz çelikten mamul, gövdesi St37.2 "
+,,"karbon çelik, kapağı ABS malzemeden mamul, bağlantı rakoru pirinç (MS 58) malzemeden mamul,"
+,,"dişli bağlantılı (1”), basınç sınıfı PN16 olan, maksimum çalışma sıcaklığı 90°C olan, 220V besleme"
+,,"voltajı ile çalışan, DN25 – DN300 arası boru çaplarında kullanılabilir, akış yönü cihaz üzerinde"
+,,"işaretlenmiş ( montaj bu yöne uygun yapılmalıdır ), fabrika çıkışı minimum diferansiyele ayarlanmış, "
+,,"ayar imkanı bulunan, elektrik bağlantıları ilgili standartlara uygun, akış halinde sinyal veren ve akış"
+,,"kesildiğinde sinyal kesen çalışma prensibine sahip, kesit resmi, teknik özellikleri ve malzeme"
+,,detaylarını içeren katalog onaylanmak kaydıyla seçilecek akış kontrol şalteri ( flow switch ) nin
+,,"işyerinde temini, yerine montajı ve çalışır halde teslimi."
+,,"1"" - 25 mm","Ayvaz, Bass, VFA.",,1,Ad.
+
+,,ISITMA - SOĞUTMA DEVRELERİ SİRKÜLASYON POMPALARI 
+,,ORTAK ÖZELLİKLERİ
+,,"Kuru veya ıslak rotorlu paslanmaz çelik milli, inline tip."
+,,Devir sayısı tercihan 1450 d/dak olacak teklifi veten firma devir 
+,,sayısı ve imalatcı firmayı da belirtecektir.
+,,İşletme basıncı: 10 atü
+,,Motor verimlilik sınıfı : IE2
+, ,*Satın alma öncesi metrajda verilen tüm pompa basınçları mekanik yüklenici tarafından 
+, ,shop-drawing projelere göre yeniden hesaplanacaktır.
+
+,B-PH-01-A/B,KLİMA SANTRALI + FANCOİL ISITMA POMPALARI  ,"Grundfos, Lowara, KSB.",,2,Ad.
+,,35.0 m3/h; 15.0 mSS; pompaya entegre frekans konverterli; 1 asıl_1 yedek
+,,"Kuru veya ıslak rotorlu, inline tip. "
+
+,B-PC-01-A/B,PRİMER DEVRE SOĞUTMA POMPALARI,-,,2,Ad.,Soğutma grubu ( B-CH-01 ) fiyatına dahildir.
+,,198.0 m3/h; 16.0 mSS; sabit debili; 1 asıl_1 yedek
+,,( Verilen sirkülasyon pompası basıncı tesisat için chiller ( evaporatör ) harici gereken basınçtır. )
+,,"Kuru rotorlu, inline tip. "
+,,Pompalar su soğutma grubunun ( B-CH-01 ) içerisindeki  fabrika montajlı hidronik kite dahildir ve
+,,ayrıca fiyatlandırılmayacaktır.
+
+,B-PC-02-A/B/C/D/E,SEKONDER DEVRE SOĞUTMA POMPALARI,"Grundfos, Lowara, KSB.",,5,Ad.
+,,48.0 m3/h; 25.0 mSS; pompaya entegre frekans konverterli; 4 asıl_1 yedek
+,,"Kuru rotorlu, inline tip. "
+
+,B-B-01,SERPANTİNLİ SICAK SU BOYLERİ ,"Viessmann, Buderus, Austria Email.",,1,Ad.
+,,"Dik silindirik tip, fabrikasında ısıl izolasyonu yapılmış halde."
+,,Depolama kapasitesi : 950 lt
+,,İşletme basıncı : 10 bar ( Kullanma sıcak suyu tarafı )
+,,İşletme basıncı : 10 bar ( Isıtma suyu tarafı )
+,,Boyler aşağıdaki şartları sürekli rejimde sağlamalıdır.
+,,Boyler ısıtma kapasitesi : 75.58 kW
+,,Primer devre su debisi : 3.25 m3/h
+,,Primer devre su giriş / çıkış sıcaklığı : 80 / 60 °C
+,,Sekonder devre su debisi : 1.30 m3/h
+,,Sekonder devre su giriş / çıkış sıcaklığı : 10 / 60 °C
+
+,,PLAKALI EŞANJÖRLER
+,,- Eşanjör keşifte verilen çalışma şartlarında akışkanlar arasında istenilen ısı transferini 
+,,   sağlayabilecek şekilde seçilecektir.
+,,- Eşanjör seçimi üretici firmanın orjinal seçim programı ile yapılacaktır.
+,,"- Plakalı ısı değiştiriciler, plaka yüzeyleri akışkanı türbülanslı bir akışa zorlayacak, hızlı ve yüksek"
+,,   verimli ısı transferi gerçekleştirecek şekilde seçilmelidir.
+,,"- Plakalı ısı değiştirici bakım, temizleme, değiştirme ve kapasite artırımı gibi amaçları karşılayacak"
+,,   şekilde kolayca sökülebilir ve gerekirse tekrar monte edilebilir yapıda olmalıdır.
+,,"- Her iki devredeki akışkanların gövdeye (baskı plakalarına) teması olmayacak, eşanjörün bağlantı"
+,,   nozulları gövdenin aynı yüzeyinde dişli veya flanşlı olacaktır.
+,,"- Eşanjör contaları işletme şartlarındaki akışkan sıcaklıklarına dayanıklı EPDM, NITRIL veya NBR"
+,,   malzemeden mamül olacaktır.
+,,- Akışkan ile teması olan ısı transfer plakaları AISI 316 kalite paslanmaz çelik malzemeden mamül
+,,   ve minimum saç kalınlığı 0.4 mm olacaktır. 
+,,"- Eşanjörün maksimum çalışma basıncı 10 bar, test basıncı ise en az 12.5 bar olacaktır."
+,,"- Isı kaybını önlemek için orijinal izolasyon ceketi, eşanjör ile beraber temin edilecektir."
+,,"- Üretici firma ISO 9001 sertifikasına, plakalı ısı eşanjörü CE sertifikasına sahip olacak ve tedarikçi"
+,,   orijinal ürün sertifikalarını temin edecektir. 
+,,- Üretici ve tedarikçi en az 10 yıl süre ile ücreti karşılığında yedek parça sağlama garantisi
+,,   verecektir.
+,,- Teklif edilen eşanjör malzeme ve işçilik hatalarına karşı en az 2 yıl garantili olacaktır.
+,,- Satış sonrası eğitim ve teknik destek çalışmaları yetkili firma tarafından sağlanacaktır.
+,,- Teklif edilen eşanjöre ait seçim şartlarını ve eşanjörün özelliklerini gösteren teknik bilgi sayfaları
+,,   ayrıca temin edilecektir. Belirtilen dokümanda aşağıdaki bilgiler belirtilecek ve bunlar eşanjör seçim
+,,   programının verdiği orijinal değerler ile uyumlu olacaktır.
+,,Maksimum Çalışma Basıncı :
+,,Basınç Sınıfı :
+,,Soğuk Akışkan : 
+,,Sıcak Akışkan :
+,,Soğuk Akışkan Giriş/Çıkış Sıcaklığı :
+,,Sıcak Akışkan Giriş/Çıkış Sıcaklığı :
+,,Soğuk Akışkan Debisi :
+,,Sıcak Akışkan Debisi :
+,,Soğuk Akışkan Tarafı Basınç Kaybı :
+,,Sıcak Akışkan Tarafı Basınç Kaybı :
+
+,B-C-PE-01,SOGUTMA PLAKALI EŞANJÖRÜ ( %20 Glikollü sudan - suya ),"Alfa Laval, Funke, Tanpera, Sesinox.",,1,Ad.
+,,Kapasite : 1000 kW
+,,İşletme Basıncı : 10 bar
+,,Primer devre su debisi : 198.0 m3/h ( %20 Glikol )
+,,Primer devre su giriş / çıkış : 6 / 11 °C
+,,Primer devre su basınc kaybı : 3.0 mSS
+,,Sekonder devre debisi : 192.0 m3/h ( Glikolsüz )
+,,Sekonder devre su çıkış / giriş : 7 / 12 °C
+,,Sekonder devre su basınc kaybı : 3.0 mSS
+,,Plakalı eşanjör ısıl izoleli olacaktır.
+,,Satınalmadan önce eşanjör giriş-çıkış çapları için onay alınacaktır.
+
+,,KAZAN BACALARI
+,,KAZAN DAİRESİ PİS HAVA  BACALARI 
+,,ORTAK ÖZELLİKLER
+,,Bacalar EN 1856-1/2 ye uygun fabrikasyon imalat.
+,,Dış ortamda kullanılabileceğine dair CE belgeli.
+,,İç cidar paslanmaz çelik ( AISI 316L )
+,,Dış cidar paslanmaz çelik ( AISI 304 / AISI 430 )
+,,"Çift cidarlı, 2.5 cm. taşyünü izoleli (yoğunluk: 100 kg/m3 (en az))"
+,,Bacalar kazan baca bağlantısı için gerekli olan tüm dirsek
+,,"bağlantı parcaları, su alma tertibatı ve baca şapkasını içerecek"
+,,şekilde teklife dahil edilecektir. Her türlü nakliye vs. dahil.
+,,Komple tamamlanamış çalışır halde teslim edilecektir.
+,,İç cidar kalınlığı :
+,,Ø80 ile Ø400 arası 0.60 mm 
+,,Ø450 ve Ø550 için 0.80 mm 
+,,Ø600 ve Ø700 için 1.0 mm 
+,,Dış cidar kalınlığı : 0.60 mm
+, ,*Satın alma öncesi metrajda verilen baca çapı mekanik yüklenici tarafından shop-drawing 
+, ,projelere ve kullanılacak kazan markasına göre yeniden hesaplanacaktır.
+
+,,KAZAN  BACASI ,"Poujoulat, Elit Inox, Yeditepe.",,1,Tk.
+,,"Yatay Baca
+Tek cidarlı, iç çap : 30 cm, boy : 1.5 m
+Dikey Baca
+Çift cidarlı, 2.5 cm taşyünü izoleli (yoğ.: 100 kg/m3 (en az)), iç çap : 30 cm, boy : 5.5 m"
+
+,,KAZAN DAİRESİ HAVALANDIRMASI
+
+,,KAZAN DAİRESİ ÜST HAVALANDIRMA KANALI ( PİS HAVA ) ,"BSK, Isıdem, Mertes.",,1,Ad.
+,,"0.6 mm galvaniz sac, kesit : 60x55 cm, boy 2 m."
+
+,,KAZAN DAİRESI ÜST HAVALANDIRMA TEL KAFESLİ PANCURU ,"Fita Teknik (Tip EL-NB), Doğu İklimlendirme, BSK.",,1,Ad.
+,,"Ebat : 60x75 cm. Alüminyum, dar kanatlı pancur + tel kafes"
+
+,,KAZAN DAİRESİ ALT HAVALANDIRMA TEL KAFESLİ PANCURU ,"Fita Teknik (Tip EL-NB), Doğu İklimlendirme, BSK.",,1,Ad.
+,,"Ebat : 140x60 cm, Alüminyum, dar kanatlı pancur + tel kafes"
+
+,,KAZAN DAİRESİ ALT HAVALANDIRMA MOTORLU DAMPERİ,"Fita Teknik (Tip VCD), Doğu İklimlendirme, BSK.",,1,Ad.
+,,Ebat : 1450x60 cm 
+
+25.264.1000,,DOLDURMA VE BOŞALTMA MUSLUĞU
+25.264.1002,,"25 mm. (1"")",,,1,Ad.
+
+,B-C-VT-01,VOLÜM TANKI,"Tanpera, Flamco, Baymak..",,2,Ad.
+,,"Hacim : 2,500 litre"
+,,İşletme basıncı : 10 bar
+,,Tip : Dik silindirik 
+,,"Menholu boşaltma ağzı ve antipas boyası dahil, fabrikasında ısıl izolasyonu yapılmış halde."
+
+25.255.3000,,KAPALI GENLEŞME KAPLARI VE EMNİYET VENTİLLERİ
+,,Tanklarda bulunacak ortak özellikler 
+,,"Değiştirilebilir tip membran, gaz basınç göstergesi"
+,,"Flexsible bağlantı, tesisat bağlantısında kilitli vana, DIN 4751 e uygun"
+
+,,Emniyet ventillerinde bulunacak ortak özellikler 
+,,Direkt ateş teması olmayan yerlerde emniyet ventilleri KW ısı
+,,güç başına 1 lt/h tahliye kapasitesinde akışkan olarak su tahliye 
+,,ettiği düşünülerek 2.5 bar ın üzerinde daima yaylı montaj pozis-
+,,yonu olarak en üst noktada olma şartı aranmadan TUV ve DIN
+,,4751 e uygun bir asıl ve bir yedek en az iki adet seçilirler.
+,,Genleşme tankı tesisat bağlantı borusu çapı KW başına 1 l/h lik su debisinin
+,,200 mmSS den daha fazla kayıp oluşturamayacak şekilde alınır.
+,,TÜV onaylı. 
+
+,B-H-GK-01,KAZAN DEVRESİ GENLEŞME KABI  ,"Reflex, Flamco, Nema.",,1,Ad.
+,,"Hacim: 80 litre/6 bar, Palt = 1.0 bar, Püst = 2.5 bar; Pemv.ac = 3.0 bar"
+
+,B-H-KIV-01,KİLİTLİ VANA,"Flamco, Ayvaz.",,1,Ad.
+,,"Genleşme tankı tesisat bağlantı hattı kilitli vanası, çap 40 mm"
+
+,B-H-EMV-01,KAZAN ÜSTÜ EMNİYET VENTİLİ,"Reflex, Flamco, Duyar, Ayvaz.",,2,Ad.
+,,"Çap: 40 mm, yaylı, tam kalkışlı, açma basıncı 3.0 bar"
+
+,B-H-OBV-01,KAZAN DEVRESİ OTOMATİK SU DOLDURMA / BESLEME VENTİLİ,"Reflex, Flamco, IMI Hydronic.",,1,Ad.
+,,"Pislik tutucu, çekvalf, basınç düşürücü ve manometre bulunan "
+,,monoblok 5 atü basınca ayarlanabilir 1/2''çapta.
+
+,B-H-GK-02,ISITMA DEVRESİ GENLEŞME KABI  ,"Reflex, Flamco, Nema.",,1,Ad.
+,,"Hacim: 400 litre/6 bar, Palt = 1.0 bar, Püst = 2.5 bar; Pemv.ac = 3.0 bar"
+
+,B-H-KIV-02,KİLİTLİ VANA,"Flamco, Ayvaz.",,1,Ad.
+,,"Genleşme tankı tesisat bağlantı hattı kilitli vanası, çap 40 mm"
+
+,B-H-EMV-02,ISITMA DEVRESİ EMNİYET VENTİLİ,"Reflex, Flamco, Duyar, Ayvaz.",,2,Ad.
+,,"Çap: 40 mm, yaylı, tam kalkışlı, açma basıncı 3.0 bar"
+
+,B-C-GK-01,SOĞUTMA  PRİMER DEVRE GENLEŞME KABI  ,"Reflex, Flamco, Nema.",,1,Ad.
+,,"Hacim : 250 litre/10 bar, Palt = 0.9 bar, Püst = 2.5 bar; Pemv.ac = 3.0 bar"
+
+,B-C-KIV-01,KİLİTLİ VANA,"Flamco, Ayvaz.",,1,Ad.
+,,"Genleşme tankı tesisat bağlantı hattı kilitli vanası, çap 40 mm"
+
+,B-C-EMV-01,PRİMER DEVRE EMNİYET VENTİLİ,"Reflex, Flamco, Duyar, Ayvaz.",,2,Ad.
+,,"Çap 50 mm, yaylı, oransal kalkışlı, açma basıncı 3.0 bar"
+
+,B-C-GK-02,SOĞUTMA  SEKONDER DEVRE GENLEŞME KABI  ,"Reflex, Flamco, Nema.",,1,Ad.
+,,"Hacim : 200 litre/10 bar, Palt = 0.9 bar, Püst = 2.5 bar; Pemv.ac = 3.0 bar"
+
+,B*C-KIV-02,KİLİTLİ VANA,"Flamco, Ayvaz.",,1,Ad.
+,,"Genleşme tankı tesisat bağlantı hattı kilitli vanası, çap 40 mm"
+
+,B-C-EMV-02,SEKONDER DEVRE EMNİYET VENTİLİ,"Reflex, Flamco, Duyar, Ayvaz.",,2,Ad.
+,,"Çap 50 mm, yaylı, oransal kalkışlı, açma basıncı 5.0 bar"
+
+,B-C-OBV-01,OTOMATİK SU DOLDURMA / BESLEME VENTİLİ ( PRİMER DEVRE ),"Reflex, Flamco, IMI Hydronic.",,1,Ad.
+,,"Pislik tutucu, çekvalf, basınç düşürücü ve manometre bulunan "
+,,monoblok 5 atü basınca ayarlanabilir 1/2''çapta.
+
+,B-C-OBV-02,OTOMATİK SU DOLDURMA / BESLEME VENTİLİ ( SEKONDER DEVRE ),"Reflex, Flamco, IMI Hydronic.",,1,Ad.
+,,"Pislik tutucu, çekvalf, basınç düşürücü ve manometre bulunan "
+,,monoblok 5 atü basınca ayarlanabilir 1/2''çapta.
+
+,,FANCOIL ORTAK ÖZELLİKLER 
+,,Sertifika
+,,Fancoiller EUROVENT sertifikalı olacaktır.
+,,Fan Coil Çalışma Özellikleri
+,,"7/12 oC  soğutma suyu, 80/60 oC  ısıtma suyu "
+,,10 bar işletme basıncında  
+,,Fan Coil Otomatik Kontrolu
+,,Fan coillerde belirtilen sayıda serpantin bulunacaktır ( 2 borulu veya 4 borulu ). Her serpantin
+,,girişinde iki yollu oransal otomatik kontrol vanası kullanılacaktır. Fan coil yerleştirmesine uygun
+,,olarak bir veya birden fazla fancoile aynı oda kontrol elemanı ile kumanda verilebilir. 
+,,Fan coil giriş hattındaki iki yollu oransal ısıtma ve soğutma serpantin kontrol vanalarını açıp
+,,kapatarak mahalde belli sıcaklığı ayakta tutacaktır. İki yollu otomatik vanalar aynı zamanda dinamik
+,,balans vanası niteliğinde de olacaktır. Elektronik ve otomatik olacaktır. 
+,,Kullanıcı müdahalesi gerekmeden soğutmadan ısıtmaya veya ısıtmadan soğutmaya kendiliğinden
+,,geçecektir.
+,,Fan Coil Kontrol Cihazı ve Sensörlü Oda Ünitesi
+,,"24 V - Oransal (0-10 V) termik vana kontrol çıkışlı,"
+,,Fan 3-hız seçim anahtarlı
+,,Isıtma/soğutma OTOMATİK  seçicili
+,,Djital  LCD göstergeli 
+
+,,GİZLİ TAVAN TİPİ FAN-COİL CİHAZLARI ( 4 Borulu )
+,,"Yaz: 24 oC KT, %50 RH iç şartlar "
+,,"Kış:  20 oC KT, % 30 RH iç şartlarda"
+,,Cihaz Dışı Statik Basınç: 20 Pa
+,FCU-531,"Orta devirde Top. soğ.: 1679 W, Isıtma: 1330 W, Hava debisi: 340 m3/h ","Sabiana, Carrier, Flakt.",,30,Ad.
+,FCU-541,"Orta devirde Top. soğ.: 1879 W, Isıtma: 1330 W, Hava debisi: 340 m3/h ","Sabiana, Carrier, Flakt.",,9,Ad.
+,FCU-631,"Orta devirde Top. soğ.: 2047 W, Isıtma: 1639 W, Hava debisi: 465 m3/h ","Sabiana, Carrier, Flakt.",,27,Ad.
+,FCU-641,"Orta devirde Top. soğ.: 2458 W, Isıtma: 1639 W, Hava debisi: 465 m3/h  ","Sabiana, Carrier, Flakt.",,43,Ad.
+,FCU-731,"Orta devirde Top. soğ.: 2826 W, Isıtma: 2283 W, Hava debisi: 630 m3/h  ","Sabiana, Carrier, Flakt.",,31,Ad.
+,FCU-741,"Orta devirde Top. soğ.: 3165 W, Isıtma: 2283 W, Hava debisi: 630 m3/h  ","Sabiana, Carrier, Flakt.",,23,Ad.
+,FCU-831,"Orta devirde Top. soğ.: 3485 W, Isıtma: 2719 W, Hava debisi: 880 m3/h  ","Sabiana, Carrier, Flakt.",,18,Ad.
+
+,,FANCOİL SERPANTİN BAĞLANTISI YARDIMCI MALZEMELERİ
+,,Fancoil bağlantısında kullanılmaya uygun paslanmaz çelik spiral hortum.
+
+,,"Paslanmaz çelik spiral hortum,  1/2"" - Boy: 60 cm","Unival, Ayvaz, Kayse.",,724,Ad.
+,,"Paslanmaz çelik spiral hortum,  3/4"" - Boy: 60 cm","Unival, Ayvaz, Kayse.",,-,Ad.
+
+,,FANCOİL DRENAJ BAĞLANTISI YARDIMCI MALZEMELERİ
+,,Fancoil bağlantısında kullanılmaya uygun plastik boğumlu hortum.
+
+,,"1/2"" çapta boruya uygun plastik boğumlu hortum - Boy: 50 cm",,,181,Ad.
+,,"1/2"" hortum ağzı pirinç",,,181,Ad.
+,,"1/2"" hortum kelepçesi",,,181,Ad.
+
+25.142.1000,,SU SAYAÇLARI (Tesisat dolum noktalarında)
+25.142.1101,,"Soğuk su sayacı, 20 mm  (3/4"")  ","ECA, Teksan.",,3,Ad.
+
+25.245.1000 ,,KOLLEKTÖR
+,,"Kollektörler sülyen ile boyanacak,  elastomerik kauçuk esaslı prefabrik malzeme ile izole edilecektir."
+25.245.1104,,"5"" - 133/4.0 mm dikişli boru",,,4,m.
+25.245.1107,,"10"" - 273/5.05 mm dikişli boru",,,7,m.
+
+25.245.2000,,KOLLEKTÖR AĞIZLIKLARI
+25.245.2001,,"Ağız çapı 15 mm 1/2""",,,4,Ad.
+25.245.2009,,"Ağız çapı 100 mm  4""",,,6,Ad.
+25.245.2010,,"Ağız çapı 125 mm  5""",,,10,Ad.
+25.245.2012,,"Ağız çapı 200 mm  8""",,,2,Ad.
+
+25.250.2100,,TERMOMETRE
+25.250.2101,,100 mm 120 oC taksimatlı.,Pakkens.,,36,Ad
+
+25.250.2300,,MANOMETRE
+25.250.2304,,100 mm 10 kgf/cm2 ye kadar,Pakkens.,,38,Ad.
+
+25.255.1300,,SİLİNDİRİK HAVALANDIRMA DEPOSU
+25.255.1302,,10 litre,,,4,Ad.
+
+25.300.1000,,ÇELİK BORULAR 
+,,Borular fabrikadan astar boyalı getirilecektir.
+,,Boru askılaması:
+,,Boru askı aralıkları ASHRAE standartlarına uygun yapılacaktır.
+25.300.1100,,Dikişli Borular
+25.300.1102,,"3/4"" - 20 mm","Borusan, Tosçelik, Çayırova.",,3394,m.
+25.300.1103,,"1"" - 25 mm","Borusan, Tosçelik, Çayırova.",,737,m.
+25.300.1104,,"1 1/4"" - 32 mm","Borusan, Tosçelik, Çayırova.",,642,m.
+25.300.1105,,"1 1/2"" - 40 mm","Borusan, Tosçelik, Çayırova.",,297,m.
+25.300.1106,,"2"" - 50 mm      ","Borusan, Tosçelik, Çayırova.",,356,m.
+25.300.1107,,"2 1/2"" - 65 mm","Borusan, Tosçelik, Çayırova.",,180,m.
+25.300.1108,,"3"" - 80 mm","Borusan, Tosçelik, Çayırova.",,178,m.
+25.300.1109,,"4""- 100 mm","Borusan, Tosçelik, Çayırova.",,73,m.
+25.300.1110,,"5"" - 125 mm      ","Borusan, Tosçelik, Çayırova.",,132,m.
+25.300.1111,,"6"" - 150 mm      ","Borusan, Tosçelik, Çayırova.",,4,m.
+25.300.1300,,Düz-Spiral Kaynaklı Borular
+25.300.2100,,"Bina içinde vidalı döşenmiş boru montaj malzemesi,",,,30,%
+25.300.2200,,"Bina içinde kaynaklı döşenmiş botu montaj malzemesi,",,,25,%
+
+25.305.4000,,CAM ELYAF TAKVİYELİ KOMPOZİT PP-RC TEMİZ SU BORULARI
+25.305.4100,,"PN 25, Cam Elyaf Takviyeli Polipropilen Borular.( Fancoil Drenaj Boruları )"
+25.305.4101,,DN 20 x 2.8 (Boru dış çapı x Et kalınlığı),"Wavin, Hakan Plastik, Fırat.",,-,m.
+25.305.4102,,DN 25 x 3.5,"Wavin, Hakan Plastik, Fırat.",,-,m.
+25.305.4103,,DN 32 x 4.4,"Wavin, Hakan Plastik, Fırat.",,1069.2,m.
+25.305.4104,,DN 40 x 5.5,"Wavin, Hakan Plastik, Fırat.",,177.10000000000002,m.
+25.305.4105,,DN 50 x 6.9,"Wavin, Hakan Plastik, Fırat.",,167.20000000000002,m.
+25.305.4106,,DN 63 x 8.6,"Wavin, Hakan Plastik, Fırat.",,78.10000000000001,m.
+25.305.4107,,DN 75 x 10.3,"Wavin, Hakan Plastik, Fırat.",,28.6,m.
+
+25.305.5000,,Bina içinde fizyoterm kaynak ve vidalı olarak döşenmiş polipropilen boru montaj malz. bedeli,,,45,%
+
+25.320.2000 ,,KÜRESEL VANA 
+25.320.2100,,"Prinç, preste imal edilmiş teflon, (P.T.F.E.) contalı. "
+25.320.2101,,"  1/2""","Unival, Ayvaz, ECA.",,186,Ad.
+25.320.2102,,"  3/4""","Unival, Ayvaz, ECA.",,1094,Ad.
+25.320.2103,,"  1""","Unival, Ayvaz, ECA.",,2,Ad.
+25.320.2104,,"  1 1/4""","Unival, Ayvaz, ECA.",,10,Ad.
+25.320.2105,,"  1 1/2""","Unival, Ayvaz, ECA.",,14,Ad.
+25.320.2106,,"  2""","Unival, Ayvaz, ECA.",,9,Ad.
+
+25.320.4100 ,,"KOL KUMANDALI KELEBEK VANA ( PN 10, LUG Tipi )"
+,,"Su tesisatında kullanılmak üzere üretilmiş Gövde GG25 pik döküm, kumanda mili"
+,,"paslanmaz çelik, klape contası EPDM, Klape paslanmaz çelik, vana."
+25.320.4102,,"65 mm. - 2 1/2""    ","Unival, Ayvaz, ECA.",,10,Ad.
+25.320.4103,,"80 mm. - 3""    ","Unival, Ayvaz, ECA.",,4,Ad.
+25.320.4104,,"100 mm. - 4""    ","Unival, Ayvaz, ECA.",,14,Ad.
+25.320.4105,,"125 mm. - 5""    ","Unival, Ayvaz, ECA.",,14,Ad.
+25.320.4106,,"150 mm. - 6""    ","Unival, Ayvaz, ECA.",,6,Ad.
+25.320.4107,,"200 mm. - 8""    ","Unival, Ayvaz, ECA.",,10,Ad.
+
+25.320.7000,,BALANS VANALARI
+25.320.7400,,"Dinamik Balans Vanası; ısıtma, soğutma ve HVAC tesisatları için, wafer tip; PN-16."
+25.320.7404,,"100 mm. - 4""    ","Danfoss, Siemens, IMI Hydronics, Honeywell.",,1,Ad.
+
+,,KOMBİNE BALANS VANASI
+,,"Isıtma ve soğutma suyu devrelerinin, terminal ünitelerin (fancoil, klima santrali, radyatör gibi)"
+,, balanslanması ve kontrolü için kullanılır. Kritik devre sonunda bulunan terminal ünitenin debisinin 
+,,ölçüm bilgisayarı yardımı ile ölçülebilir. Tesisattaki değişken koşullardan etkilenmeksizin giriş ve çıkış 
+,,basınçlarını bir membran vasıtasıyla algılayarak kontrol vanası üzerinde sabit bir basınç düşümü 
+,,sağlayan bir balans vanası ve lineer bir karakteristiğe ve %100 otoriteye sahip kontrol vanası 
+,,olmak üzere iki kısımı vana üzerinde birleşmiştir. Tek başına kullanıldığında hem kontrol vanası
+,,hem de otomatik balans vanası olarak kullanılabilen diyaframlı kombine balans vanasıdır.
+,,Elektrikli oransal kontrol yapabilen aktüatör ile kullanılır. Aktüatör fiyata dahil edilecektir.
+,,Teknik Özellikleri:
+,,Nominal Çap (mm) : DN 10 - DN150
+,,Çalışma Basıncı  (bar) : PN 16
+,,Gövde : DN40ın altı pirinç; DN40 ve üstü GG25  
+,,Membran ve o-ring : EPDM  
+,,"Koni, yay ve vidalar : Paslanmaz çelik  "
+,,Bağlantı Şekli : DN65 ve altı dış dişli; DN65 ve üstü flanşlı
+,,Akışkan Özelliği : Su 
+,,Akışkan Sıcaklığı : -10°C.....+120°C
+,,Kontrol Vanası Karakteristiği : Lineer
+,,Kaçak Oranı IEC 584 standardına ölçülmüş olacaktır.
+,,DİKKAT ÖNEMLİ NOT: VANALARIN OTOMASYON SİSTEMİ İLE UYUMLU OLMASI İÇİN OTOMATİK KONTROL FİRMASININ ONAYININ ALINMASI ŞARTTIR.
+,,DN 10 LF ( Düşük Debi (Low Flow) Tipi )  ,"Danfoss, Siemens, IMI Hydronics, Honeywell.",,181,Ad.
+,,"DN 15 - 1/2""   ","Danfoss, Siemens, IMI Hydronics, Honeywell.",,109,Ad.
+,,"DN 20 - 3/4""   ","Danfoss, Siemens, IMI Hydronics, Honeywell.",,73,Ad.
+,,"DN 25 - 1""   ","Danfoss, Siemens, IMI Hydronics, Honeywell.",,2,Ad.
+,,"DN 32 - 1 1/4""   ","Danfoss, Siemens, IMI Hydronics, Honeywell.",,2,Ad.
+,,"DN 40 - 1 1/2""   ","Danfoss, Siemens, IMI Hydronics, Honeywell.",,2,Ad.
+,,"DN 65 - 2 1/2""   ","Danfoss, Siemens, IMI Hydronics, Honeywell.",,1,Ad.
+,,"DN 80 - 3""   ","Danfoss, Siemens, IMI Hydronics, Honeywell.",,1,Ad.
+,,"DN 125 - 5""   ","Danfoss, Siemens, IMI Hydronics, Honeywell.",,1,Ad.
+
+25.325.1000,,PİSLİK TUTUCULAR
+25.325.1100,,"Pislik Tutucu, PN-16, buhar için; pres döküm vidalı"
+25.325.1102,,"20 mm - 3/4""","Unival, Ayvaz, Duyar.",,362,Ad.
+25.325.1104,,"32 mm - 1 1/4""","Unival, Ayvaz, Duyar.",,2,Ad.
+25.325.1105,,"40 mm - 1 1/2""","Unival, Ayvaz, Duyar.",,2,Ad.
+25.325.1106,,"50 mm - 2""","Unival, Ayvaz, Duyar.",,2,Ad.
+
+25.325.1200,,"Pislik Tutucu, PN-16, buhar ve kızgın su için; pik döküm vidalı veya flanşlı"
+25.325.1207,,"65 mm - 2 1/2""","Unival, Ayvaz, Duyar.",,1,Ad.
+25.325.1208,,"80 mm - 3""","Unival, Ayvaz, Duyar.",,1,Ad.
+25.325.1209,,"100 mm - 4""","Unival, Ayvaz, Duyar.",,2,Ad.
+25.325.1210,,"125 mm - 5""","Unival, Ayvaz, Duyar.",,1,Ad.
+25.325.1212,,"200 mm - 8""","Unival, Ayvaz, Duyar.",,4,Ad.
+
+25.325.3000 ,,GERİ TEPME VENTİLLERİ
+25.325.3300,,İç aksam komple paslanmaz çelik (disco tip)
+25.325.3309,,"100 mm. - 4""  ","Unival, Ayvaz, Duyar.",,2,Ad.
+,,"125 mm. - 5""  ","Unival, Ayvaz, Duyar.",,5,Ad.
+
+25.332.1000,,TİTREŞİM YUTUCULAR
+25.332.1100 ,,Flanşlı veya kaynak boyunlu; PN-16
+25.332.1109,,"100 mm - 4""","Ayvaz, Kayse, Politeknik.",,6,Ad.
+25.332.1110,,"125 mm - 5""","Ayvaz, Kayse, Politeknik.",,10,Ad.
+
+25.340.1000,,OTOMATİK HAVA TAHLİYE CİHAZI
+25.340.1200,,Su için
+25.340.1201,,15  mm.,"ECA, Taco.",,37,Ad.
+
+25.365.1000,,BORU BOYANMASI
+25.365.1100,,Sülyen ile
+25.365.1101,,"1/2""-2"" arasi, 2"" dahil",,,5426,m.
+25.365.1102,,"2 1/2""-4"" arasi, 4"" dahil",,,431,m.
+25.365.1103,,"5""-6""",,,136,m.
+25.365.1104,,"8""",,,332,m.
+
+25.365.3000,,ÇEŞİTLİ METAL İMALAT İŞLERİ
+25.365.3100,,Çelik profillerden kaynak yol.,,,3300,kg
+
+25.400.0000,,BORU İZOLASYONU
+25.400.5000,,"Boru izolasyonu, elastomerik kauçuk esaslı prefabrik malzeme ile."
+25.400.5015,,"3/4"" - 32 mm","Oneflex, İzocam, Ode.",,3394,m.
+25.400.5020,,"1"" - 32 mm","Oneflex, İzocam, Ode.",,737,m.
+25.400.5025,,"1 1/4"" - 32 mm","Oneflex, İzocam, Ode.",,642,m.
+25.400.5030,,"1 1/2"" - 32 mm","Oneflex, İzocam, Ode.",,297,m.
+25.400.5035,,"2"" - 32 mm.","Oneflex, İzocam, Ode.",,356,m.
+25.400.5040,,"2 1/2"" - 32 mm.","Oneflex, İzocam, Ode.",,180,m.
+25.400.5059,,"3"" - 40 mm.","Oneflex, İzocam, Ode.",,178,m.
+25.480.1507,,"4"" - 50 mm.","Oneflex, İzocam, Ode.",,73,m.
+25.480.1507,,"5"" - 50 mm.","Oneflex, İzocam, Ode.",,132,m.
+25.480.1507,,"6"" - 50 mm.","Oneflex, İzocam, Ode.",,4,m.
+25.480.1507,,"8"" - 50 mm.","Oneflex, İzocam, Ode.",,332,m.
+
+25.400.5000,,"Boru izolasyonu, elastomerik kauçuk esaslı prefabrik malzeme ile. ( PPRC borular için )"
+25.400.5010,,DN 20 x 2.8 - 32 mm,"Oneflex, İzocam, Ode.",,-,m.
+25.400.5015,,DN 25 x 3.5 - 32 mm,"Oneflex, İzocam, Ode.",,-,m.
+25.400.5020,,DN 32 x 4.4 - 32 mm,"Oneflex, İzocam, Ode.",,1069.2,m.
+25.400.5025,,DN 40 x 5.5 - 32 mm.,"Oneflex, İzocam, Ode.",,177.10000000000002,m.
+25.400.5035,,DN 50 x 6.9 - 32 mm.,"Oneflex, İzocam, Ode.",,167.20000000000002,m.
+25.400.5040,,DN 63 x 8.6 - 32 mm.,"Oneflex, İzocam, Ode.",,78.10000000000001,m.
+25.400.5040,,DN 75 x 10.3 - 32 mm.,"Oneflex, İzocam, Ode.",,28.6,m.
+
+25.400.9000,,ISIL İZOLELİ BORULARIN SAC KAPLANMASI ( AÇIK HAVADAN GEÇEN BORULAR )
+25.400.9100,,Boru izolesi üzerine 0.6 mm aluminyum saç kaplanması 
+25.400.9103,,"1 1/4"" Boru",,,12,m.
+25.400.9103,,"1 1/2"" Boru",,,10,m.
+25.400.9103,,"2"" Boru",,,58,m.
+25.400.9103,,"2 1/2"" Boru",,,43,m.
+25.400.9104,,"3"" Boru",,,64,m.
+25.400.9105,,"5"" Boru",,,44,m.
+
+,,ARMATÜR İZOLESİ ( YALITIM CEKETİ İLE )
+,,Yalıtım ceketi :
+,,"Isıtma ve soğutma tesisatlarında, vana, pislik tutucu, çekvalf, vb armatürlerde ısı kaybı"
+,,"ve yoğuşmayı önlemek amacıyla kullanılan, iç ve dış yüzeyleri 230 °C ye dayanıklı"
+,,"silikonla kaplanmış cam kumaşından imal, içinde 550 °C’ye dayanıklı A sınıfı yanmaz"
+,," izolasyon malzemesi ( iğnelenmiş camyünü ) bulunan, suya, yağa, hafif asitlere, dış "
+,,"hava etkilerine dayanıklı, higroskopik ( nem tutucu ) ve kapiler ( nem emici ) olmayan, "
+,,"kolay demonte edilebilen, yapışkan fermuarlı ve iki ucunda sıkma ipleri bulunan armatür 
+"
+,,yalıtım ceketleridir.
+,,Teklif edilen ürün 10 yıl performans garantili olacaktır.
+,,"1/2""-2"" arasi 2"" dahil","Ayvaz, İzocam, Ode.",,2052,Ad.
+,,"2 1/2""-4"" arasi","Ayvaz, İzocam, Ode.",,35,Ad.
+,,"5""-6"" arasi","Ayvaz, İzocam, Ode.",,22,Ad.
+,,"8""","Ayvaz, İzocam, Ode.",,14,Ad.
+
+,,KARTUŞ FİLTRE
+,,"20 mm (3/4"") Boru İçin",Permo.,,3,Ad.
+
+,,GERİ AKIŞ ÖNLEYİCİ
+,,Tip : BA ( EN 1717 ye uygun )
+,,"Çap : 3/4"", Vidalı","Honeywell ( BA 295 ), Caleffi.",,3,Ad.
+
+,,MADENİ ETİKET
+,,Princ Etiket
+,,50x90 mm.,,,20,Ad.
+
+,,BORU TESİSATININ YIKANMASI,HydroSafe.,,1,Tk.
+,,Boru tesisatının BSRIA AG 1/2001 standardına uygun şekilde kimyasal ile yıkanması.
+
+,,BORU TESİSATINA KORUYUCU KİMYASAL KONULMASI,HydroSafe.,,1,Tk.
+,,Boru tesisatına BSRIA AG 1/2001 standardına uygun şekilde kimyasal konulması
+
+,,TEST VE DEVREYE ALMA,,,1,Tk.
+
+,,TOPLAM

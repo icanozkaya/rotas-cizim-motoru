@@ -1,0 +1,5 @@
+# 16_AVM_Pissu_Kolon_Semasi - DWG içi hesap/not metinleri (anahtar: NOT, HESAP, DEBİ, POMPA, DEPO, m3/h, mSS, bar, kW, l/s)
+
+## Anahtar kelime geçen tekil metinler (2)
+(267763, -85513) h=20.0 [SP-CIHAZ-NO] PİS SU POMPALARI
+(240917, -85586) h=20.0 [SP-CIHAZ-NO] 1 Asıl, 1 Yedek Pompalı

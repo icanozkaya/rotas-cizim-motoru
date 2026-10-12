@@ -1,0 +1,595 @@
+﻿,,ADAHAYAT KARMA KOMPLEKS PROJESİ,,,,,,,,,,46301.0
+,,( BELEDİYE BİNASI ),,,,,,,,,,REV : 0
+,,HAVALANDIRMA TESİSATI
+B.B
+Poz No,Proje Kodu,Yapılacak işin cinsi,Marka,Seçilen Marka,Miktar,Br.,Malzeme ,İşçilik ,Genel Gider,Kâr,"Toplam 
+Birim Fiyat ","Toplam
+Fiyat"
+
+,,NORMAL SICAKLIKLAR İÇİN KABİNLİ TİP AKSİYEL FANLAR 
+,,( TAZE HAVA FANLARI )
+, ,"Dış hava şartlarında çalışmaya uygun, kabinli tip fan."
+,,Merdiven basınçlandırma fanları taze hava temini için sadece yangın sırasında ve tam
+,,debide çalıştırılacaktır.
+,,"FAN MOTORU: IP55 koruma sınıfında, F sınıfı yalıtımlı, frekans konvertörlü ( RFI filtreli ) motorlu"
+,,olacaktır.
+,,FAN TİPİ: Aksiyel kabinli tip
+,,"FAN SICAKLIK DAYANIMI: 50 oC, ( sürekli çalışmada )"
+,,FAN DEVİR SAYISI: 1500 d/d ( maksimum )
+,,BACK DRAFT DAMPER: Merdiven basınçlandırma fanlarında fana entegre ve fan emiş ağzına 
+,,uygun elektrikli backdraft damper bulunacaktır. Ölçüsü için projeye bakınız. Damperin açık olup 
+,,olmadığı üzerinde bulunacak microswitch vasıtasıyla izlenecektir. Damper tam açık pozisyona 
+,,gelmeden fanlar kesinlikle çalıştırılmayacaktır. Elektrikli backdraft damper fan fiyatına dahildir.
+,,KAİDE: Fan ve tahrik sistemi çelik konstruksiyon bir kaide üzerine titreşim önleyiciler kullanılarak
+,,monte edilmiş olacaktır. 
+,,FLEX-BAGLANTI: Fan-kanal bağlantıları ısıya dayanıklı flexible bağlantı elemanları kullanılarak
+,,yapılacaktır.
+, ,*Satın alma öncesi metrajda verilen tüm fan basınçları mekanik yüklenici tarafından 
+, ,shop-drawing projelere göre yeniden hesaplanacaktır.
+
+,B-MBF-01,MERDİVEN BASINÇLANDIRMA FANI ( KABİNLİ TİP ),"AFS (Soler&Palau), Sodeca, Flakt Group.",,1,Ad.
+,,"Vantilatör : 48000 m3/h; Hextst : 500 Pa, Frekans konvertörlü ( RFI filtreli )"
+
+,B-MBF-02,MERDİVEN BASINÇLANDIRMA FANI ( KABİNLİ TİP ),"AFS (Soler&Palau), Sodeca, Flakt Group.",,1,Ad.
+,,"Vantilatör : 57000 m3/h; Hextst : 500 Pa, Frekans konvertörlü ( RFI filtreli )"
+
+,B-MBF-03,MERDİVEN BASINÇLANDIRMA FANI ( KABİNLİ TİP ),"AFS (Soler&Palau), Sodeca, Flakt Group.",,1,Ad.
+,,"Vantilatör : 57000 m3/h; Hextst : 500 Pa, Frekans konvertörlü ( RFI filtreli )"
+
+,,NORMAL SICAKLIKLAR İÇİN DİKEY ATIŞLI ÇATI TİPİ FANLAR 
+,,"Dış hava şartlarında çalışmaya uygun, çatı tipi, dikey atışlı fan."
+,,"FAN MOTORU: IP44 koruma sınıfında, B sınıfı yalıtımlı, yüksek verimli EC tip, kademesiz hız "
+,,"kontrollü ( hız anahtarlı ), direkt akuple, aşırı ısınmaya karşı korumalı olacaktır."
+,,FAN: Geriye eğik seyrek kanatlı 
+,,GÖVDE: Galvanizli çelik
+,,"FAN SICAKLIK DAYANIMI: 40 oC, ( sürekli çalışmada )"
+,,FAN DEVİR SAYISI: 1500 d/d ( maksimum )
+,,FLEX-BAGLANTI: Fan-kanal bağlantıları flexible bağlantı elemanları kullanılarak yapılacaktır.
+,,*Satın alma öncesi metrajda verilen tüm fan basınçları mekanik yüklenici tarafından 
+,,shop-drawing projelere göre yeniden hesaplanacaktır.
+
+,B-EF-03.02,WC EGZOZ ASPİRATÖRÜ,"AFS (Soler&Palau), Flakt Group, Sodeca.",,1,Ad.
+,,"Aspiratör : 7150 m3/h; Hextst : 400 Pa, EC Motorlu"
+
+,,NORMAL SICAKLIKLAR İÇİN DAİRESEL KANAL TİPİ FANLAR
+,,( EGZOZ FANLARI )
+,,"FAN MOTORU: IP44 koruma sınıfında, B sınıfı yalıtımlı, yüksek verimli EC tip, kademesiz hız "
+,,"kontrollü ( hız anahtarlı ), direkt akuple, aşırı ısınmaya karşı korumalı olacaktır."
+,,"FAN SICAKLIK DAYANIMI: 40 oC, ( sürekli çalışmada )"
+,,MONTAJ: Kanal bağlantıları dairesel olan fan yatay ya da dikey montaja uygun olmalıdır.
+,,FLEX-BAGLANTI: Fan-kanal bağlantıları flexible bağlantı elemanları kullanılarak yapılacaktır.
+, ,*Satın alma öncesi metrajda verilen tüm fan basınçları mekanik yüklenici tarafından 
+, , projelere göre yeniden hesaplanacaktır.
+
+,B-EF-01,WC EGZOZ ASPİRATÖRÜ,"AFS (Soler&Palau), Flakt Group, Sodeca.",,1,Ad.
+,,"Aspiratör : 1650 m3/h; Hextst : 250 Pa, EC Motorlu"
+
+,,KLİMA SANTRALLERİ  
+,,Sertifika Durumu
+,,Tüm santraller EN 1886 kriterlerine göre test edilmiş olacaktır.
+,,Tüm santraller EUROVENT sertifikalı olacaktır.
+,,Isıl geçirgenlik sınıfı: T2
+,,Isı köprü faktörü sınıfı: TB2
+,,Hava sızdırmazlık sınıfı: L1(M)
+,,Mekanik dayanım sınıfı: D1(M)
+,,Filtre by-pass kaçağı: F9
+,,Akredite edilmiş laboratuarlardan alınmış test sonuçları teklifle birlikte verilecektir.
+,,Santral Kesiti Hava Hızı
+,,Santral kesitinde batarya yüzeyi hava hızı 2.5 m/sn yi geçmeyecektir.
+,,Değişken Devirli Fanlar
+,,2000 m3/h üstü fanlar belirtildiği takdirde RFI filtreli frekans konvertörlü olacaktır.
+,,Frekans konvertörü fiyatları teklifte ayrı olarak gözükecektir.
+,,Santral Hücreleri
+,,"Elemanlar arası temizlik ve servis bölmeleri olan, tüm elemanları dışarı çekilebilir."
+,,Çift kat galvaniz saç arası 50 mm kaya yünü izoleli
+,,Galvaniz iskelet üzerinde sökülebilir panellerden oluşan
+,,Santral altında 200 mm lık çelik kaideli
+,,Santral damperleri elle kumandaya da uygun ay klape aksesuarlı
+,,Santral Fanları
+,,Sessiz ve yüksek verimli olmaları şarttır.
+,,Fanlar motora direkt akuple ve plug tip olacaktır.
+,,Bu durum imalatçının tercihine bırakılmakla birlikte ses seviyesi
+,,belirtilerek fan devri ve kalitesi kontrol altına alınmıştır.
+,,Fanın santrale montesinde lastik takozlar veya yaylı izolatörler kullanılacaktır. 
+,,Fan Basınçları
+, ,Satın alma öncesi metrajda verilen tüm fan basınçları mekanik yüklenici tarafından 
+, ,shop-drawing projelere göre yeniden hesaplanacaktır.
+,,Elektrik Motorları 
+,,Motorlar tüm santrallerde IE3 sınıfı olacaktır.
+,,Isıtıcı Serpantinler
+,,Serpantinler bakır boru alüminyum kanatlı minimum iki sıralı. İşletme basıncı 12 bar olacaktır.
+,,Isıtıcı Akışkan
+,,Isıtıcı akışkan: 80/60 °C sıcak su kullanılacaktır.
+,,Soğutucu Serpantinler
+,,Serpantinler bakır boru alüminyum kanatlı minimum iki sıralı. İşletme basıncı 12 bar olacaktır.
+,,Soğutucu Akışkan
+,,Soğutucu akışkan: 7/12 oC sıcak su kullanılacaktır.
+,,Filtre
+,,"1. kademe EU4 panel, 2. kademe EU7 torba filtre olacaktır. 2. kademe filtreler santral çıkışında"
+,,bulunacaktır. Filtre alın hızları panel ve torbalarda 2.5 m/sec yi geçemez. Filtre santral kesitini
+,,tamamen kaplamalıdır.
+,,Panel Filtre Basınç Kaybı
+,,Dizayn 100 Pa a göre olacaktır. 
+,,Panel filtre temiz halde basınç kaybı: max. 40 Pa.
+,,Filtre kirli sinyali: 130 Pa.
+,,Torba Filtre Basınç Kaybı
+,,Dizayn 150 Pa a göre olacaktır. 
+,,Torba filtre temiz halde basınç kaybı (EU  %85): 85 Pa  
+,,Filtre kirli sinyali: 250 Pa.
+,,Basınç Kaybı Göstergesi
+,,Basınç kaybı göstergesi ( U manometre ) tüm filtrelerde olacaktır.
+,,Damperler
+,,Tüm santral taze hava girişlerinde manuel de kumanda edilebilir özellikli 
+,,flanşlı zıt kanatlı cihazla entegre damper bulunacaktır.
+,,Karışım havalı santrallerde zıt kanatlı dönüş havası damperi de olacaktır.
+,,Damperler contalı ve yüksek sızdırmazlık sınıfında olacaktır.
+,,Genel
+,,Santralın nakli ve kaide üstüne montajı imalatçı firmaya aittir. İmalata ekipmanın en büyük 
+,,parçasının 120 cm eninde kapıdan geçebilir olması tavsiye edilir.
+,,Filtre v.s elemanlar sistem devreye alınıncaya kadar cihaz dışında  korunacaktır.
+,,Cihaz ağızları saç kapaklarla su ve pislik girmesine karşı fabrikasında sızdırmaz hale 
+,,getirilmiş olacaklardır.
+,,İmalatçı son teklifte şunları belirtecektir.
+,,Filtrelerdeki geçiş hızları başlangıç basınç kayıpları 
+,,Isıtıcı soğutucu serpantın su ve hava tarafı basınç kayıpları 
+,,Santral içi tüm elemanlarda oluşan hava basınç kayıpları  
+,,"Fan, tip, devir ve ses gücü dB (Hz)"
+,,Ses Gücü  63 / 125 / 250 / 500 / 1000 / 2000 /4000 / 8000 Hz de
+,,                 ..../..... / .....  /....  /......... /.......  /.......   /.....  db
+,,Susturucular
+,,"Tavsiye edilen susturucu boyları keşif listesinde verilmiştir. Susturucular cihazın gürültüsünü, "
+,,"her oktav bandında, kullanılacağı mahallin gerektirdiği gürültü seviyesine düşürebilecek ses yutma "
+,,kapasitesine sahip olacaktır. Susturucu kulislerinin kalınlığı 100 veya 200 mm olacaktır. Susturucu 
+,,kulisleri 20 m/s'ye kadar hava hızlarına dayanıklı olmalıdır. Ses yutucu bölümleri üzeri cam tülü ve
+,,tel kafes korumalı cam yünü ile doldurulmalıdır. Hava geçişinin düzgün olması için susturucu 
+,,kulislerinin hava giriş tarafı aerodinamik olacaktır. Ses yutucu malzemesi DIN 4102 standardına
+,,göre A1 veya A2 sınıfı yanmaz ve nemlenmeyen tip olmalıdır.
+,,Santral Tipleri
+,,Kullanılan Kısaltmalar
+,,"Asp: Aspiratör; Vant: Vantilatör, ISGK: Isı geri kazanım, B.Neml.: Buharlı nemlendirici;"
+,,"F.Konv: Frekans Konvertörlü, Kar.: Karışım"
+,,Projede Kullanılan Santral Tipleri 
+,,Projede %100 dış havalı ve karışım havalı santraller mevcuttur.
+,,Santral Diziliş Sırası Notları
+,,1- Tüm santralllerde hava önce 1. ısıtıcıdan sonra soğutucudan geçer.
+,,2- Tüm santrallerde iki kademe filtre bulunacaktır. 1. kademe santral girişinde 2. kademe ise 
+,,    santral çıkışında susturucudan sonra konacaktır.
+,,3- Isı geri kazanımlı sistemlerde egzoz havası üstünde serpantinden veya rotordan önce
+,,    EU4 panel filtre bulunacaktır.
+,,4- Tüm santrallerde vantilatör susturucu arasında boş bir difüzör hücresi bulunacaktır.
+,,"5- Tamburlu ısı geri kazanım hücrelerinde ""rotor purging sector"" bulunacaktır."
+
+,B-AHU-01,KONFERANS SALONU KLİMA SANTRALI,"Alarko-Carrier, Eneko, Doğu İklimlendirme, Form.",,1,Ad.
+,,Cihaz çift katlıdır ve konfigürasyonu aşağıda belirtildiği şekilde olacaktır.
+,,"Vantilatör : 15800 m3/h; Hextst : 600 Pa, Frekans konvertörlü ( RFI filtreli )"
+,,Üfleme havası üzerindeki ekipmanlar:
+,,"Dış hava damperi, dönüş havası damperi ve karışım hücresi, panel filtre, vantilatör, ön ısıtıcı serpantin, soğutucu serpantin, son ısıtıcı serpantin, susturucu, torba filtre, damperli hava çıkış hücresi."
+,,Panel Filtre : EU-4
+,,Torba Filtre : EU-7
+,,Ön ısıtıcı : 22910 W
+,,Isıtıcı KT giriş/çıkış : 12.8 / 16.4 °C
+,,"Isıtıcı kontrol vanası : 25 mm, Isıtıcı boru bağlantı çapı : 32 mm."
+,,Son ısıtıcı : 35495 W
+,,Isıtıcı KT giriş/çıkış : 12.5 / 18.1 °C
+,,"Isıtıcı kontrol vanası : 25 mm, Isıtıcı boru bağlantı çapı : 40 mm."
+,,Soğutucu : 141769 W
+,,"Soğutucu KT giriş/çıkış : 27.5 / 12.5 °C, i giriş/çıkış : 13.55 / 7.96 kcal/kg"
+,,"Soğutucu kontrol vanası : 80 mm, Soğutucu boru bağlantı çapı : 100 mm."
+,,Serpantinlerin geçiş hızı : 2.5 m/sn maksimum.
+,,Gidiş Susturucusu : Santral içine entegre
+,,"Susturucu net boyu : 100 cm., susturucu kesit alanı = santral kesit alanı, serbest kesit %50"
+
+,B-EF-01.01,KONFERANS SALONU EGZOZ ASPİRATÖRÜ ( B-AHU-01'E DAHİLDİR )
+,,"Aspiratör : 15800 m3/h; Hextst : 600 Pa, Frekans konvertörlü ( RFI filtreli )"
+,,Emiş havası üzerindeki ekipmanlar:
+,,"Damperli emiş hücresi, susturucu, panel filtre, aspiratör, karışım hücresi ve damperi, damperli hava çıkış hücresi"
+,,Panel Filtre : EU-4
+,,Emiş Susturucusu : Aspiratöre entegre.
+,,"Susturucu net boyu : 100 cm., susturucu kesit alanı = aspiratör kesit alanı, serbest kesit %50"
+
+,B-AHU-02,MECLİS SALONU KLİMA SANTRALI,"Alarko-Carrier, Eneko, Doğu İklimlendirme, Form.",,1,Ad.
+,,Cihaz çift katlıdır ve konfigürasyonu aşağıda belirtildiği şekilde olacaktır.
+,,Dış hava şartlarında çalışmaya uygun olacaktır.
+,,"Vantilatör : 12000 m3/h; Hextst : 600 Pa, Frekans konvertörlü ( RFI filtreli )"
+,,Üfleme havası üzerindeki ekipmanlar:
+,,"Dış hava damperi, dönüş havası damperi ve karışım hücresi, panel filtre, vantilatör, ön ısıtıcı serpantin, soğutucu serpantin, son ısıtıcı serpantin, susturucu, torba filtre, damperli hava çıkış hücresi."
+,,Panel Filtre : EU-4
+,,Torba Filtre : EU-7
+,,Ön ısıtıcı : 45853 W
+,,Isıtıcı KT giriş/çıkış : 11.4 / 20.9 °C
+,,"Isıtıcı kontrol vanası : 32 mm, Isıtıcı boru bağlantı çapı : 40 mm."
+,,Son ısıtıcı : 15886 W
+,,Isıtıcı KT giriş/çıkış : 12.0 / 15.3 °C
+,,"Isıtıcı kontrol vanası : 20 mm, Isıtıcı boru bağlantı çapı : 32 mm."
+,,Soğutucu : 114849 W
+,,"Soğutucu KT giriş/çıkış : 28.1 / 12.0 °C, i giriş/çıkış : 13.96 / 8.00 kcal/kg"
+,,"Soğutucu kontrol vanası : 65 mm, Soğutucu boru bağlantı çapı : 80 mm."
+,,Serpantinlerin geçiş hızı : 2.5 m/sn maksimum.
+,,Gidiş Susturucusu : Santral içine entegre
+,,"Susturucu net boyu : 100 cm., susturucu kesit alanı = santral kesit alanı, serbest kesit %50"
+
+,B-EF-02.01,MECLİS SALONU EGZOZ ASPİRATÖRÜ ( B-AHU-02'YE DAHİLDİR )
+,,"Aspiratör : 12000 m3/h; Hextst : 600 Pa, Frekans konvertörlü ( RFI filtreli )"
+,,Emiş havası üzerindeki ekipmanlar:
+,,"Damperli emiş hücresi, susturucu, panel filtre, aspiratör, karışım hücresi ve damperi, damperli hava çıkış hücresi"
+,,Panel Filtre : EU-4
+,,Emiş Susturucusu : Aspiratöre entegre.
+,,"Susturucu net boyu : 100 cm., susturucu kesit alanı = aspiratör kesit alanı, serbest kesit %50"
+
+,B-AHU-03,BELEDİYE PRİMER HAVA SANTRALI,"Alarko-Carrier, Eneko, Doğu İklimlendirme, Form.",,1,Ad.
+,,Cihaz çift katlıdır ve konfigürasyonu aşağıda belirtildiği şekilde olacaktır.
+,,Dış hava şartlarında çalışmaya uygun olacaktır.
+,,"Vantilatör : 20800 m3/h; Hextst : 600 Pa, Frekans konvertörlü ( RFI filtreli )"
+,,Üfleme havası üzerindeki ekipmanlar:
+,,"Damperli dış hava emiş hücresi, panel filtre, vantilatör, tamburlu ısı geri kazanım hücresi, ön ısıtıcı serpantin, soğutucu serpantin, son ısıtıcı serpantin, susturucu, torba filtre, damperli hava çıkış hücresi."
+,,Panel Filtre : EU-4
+,,Torba Filtre : EU-7
+,,Ön ısıtıcı : 124328 W
+,,Isıtıcı KT giriş/çıkış : -3.0 / 11.9 °C
+,,"Isıtıcı kontrol vanası : 40 mm, Isıtıcı boru bağlantı çapı : 65 mm."
+,,Son ısıtıcı : 84276 W
+,,Isıtıcı KT giriş/çıkış : 13.9 / 24.0 °C
+,,"Isıtıcı kontrol vanası : 40 mm, Isıtıcı boru bağlantı çapı : 50 mm."
+,,Soğutucu : 307066 W
+,,"Soğutucu KT giriş/çıkış : 35.0 / 13.9 °C, i giriş/çıkış : 18.17 / 8.97 kcal/kg"
+,,"Soğutucu kontrol vanası : 125 mm, Soğutucu boru bağlantı çapı : 125 mm."
+,,Serpantinlerin geçiş hızı : 2.5 m/sn maksimum.
+,,Gidiş Susturucusu : Santral içine entegre
+,,"Susturucu net boyu : 100 cm., susturucu kesit alanı = santral kesit alanı, serbest kesit %50"
+,,Isı geri kazanım sistemi (ISGK) : Entalpi tipi tamburlu
+,,20 °C sıcaklıktaki egzoz havası ile -3 °C sıcaklıktaki dış havayı en az %70 verimle (eşit debide)
+,,"ısıtma kapasiteli olacaktır. Tambur hareketi, hız kontrollü (değişken hızlı) bir motor ile temin "
+,,edilecektir. 
+,,*Klima santralinin hiçbir bölümünde ( ısı geri kazanım bölümü dahil ) üfleme havasına egzoz havasının karışması söz konusu olmayacaktır. Sızdırmazlık imalatçı tarafından garanti edilecek ve belgelendirilecektir.
+
+,B-EF-03.01,BELEDİYE EGZOZ ASPİRATÖRÜ ( B-AHU-03'E DAHİLDİR )
+,,"Aspiratör : 13650 m3/h; Hextst : 600 Pa, Frekans konvertörlü ( RFI filtreli )"
+,,Emiş havası üzerindeki ekipmanlar:
+,,"Damperli emiş hücresi, susturucu, panel filtre, tamburlu ısı geri kazanım hücresi, aspiratör, damperli hava çıkış hücresi."
+,,Panel Filtre : EU-4
+,,Emiş Susturucusu : Aspiratöre entegre.
+,,"Susturucu net boyu : 100 cm., susturucu kesit alanı = aspiratör kesit alanı, serbest kesit %50"
+
+,,MENFEZLER 
+,,"(HAVA ÜFLEME VE EMME  TERMİNAL ÜNİTELERİ)  (Menfez,anemostat, difüzör v.s.)"
+
+,,PROJEMİZDEKİ NORMAL HAVALANDIRMA MENFEZLERİ ÇEŞİTLERİ ŞUNLARDIR:
+,,Dört Yönlü Eğrisel Kanatlı Menfezler (Kare Anemostatlar) (Alüminyum)
+,,Gemici Anemostatı (Alüminyum)
+,,Lineer Menfezler (Alüminyum)
+,,Slot Difüzör (Alüminyum)
+
+,,HAVALANDIRMA MENFEZLERİ
+,,Kullanılan Kısaltmalar
+,,…-VA = Verici Kare Anemostat (Üfleme Havası Transferinde)  
+,,…-EA = Emici Kare Anemostat (Egzoz Havası Transferinde)  
+,,…-GA = Emici Gemici Anemostatı (Egzoz Havası Transferinde)  
+,,…-LG-E... = Emici Lineer Menfez (Egzoz Havası Transferinde) 
+,,…-LG-FC-E... = Emici Lineer Menfez (Fancoil Emiş Havası Transferinde) 
+,,…-SD-V-... = Verici Slot Difüzör (Üfleme Havası Transferinde)
+,,…-SD-FC-V-... = Verici Slot Difüzör (Fancoil Üfleme Havası Transferinde)
+
+,,VERİCİ DÖRT YÖNLÜ EĞRİSEL KANATLI MENFEZ
+,,(KARE ANEMOSTAT) (Alüminyum)
+,,Kodları 100-VA şeklindedir.
+,,100 = m3/h olarak hava debisi
+,,VA = Verici Kare Anemostat (Üfleme Havası Transferinde)  
+,,Kare anemostat aksi belirtilmedikçe zıt kanatlı damperlidir.
+,,"Menfez, plenum kutusu ve flexible kanallar kullanılarak monte edilecektir."
+,,"Mimarın istediği renkte fırın boyalı veya eloksallı, vidalı montajlı tip olacaktır."
+
+,200-VA,"Verici Dört Yönlü Eğrisel Kanatlı Menfez, Boğaz Ölçüsü 22.5x22.5 cm ","Fita Teknik (Tip CG), Doğu İklimlendirme, BSK.",,2,Ad.
+,650-VA,"Verici Dört Yönlü Eğrisel Kanatlı Menfez, Boğaz Ölçüsü 37.5x37.5 cm ","Fita Teknik (Tip CG), Doğu İklimlendirme, BSK.",,2,Ad.
+,800-VA,"Verici Dört Yönlü Eğrisel Kanatlı Menfez, Boğaz Ölçüsü 40.0x40.0 cm ","Fita Teknik (Tip CG), Doğu İklimlendirme, BSK.",,3,Ad.
+,850-VA,"Verici Dört Yönlü Eğrisel Kanatlı Menfez, Boğaz Ölçüsü 40.0x40.0 cm ","Fita Teknik (Tip CG), Doğu İklimlendirme, BSK.",,1,Ad.
+,1000-VA,"Verici Dört Yönlü Eğrisel Kanatlı Menfez, Boğaz Ölçüsü 45.0x45.0 cm ","Fita Teknik (Tip CG), Doğu İklimlendirme, BSK.",,2,Ad.
+
+,,EMİCİ DÖRT YÖNLÜ EĞRİSEL KANATLI MENFEZ
+,,(KARE ANEMOSTAT) (Alüminyum)
+,,Kodları 100-EA şeklindedir.
+,,100 = m3/h olarak hava debisi
+,,EA = Emici Kare Anemostat (Egzoz Havası Transferinde)  
+,,Kare anemostat aksi belirtilmedikçe zıt kanatlı damperlidir.
+,,"Menfez, plenum kutusu ve flexible kanallar kullanılarak monte edilecektir."
+,,"Mimarın istediği renkte fırın boyalı veya eloksallı, vidalı montajlı tip olacaktır."
+
+,50-EA,"Emici Dört Yönlü Eğrisel Kanatlı Menfez, Boğaz Ölçüsü 15.0x15.0 cm ","Fita Teknik (Tip CG), Doğu İklimlendirme, BSK.",,2,Ad.
+,100-EA,"Emici Dört Yönlü Eğrisel Kanatlı Menfez, Boğaz Ölçüsü 15.0x15.0 cm ","Fita Teknik (Tip CG), Doğu İklimlendirme, BSK.",,2,Ad.
+,200-EA,"Emici Dört Yönlü Eğrisel Kanatlı Menfez, Boğaz Ölçüsü 22.5x22.5 cm ","Fita Teknik (Tip CG), Doğu İklimlendirme, BSK.",,2,Ad.
+,300-EA,"Emici Dört Yönlü Eğrisel Kanatlı Menfez, Boğaz Ölçüsü 22.5x22.5 cm ","Fita Teknik (Tip CG), Doğu İklimlendirme, BSK.",,1,Ad.
+
+,,EMİCİ GEMİCİ ANEMOSTATI (Alüminyum)
+,,Kodları 100-GA şeklindedir.
+,,100 = m3/h olarak hava debisi
+,,GA = Emici Gemici Anemostatı (Egzoz Havası Transferinde)  
+,,Gemici anemostatı aksi belirtilmedikçe dampersizdir.
+,,Flexible kanallar kullanılarak monte edilecektir.
+,,"Mimarın istediği renkte fırın boyalı veya eloksallı, vidalı montajlı tip olacaktır."
+
+,100-GA,"Emici Gemici Anemostatı, Boğaz Çapı 12 cm ","Fita Teknik (Tip DV), Doğu İklimlendirme, BSK.",,19,Ad.
+,125-GA,"Emici Gemici Anemostatı, Boğaz Çapı 12 cm ","Fita Teknik (Tip DV), Doğu İklimlendirme, BSK.",,4,Ad.
+,150-GA,"Emici Gemici Anemostatı, Boğaz Çapı 12 cm ","Fita Teknik (Tip DV), Doğu İklimlendirme, BSK.",,32,Ad.
+,350-GA,"Emici Gemici Anemostatı, Boğaz Çapı 16 cm ","Fita Teknik (Tip DV), Doğu İklimlendirme, BSK.",,1,Ad.
+
+,,EMİCİ LİNEER MENFEZ (Alüminyum) 
+,,Kodları 100-LG-E 1100x100 şeklindedir.
+,,100 = m3/h olarak hava debisi
+,,LG-E = Emici Lineer Menfez (Egzoz Havası Transferinde) 
+,,1100x100 = mm olarak menfez net kesit ölçüleri (çerçeve hariç)
+,,Tek sıra kanatlı menfez aksi belirtilmedikçe zıt kanatlı damperlidir.
+,,"Menfez, plenum kutusu ve flexible kanallar kullanılarak monte edilecektir."
+,,"Mimarın istediği renkte fırın boyalı veya eloksallı, vidalı montajlı tip olacaktır."
+
+,"50-LG-E
+250x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x25 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,5,Ad.
+,"100-LG-E
+300x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x30 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,51,Ad.
+,"150-LG-E
+400x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x40 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,7,Ad.
+,"200-LG-E
+600x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x60 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,15,Ad.
+,"250-LG-E
+700x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x70 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,2,Ad.
+,"300-LG-E
+800x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x80 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,9,Ad.
+,"350-LG-E
+1000x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x100 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,1,Ad.
+,"400-LG-E
+1100x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x110 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,1,Ad.
+,"500-LG-E
+800x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x80 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,1,Ad.
+
+,,EMİCİ LİNEER MENFEZ (Alüminyum) 
+,,Kodları 100-LG-FC-E 1100x100 şeklindedir.
+,,100 = m3/h olarak hava debisi
+,,LG-FC-E = Emici Lineer Menfez (Fancoil Emiş Havası Transferinde)
+,,1100x100 = mm olarak menfez net kesit ölçüleri (çerçeve hariç)
+,,Tek sıra kanatlı menfez aksi belirtilmedikçe dampersizdir.
+,,Fancoil dönüş havası emişi için asma tavana monte edilen dampersiz menfezlerde plenum kutusu
+,,ve flexible kanal kullanılmayacaktır.
+,,"Mimarın istediği renkte fırın boyalı veya eloksallı, vidalı montajlı tip olacaktır."
+
+,"340-LG-FC-E
+900x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x90 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,37,Ad.
+,"440-LG-FC-E
+1200x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x120 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,26,Ad.
+,"465-LG-FC-E
+1400x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x140 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,63,Ad.
+,"630-LG-FC-E
+1800x150","Emici Lineer Menfez, Net Kesit (çerçeve hariç) 15x180 cm ","Fita Teknik (Tip LG), Doğu İklimlendirme, BSK.",,46,Ad.
+
+,,VERİCİ SLOT DİFÜZÖR (Aluminium) 
+,,Kodları 100-SD-V-4-500 şeklindedir.
+,,100 = m3/h olarak hava debisi
+,,SD-V = Verici Slot Difüzör (Üfleme Havası Transferinde)
+,,4 = Slot adedi
+,,500 = mm olarak difüzör uzunluğu (çerçeve hariç)
+,,Slot difüzör aksi belirtilmedikçe kelebek tipi damperlidir.
+,,"Difüzör, plenum kutusu ve flexible kanallar kullanılarak monte edilecektir."
+,,"Mimarın istediği renkte fırın boyalı veya eloksallı, vidalı montajlı tip olacaktır."
+
+,"50-SD-V-4
+500","Verici Slot Difüzör, 4 Slot, Toplam Slot Uzunluğu 50 cm","Step (LTG, Tip LDB 20/8).",,4,Ad.
+,"100-SD-V-4
+500","Verici Slot Difüzör, 4 Slot, Toplam Slot Uzunluğu 50 cm","Step (LTG, Tip LDB 20/8).",,60,Ad.
+,"150-SD-V-4
+500","Verici Slot Difüzör, 4 Slot, Toplam Slot Uzunluğu 50 cm","Step (LTG, Tip LDB 20/8).",,16,Ad.
+,"200-SD-V-4
+750","Verici Slot Difüzör, 4 Slot, Toplam Slot Uzunluğu 75 cm","Step (LTG, Tip LDB 20/8).",,18,Ad.
+,"250-SD-V-4
+1000","Verici Slot Difüzör, 4 Slot, Toplam Slot Uzunluğu 100 cm","Step (LTG, Tip LDB 20/8).",,4,Ad.
+,"300-SD-V-4
+1000","Verici Slot Difüzör, 4 Slot, Toplam Slot Uzunluğu 100 cm","Step (LTG, Tip LDB 20/8).",,3,Ad.
+,"350-SD-V-4
+1250","Verici Slot Difüzör, 4 Slot, Toplam Slot Uzunluğu 125 cm","Step (LTG, Tip LDB 20/8).",,1,Ad.
+
+,,VERİCİ SLOT DİFÜZÖR (Aluminium) 
+,,Kodları 100-SD-FC-V-4-500 şeklindedir.
+,,100 = m3/h olarak hava debisi
+,,SD-FC-V = Verici Slot Difüzör (Fancoil Üfleme Havası Transferinde)
+,,4 = Slot adedi
+,,500 = mm olarak difüzör uzunluğu (çerçeve hariç)
+,,Slot difüzör aksi belirtilmedikçe dampersizdir.
+,,"Difüzör, plenum kutusu ve flexible kanallar kullanılarak monte edilecektir."
+,,"Mimarın istediği renkte fırın boyalı veya eloksallı, vidalı montajlı tip olacaktır."
+
+,"315-SD-FC-V-4
+1250","Verici Slot Difüzör, 4 Slot, Toplam Slot Uzunluğu 125 cm","Step (LTG, Tip LDB 20/8).",,84,Ad.
+,"340-SD-FC-V-4
+1250","Verici Slot Difüzör, 4 Slot, Toplam Slot Uzunluğu 125 cm","Step (LTG, Tip LDB 20/8).",,37,Ad.
+,"440-SD-FC-V-4
+1500","Verici Slot Difüzör, 4 Slot, Toplam Slot Uzunluğu 150 cm","Step (LTG, Tip LDB 20/8).",,26,Ad.
+,"465-SD-FC-V-4
+1500","Verici Slot Difüzör, 4 Slot, Toplam Slot Uzunluğu 150 cm","Step (LTG, Tip LDB 20/8).",,70,Ad.
+
+,,MENFEZ BAĞLANTISI YAPILMASI  HAKKINDA 
+
+,,MENFEZ BAĞLANTILARINDA PLENUM KUTU KULLANILMASI 
+,,Standart menfez bağlantılarında yüksek basınç kaybı sebebi ile plenum kutusundan kaçınılacaktır.
+,,Dikdörtgen plenum kutusu yerine kanalcı imalatı uygun formda kesik koni veya kesik piramit 
+,,şeklinde tranformasyon parçası  tipinde kutular kullanılabilir.
+,,Özel tip menfezlerde imalatcı tavsiyesi ile plenum box kullanılabilir.
+
+,,MENFEZ BAĞLANTISI VE FLEXIBL BAĞLANTILAR 
+,,Asma tavanda bulunan menfezlerin kanal bağlantılarında kasınıtı ve tavan deformasyonunu önlemek
+,,üzere menfezlere flexible bağlantı yapılacaktır. Flexible bağlantı için branda ve özel imalat flexible
+,,bağlantı elemanları veya flexible kanallar kullanılabilir.
+
+,,MENFEZ DAMPERLERİ HAKKINDA 
+,,Damperli menfezlerin damperleri aksi belirtilmedikçe zıt kanatlı olacaktır.
+
+,,HAVA YÖNETİM ELEMANLARI 
+,,Genel not:
+,,Hava dağılımını damperlere güvenerek dengelemek yerine  öncelikle  kanal tesisatını 
+,,dikkatli düzenlemek ve tüm menfezlerde hidrolik açıdan eşitlik sağlamak önemlidir.
+,,"Doğal avantaja sahip, vantilatöre yakın ve az dirsekle ulaşılan menfezlerin devrelerinde ilave"
+,,dirsekler konacak ve hidrolik denge sağlanacaktır.
+,,Damperler genel
+,,"Damperler motorlu, motorsuz, dişli çarklı veya çubuklu, çelik veya paslanmaz çelik, kanatlarının"
+,,"hareketi birbirine zıt veya paralel, yuvarlak, dikdörtgen şekilli, kapandığı zaman tam sızdırmaz, "
+,,"az sızdırır veya çok sızdırır, sadece açma kapama, sadece ayar v.b. olacaktır."
+
+,,GALVANİZ SACDAN HAVA KANALI ( DİKDÖRTGEN )
+,,Keskin dönüşlerde dirsek parçalarına içten eğrisel kanatlar konması menfezlere ve apareylere 
+,,"bağlantılarda bezli bağlantı parçaları konulması, her türlü birleştirme ve bağlama malzemesi "
+,,dahil imal ve montajı 499 mm.den fazla genişlikteki kanallarda askı ve bağlama için uygun ölçüde
+,,köşebentler kullanılacaktır.
+,,Prefabrik vidalı askı çubukları ( Link veya eşdeğeri ) ile tavan veya duvara tesbit edilecektir ve bunlar için bir bedel ödenmeyecektir.
+,,Her türlü montaj detayı DW/144 e uygun olacaktır.
+,,Kanal konsolları :
+,,Hava kanalı taşıyıcı konsol aralıkları SMACNA şartnamesine göre yapılacaktır.
+,,Hava Kanalları Levha kaplama miktarı ( ağırlık ): 
+,,Hava kanalı yapılacak saçta aranacak kaplama kalitesi :
+,,BS EN 10142 ye uygun şekilde kaplama notasyonu çinko kaplama (Z) Z275 ve üç nokta testine 
+,,göre minimum kaplama miktarı (her iki yüz dahil) 275 g/m2 olacaktır.
+,,Levha kalınlıkları :
+,,TS.822 ve uygun galvaniz saç
+,,"En genis kenari 600 mm ye kadar 0.6 mm, mez veya link flanşlı","BSK, Isıdem, Mertes.",,1882,m2
+,,"Geniş kenarı 1249 mm.'ye kadar olanlarda 0.80 mm, mez veya link flanşlı","BSK, Isıdem, Mertes.",,383,m2
+,,"Geniş kenarı 2490 mm.'ye kadar olanlarda 1.00 mm, mez veya link flanşlı","BSK, Isıdem, Mertes.",,223,m2
+,,"Geniş kenarı 2490 mm.'den büyük olanlarda 1.20 mm, mez veya link flanşlı","BSK, Isıdem, Mertes.",,-,m2
+
+,,FANCOIL - HAVA KANALI BAĞLANTISI
+,,Fancoil üfleme ağzı ile üfleme kanalı bağlantısında 10 cm genişlikte branda kullanılacaktır.
+,,Kanal ölçüleri yaklaşık olarak verilmiştir.Fancoil markası netleştikten sonra kesin ölçüler şantiyede
+,,belirlenecektir.
+
+,,90x15 cm kanalın branda ile bağlanması,,,109,Ad.
+,,110x15 cm kanalın branda ile bağlanması,,,72,Ad.
+
+,,PLENUM KUTULARI
+,,Plenum kutuları asma tavan bulunan mahallerdeki menfezlerin bağlantılarında kullanılmaktadır.
+,,Verici ve emici devrelerdeki plenum kutuları ( Münferit WC egzoz fanlarına bağlı olanlar hariç )
+,,minimum 25 mm kalınlıktaki bir yüzü alü. folyo kaplı elastomerik kauçuk esaslı levha ile izole
+,,edilecektir.
+
+,,Plenum kutusu ölçüleri projeden tespit edilecektir.
+,,"Plenum kutusu ( çeşitli ölçülerde ), ısıl izoleli","Fita Teknik, Doğu İklimlendirme, BSK.",,432,Ad.
+,,Plenum kutusu ( çeşitli ölçülerde ),"Fita Teknik, Doğu İklimlendirme, BSK.",,-,Ad.
+
+,,FLEXIBLE  KANALLAR 
+,,Flexible kanallar menfez bağlantılarında kullanılmaktadır.
+,,Verici ve emici devrelerdeki ( Münferit WC egzoz fanlarına bağlı olanlar hariç ) flexible kanallar ısıl
+,,izoleli olacaktır. 
+
+,,FLEXIBLE YUVARLAK KANAL   
+,,Münferit WC egzoz fanlarına bağlı emici devrelerdeki kanallara bağlanan flexible kanallar ısıl izoleli 
+,,olmayacaktır. 
+,,"Düşük ve orta basınçlı ısıtma, soğutma, havalandırma ve iklimlendirme sistemleri için özel olarak"
+,,"dizayn edilmiş, iç yüzeyini kaplayan gümüş içerikli nano polymer kapsüller sayesinde sürekli "
+,,"hijyenik ( antimikrobiyal, antibakteriyal ve antimantar ) özellikte olan çok amaçlı flexible hava "
+,,kanallarıdır. Alüminyum malzemenin yüksek gerilimli helezon çelik tel ile takviyesiyle üretilmiştir. 
+,,"Herhangi bir yangın esnasında zehirli gaz çıkaracak zararlı madde içermez, taşıdığı havadaki"
+,,mikropları yok eder.
+,,Konstrüksiyon : Alüminyum 
+,,Cidar / kalınlık : Alüminyum / 74 mikron
+,,İzolasyon : -
+,,Yanmazlık sınıfı : B1 ( DIN 4102'ye göre )
+,,Sıcaklık dayanımı : -30 / +150 °C 
+,,Çalışma basıncı : 3000 Pa ( maksimum )
+,,"Hava hızı : 30 m/s ( maksimum ) 
+"
+
+,,Çap: 152 mm,"AFS, Duct, Oneflex.",,57,m
+,,Çap: 200 mm,"AFS, Duct, Oneflex.",,1,m
+
+,,FLEXIBLE ISIL İZOLELİ YUVARLAK KANAL   
+,,Verici ve emici devrelerdeki ( Münferit WC egzoz fanlarına bağlı olanlar hariç ) flexible kanallar ısıl
+,,izoleli olacaktır. 
+,,"Düşük ve orta basınçlı ısıtma, soğutma, havalandırma ve iklimlendirme sistemleri için özel olarak"
+,,"dizayn edilmiş, iç yüzeyini kaplayan gümüş içerikli nano polymer kapsüller sayesinde sürekli"
+,,"hijyenik ( antimikrobiyal, antibakteriyal ve antimantar ) özellikte olan çok amaçlı ısı izoleli flexible"
+,,hava kanallarıdır. Çok katlı laminasyonlu alüminyum malzemenin yüksek gerilimli helezon çelik tel
+,,"ile takviyesiyle üretilen alüminyum flexible hava kanallarının, cam yünü ile izole edilmesiyle"
+,,üretilmiştir. İzolasyon malzemesinin üzerine alüminyum bir dış ceket ( nem bariyeri ) giydirilmiştir.
+,,"Herhangi bir yangın esnasında zehirli gaz çıkaracak zararlı madde içermez, taşıdığı havadaki "
+,,mikropları yok eder.
+,,Konstrüksiyon : Çok katlı alüminyum + camyünü
+,,İç cidar / kalınlık : Alüminyum / 74 mikron
+,,Dış cidar / kalınlık : Alüminyum / 45 mikron
+,,İzolasyon : 25 mm camyünü ( 16 kg/m3 )
+,,Yanmazlık sınıfı : B1 ( DIN 4102'ye göre )
+,,Sıcaklık dayanımı : -30 / +150 °C
+,,Çalışma basıncı : 3000 Pa ( maksimum )
+,,"Hava hızı : 30 m/s ( maksimum ) 
+"
+
+,,Çap: 112 mm,"AFS, Duct, Oneflex.",,1,m
+,,Çap: 127 mm,"AFS, Duct, Oneflex.",,4,m
+,,Çap: 152 mm,"AFS, Duct, Oneflex.",,160,m
+,,Çap: 200 mm,"AFS, Duct, Oneflex.",,505,m
+
+,,FLEXIBLE  KANAL MONTAJ MALZEMESİ,,,35,%
+
+,,KANAL ISI İZOLESİ
+,,Verici ve emici devrelerdeki kanallar ( Münferit WC egzoz fanlarına bağlı olanlar hariç ) minimum 25 mm kalınlıktaki bir yüzü alü. folyo kaplı elastomerik kauçuk esaslı levha ile izole edilecektir.
+
+,,KANAL ISI İZOLESİ ( DİKDÖRTGEN KANALLAR )
+25.480.1800,,Toplam kalınlığı 50 ile 100 mikron aralığında olan alüminyum folyo film kaplı elastomerik kauçuk esaslı levha ile kanal izolesi
+25.480.1804,,"Plaka tipi, 2.5 cm kalınlıkta, 50 kg/m3 yoğunlukta..","Oneflex, İzocam, Ode.",,2338,m2
+
+,,AÇIK HAVADAN GEÇEN ISIL İZOLELİ KANALLARIN SAÇ KAPLANMASI 
+,,Kanal izolesi üzerine 0.6 mm aluminyum saç kaplanması. ,,,125,m2
+
+,,AKUSTİK KANAL İZOLESİ 
+,,Kanal iç izolesinden en sessiz fanlar seçilerek mümküm olduğunca kaçınılacaktır.
+,,Akustik hesaplar sonucu mecbur kalınması hali için keşfe dahil edilmiştir.
+,,"25 mm kalınlıkta, poliüretan yanmaz akustik köpük levha ile NFAF veya eşdeğeri",,,1,m2
+
+25.472.1000 ,,KONTROL KAPAKLARI.
+,,(Adet olarak ölçülecektir.)
+,,"Çift cidarlı, 2.5 cm plaka tipi 50'lik cam yünü dolgulu."
+,,20x10 cm.,"Fita Teknik (Tip AP), Doğu İklimlendirme, BSK.",,229,Ad.
+,,20x15 cm.,"Fita Teknik (Tip AP), Doğu İklimlendirme, BSK.",,30,Ad.
+,,30x20 cm.,"Fita Teknik (Tip AP), Doğu İklimlendirme, BSK.",,28,Ad.
+
+25.472.1400 ,,HAVA DAMPERLERİ ( DİKDÖRTGEN KANALLAR İÇİN )
+,,Volum Damperleri (Adet olarak ölçülecektir.)
+,,Volum damperleri
+,,15x15 cm,"Fita Teknik (Tip VCD), Doğu İklimlendirme, BSK.",,229,Ad.
+,,20x15 cm,"Fita Teknik (Tip VCD), Doğu İklimlendirme, BSK.",,3,Ad.
+,,20x20 cm,"Fita Teknik (Tip VCD), Doğu İklimlendirme, BSK.",,27,Ad.
+,,25x20 cm,"Fita Teknik (Tip VCD), Doğu İklimlendirme, BSK.",,1,Ad.
+,,25x25 cm,"Fita Teknik (Tip VCD), Doğu İklimlendirme, BSK.",,6,Ad.
+,,30x25 cm,"Fita Teknik (Tip VCD), Doğu İklimlendirme, BSK.",,3,Ad.
+
+25.475.8300,,BACK DRAFT DAMPER ( DİKDÖRTGEN KANALLAR İÇİN )
+25.475.8301,,Galvanizli sacdan mamul
+,,120x50 cm,"Fita Teknik, Doğu İklimlendirme, BSK.",,3,Ad.
+
+,,YANGIN DAMPERLERİ
+,,"Yangın damperleri, havalandırma sistemin bir bölümünde yangın çıkması durumunda diğer bölümlerini alevden, dumandan ve ısıdan (EIS) izole etmek amacıyla kullanılacak, hava akış yönünde veya zıt yönünde, dikey ya da yatay monte edilebilecektir."
+,,"Yangın damperi içindeki hava sıcaklığı ergiyen sigorta mekanizmasının set değerine geldiğinde, ergiyen sigorta mekanizması atacak ve bu mekanizmaya bağlı olan yangın damperinin klapesi otomatik olarak kapanacaktır."
+,,Yangın damperleri için istenilen ortak özellikler aşağıdaki gibi olacaktır.
+,,"- Yangın damperleri; EN 1366-2 standartına göre test edilecek ve EN 13501-3 standardında belirtilen kriterlere göre EI 120 (ve, ho ; i <-> o) S “sınıflandırma sertifikası”na sahip olacaktır."
+,,"EN 13501-3 standardında tanımlanan sınıflandırmalar aşağıdaki şekildedir,"
+,,"• E : Integrity (Bütünlük); Yangın damperi üzerinde bulunduğu yapı elemanının (yangın duvarı vb) bir parçasıdır. Yangın esnasında yapı elemanından beklenen yangın dayanımı, yangın damperinden de beklenir. Yangın damperi üzerinde bulunduğu yapı elamanının bütünlüğünü korumalıdır, alevi geçirmemelidir."
+,,"• I : Insulation (Yalıtım); Yangın damperi, klapenin yangına maruz kalmayan tarafındaki sıcaklık artışını belli limitlerde tutmalıdır. EN 1366-2 standardında sıcaklık artışı için belirtilen maksimum değer; farklı noktalar için 140 - 180 °C arasında değişmektedir."
+,,• S: Smoke Leakage (Duman Kaçağı); Yangın damperinin klapesi kapalı durumdayken duman sızıntısı standartlarda belirtilen limitleri aşmamalıdır. EN 1366-2 standardında duman sızıntısı için belirtilen maksimum değer; -300 Pa basınç altında 200m³/(h.m²) dir.
+,,"- Damperler “EN 15650 BİNALARDA HAVALANDIRMA- YANGIN DAMPERLERİ” standartında belirtilen  ""CE""  etiketine sahip olacaktır."
+,,"- Üretici firma, yapı elemanları yönetmeliği (CPR Chapter 2, Article 4) gereği    etikenine ek olarak DoP belgesi (Performans Beyan Belgesi) sunacaktır. "
+,,"- Üretici firma performans beyan belgesi içeriğinde test edilen damperin en küçük ve en büyük boyutlararnı,  hangi montaj konumlarında ve hangi yapı elamanları üzerinde test edildiğini sunacaktır."
+,,- Üretici firma seltifikasında beyan ettiği en büyük damper boyutundan daha büyük bir ihtiyaç olması durumunda birden fazla damper ile işletme ve montaj kılavuzuna uygun çözüm sunacaktır.
+,,- Cihaz kasası ve tüm bağlantıları galvaniz çelik saçtan imal edilecektir. Damper klapesi yangın kompartımanları arasında ısı geçişini engellemek için özel izolasyon malzemesinden imal edilecektir.
+,,- Yangın damperleri flanşlı montaja uygun olacaktır.
+,,"- Damperler üzerinde bulunan izleme switchleri ile damper açık ve kapalı pozisyonları ""Yangın Algılama Sistemi"" vasıtasıyla izlenecektir."
+,,- Kullanılan yangın damperi EN 12097 ye göre rutin bakıma uygun olacak şekilde montajı yapılacaktır. 
+,,"- Üretici firma yapı elemanları yönetmeliği (CPR Chapter 3, Article 11) gereği işletme ve montaj kılavuzunu sunacaktır. "
+,,- Ergiyen sigortanın 72°C ya da 95 °C’de aktive olan alternatifleri olacaktır.
+,,25x20 cm,"Trox, RFT, Schako, Gryfit.",,1,Ad.
+,,30x25 cm,"Trox, RFT, Schako, Gryfit.",,2,Ad.
+,,30x30 cm,"Trox, RFT, Schako, Gryfit.",,1,Ad.
+,,35x20 cm,"Trox, RFT, Schako, Gryfit.",,1,Ad.
+,,40x35 cm,"Trox, RFT, Schako, Gryfit.",,1,Ad.
+,,40x30 cm,"Trox, RFT, Schako, Gryfit.",,1,Ad.
+,,40x40 cm,"Trox, RFT, Schako, Gryfit.",,1,Ad.
+,,45x30 cm,"Trox, RFT, Schako, Gryfit.",,1,Ad.
+,,50x50 cm,"Trox, RFT, Schako, Gryfit.",,1,Ad.
+,,50x25 cm,"Trox, RFT, Schako, Gryfit.",,2,Ad.
+,,55x50 cm,"Trox, RFT, Schako, Gryfit.",,1,Ad.
+,,70x60 cm,"Trox, RFT, Schako, Gryfit.",,1,Ad.
+,,70x65 cm,"Trox, RFT, Schako, Gryfit.",,1,Ad.
+
+,,TEST ve DEVREYE ALMA,,,1,Tk.
+
+,,TOPLAM

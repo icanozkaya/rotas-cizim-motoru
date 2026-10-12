@@ -1,0 +1,13 @@
+# 02_Havalandirma_Tesisat_Planlari - lejant 1 (metin-yürüyüş)
+# başlık: ÇİZİM SEMBOLLERİ
+# bölge: [32411, -18057, 34943, -16571]
+ÇİZİM SEMBOLLERİ
+140.00 | 500 | 0.00 | 15.00 | 3D-MN1-2510 | 0.00 | EMİCİ LİNEER MENFEZ | 1 | 0.3
+P1
+0.3
+60 | 13.5 | 13.5 | 7 | 0 | 3D-NZ1-135 | GEMİCİ ANEMOSTATI
+VD | VOLUM DAMPERİ
+YANGIN DAMPERİ
+EMİCİ FLEXIBLE
+Sp1
+TD1

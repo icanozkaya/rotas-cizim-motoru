@@ -1,0 +1,25 @@
+# 05_Temiz_Su_Tesisati_Ana_Bina - DWG içi hesap/not metinleri (anahtar: NOT, HESAP, DEBİ, POMPA, DEPO, m3/h, mSS, bar, kW, l/s)
+
+## Anahtar kelime geçen tekil metinler (22)
+(486638, 56301) h=22.2 [-M-MAHAL-ETIKET-NOT] A.2.3 DEPO
+(519963, 55992) h=20.0 [0-KRCN-SHT-03CIHAZ] Mobil Ultra Saf Su Cihazı (0,06 m³/h)
+(520132, 55970) h=20.0 [0-KRCN-SHT-03CIHAZ] ve Deposu
+(512551, 55540) h=5.0 [0-KRCN-MİMARİ-220526] 500m³/h
+(512549, 55517) h=5.0 [0-KRCN-MİMARİ-220526] 2000m³/h
+(464899, 55208) h=22.2 [-M-MAHAL-ETIKET-NOT] DEPO
+(486988, 55098) h=20.0 [0-KRCN-SHT-YAZI-ÇAP-TEMSU] 2 m3/h KULLANIM NOKTALARINA
+(531299, 52508) h=20.0 [0-MEK-IST-YAZI] 600 Lt.HACİMLİ MİNİMUM SICAK SU ÇIKIŞ DEBİSİ 910 LT BAKIR BORULU TEK SERPANTİNLİ HIZLI BOYLER
+(530398, 52431) h=20.0 [0-MEK-IST-YAZI] KULLANMA SUYU SİRKÜLASYON POMPASI
+(532984, 52428) h=20.0 [0-MEK-IST-YAZI] 2 x 0,2 Kw
+(531299, 52428) h=20.0 [0-MEK-IST-YAZI] 5,0 m³/h - 6,5 mSS FREKANS KONVERTÖRLÜ TEKLİ TİP İNLINE POMPA (1 ADET YEDEK)
+(495192, 52092) h=18.0 [0-KRCN-IST-YAZI] 2 m3/h
+(494977, 51848) h=18.0 [0-KRCN-IST-YAZI] SAF SU DEPOSU
+(531299, 51797) h=20.0 [0-MEK-IST-YAZI] 5,0 m³/h Deiyonize Su FRP Gövdeli, PLC RO Kontrollü (Kuvvetli Anyonik Exchanger Twin Set, Kuvvetli Katyonik Exchanger Twin Set)
+(533034, 51717) h=20.0 [0-MEK-IST-YAZI] 11,0 Kw
+(531299, 51717) h=20.0 [0-MEK-IST-YAZI] Paket Tip İkiz Hidrofor - Debi: 5,0 m³/h Basıncı: 40-60 mSS
+(531299, 51557) h=20.0 [0-MEK-IST-YAZI] 2 m³/h Deiyonize Saf Su Cihazı
+(531299, 51477) h=20.0 [0-MEK-IST-YAZI] 5 m³/h 1200 IODIN Food Grade Aktif Karbon
+(533034, 51397) h=20.0 [0-MEK-IST-YAZI] 2 x 0.1 Kw
+(531299, 51397) h=20.0 [0-MEK-IST-YAZI] 5 m³/h Ultraviyole Dezenfeksiyon Cihazı-100W Mikrokontrollü, Hidrofor Sinyal Otomasyonlu
+(528660, 51397) h=30.0 [0-KRCN-SHT-YAZI] POMPA TEKLİ / FREKANS KONVERTÖRLÜ
+(531299, 51317) h=20.0 [0-MEK-IST-YAZI] 0,06 m³/h Mobil Ultra Saf Su Cihazı -Depo Kapasitesi 150 lt

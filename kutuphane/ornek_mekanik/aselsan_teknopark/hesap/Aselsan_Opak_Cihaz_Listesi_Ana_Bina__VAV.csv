@@ -1,0 +1,14 @@
+﻿
+,VAV CETVELİ
+,NO,ADET,DEBI,,SEÇİM BASINCI,BASINÇ KAYBI,SES SEVİYESİ,ÖLÇÜSÜ,GÜÇ TÜKETİMİ
+,,,Vmin,Vmax
+,,AD.,(m³/h),(m³/h),(Pa),(Pa),(dB),GENxYÜKxUZ(mm),(w)
+,Değişken Debi Ayar Ünitesi (Vav Unitesi) Ø100,8,80,324,150,70,35,Ø200-Ø200-310,"max 2,5"
+,Değişken Debi Ayar Ünitesi (Vav Unitesi) Ø125,4,126,504,150,60,35,Ø220-Ø220-310,"max 2,5"
+,Değişken Debi Ayar Ünitesi (Vav Unitesi) Ø160,16,216,864,150,60,35,Ø262-Ø262-310,"max 2,5"
+,Değişken Debi Ayar Ünitesi (Vav Unitesi) Ø200,11,324,1296,150,60,35,Ø300-Ø300-310,"max 2,5"
+,Değişken Debi Ayar Ünitesi (Vav Unitesi) Ø250,29,522,2088,150,60,35,Ø356-Ø356-400,"max 2,5"
+,Değişken Debi Ayar Ünitesi (Vav Unitesi) Ø315,8,828,3312,150,60,35,Ø418-Ø418-400,"max 3,5"
+,Değişken Debi Ayar Ünitesi (Vav Unitesi) Ø355,1,1044,4176,150,60,35,Ø455-Ø455-400,"max 3,5"
+,Değişken Debi Ayar Ünitesi (Vav Unitesi) Ø400,3,1260,5040,150,60,35,Ø500-Ø500-400,"max 3,5"
+,Değişken Debi Ayar Ünitesi (Vav Unitesi) 650 x 350 mm,1,2500,7500,150,60,35,710-460-400,"max 3,5"

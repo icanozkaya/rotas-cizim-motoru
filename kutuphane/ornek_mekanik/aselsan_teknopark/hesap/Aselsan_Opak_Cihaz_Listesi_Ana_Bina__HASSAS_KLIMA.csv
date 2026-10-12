@@ -1,0 +1,27 @@
+﻿
+
+,HASSAS KLİMA TABLOSU
+,"CİHAZ
+NO",TİPİ,"ORTA DEVİRDE HAVA DEBİSİ
+(m³/h)","TOPLAM SOGUTMA KAPASITESI
+(W)","ELEKTRIK GUCU
+(kW)",VOLT/PH/HZ,"SOĞUK SU REJİMİ
+(°C)","CİHAZ EBATLARI
+ExBxY(mm)",ADET,NOT
+,TİP-1,"Gazlı sistem soğutuculu hot gas re-heat sistemli, elektrikli ısıtıcılı, buharlı nemlendiricili",5500,11900,15,400/3/50,-,-,4,EC FANLI OLACAKTIR
+,TİP-2,"Gazlı sistem soğutuculu hot gas re-heat sistemli, elektrikli ısıtıcılı, buharlı nemlendiricili",5500,18600,18,400/3/50,-,-,9,EC FANLI OLACAKTIR
+,TİP-3,"Gazlı sistem soğutuculu hot gas re-heat sistemli, elektrikli ısıtıcılı, buharlı nemlendiricili",5500,22600,20,400/3/50,-,-,28,EC FANLI OLACAKTIR
+,TİP-4,"Gazlı sistem soğutuculu hot gas re-heat sistemli, elektrikli ısıtıcılı, buharlı nemlendiricili",5500,23300,20,400/3/50,-,-,16,EC FANLI OLACAKTIR
+,"NOTLAR:
+1- BÜTÜN HASSAS KLİMALARDA DRENAJ POMPASI OLACAKTIR.
+2- CİHAZLAR ORTAM SICAKLIĞI 21°C, NEM DEĞERİ 50% ± 2 KARŞILAYACAK ŞEKİLDE SEÇİLECEKTİR"
+
+
+
+
+
+,,KIŞ TÜKETİMİ
+
+,,YAZ TÜKETİMİ
+
+,,YAZ / KIŞ TÜKETİMİ

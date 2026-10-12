@@ -1,0 +1,9 @@
+# 08_XREF_Mimari_Altlik_Ana_Bina - DWG içi hesap/not metinleri (anahtar: NOT, HESAP, DEBİ, POMPA, DEPO, m3/h, mSS, bar, kW, l/s)
+
+## Anahtar kelime geçen tekil metinler (6)
+(498018, 54417) h=5.9 [AS_TEFR_CIHAZ] VERTIV UPS 2000 kVA / kW A 5700 KG 5703 x 1032 x 2008 mm
+(497404, 54074) h=5.9 [AS_TEFR_CIHAZ] VERTIV UPS 2000 kVA / kW B 5700 KG 5703 x 1032 x 2008 mm
+(498026, 53082) h=5.2 [AS_TEFR_CIHAZ] AKÜ KESİCİ PANOSU 2000kVA / kW UPS - A Akü Grubu Kesici Panosu
+(455349, 52112) h=12.0 [AS_YAZI] Not: Cihazlar Taşındıktan Sonra İmalatı Tamamlanacak Duvardır.
+(460036, 46979) h=25.0 [AS_PYZ_BINA] 20 m³ AZOT TANKI
+(461366, 45181) h=10.0 [TF_Cihaz_yazı] WALK IN - 1 (16m3) (TT02165) Model
