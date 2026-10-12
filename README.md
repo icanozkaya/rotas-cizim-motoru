@@ -60,5 +60,12 @@ python3 pdfp.py  /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_ONI
 - Su sayaçları bina girişinde tek yerde; yağmur inişleri hesaplı, plan ve şemada.
 - Excel: örnek yerden ısıtma şablonu formüller bozulmadan, yazdırma alanları ayarlı, mahal m² mimariyle aynı. Şablondaki yabancı logo (dcm makina) hiçbir dosyada kullanılmaz (gexcel.logo_temizle).
 
+## Asansör avan projesi (12.10.2026)
+- Standart, pafta dizilimi, şablon hataları, kontrol listesi: `ornekler/asansor/ASANSOR_STANDARDI.md`
+- Hesap motoru: `motor/asansor/asansor_hesap.py`. MMO avan trafik yöntemi (H ve S formülle hesaplanır, tablolarla doğrulandı), eski TS çapraz kontrolü, kuvvetler, halat, motor gücü, EN 81-20 alan ve imar kontrolleri: `python3 motor/asansor/asansor_hesap.py`
+- Şablon DWG'ler: `ornekler/asansor/sablon/`. Makine daireli, makine dairesiz, kapak antet, eski TS trafik hesabı, MMO avan tabloları ve EN81-20 uygulama hesabı (xz). Örneklerin metin dökümleri `metin/`, önizlemeler `onizleme/` klasöründe.
+- Asansör tipini (makine daireli / dairesiz) kullanıcı söyler. Şablondaki hesap sayıları kopyadır; her projede yeniden hesaplanır.
+- Tesisat: asansör kuyusu ve makine dairesinden boru geçmez. Kuyu dibine pis su bağlantısı yapılmaz. Altyapı hatları ve rögarlar kuyu dibi altından ve kapı önünden geçmez. Asansör ısıtılmaz.
+
 ## AutoCAD içi araçlar
 `araclar/autocad_lisp/BENIOKU.md`: `BPDF` (tüm paftaları `ROTAS_PAFTA` bloğuyla toplu PDF), `TOTLEN`, `TAGDEVICES`, `SPRINKLERLAYOUT`. Motor DWG'lerinde MTY blokları gerçek blok + öznitelik olarak gelir.

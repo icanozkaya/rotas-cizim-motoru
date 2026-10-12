@@ -1,0 +1,466 @@
+# /home/claude/asn_dxf/ASANS#U00d6R__AYKUT SABAN 5562 PARSEL M#U0130MAR#U0130.dxf
+# enc utf-8  ents 31719 flat 113827 blocks 3176
+# LAYERS: TEFRİŞ:56314, PENCERE:17168, rtm-mhl-yazı-malzeme:12845, rtm-kapı-ahsap:8128, KABİN:4489, DUVAR:3171, ANTET:2774, TARAMA:2211, MERDIVEN:2034, KOLON:1314, AKS:1194, KİRİŞ:508, ÖLÇÜ İÇ:432, SIVA:268, ÖLÇÜ DIŞ:227, KİREMİT:202, KOT:181, 0:138, A-YAZI:84, YAZI:66, NKOT:42, YANGIN KAÇIŞ:24, PARSEL_NO:8, kaçış:5
+# TOP INSERTS: kot:557, XVC:120, DFGDFGDF:90, 90 KAPII:80, 80 KAPII:50, KLOZET:50, LAVABO:40, 100 lük:18, OCAK:16, teka-evye:16, TEKA-BZD:16, OIKLJUYHYGHFT:10, XFGBB:4, GFDHFGHHH:4, fddfg:3, DFGGH:3, DFGDSFG:3, FFGH:3, FDGH:3, ASANSÖRKAİDE:2, FDGGG:2, DSFGGG:2, KJHG:2
+37865,3038 h36.4 [ANTET] SNZ GRUP
+36907,3000 h6.2 [PENCERE] +13.20
+36915,3010 h6.2 [PENCERE] +13.70
+36920,3015 h6.2 [PENCERE] +14.00
+37617,3018 h6.7 [ANTET] MİMARLIK-İNŞAAT-TAAHHÜT-TEKSTİL-GIDA
+37662,3005 h6.7 [ANTET] SANAYİ TİCARET LTD. ŞTİ.
+33883,2933 h40.0 [rtm-mhl-yazı-malzeme] SAYIN AYKUT SABAN VE HİSS. 'NA AİT KONUT+İŞYERİ PROJESİ
+36848,2929 h6.2 [PENCERE] +9.50
+36853,2941 h6.2 [PENCERE] +10.00
+36868,2958 h6.2 [PENCERE] +10.90
+36956,2948 h6.2 [PENCERE] L
+49873,2965 h25.0 [AKS] A
+50353,2965 h25.0 [AKS] B
+50483,2965 h25.0 [AKS] C
+50638,2965 h25.0 [AKS] D
+51083,2965 h25.0 [AKS] E
+51233,2965 h25.0 [AKS] F
+51383,2965 h25.0 [AKS] G
+51834,2965 h25.0 [AKS] H
+51983,2965 h25.0 [AKS] I
+52113,2965 h25.0 [AKS] J
+52593,2965 h25.0 [AKS] K
+36805,2883 h6.2 [PENCERE] +7.00
+36755,2828 h6.2 [PENCERE] +4.00
+36797,2874 h6.2 [PENCERE] +6.50
+36928,2848 h2.2 [PENCERE] 25.50 m²
+36929,2851 h3.4 [PENCERE] SALON
+36948,2827 h3.1 [PENCERE] +9.20
+33898,2823 h17.9 [rtm-mhl-yazı-malzeme] İLİ
+33898,2791 h17.9 [rtm-mhl-yazı-malzeme] İLÇESİ
+34074,2823 h17.9 [rtm-mhl-yazı-malzeme] :SAKARYA
+34074,2791 h17.9 [rtm-mhl-yazı-malzeme] :SERDİVAN
+36746,2818 h6.2 [PENCERE] +3.50
+37004,2783 h3.4 [PENCERE] OTURMA ODASI
+33898,2761 h17.9 [rtm-mhl-yazı-malzeme] BELEDİYE
+33898,2732 h17.9 [rtm-mhl-yazı-malzeme] MAHALLE
+34074,2732 h17.9 [rtm-mhl-yazı-malzeme] :VATAN
+36668,2730 h6.2 [PENCERE] -1.20
+36673,2736 h6.2 [PENCERE] -0.90
+36691,2750 h6.2 [PENCERE] 0.00
+36696,2763 h6.2 [PENCERE] +0.50
+36897,2771 h3.1 [PENCERE] +6.20
+37009,2774 h2.2 [PENCERE] 11.85 m²
+37061,2730 h3.4 [PENCERE] ÇOCUK ODASI
+33898,2703 h17.9 [rtm-mhl-yazı-malzeme] PAFTA
+34074,2703 h17.9 [rtm-mhl-yazı-malzeme] :G24B23A1B
+36658,2719 h6.2 [PENCERE] -1.80
+36703,2694 h2.6 [PENCERE] Drenaj
+36828,2724 h3.4 [PENCERE] İŞYERİ D
+36828,2720 h2.2 [PENCERE] 106.83 m²
+37065,2723 h2.2 [PENCERE] 10.61 m²
+37115,2682 h3.4 [PENCERE] YATAK ODASI
+37118,2676 h2.2 [PENCERE] 16.13 m²
+33898,2675 h17.9 [rtm-mhl-yazı-malzeme] ADA
+33898,2649 h17.9 [rtm-mhl-yazı-malzeme] PARSEL
+34074,2675 h17.9 [rtm-mhl-yazı-malzeme] :----
+34074,2649 h17.9 [rtm-mhl-yazı-malzeme] :5562
+36162,2647 h20.0 [NKOT] 25.48 TZK
+38464,2648 h25.0 [AKS] 1
+40096,2639 h20.0 [rtm-mhl-yazı-malzeme] GİRİŞ
+42799,2637 h9.0 [rtm-mhl-yazı-malzeme] 300/220
+57009,2634 h25.0 [AKS] 2
+57118,2634 h25.0 [AKS] 3
+57630,2634 h25.0 [AKS] 4
+58208,2634 h25.0 [AKS] 5
+58769,2634 h25.0 [AKS] 6
+33898,2617 h17.9 [rtm-mhl-yazı-malzeme] YAPI SINIFI
+33898,2586 h17.9 [rtm-mhl-yazı-malzeme] CİNSİ
+34074,2616 h17.9 [rtm-mhl-yazı-malzeme] :3/B
+34074,2586 h17.9 [rtm-mhl-yazı-malzeme] :B.ARME
+36983,2585 h3.4 [PENCERE] İŞYERİ C
+36983,2581 h2.2 [PENCERE] 101.05 m²
+37009,2597 h2.6 [PENCERE] sıva
+37011,2600 h2.6 [PENCERE] B.A. Döşeme
+37014,2602 h2.6 [PENCERE] ısı ses yalıtımı
+37016,2605 h2.6 [PENCERE] Şap
+37019,2608 h2.6 [PENCERE] Lam.Parke
+38588,2623 h10.0 [rtm-mhl-yazı-malzeme] YAĞMUR İNİŞİ
+38695,2598 h12.5 [rtm-mhl-yazı-malzeme] 35/80
+50099,2609 h13.5 [rtm-mhl-yazı-malzeme] EĞİM % 0.5
+33898,2529 h17.9 [rtm-mhl-yazı-malzeme] ISITMA
+33898,2559 h17.9 [rtm-mhl-yazı-malzeme] ARSA ALANI
+34074,2530 h17.9 [rtm-mhl-yazı-malzeme] :KALORİFER
+34074,2559 h17.9 [rtm-mhl-yazı-malzeme] :3295,37m²
+39186,2536 h7.6 [rtm-mhl-yazı-malzeme] 2.88 m²
+39192,2549 h11.4 [rtm-mhl-yazı-malzeme] WC
+39298,2527 h12.5 [rtm-mhl-yazı-malzeme] 30/230
+43240,2529 h13.5 [rtm-mhl-yazı-malzeme] BALKON
+33898,2496 h17.9 [rtm-mhl-yazı-malzeme] ASANSÖR
+34074,2496 h17.9 [rtm-mhl-yazı-malzeme] :VAR
+37083,2490 h3.4 [PENCERE] İŞYERİ B
+39147,2479 h9.0 [rtm-mhl-yazı-malzeme] 80/220
+39165,2514 h6.1 [rtm-mhl-yazı-malzeme] Duvar : sıva +seramik
+39174,2504 h6.1 [rtm-mhl-yazı-malzeme] Tavan : sıva +boya
+39179,2524 h6.1 [rtm-mhl-yazı-malzeme] Döşeme:Seramik
+39901,2496 h13.5 [rtm-mhl-yazı-malzeme] K.B.
+40115,2505 h9.0 [rtm-mhl-yazı-malzeme] 100/220
+43238,2490 h7.2 [rtm-mhl-yazı-malzeme] Duvar : sıva +boya
+43252,2516 h9.0 [rtm-mhl-yazı-malzeme] 6.45 m²
+45100,2508 h9.0 [rtm-mhl-yazı-malzeme] 180/220
+39875,2461 h12.5 [rtm-mhl-yazı-malzeme] 40/110
+39930,2452 h11.4 [rtm-mhl-yazı-malzeme] ENERJİ
+39932,2436 h11.4 [rtm-mhl-yazı-malzeme] ODASI
+42678,2453 h7.2 [rtm-mhl-yazı-malzeme] Döşeme:Lam.parke
+43170,2432 h9.0 [rtm-mhl-yazı-malzeme] 160/220
+51444,2428 h12.0 [TARAMA] 2.00m*1.50m*1.00m = 3m³
+51530,2450 h12.0 [TARAMA] SU DEPOSU
+57698,2446 h10.3 [rtm-mhl-yazı-malzeme] Filtre (Geotekstil)
+57750,2433 h10.3 [rtm-mhl-yazı-malzeme] Membran
+57774,2461 h10.3 [rtm-mhl-yazı-malzeme] Çakıl
+36196,2403 h18.8 [ÖLÇÜ İÇ] 658
+39935,2422 h9.0 [rtm-mhl-yazı-malzeme] 2.00 m²
+51475,2408 h12.0 [TARAMA] MESKENLER İÇİN
+57708,2388 h10.3 [rtm-mhl-yazı-malzeme] Geotekstil Keçe
+57715,2416 h10.3 [rtm-mhl-yazı-malzeme] Tespit Elemanı
+57756,2403 h10.3 [rtm-mhl-yazı-malzeme] Taşyünü
+36147,2352 h20.0 [ÖLÇÜ DIŞ] TK 0.00(25.50)
+37240,2348 h3.4 [PENCERE] İŞYERİ A
+37240,2344 h2.2 [PENCERE] 117.47 m²
+39902,2337 h12.0 [rtm-mhl-yazı-malzeme] 23
+39902,2365 h12.0 [rtm-mhl-yazı-malzeme] 24
+43617,2365 h12.0 [rtm-mhl-yazı-malzeme] 18
+43617,2339 h12.0 [rtm-mhl-yazı-malzeme] 17
+53202,2334 h12.5 [rtm-mhl-yazı-malzeme] +13.40
+57687,2356 h10.3 [rtm-mhl-yazı-malzeme] Betonarme Döşeme
+57742,2372 h10.3 [rtm-mhl-yazı-malzeme] Eğim Şapı
+57779,2341 h10.3 [rtm-mhl-yazı-malzeme] Sıva
+60816,2342 h8.8 [rtm-mhl-yazı-malzeme] SİLİKON ESASLI DIŞ CEPHE BOYASI
+36198,2308 h12.5 [ÖLÇÜ İÇ] 1038
+36337,2278 h12.5 [ÖLÇÜ İÇ] 500
+39902,2309 h12.0 [rtm-mhl-yazı-malzeme] 22
+39904,2281 h12.0 [rtm-mhl-yazı-malzeme] 21
+43617,2282 h12.0 [rtm-mhl-yazı-malzeme] 15
+43617,2314 h12.0 [rtm-mhl-yazı-malzeme] 16
+53202,2284 h12.5 [rtm-mhl-yazı-malzeme] +12.90
+36310,2227 h12.5 [ÖLÇÜ İÇ] 70
+36340,2246 h5.0 [rtm-mhl-yazı-malzeme] İŞYERİ-A GİRİŞ
+37368,2227 h2.2 [PENCERE] 67.44 m²
+39901,2225 h12.0 [rtm-mhl-yazı-malzeme] 19
+39902,2253 h12.0 [rtm-mhl-yazı-malzeme] 20
+43186,2251 h9.0 [rtm-mhl-yazı-malzeme] 10.00 m²
+43490,2253 h9.0 [rtm-mhl-yazı-malzeme] 15.40 m²
+43617,2227 h12.0 [rtm-mhl-yazı-malzeme] 13
+43617,2256 h12.0 [rtm-mhl-yazı-malzeme] 14
+51443,2233 h12.0 [TARAMA] 2.00m*2.50m*1.00m = 5m³
+35818,2191 h31.5 [rtm-mhl-yazı-malzeme] 10m
+35852,2193 h20.0 [NKOT] 25.23 TZK
+36267,2213 h12.5 [ÖLÇÜ İÇ] 100
+36280,2180 h7.1 [ÖLÇÜ DIŞ] TZK 25.25
+36348,2197 h12.5 [ÖLÇÜ İÇ] 470
+36666,2207 h31.5 [rtm-mhl-yazı-malzeme] SÜLEYMAN BİNEK CD.
+42968,2219 h9.0 [rtm-mhl-yazı-malzeme] 90/220
+43617,2199 h12.0 [rtm-mhl-yazı-malzeme] 12
+43791,2202 h13.5 [rtm-mhl-yazı-malzeme] 4.00
+47496,2202 h13.5 [rtm-mhl-yazı-malzeme] 7.00
+51259,2202 h13.5 [rtm-mhl-yazı-malzeme] 10.00
+51443,2198 h12.0 [TARAMA] İŞYERİ İÇİN SU DEPOSU
+36183,2155 h12.5 [ÖLÇÜ İÇ] 50
+36227,2175 h12.5 [ÖLÇÜ İÇ] 460
+36464,2131 h20.0 [NKOT] 25.29 TZK
+37504,2172 h6.2 [PENCERE] +4.90
+43617,2144 h12.0 [rtm-mhl-yazı-malzeme] 10
+43619,2172 h12.0 [rtm-mhl-yazı-malzeme] 11
+36136,2094 h12.5 [ÖLÇÜ İÇ] 580
+36482,2089 h5.0 [rtm-mhl-yazı-malzeme] İŞYERİ-B GİRİŞ
+43651,2102 h13.5 [rtm-mhl-yazı-malzeme] 5.50
+47357,2107 h13.5 [rtm-mhl-yazı-malzeme] 8.50
+35861,2035 h18.8 [ÖLÇÜ İÇ] 3526
+36098,2035 h12.5 [ÖLÇÜ İÇ] 150
+36146,2048 h12.5 [ÖLÇÜ İÇ] 1880
+39961,2048 h11.0 [rtm-mhl-yazı-malzeme] M=24*16.66*28
+42633,2060 h7.2 [rtm-mhl-yazı-malzeme] Döşeme:Lam.Parke
+42650,2074 h9.0 [rtm-mhl-yazı-malzeme] 13.00 m²
+57891,2062 h10.3 [rtm-mhl-yazı-malzeme] Seramik
+34074,1994 h10.0 [rtm-mhl-yazı-malzeme] TAKS HESABI
+36299,1990 h12.5 [rtm-mhl-yazı-malzeme] NO-6
+36312,1977 h12.5 [rtm-mhl-yazı-malzeme] DAİRE-6
+36538,1998 h12.5 [ÖLÇÜ İÇ] 2820
+36583,1996 h5.0 [rtm-mhl-yazı-malzeme] İŞYERİ-C GİRİŞ
+42931,1992 h13.5 [rtm-mhl-yazı-malzeme] ANTRE
+42937,1980 h9.0 [rtm-mhl-yazı-malzeme] 9.25 m²
+51159,1996 h11.0 [rtm-mhl-yazı-malzeme] M=18*16.66*28
+33991,1970 h10.0 [rtm-mhl-yazı-malzeme] Parsel Alanı
+33993,1951 h10.0 [rtm-mhl-yazı-malzeme] 3295,37 m²
+34078,1951 h10.0 [rtm-mhl-yazı-malzeme] \pi-30,l60,t60;%35
+34100,1971 h10.0 [rtm-mhl-yazı-malzeme] TAKS
+34154,1951 h10.0 [rtm-mhl-yazı-malzeme] 3295,37 *0.35
+34172,1970 h10.0 [rtm-mhl-yazı-malzeme] HESAP
+34255,1951 h10.0 [rtm-mhl-yazı-malzeme] 1153,37 m²
+34256,1971 h10.0 [rtm-mhl-yazı-malzeme] TAKS Alan
+35903,1946 h12.5 [ÖLÇÜ İÇ] 814
+36328,1963 h12.5 [rtm-mhl-yazı-malzeme] NO-10
+36341,1951 h12.5 [rtm-mhl-yazı-malzeme] DAİRE-10
+37117,1967 h20.0 [NKOT] 25.54 TZK
+43625,1946 h12.0 [rtm-mhl-yazı-malzeme] 9
+57670,1927 h11.4 [rtm-mhl-yazı-malzeme] MERDİVEN+KORİDOR
+35628,1887 h31.5 [rtm-mhl-yazı-malzeme] Y       O      L
+36005,1877 h7.1 [ÖLÇÜ DIŞ] TZK 25.10
+39405,1900 h12.5 [rtm-mhl-yazı-malzeme] 185/30
+39880,1913 h12.5 [rtm-mhl-yazı-malzeme] 30/95
+43121,1900 h12.5 [rtm-mhl-yazı-malzeme] 185/25
+43625,1892 h12.0 [rtm-mhl-yazı-malzeme] 7
+43625,1920 h12.0 [rtm-mhl-yazı-malzeme] 8
+57719,1914 h9.0 [rtm-mhl-yazı-malzeme] 50.13 m²
+59918,1917 h12.5 [rtm-mhl-yazı-malzeme] 6.20
+60000,1898 h8.8 [KOT] PVC DOĞRAMA / ISI YALITIMLI
+36046,1832 h12.5 [ÖLÇÜ İÇ] 640
+36180,1861 h12.5 [rtm-mhl-yazı-malzeme] NO-5
+36194,1848 h12.5 [rtm-mhl-yazı-malzeme] DAİRE-5
+36209,1834 h12.5 [rtm-mhl-yazı-malzeme] NO-9
+36752,1869 h5.0 [rtm-mhl-yazı-malzeme] İŞYERİ-D GİRİŞ
+37063,1845 h31.5 [rtm-mhl-yazı-malzeme] 20m
+40062,1840 h11.4 [rtm-mhl-yazı-malzeme] MERDİVEN+GİRİŞ
+40107,1827 h9.0 [rtm-mhl-yazı-malzeme] 26.34 m²
+44025,1827 h10.1 [rtm-mhl-yazı-malzeme] DUŞ
+44324,1829 h10.1 [rtm-mhl-yazı-malzeme] BANYO
+59427,1858 h8.8 [rtm-mhl-yazı-malzeme] SERAMİK KAPLAMA
+36105,1791 h12.5 [ÖLÇÜ İÇ] 120
+36223,1822 h12.5 [rtm-mhl-yazı-malzeme] DAİRE-9
+36301,1788 h37.5 [MERDIVEN] C BLOK
+36941,1785 h18.8 [ÖLÇÜ İÇ] 7583
+42643,1797 h13.5 [rtm-mhl-yazı-malzeme] MUTFAK
+42655,1785 h9.0 [rtm-mhl-yazı-malzeme] 10.53 m²
+42896,1781 h13.5 [rtm-mhl-yazı-malzeme] NO:8
+43149,1806 h6.8 [rtm-mhl-yazı-malzeme] 4.85 m²
+43436,1810 h6.8 [rtm-mhl-yazı-malzeme] 3.49 m²
+46606,1780 h13.5 [rtm-mhl-yazı-malzeme] NO:12
+48265,1787 h13.5 [rtm-mhl-yazı-malzeme] NO:9
+59915,1787 h12.5 [rtm-mhl-yazı-malzeme] 4.90
+36155,1741 h12.5 [ÖLÇÜ İÇ] 545
+36557,1753 h12.5 [rtm-mhl-yazı-malzeme] NO-7
+36571,1740 h12.5 [rtm-mhl-yazı-malzeme] DAİRE-7
+36586,1726 h12.5 [rtm-mhl-yazı-malzeme] NO-11
+36741,1756 h7.1 [ÖLÇÜ DIŞ] TZK 25.58
+42345,1769 h9.0 [rtm-mhl-yazı-malzeme] 5.97 m²
+42896,1762 h13.5 [rtm-mhl-yazı-malzeme] DAİRE :8
+43329,1739 h7.6 [rtm-mhl-yazı-malzeme] HAVALANDIRMA
+43353,1745 h7.6 [rtm-mhl-yazı-malzeme] 60*60
+44560,1754 h13.5 [rtm-mhl-yazı-malzeme] DAİRE :5
+44560,1773 h13.5 [rtm-mhl-yazı-malzeme] NO:5
+46606,1761 h13.5 [rtm-mhl-yazı-malzeme] DAİRE :12
+48265,1768 h13.5 [rtm-mhl-yazı-malzeme] DAİRE :9
+59711,1748 h8.8 [KOT] CAM KORKULUK (TEMPERLİ CAM)
+35802,1689 h12.5 [ÖLÇÜ İÇ] 2100
+36207,1701 h12.5 [ÖLÇÜ İÇ] 35
+36252,1684 h12.5 [ÖLÇÜ İÇ] 1440
+36600,1714 h12.5 [rtm-mhl-yazı-malzeme] DAİRE-11
+36878,1687 h12.5 [ÖLÇÜ İÇ] 690
+38956,1675 h9.0 [rtm-mhl-yazı-malzeme] 106.54 m²
+39627,1675 h9.0 [rtm-mhl-yazı-malzeme] 99.24 m²
+41137,1675 h9.0 [rtm-mhl-yazı-malzeme] 115.91 m²
+35517,1650 h20.0 [NKOT] 25.11 TZK
+36713,1655 h12.5 [ÖLÇÜ İÇ] 1140
+42306,1660 h13.5 [rtm-mhl-yazı-malzeme] KOMBİ
+42766,1667 h13.5 [rtm-mhl-yazı-malzeme] B.M.
+35339,1605 h20.0 [NKOT] 25.58 TZK
+35616,1618 h18.8 [ÖLÇÜ İÇ] 745
+36439,1624 h12.5 [rtm-mhl-yazı-malzeme] NO-8
+36453,1611 h12.5 [rtm-mhl-yazı-malzeme] DAİRE-8
+36468,1597 h12.5 [rtm-mhl-yazı-malzeme] NO-12
+36482,1585 h12.5 [rtm-mhl-yazı-malzeme] DAİRE-12
+36915,1617 h7.1 [ÖLÇÜ DIŞ] TZK 25.28
+33951,1556 h12.0 [rtm-mhl-yazı-malzeme] 498,17m²+498,17m²+78,66m²=1075 m²< 1153,37m² / (TAKS Uygundur) √
+36012,1540 h20.0 [NKOT] 25.14 TZK
+36631,1562 h7.1 [ÖLÇÜ DIŞ] TZK 25.06
+36678,1570 h37.5 [MERDIVEN] B BLOK
+45146,1542 h9.0 [rtm-mhl-yazı-malzeme] 5.87 m²
+36540,1496 h12.5 [ÖLÇÜ İÇ] 740
+37308,1476 h20.0 [NKOT] 25.55 TZK
+42898,1488 h13.5 [rtm-mhl-yazı-malzeme] NO:7
+44560,1477 h13.5 [rtm-mhl-yazı-malzeme] DAİRE :6
+44560,1496 h13.5 [rtm-mhl-yazı-malzeme] NO:6
+46606,1491 h13.5 [rtm-mhl-yazı-malzeme] NO:11
+48266,1480 h13.5 [rtm-mhl-yazı-malzeme] DAİRE :10
+48266,1499 h13.5 [rtm-mhl-yazı-malzeme] NO:10
+34158,1439 h10.0 [rtm-mhl-yazı-malzeme] EMSAL
+34187,1463 h10.0 [rtm-mhl-yazı-malzeme] EMSAL HESABI
+34417,1436 h10.0 [rtm-mhl-yazı-malzeme] EMSAL Alan
+40076,1444 h9.0 [rtm-mhl-yazı-malzeme] 800 kg / 10 KİŞİ
+40094,1458 h9.0 [rtm-mhl-yazı-malzeme] 3.80 m²
+42898,1469 h13.5 [rtm-mhl-yazı-malzeme] DAİRE :7
+43255,1437 h6.8 [rtm-mhl-yazı-malzeme] 4.11 m²
+43764,1458 h9.0 [rtm-mhl-yazı-malzeme] 5.25 m²
+46606,1472 h13.5 [rtm-mhl-yazı-malzeme] DAİRE :11
+34135,1420 h10.0 [rtm-mhl-yazı-malzeme] \pi-30,l60,t60;%90
+34283,1419 h10.0 [rtm-mhl-yazı-malzeme] 3295,37*0.90
+34423,1418 h10.0 [rtm-mhl-yazı-malzeme] 2965,83 m²
+36620,1399 h31.5 [rtm-mhl-yazı-malzeme] 5562 P
+43116,1401 h6.3 [rtm-mhl-yazı-malzeme] 2.26 m²
+43507,1394 h6.8 [rtm-mhl-yazı-malzeme] 2.24 m²
+36571,1351 h12.5 [ÖLÇÜ İÇ] 900
+38701,1326 h12.5 [rtm-mhl-yazı-malzeme] 45/60
+39507,1346 h12.5 [rtm-mhl-yazı-malzeme] 80/45
+40069,1346 h12.5 [rtm-mhl-yazı-malzeme] 340/25
+41466,1346 h12.5 [rtm-mhl-yazı-malzeme] 125/45
+43395,1373 h15.0 [rtm-mhl-yazı-malzeme] Ç.M.
+34778,1288 h10.8 [KOT] T.Z.K.: Tabii Zemin Kotu(PLANKOTE Kotu)
+37840,1286 h20.0 [NKOT] 25.50 TZK
+42944,1291 h9.0 [rtm-mhl-yazı-malzeme] 10.41 m²
+58464,1312 h9.0 [rtm-mhl-yazı-malzeme] 102.47 m²
+32891,1255 h20.0 [0] G R U P
+34778,1271 h10.8 [KOT] T.K.: Tesviye Kotu(PROJE Kotu)
+35602,1268 h20.0 [NKOT] 25.51 TZK
+36307,1233 h12.5 [ÖLÇÜ İÇ] 2063
+33037,1223 h17.3 [0] M İ M A R L I K
+33164,1180 h7.2 [ANTET] CUMHURİYET  MAHALLESİ PAPATYA SOKAK NO:24/5
+33533,1180 h7.2 [ANTET] Tel&Fax: 0(264) 272 26 27
+34823,1198 h10.0 [rtm-mhl-yazı-malzeme] SIĞINAK HESABI
+60019,1213 h12.5 [rtm-mhl-yazı-malzeme] +2.20
+33537,1160 h7.2 [ANTET] ADAPAZARI / SAKARYA
+34871,1149 h10.0 [rtm-mhl-yazı-malzeme] \pi-1.1474;31.12.2010 tarihli "Sığınak Yönetmeliği" ne göre / \pi0;bir blokta 12'den fazla bağımsız bölüm olmadığı için / sığınak ihtiyacı bulunmamaktadır.
+36995,1165 h37.5 [MERDIVEN] A BLOK
+37411,1143 h7.1 [ÖLÇÜ DIŞ] TZK 25.47
+37598,1127 h20.0 [NKOT] 25.63 TZK
+33273,1110 h13.0 [ANTET] SAHİBİ
+33533,1111 h13.0 [ANTET] KULLANIM AMACI
+36474,1083 h12.5 [ÖLÇÜ İÇ] 2051
+37520,1107 h12.5 [ÖLÇÜ İÇ] 576
+32820,1073 h26.5 [ANTET] YAPI BİLGİLERİ
+33218,1074 h14.2 [ANTET] AYKUT SABAN VE HİSS.
+33249,1026 h13.0 [ANTET] BELEDİYESİ
+33579,1069 h14.2 [ANTET] KONUT+İŞYERİ
+34690,1063 h11.2 [rtm-mhl-yazı-malzeme] A-C BLOKLARDA 4 İŞYERİ 8 ADET KONUT BAĞIMSIZ / BÖLÜM OLDUĞU İÇİN 13m³ LÜK SU DEPOSU / GEREKMEKTEDİR. / B BLOKTA 2 İŞYERİ OLDUĞU İÇİN 5m³ LÜK SU DEPOSU / GEREKMEKTEDİR. /  / ÇATILARDADA SU DEPOSU TAHSİS EDİLMİŞTİR
+37523,1035 h18.8 [ÖLÇÜ İÇ] 1330
+53822,1054 h10.3 [rtm-mhl-yazı-malzeme] Dolgu
+53822,1039 h10.3 [rtm-mhl-yazı-malzeme] Radye Temel
+53822,1069 h10.3 [rtm-mhl-yazı-malzeme] Isı Yalıtım
+32802,978 h14.2 [ANTET] SAKARYA
+32918,977 h14.2 [ANTET] SERDİVAN
+33037,1024 h13.0 [ANTET] MAHALLESİ
+33060,982 h14.2 [ANTET] VATAN
+33217,978 h14.2 [ANTET] SERDİVAN  BELEDİYESİ
+33479,981 h12.8 [ANTET] G24B23A1B
+33593,981 h12.8 [ANTET] ----
+33694,983 h14.2 [ANTET] 5562
+33965,996 h12.0 [rtm-mhl-yazı-malzeme] 2752,18 m² < 2965,83 m²(EMSAL Uygundur) √
+36219,983 h18.8 [ÖLÇÜ İÇ] 6244
+53822,1024 h10.3 [rtm-mhl-yazı-malzeme] Grobeton
+34118,939 h10.0 [rtm-mhl-yazı-malzeme] %30 HESABI
+32792,886 h13.0 [ANTET] PROJE MÜELLİFİ
+32981,920 h13.0 [ANTET] ADI SOYADI
+33001,888 h14.2 [ANTET] SÜMEYRA
+33138,920 h13.0 [ANTET] ÜNVANI
+33250,920 h13.0 [ANTET] ODA SİCİL NO
+33302,875 h14.2 [ANTET] 50903
+33409,886 h13.0 [ANTET] İMZA
+34269,893 h10.0 [rtm-mhl-yazı-malzeme] 2965,83m²*0.30
+34423,893 h10.0 [rtm-mhl-yazı-malzeme] 889,74 m²
+34423,913 h10.0 [rtm-mhl-yazı-malzeme] %30 Alan
+37333,898 h12.5 [ÖLÇÜ İÇ] 300
+38894,883 h13.5 [rtm-mhl-yazı-malzeme] İŞYERİ-D
+38924,902 h13.5 [rtm-mhl-yazı-malzeme] NO:4
+39731,883 h13.5 [rtm-mhl-yazı-malzeme] İŞYERİ-C
+39761,902 h13.5 [rtm-mhl-yazı-malzeme] NO:3
+40287,883 h13.5 [rtm-mhl-yazı-malzeme] İŞYERİ-B
+40317,902 h13.5 [rtm-mhl-yazı-malzeme] NO:2
+41129,883 h13.5 [rtm-mhl-yazı-malzeme] İŞYERİ-A
+41161,902 h13.5 [rtm-mhl-yazı-malzeme] NO:1
+33013,867 h14.2 [ANTET] BULUT
+33151,873 h14.2 [ANTET] MİMAR
+34736,849 h10.0 [rtm-mhl-yazı-malzeme] Daire Sayısı
+34850,870 h10.0 [rtm-mhl-yazı-malzeme] OTOPARK HESABI
+34851,845 h10.0 [rtm-mhl-yazı-malzeme] Otopark Oranı
+34964,845 h10.0 [rtm-mhl-yazı-malzeme] Gerekli Tam Sayı
+37130,841 h7.1 [ÖLÇÜ DIŞ] TZK 25.23
+32863,786 h18.4 [ANTET] YAPI DENETİM ONAYI
+33411,787 h18.4 [ANTET] BELEDİYE ONAYI
+34736,782 h10.0 [rtm-mhl-yazı-malzeme] İşyeri Alanı
+34889,823 h10.0 [rtm-mhl-yazı-malzeme] 1/3
+34993,822 h10.0 [rtm-mhl-yazı-malzeme] 6 adet
+37186,780 h12.5 [ÖLÇÜ İÇ] 367
+37260,802 h18.8 [ÖLÇÜ İÇ] 955
+38696,819 h12.5 [rtm-mhl-yazı-malzeme] 35/125
+39187,789 h12.5 [rtm-mhl-yazı-malzeme] 60/30
+40041,796 h12.5 [rtm-mhl-yazı-malzeme] 45/80
+42626,809 h9.0 [rtm-mhl-yazı-malzeme] 7.86 m²
+44857,816 h9.0 [rtm-mhl-yazı-malzeme] 9.69 m²
+48562,816 h9.0 [rtm-mhl-yazı-malzeme] 9.07 m²
+34746,755 h10.0 [rtm-mhl-yazı-malzeme] 1075 m²
+34889,756 h10.0 [rtm-mhl-yazı-malzeme] A/50
+34993,756 h10.0 [rtm-mhl-yazı-malzeme] 21 adet
+53387,748 h5.2 [rtm-mhl-yazı-malzeme] Ø200 FLEXIBLE (PVC) PERFORE DRENAJ BORUSU
+53387,755 h5.2 [rtm-mhl-yazı-malzeme] 0.3 YASTIK KUMU 10 cm
+53388,732 h5.2 [rtm-mhl-yazı-malzeme] BLOKAJ 10 cm
+53391,763 h5.2 [rtm-mhl-yazı-malzeme] GEOTEKSTIL KEÇE 250 gr/m2
+34737,719 h10.0 [rtm-mhl-yazı-malzeme] Toplam 27 araçlık Otopark alanı projede mevcuttur.
+39118,723 h20.0 [rtm-mhl-yazı-malzeme] İŞYERİ D GİRİŞ
+39958,723 h20.0 [rtm-mhl-yazı-malzeme] İŞYERİ C GİRİŞ
+40509,723 h20.0 [rtm-mhl-yazı-malzeme] İŞYERİ B GİRİŞ
+41325,723 h20.0 [rtm-mhl-yazı-malzeme] İŞYERİ A GİRİŞ
+34847,639 h8.5 [rtm-mhl-yazı-malzeme] AĞAÇ HESABI
+37001,637 h18.8 [ÖLÇÜ İÇ] 1346
+34711,588 h8.5 [rtm-mhl-yazı-malzeme] (Arsa Alanı - Temel A.) / 30 = DİKİLECEK AĞAÇ
+34712,616 h8.5 [rtm-mhl-yazı-malzeme] Arsa Alanı=3295,37 m²
+37298,614 h6.2 [rtm-mhl-yazı-malzeme] -2.10
+37309,604 h6.2 [rtm-mhl-yazı-malzeme] -1.50
+34699,571 h7.3 [rtm-mhl-yazı-malzeme] A BLOK Z. K A.(486,77 m²)+B BLOK Z. K A.(101,46 m²)+C BLOK Z. K A.(486,77 m²)=1075m²
+34829,550 h8.5 [rtm-mhl-yazı-malzeme] Zemin Kat Alanı
+34840,528 h8.5 [rtm-mhl-yazı-malzeme] 1075m²
+34918,528 h8.5 [rtm-mhl-yazı-malzeme] 2220,37m²
+34919,550 h8.5 [rtm-mhl-yazı-malzeme] Hesap Alanı
+34985,550 h8.5 [rtm-mhl-yazı-malzeme] Ağaç Hesabı
+34987,528 h8.5 [rtm-mhl-yazı-malzeme] 2220,37/30
+35058,528 h8.5 [rtm-mhl-yazı-malzeme] 74 Adet
+35062,550 h8.5 [rtm-mhl-yazı-malzeme] Ağaç
+36320,574 h20.0 [NKOT] 25.49 TZK
+36715,537 h20.0 [NKOT] 25.09 TZK
+33981,479 h12.0 [rtm-mhl-yazı-malzeme] 473,32 m²< 889,74 m²(%30 Uygundur) √
+34827,506 h10.0 [rtm-mhl-yazı-malzeme] PARSELDE 74 ADET AĞAÇ DİKİLECEKTİR
+36816,521 h18.8 [ÖLÇÜ İÇ] 569
+33979,405 h10.0 [rtm-mhl-yazı-malzeme] DAİRE NO
+34063,405 h10.0 [rtm-mhl-yazı-malzeme] DAİRE NET ALAN
+34083,386 h10.0 [rtm-mhl-yazı-malzeme] 92,02 m²
+34217,386 h10.0 [rtm-mhl-yazı-malzeme] 13,80 m²
+34217,404 h10.0 [rtm-mhl-yazı-malzeme] %15 Alan
+34300,404 h10.0 [rtm-mhl-yazı-malzeme] Z.T. BAL. Alan
+34318,385 h10.0 [rtm-mhl-yazı-malzeme] 12,42 m²
+34415,384 h10.0 [rtm-mhl-yazı-malzeme] UYGUN
+34790,406 h10.0 [rtm-mhl-yazı-malzeme] KAPICI DAİRESİ HESABI
+35551,417 h25.0 [MERDIVEN] SÜLEYMAN BİNEK CADDESİ
+35670,377 h25.0 [MERDIVEN] 1/500 SİLÜETİ
+34083,351 h10.0 [rtm-mhl-yazı-malzeme] 93,64 m²
+34217,351 h10.0 [rtm-mhl-yazı-malzeme] 14,04 m²
+34318,350 h10.0 [rtm-mhl-yazı-malzeme] 15,56 m²
+34318,367 h10.0 [rtm-mhl-yazı-malzeme] 13,73 m²
+34471,352 h10.0 [rtm-mhl-yazı-malzeme] (1,52 m² emsale dahil)
+33965,286 h10.0 [rtm-mhl-yazı-malzeme] A-C BLOK
+34919,310 h10.0 [rtm-mhl-yazı-malzeme] TİP İMAR YÖNETMELİĞİNİN 44. MADDESİNDE GEÇEN /  "KATI YAKIT HARİCİNDE DİĞER ISITMA SİSTEMLERİ  / KULLANILAN KONUT KULLANIMLI BİNALAR İÇİN  / BAĞIMSIZ BÖLÜM SAYISININ 60'TAN FAZLA OLMASI  / HALİNDE BİR ADET KAPICI DAİRESİ YAPILIR"GEÇ
+37914,293 h25.0 [MERDIVEN] VAZİYET PLANI
+41423,300 h25.0 [MERDIVEN] ZEMİN KAT PLANI
+45173,289 h25.0 [MERDIVEN] 1. KAT PLANI
+48903,300 h25.0 [MERDIVEN] 2. KAT PLANI
+52633,287 h25.0 [MERDIVEN] ÇATI PLANI
+56162,300 h25.0 [MERDIVEN] AA KESİTİ
+58693,300 h25.0 [MERDIVEN] BB KESİTİ
+62075,300 h25.0 [MERDIVEN] ÖN GÖRÜNÜŞ
+64514,300 h25.0 [MERDIVEN] SAĞ YAN GÖRÜNÜŞ
+66931,300 h25.0 [MERDIVEN] SOL YAN GÖRÜNÜŞ
+70528,300 h25.0 [MERDIVEN] ARKA GÖRÜNÜŞ
+32814,268 h13.0 [ANTET] YAPI
+32921,248 h13.0 [ANTET] SINIFI
+33005,268 h13.0 [ANTET] YAPI TEMEL
+33033,248 h13.0 [ANTET] ALANI
+33142,268 h13.0 [ANTET] TOPLAM
+33258,268 h13.0 [ANTET] YAPI KAT
+33273,248 h13.0 [ANTET] ADEDİ
+33376,256 h16.6 [ANTET] MİMARİ UYGULAMA
+33441,231 h16.6 [ANTET] PROJESİ
+36715,237 h20.0 [NKOT] 25.72 TZK
+37975,230 h25.0 [MERDIVEN] Ö:1/200
+32788,215 h14.2 [ANTET] BETONARME
+32792,180 h7.1 [ANTET] 5846 SAYILI FİKİR  VE SANAT ESERLERİ KANUNU UYARINCA MÜELLİFLİK VE TELİF HAKKI PROJE MÜELLİFİNE AİTTİR.
+32933,215 h14.2 [ANTET] 3-B
+32792,168 h7.1 [ANTET] PROJE MÜELLİFİNİN OLURU OLMADAN ÇOĞALTILAMAZ VE AMACI DIŞINDA KULLANILMAZ.
+32793,156 h7.1 [ANTET] MÜELLİFİN OLURU OLMADAN PROJE VE BU PROJEYE GÖRE YAPILAN İNŞAATTA HİC BİR DEĞİŞİKLİK YAPILAMAZ.
+33391,161 h14.2 [ANTET] PROJENİN ÖLÇEĞİ: 1/50
+33644,169 h94.2 [ANTET] M
+33898,160 h6.2 [MERDIVEN] 5846 SAYILI FiKiR VE SANAT ESERLERi YASASI GEREGiNCE; PROJE MÜELLiFi MiMARIN OLURU OLMADAN-ÇOGALTILAMAZ-KULLANILAMAZ-DEGiSTiRiLEMEZ.
+38600,-962 h13.5 [rtm-mhl-yazı-malzeme] 5 CM DİLATASYON DERZİ
+38706,-1009 h12.5 [rtm-mhl-yazı-malzeme] 40/40
+38845,-1614 h9.0 [rtm-mhl-yazı-malzeme] 33.72 m²
+40254,-1602 h13.5 [rtm-mhl-yazı-malzeme] ÜZERİNDE GEZİLEMEYEN TERAS ÇATI

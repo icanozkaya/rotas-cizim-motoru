@@ -1,0 +1,71 @@
+# /home/claude/asn_dxf/ASANS#U00d6R AVAN PROJES#U0130 - Kapak.dxf
+# enc cp1254  ents 154 flat 150 blocks 4
+# LAYERS: 0:142, çizgi:5, TEM.SU:2, GOR2:1
+# TOP INSERTS: 
+3302,2127 h63.0 [GOR2] R
+3454,2140 h30.0 [çizgi] \pt540;ROTAŞ MÜHENDİSLİK.PROJE.MÜŞAVİRLİK
+3455,2088 h11.3 [çizgi] BAYRAM GENÇ MAKİNA MÜHENDİSİ
+3455,2035 h9.7 [çizgi] SEMERCİLER MAH. SAİT FAİK SK. NO:22/C Z01  ADAPAZARI / SAKARYA
+3456,2050 h9.7 [çizgi] TC:15799549784
+3456,2072 h10.8 [çizgi] rotasmuhendislik@gmail.com / 0264 272 00 49 / 0532 728 37 54 / 0532 378 37 54
+3568,1944 h40.0 [0] ABDULLAH BİRİNCİ VE HİSS.
+3073,1887 h12.5 [0] İL
+3238,1887 h12.5 [0] SAKARYA
+3588,1887 h12.5 [0] BEYAN YÜKÜ
+3833,1887 h12.5 [0] 800
+3073,1852 h12.5 [0] İLÇE
+3238,1852 h12.5 [0] ADAPAZARI
+3588,1852 h12.5 [0] BEYAN HIZI
+3833,1852 h12.5 [0] 1
+3073,1780 h12.5 [0] ADA
+3073,1817 h12.5 [0] MAHALLE
+3238,1817 h12.5 [0] TEPEKUM
+3238,1782 h12.5 [0] 4904
+3588,1817 h12.5 [0] SEYİR MESAFESİ
+3588,1782 h12.5 [0] KAPI ÖLÇÜSÜ
+3833,1817 h12.5 [0] 11,80
+3833,1782 h12.5 [0] 90
+3073,1745 h12.5 [0] PARSEL
+3238,1747 h12.5 [0] 14
+3588,1747 h12.5 [0] KUYU ÖLÇÜSÜ
+3833,1747 h12.5 [0] 2300x1900
+3073,1710 h12.5 [0] YİBF
+3073,1677 h12.5 [0] KAT ADEDİ
+3238,1712 h12.5 [0] -----
+3238,1677 h12.5 [0] 4
+3588,1712 h12.5 [0] KABİN ÖLÇÜSÜ
+3588,1677 h12.5 [0] ASKI TİPİ
+3833,1712 h12.5 [0] 1500x1200
+3833,1677 h12.5 [0] 2/1
+3073,1642 h12.5 [0] DURAK SAYISI
+3588,1642 h12.5 [0] RAY KALINLIKLARI
+3833,1642 h12.5 [0] 90x70
+3568,1589 h20.0 [0] PROJE MÜELLİFİ
+3078,1539 h12.5 [0] ADI - SOYADI
+3263,1539 h12.5 [0] HASAN DALDAL
+3078,1504 h12.5 [0] ÜNVANI
+3263,1504 h12.5 [0] ELEKTRİK MÜHENDİSİ
+3585,1502 h20.0 [0] Proje Müellifi
+3078,1469 h12.5 [0] ODA SİCİL NO
+3263,1469 h12.5 [0] 86554
+3585,1467 h20.0 [0] Onayı (Elektrik M.)
+3263,1416 h12.5 [0] BAYRAM GENÇ
+3263,1381 h12.5 [0] MAKİNE MÜHENDİSİ
+3263,1346 h12.5 [0] 56858
+3585,1345 h20.0 [0] Onayı (Makine M.)
+3308,1263 h20.0 [0] YAPI DENETİM ONAYI
+3618,1228 h10.5 [0] İşbu proje; mer'i mevzuat hükümleri kapsamında tetkik edilmiştir.
+3826,1263 h20.0 [0] ADAPAZARI BELEDİYESİ
+3161,1218 h12.5 [0] Firma Yetkilisi
+3342,1218 h12.5 [0] Elektrik Müh.
+3342,1198 h12.5 [0] Proje Denetçisi
+3486,1218 h12.5 [0] Makine Müh.
+3697,1181 h12.5 [0] İnceleme/Kontrol (Mekanik)
+3949,1181 h12.5 [0] İnceleme/Kontrol (Elektrik)
+3588,1069 h8.7 [0] kalitesi ile olası afet durumlarında ortaya çıkabilecek her türlü teknik, idari ve hukuki sorumluluk; ilgili mevzuat hükümleri doğrultusunda proje müelliflerine, yapı denetim sorumlusuna,
+3073,1021 h10.2 [0] İşbu proje; ilgili kanun, yönetmelik, şartname ve mer'i mevzuatlara uygundur.
+3213,937 h30.0 [0] --- BLOK
+3657,937 h25.0 [0] MAKİNE DAİRELİ
+3213,888 h17.5 [0] ÖLÇEK :1/50
+3657,895 h25.0 [0] ASANSÖR AVAN PROJESİ
+4013,913 h80.0 [0] T
