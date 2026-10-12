@@ -127,3 +127,11 @@ Yazı yükseklikleri: hesap 12, kat adı 16, pafta başlığı 18–29,5, antet 
 - **ELEKTRİK DETAYLARININ TAMAMI her asansör setinin sonuna eklenir (bu proje ve bundan sonraki tüm dosyalar).** Kaynak: `kutuphane/asansor/elektrik_detay.json`. İçerik: kumanda pano ve kuyu dibi güvenlik devresi bağlantıları (KBK 10-11, EN81-20), kuyu ve kabin beslemesi, kat kapıları tam otomatik / kapı kilit kontakları, kuyu dibi kutusu / revizyon el terminali, güvenlik devresi, şebeke beslemesi / dağıtım panosu.
 - Kapak şablonu: `kutuphane/asansor/kapak_sablon.json`. Çıkarma aracı: `araclar/asn_sablon_cikar.py` (yeni örnek gelirse yeniden çıkarılır). Kapakta müellifler: Elektrik M. Hasan Daldal, Makine M. Bayram Genç (şablondaki gibi).
 - Kapaktaki sorumluluk paragrafının sonu ("... yapı müteahhidine ve şantiye şefine aittir.") DWG dönüşümünde kesik geldiği için tamamlandı; kullanıcı teyit edecek.
+
+## 10. Kalıcı kurallar (2026-10-12 kullanıcı talimatı)
+- **Kabin standardı: en az 800 kg / 10 kişi**, kabin 1200x1500 — tüm projelerde (aksi söylenmedikçe).
+- **Kat kapıları her zaman 90/210** (teleskopik otomatik). Mimar farklı yazdıysa (örn. 100/220) dikkate alınmaz, 90/210 çizilir ve notta "düzeltildi" yazılır.
+- Durak kotları mimari asansör kesitinden okunur (`araclar/asn_kesit_olc.py flat.pkl cx cy`); zemin dükkân ±0,00 ise ve asansör girişi +1,00'de ise ilk durak +1,00'dir.
+- **MRL (makine dairesiz):** makine dişlisiz PM, Ø240 kasnak, 2/1 askı, kuyu tepesinde kabin ve K.A. ray başlarına oturan 2xUPN kaide (parametrik `MRL` sözlüğü). Örnekteki kaideli makine sembolleri MRL'de KULLANILMAZ.
+- **Makine daireli:** `tip: makine_daireli`, `aski: 1`; makine dairesinde örnek sembolleri (`semboller.json`: makine_yan karşıdan, makine_on yandan) kaide + tahrik + saptırma kasnağı; regülatör, kumanda panosu, ana şalter, askı kancası, halat delikleri makine dairesinde. JSON `makine_dairesi` (doseme_ust, tavan_alt, cati_ust, ic_gen, ic_der, sahanlik) ve `makine_dairesi_notlari`, `kesit_notlari` alanları.
+- Kesitlerde "MOTOR" kutusu yazılmaz: iç sistem komple çizilir (raylar+konsollar, kabin çerçevesi, paraşüt, kasnaklar, halat güzergâhı, K.A., regülatör + gergi, tamponlar, aydınlatma, kuyu dibi stop/merdiven, kumanda panosu) ve etiketlenir.

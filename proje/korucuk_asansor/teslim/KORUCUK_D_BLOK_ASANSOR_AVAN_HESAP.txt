@@ -5,17 +5,17 @@ Ana durak üzerindeki kat adedi  N = 4   Kabin kapasitesi = 10 kişi (800 kg)
 P  = %80 doluluk = 0,8 x 10 = 8,0 kişi
 H  = Ortalama en yüksek dönüş katı = 3,94
 S  = Ortalama durak adedi = 3,77
-V  = Kabin hızı = 1,00 m/s     h = Katlar arası mesafe = 3,23 m
-tv = h / V = 3,23 s
-ts = ta + tk + tg - tv = 2,5 + 3,8 + 7,0 - 3,23 = 10,07 s
+V  = Kabin hızı = 1,00 m/s     h = Katlar arası mesafe = 3,00 m
+tv = h / V = 3,00 s
+ts = ta + tk + tg - tv = 2,5 + 3,8 + 7,0 - 3,00 = 10,30 s
 tp = Kişi transfer zamanı = 2,2 s
 1.1.1. Asansörün Bir Seferi İçin Gerekli Seyir Zamanı
-T = 2·H·tv + (S+1)·ts + 2·P·tp = 2 x 3,94 x 3,23 + (3,77 + 1) x 10,07 + 2 x 8,0 x 2,2 = 108,8 s
+T = 2·H·tv + (S+1)·ts + 2·P·tp = 2 x 3,94 x 3,00 + (3,77 + 1) x 10,30 + 2 x 8,0 x 2,2 = 108,0 s
 1.1.1.2. Gerekli Asansör Sayısının Hesabı
-R = 5 x 60 x P / T = 300 x 8,0 / 108,8 = 22,07 kişi (5 dakikada bir asansörün taşıdığı)
-L = B x k / R = 156,0 x 0,075 / 22,07 = 0,53  ->  2 adet asansör
+R = 5 x 60 x P / T = 300 x 8,0 / 108,0 = 22,21 kişi (5 dakikada bir asansörün taşıdığı)
+L = B x k / R = 156,0 x 0,075 / 22,21 = 0,53  ->  2 adet asansör
 1.1.1.3. Bekleme Zamanı
-I = T / n = 108,8 / 2 = 54,4 s  ≤ 100 s  uygundur.
+I = T / n = 108,0 / 2 = 54,0 s  ≤ 100 s  uygundur.
 10 kişilik 1,00 m/s hızında 2 adet asansör seçilmesi uygundur.
 
 1.2. ASANSÖR KUVVET HESABI
@@ -37,4 +37,4 @@ KONTROLLER
 Kabin alanı 1,80 m² ≤ EN 81-20 en büyük 2,00 m² : UYGUN
 İmar (dar kenar ≥ 1,20 m, alan ≥ 1,80 m², kapı ≥ 0,90 m): UYGUN
 Eski TS yöntemi çapraz kontrol: TR=58,2 s, N=5,16 sefer/5dk, B3=103,1 > B2=9,0 : UYGUN
-Kuyu mesafesi ≈ kuyu dibi 1,50 + seyir 16,15 + kuyu üstü 4,45 = 22,10 m
+Kuyu mesafesi ≈ kuyu dibi 1,55 + seyir 16,15 + kuyu üstü 4,45 = 22,15 m

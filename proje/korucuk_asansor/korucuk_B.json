@@ -16,11 +16,11 @@
  "kabin_gen": 120,
  "kabin_der": 150,
  "P_kabin": 550,
- "kuyu_dibi": 1.5,
+ "kuyu_dibi": 1.55,
  "son_doseme_alt": 17.45,
  "son_doseme_kalinlik_oneri": 20,
  "mimari_son_doseme_kalinlik": 10,
- "mimari_kuyu_dibi": "-0,55 (55 cm)",
+ "mimari_kuyu_dibi": "-0,55 (1,55 m - uygun)",
  "ana_durak_ustu": 4,
  "kat_adedi": 5,
  "kuyular": [
@@ -69,32 +69,36 @@
     38623,
     7989
    ]
-  ]
+  ],
+  "kapi_yonu": "+x"
  },
  "blok": "B",
  "durak_kotlari": [
-  0.0,
+  1.0,
   4.0,
   7.0,
   10.0,
   13.0
  ],
  "durak_adlari": [
-  "ZEMİN",
+  "GİRİŞ (+1,00)",
   "1. KAT",
   "2. KAT",
   "3. KAT",
   "4. KAT"
  ],
- "seyir": 13.0,
+ "seyir": 12.0,
  "kuyu_ustu": 4.45,
  "olcu_notlari": [
+  "Zemin kat dükkân katıdır (±0,00, kat yüksekliği 4,00 m). Asansör girişi (konut girişi) +1,00 kotundadır; asansör durakları +1,00 / +4,00 / +7,00 / +10,00 / +13,00 -> girişten itibaren durak arası 3,00 m.",
+  "Seyir mesafesi 12,00 m (+1,00 -> +13,00). Trafik hesabında ana durak +1,00, ortalama kat yüksekliği 3,00 m.",
+  "Motorun asıldığı son döşeme: alt kotu +17,45 (mimari kesitten), mimaride 10 cm. Son durak +13,00 -> kuyu üst boşluğu 4,45 m (yeterli). Döşeme min 20 cm BA + askı kancası (statik).",
+  "Kuyu dibi (mimari kesitten): -0,55 ; ilk durak +1,00 -> kuyu dibi derinliği 1,55 m (imar min 1,40 m - uygun). Kuyu dibi dükkân döşemesinin 55 cm altındadır; su yalıtımı yapılır.",
+  "Kuyu mesafesi (kuyu dibi -> son döşeme altı): 18,00 m.",
   "Kuyu ölçüleri (kaba / sıvalı): kuyu 200 / 195 ; kuyu 215 / 210 / kiriş altı 197,5 ; derinlik 190 / 185. Tüm katlarda aynı yerde ve aynı ölçüde.",
   "Kiriş kuyu içine taşıyor: o kuyuda net genişlik kiriş yüzüyle sınırlı. Kiriş kuyu yüzüne çekilmeli ya da net ölçü esas alınmalı.",
   "Esas alınan net ölçü (her iki kuyu): ~195 x 185 cm. Kabin 1200x1500 + yan karşı ağırlık sığıyor, derinlik sıkı: firma teyidi gerekir.",
-  "Motorun asıldığı son döşeme: alt kotu +17,45, mimaride 10 cm. Son durak +13,00 -> kuyu üst boşluğu 4,45 m (yeterli). Döşeme min 20 cm BA + askı kancası.",
-  "Kuyu dibi: mimaride -0,55 (55 cm). İmar min 1,40 m -> 1,50 m alındı (dip kotu -1,50).",
-  "Kesitte kuyu dibinde genişlik 215 -> 190'a daralıyor (hatıl). Kuyu dibinde de tam genişlik korunmalı.",
+  "Kuyu dibinde genişlik daralmamalı (hatıl/temel kirişi kuyu içine taşmaz).",
   "B blok mimari dosyasında 1-4. kat planları boş; kuyu yalnız zemin ve çatıda ölçüldü.",
   "B blok daire sayısı A ile aynı kabul edildi (32 adet 1+1 + 4 adet 2+1) - teyit edilecek."
  ],
@@ -104,5 +108,8 @@
   "Rögar ve altyapı hatları kuyu dibi altından ve asansör kapı önlerinden geçmez.",
   "Ray konsolları için kuyu duvarları betonarme (mimaride 10 cm ara duvar var; perde/hatıl statikle).",
   "Asansör kuyusu ve önü ısıtılmaz; kuyu tavanında duman tahliye açıklığı bırakılır."
- ]
+ ],
+ "dukkan_kotu": 0.0,
+ "dukkan_yuk": 4.0,
+ "ana_durak_kotu": 1.0
 }

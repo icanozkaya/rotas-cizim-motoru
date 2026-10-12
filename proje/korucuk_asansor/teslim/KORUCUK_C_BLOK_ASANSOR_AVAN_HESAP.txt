@@ -5,36 +5,36 @@ Ana durak üzerindeki kat adedi  N = 4   Kabin kapasitesi = 10 kişi (800 kg)
 P  = %80 doluluk = 0,8 x 10 = 8,0 kişi
 H  = Ortalama en yüksek dönüş katı = 3,94
 S  = Ortalama durak adedi = 3,77
-V  = Kabin hızı = 1,00 m/s     h = Katlar arası mesafe = 3,25 m
-tv = h / V = 3,25 s
-ts = ta + tk + tg - tv = 2,5 + 3,8 + 7,0 - 3,25 = 10,05 s
+V  = Kabin hızı = 1,00 m/s     h = Katlar arası mesafe = 3,00 m
+tv = h / V = 3,00 s
+ts = ta + tk + tg - tv = 2,5 + 3,8 + 7,0 - 3,00 = 10,30 s
 tp = Kişi transfer zamanı = 2,2 s
 1.1.1. Asansörün Bir Seferi İçin Gerekli Seyir Zamanı
-T = 2·H·tv + (S+1)·ts + 2·P·tp = 2 x 3,94 x 3,25 + (3,77 + 1) x 10,05 + 2 x 8,0 x 2,2 = 108,8 s
+T = 2·H·tv + (S+1)·ts + 2·P·tp = 2 x 3,94 x 3,00 + (3,77 + 1) x 10,30 + 2 x 8,0 x 2,2 = 108,0 s
 1.1.1.2. Gerekli Asansör Sayısının Hesabı
-R = 5 x 60 x P / T = 300 x 8,0 / 108,8 = 22,06 kişi (5 dakikada bir asansörün taşıdığı)
-L = B x k / R = 132,6 x 0,075 / 22,06 = 0,45  ->  2 adet asansör
+R = 5 x 60 x P / T = 300 x 8,0 / 108,0 = 22,21 kişi (5 dakikada bir asansörün taşıdığı)
+L = B x k / R = 132,6 x 0,075 / 22,21 = 0,45  ->  2 adet asansör
 1.1.1.3. Bekleme Zamanı
-I = T / n = 108,8 / 2 = 54,4 s  ≤ 100 s  uygundur.
+I = T / n = 108,0 / 2 = 54,0 s  ≤ 100 s  uygundur.
 10 kişilik 1,00 m/s hızında 2 adet asansör seçilmesi uygundur.
 
 1.2. ASANSÖR KUVVET HESABI
 Gk (kabin kütlesi) = 550 kg   Gy (beyan yükü) = 800 kg   q = 0,5
 Karşı ağırlık = Gk + q·Gy = 550 + 0,5 x 800 = 950 kg
-Halat kütlesi Gh = gh x lh x nh = 0,373 x 37,9 x 4 = 56,5 kg
+Halat kütlesi Gh = gh x lh x nh = 0,373 x 35,9 x 4 = 53,6 kg
 1.2.1. Kuyu Alt Boşluğu Tabanına Gelen Kuvvetler
 P1 (kabin tamponu altı) = 4 x gn x (Gk + Gy) = 4 x 9,81 x (550 + 800) = 52.974 N
 P2 (karşı ağırlık tamponu altı) = 4 x gn x Gka = 4 x 9,81 x 950 = 37.278 N
 1.2.3. Kuyu Üstü Betonuna Etki Eden Kuvvetler
-F = gn x (Gmakina + Gsehpa + Gmontör + Gk + Gy + Gh + Gka) = 9,81 x (320 + 100 + 150 + 550 + 800 + 57 + 950) = 28.709 N
+F = gn x (Gmakina + Gsehpa + Gmontör + Gk + Gy + Gh + Gka) = 9,81 x (320 + 100 + 150 + 550 + 800 + 54 + 950) = 28.680 N
 1.2.4. Asansör Motor Gücü Hesabı
-Smaks (artan yük) = Gk + Gh + Gy - Gka = 457 kg   M = Smaks x D/2 = 54,8 kg.m
-N = (1/η) x S x V / 102 = (1/0,80) x 457 x 1,00 / 102 = 5,59 kW (7,5 HP)  ->  seçilen 7,5 kW
+Smaks (artan yük) = Gk + Gh + Gy - Gka = 454 kg   M = Smaks x D/2 = 54,4 kg.m
+N = (1/η) x S x V / 102 = (1/0,80) x 454 x 1,00 / 102 = 5,56 kW (7,5 HP)  ->  seçilen 7,5 kW
 10 kişilik 1,00 m/s hızında 7,5 kW lık 2 adet insan asansörü tesis edilecektir.
 ASANSÖR 4 HALATLI, 2/1 ASKILI OLACAKTIR.
 
 KONTROLLER
 Kabin alanı 1,80 m² ≤ EN 81-20 en büyük 2,00 m² : UYGUN
 İmar (dar kenar ≥ 1,20 m, alan ≥ 1,80 m², kapı ≥ 0,90 m): UYGUN
-Eski TS yöntemi çapraz kontrol: TR=55,0 s, N=5,45 sefer/5dk, B3=109,0 > B2=7,6 : UYGUN
-Kuyu mesafesi ≈ kuyu dibi 1,50 + seyir 13,00 + kuyu üstü 4,45 = 18,95 m
+Eski TS yöntemi çapraz kontrol: TR=54,0 s, N=5,55 sefer/5dk, B3=111,0 > B2=7,6 : UYGUN
+Kuyu mesafesi ≈ kuyu dibi 1,55 + seyir 12,00 + kuyu üstü 4,45 = 18,00 m
