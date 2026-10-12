@@ -40,6 +40,7 @@ python3 pdfp.py  /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_ONI
 ```
 
 ## Kalıcı kurallar (kullanıcı talimatları)
+- Her çizim teslim öncesi kolon kontrolünden geçer: boru (yağmur dahil) ve sembol hiçbir betonarme kolon/perde poligonunu kesmez (`motor/gungoren/kolon_kontrol.py`); iniş kolona denk gelirse üst kat tavanında kolon yüzüne ötelenir ve (*) ile işaretlenir.
 - ROTAŞ / MTY CAD standardı; her şey Türkçe; DWG ile birlikte DXF teslim.
 - Kolondan boru geçmez; mutfak ve WC giderleri birleştirilmez; her ıslak hacim en yakın kendi kolonuna, kolon dibinden rögara.
 - Hiçbir çizgi üst üste binmez: kesişmede köprü (boru tek parça polyline kalır); yazı altında boru KESİLMEZ, yazının altına maske (WIPEOUT) konur (`xcheck.py`).

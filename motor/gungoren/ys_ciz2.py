@@ -302,7 +302,7 @@ def NOB(p, n, r=9.0):
 
 # ================================================================== 1) 2. BODRUM PLANI
 XC = 247420.0          # ana düşey kolektör
-YT = -487950.0         # kuzey tavan hattı
+YT = -488005.0         # kuzey tavan hattı (kolonların güneyinden)
 YSH = -489990.0        # güney tavan hattı
 F1 = (247290.0, -489720.0)
 NODE = (XC, F1[1])
@@ -313,22 +313,34 @@ YSR = (247285.0, -490330.0)
 def pipe(pts, lay, w=2.0):
     return PL(pts, lay, w)
 
-# --- YB sembolleri + etiketler
+# --- YB iniş noktaları kolon yüzüne ötelenir (boru ve sembol kolon içinden geçmez)
+A2 = list(A2); B2 = list(B2)
+OTELE = {}
+def _ot(lst, i, p, lab):
+    lst[i] = p; OTELE[lab] = p
+_ot(A2, 2, (248500.0, A2[2][1]), "A-YB3")
+_ot(A2, 3, (A2[3][0] - 2.0, -489622.0), "A-YB4")
+_ot(A2, 4, (248392.0, A2[4][1]), "A-YB5")
+_ot(A2, 6, (247255.0, A2[6][1]), "A-YB7")
+_ot(B2, 2, (250396.0, B2[2][1]), "B-YB3")
+_ot(B2, 3, (250396.0, B2[3][1]), "B-YB4")
+_ot(B2, 4, (B2[4][0], -490325.0), "B-YB5")
+_ot(B2, 5, (249163.0, B2[5][1]), "B-YB6")
 for i, p in enumerate(A2, 1):
     YB_PLAN(p)
-    T(p[0] + 12, p[1] + 10, f"A-YB{i} %%C70", 10, CY)
+    T(p[0] + 12, p[1] + 10, f"A-YB{i} %%C70" + (" *" if f"A-YB{i}" in OTELE else ""), 10, CY)
 for i, p in enumerate(B2, 1):
     YB_PLAN(p)
-    T(p[0] + 12, p[1] + 10, f"B-YB{i} %%C70", 10, CY)
+    T(p[0] + 12, p[1] + 10, f"B-YB{i} %%C70" + (" *" if f"B-YB{i}" in OTELE else ""), 10, CY)
 
 # --- A blok bağlantıları
 a1, a2, a3, a4, a5, a6, a7, a8 = A2
-pipe([a1, (a1[0], YT), (XC, YT)], CY)
-pipe([a2, (a2[0], YT)], CY)
+pipe([a1, (247255.0, a1[1]), (247255.0, YT), (XC, YT)], CY)
+pipe([a2, (248395.0, a2[1]), (248395.0, YT)], CY)
 pipe([a3, (a3[0], YT)], CY)
 pipe([a8, (a8[0], -488650.0), (XC, -488650.0)], CY)
 pipe([a7, (XC, a7[1])], CY)
-pipe([a6, (247400.0, a6[1]), (247400.0, YSH), (XC, YSH)], CY)
+pipe([a6, (a6[0], -490180.0), (247260.0, -490180.0), (247260.0, YSH), (XC, YSH)], CY)
 T(247170, a6[1] - 22, "A-YB6 duvar dışından, duvar geçişi ile", 8, CY)
 pipe([a5, (a5[0], YSH)], CY)
 pipe([a4, (a4[0], YSH), (XC, YSH)], CY)
@@ -339,7 +351,7 @@ pipe([b1, (b1[0], YT)], CY)
 pipe([b2, (b2[0], YT)], CY)
 pipe([b3, (XBE, b3[1])], CY)
 pipe([b4, (XBE, b4[1])], CY)
-pipe([b5, (b5[0], -490200.0), (XBE, -490200.0), (XBE, YT)], CY)
+pipe([b5, (250398.0, b5[1]), (250398.0, -490200.0), (XBE, -490200.0), (XBE, YT)], CY)
 pipe([b6, (b6[0], -490200.0), (XBW, -490200.0), (XBW, YT)], CY)
 pipe([b7, (XBW, b7[1])], CY)
 pipe([b8, (XBW, b8[1])], CY)
@@ -634,7 +646,7 @@ notes = [
  "8. 'YAĞMURLAMA SUYU DEPOSU' yağmur suyu sistemine bağlanmayacaktır.",
  "9. YSK boruları mor renkli veya 'YAĞMUR SUYU - İÇİLEMEZ' etiketli olacak, bahçe sulama vana kutusu kilitli ve levhalı olacaktır.",
  "10. Sulama hidroforunda kuru çalışma koruması (seviye sensörü) ve kontrol panosunda yüksek / düşük seviye alarmı olacaktır.",
- "11. YB konumları 1. bodrum kat planından aktarılmış olup uygulamada cephe ve kolon konumlarına göre yerinde doğrulanacaktır.",
+ "11. YB konumları 1. bodrum kat planından aktarılmış olup (*) işaretli inişler 1. bodrum tavanında kolon yüzüne ötelenecek, hiçbir boru betonarme kolon ve perde içinden geçirilmeyecektir.",
  "12. Sarnıç çıkış kotu, bağlantı rögarı ve yağmur suyu kanal kotu belediyeden (İSKİ) alınarak sahada teyit edilecektir.",
 ]
 yy = NY0 - 40
@@ -644,7 +656,7 @@ for n in notes:
 
 # ================================================================== EKİPMAN NUMARALARI (plan + şema) ve LİSTE
 for n, p in [(1, (247355.0, -489665.0)), (2, (247140.0, -489820.0)), (3, (246815.0, -489645.0)), (4, (247165.0, -489965.0)),
-             (5, (247060.0, -489800.0)), (6, (247095.0, -490005.0)), (7, (247490.0, -489740.0)), (8, (247640.0, -489860.0)),
+             (5, (247060.0, -489800.0)), (6, (247095.0, -490005.0)), (7, (247490.0, -489740.0)), (8, (247578.0, -489905.0)),
              (9, (247600.0, -489690.0)), (10, (247535.0, -489745.0)), (11, (247515.0, -489885.0)), (12, (247570.0, -489100.0)),
              (13, (247250.0, -490330.0)), (14, (246725.0, -488570.0))]:
     NOB(p, n)
