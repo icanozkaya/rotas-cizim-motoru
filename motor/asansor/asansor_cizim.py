@@ -829,7 +829,7 @@ def ciz(K, cikis):
     c = Cizim(); katmanlar(c)
     md = K.get('tip') == 'makine_daireli'
     aski = K.get('aski', 1 if md else 2)
-    a = Asansor(proje=K['blok'], bina='konut', daireler=[tuple(d) for d in K['daireler']], durak=len(K['durak_kotlari']),
+    a = Asansor(proje=K['blok'], bina=K.get('bina', 'konut'), izul_sinif=K.get('izul_sinif', K.get('bina', 'konut')), b_toplam=K.get('b_toplam', 0), daireler=[tuple(d) for d in K.get('daireler', [])], durak=len(K['durak_kotlari']),
                 ana_durak_ustu=K['ana_durak_ustu'], kat_yuk=(K['durak_kotlari'][-1] - K.get('ana_durak_kotu', K['durak_kotlari'][0])) / K['ana_durak_ustu'], seyir=K['seyir'],
                 kisi=K['kisi'], Q=K['Q'], kabin_gen=int(K['kabin_gen'] * 10), kabin_der=int(K['kabin_der'] * 10),
                 n_asansor=len(K['kuyular']), kuyu_dibi=K['kuyu_dibi'], kuyu_ustu=K['kuyu_ustu'], P_kabin=K['P_kabin'], aski=aski,
@@ -929,7 +929,7 @@ def ciz(K, cikis):
     i2 = metin.index('1.2. ASANSÖR KUVVET HESABI')
     p = yeni(50, 420, 'HESAP-1 TRAFİK HESABI', 'ust'); k = p.k; X0, Y0, X1, Y1 = p.ic()
     giris = ['# GİRDİLER (mimariden)',
-             f"Daireler: " + ', '.join(f'{n} adet {yo}+{do}' for n, yo, do in K['daireler']) + f"  ->  Σb = {f(r['sum_b'],0)} kişi (Tablo-1: ilk yatak odası 2, diğer odalar 1)",
+             (K['b_aciklama'] + f"  ->  Σb = {f(r['sum_b'],0)} kişi") if K.get('b_aciklama') else (f"Daireler: " + ', '.join(f'{n} adet {yo}+{do}' for n, yo, do in K['daireler']) + f"  ->  Σb = {f(r['sum_b'],0)} kişi (Tablo-1: ilk yatak odası 2, diğer odalar 1)"),
              f"Durak kotları: " + ', '.join(f'{ad} {f(z)}' for ad, z in zip(K['durak_adlari'], K['durak_kotlari'])) + f"   Seyir = {f(K['seyir'])} m",
              f"Ana durak: Zemin kat. Ana durak üzerindeki kat sayısı N = {K['ana_durak_ustu']}" + ('  (bodrum durağı hesaba katılmaz)' if alt_kat < 0 else ''),
              f"Ortalama kat yüksekliği h = (son durak - ana durak) / N = {f(a.kat_yuk)} m.  Asansör sayısı n = {len(ky)} (çift asansör)", '']
@@ -1148,6 +1148,15 @@ def ciz(K, cikis):
             c.P('SCOTT-DUVAR', [(xb, Z(z - 0.15)), (xb + 60, Z(z - 0.15)), (xb + 60, Z(z)), (xb, Z(z))])
             c.kot('SCOTT-KOT', xa - 70, Z(z), ('+' if z > 0 else ('±' if z == 0 else '')) + f(z), 2.0 * k)
             c.T('SCOTT-BASLIK', (xa - 118, Z(z) + 30), ad_, 2.4 * k)
+        # durak olmayan döşemeler (teras vb.) - kuyu içinden geçer, kapı yok
+        for zg, adg in K.get('gecis_kotlari', []):
+            xa = xs0 - tw
+            c.P('SCOTT-DUVAR', [(xa, Z(zg - 0.15)), (xa - 120, Z(zg - 0.15)), (xa - 120, Z(zg)), (xa, Z(zg))])
+            c.tara('SCOTT-TARAMA', xa - 120, Z(zg - 0.15), xa, Z(zg), 6)
+            xb = xs0 + gen + tw
+            c.P('SCOTT-DUVAR', [(xb, Z(zg - 0.15)), (xb + 60, Z(zg - 0.15)), (xb + 60, Z(zg)), (xb, Z(zg))])
+            c.kot('SCOTT-KOT', xa - 70, Z(zg), '+' + f(zg), 2.0 * k)
+            c.T('SCOTT-UYARI', (xa - 118, Z(zg) + 30), adg, 2.0 * k)
         # zemin kat dükkân döşemesi ±0,00 (referans, asansör durağı değil)
         if K.get('dukkan_kotu') is not None:
             zd = K['dukkan_kotu']

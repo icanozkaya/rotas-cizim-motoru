@@ -242,8 +242,12 @@ def rapor(a: Asansor, r=None):
     L.append(f'L = B x k / R = {f(r["B"],1)} x {f(r["k"],3)} / {f(r["R"])} = {f(r["L"])}  ->  {r["n"]} adet asansör')
     L.append('1.1.1.3. Bekleme Zamanı')
     durum = 'uygundur.' if r['bekleme_ok'] else ('şartlı kabul (taahhütname gerekir).' if r['bekleme_sartli'] else 'UYGUN DEĞİL - asansör sayısı/hız/kapasite artırılmalı.')
-    L.append(f'I = T / n = {f(r["T"],1)} / {r["n"]} = {f(r["I"],1)} s  ≤ {r["izul"]} s  {durum}')
-    L.append(f'{a.kisi} kişilik {f(r["V"])} m/s hızında {r["n"]} adet asansör seçilmesi uygundur.')
+    isaret = '≤' if r['I'] <= r['izul'] else '>'
+    L.append(f'I = T / n = {f(r["T"],1)} / {r["n"]} = {f(r["I"],1)} s  {isaret} {r["izul"]} s  {durum}')
+    if r['bekleme_ok'] or r['bekleme_sartli']:
+        L.append(f'{a.kisi} kişilik {f(r["V"])} m/s hızında {r["n"]} adet asansör seçilmesi uygundur.')
+    else:
+        L.append(f'Taşıma kapasitesi yeterli (L = {f(r["L"])} ≤ {r["n"]}); bekleme aralığı sınırı aşılıyor (bkz. kontrol notları).')
     L.append('')
     L.append('1.2. ASANSÖR KUVVET HESABI')
     L.append(f'Gk (kabin kütlesi) = {f(a.P_kabin,0)} kg   Gy (beyan yükü) = {f(a.Q,0)} kg   q = {f(a.q_denge,1)}')

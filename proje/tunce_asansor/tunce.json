@@ -1,0 +1,123 @@
+{
+ "proje": {
+  "sahip": "EMİNE TUNCE",
+  "il": "SAKARYA",
+  "ilce": "SERDİVAN",
+  "mahalle": "YAZLIK",
+  "ada": "-",
+  "parsel": "5799",
+  "tarih": "13.10.2026"
+ },
+ "blok": "TUNCE",
+ "tip": "makine_daireli",
+ "tip_kapak": "MAKİNE DAİRELİ TEK",
+ "aski": 1,
+ "derinlik": 190,
+ "ara_duvar": 10,
+ "dis_duvar": 25,
+ "kisi": 10,
+ "Q": 800,
+ "kabin_gen": 120,
+ "kabin_der": 150,
+ "P_kabin": 550,
+ "kuyu_dibi": 1.6,
+ "son_doseme_alt": 12.7,
+ "son_doseme_kalinlik_oneri": 15,
+ "mimari_son_doseme_kalinlik": 15,
+ "mimari_kuyu_dibi": "-1,40 (ölçü 160 cm - uygun)",
+ "ana_durak_kotu": 0.2,
+ "ana_durak_ustu": 2,
+ "kat_adedi": 3,
+ "kuyular": [
+  [
+   210,
+   null
+  ]
+ ],
+ "kiris_taraf": "sag",
+ "yibf": "-",
+ "daireler": [],
+ "durak_kotlari": [
+  0.2,
+  4.7,
+  8.2
+ ],
+ "durak_adlari": [
+  "ZEMİN (+0,20)",
+  "1. KAT (+4,70)",
+  "2. KAT (+8,20)"
+ ],
+ "seyir": 8.0,
+ "kuyu_ustu": 4.5,
+ "makine_dairesi": {
+  "doseme_ust": 12.85,
+  "tavan_alt": 15.05,
+  "cati_ust": 15.2,
+  "ic_gen": 210,
+  "ic_der": 190,
+  "sahanlik": 11.7,
+  "kapi_h": 2.0
+ },
+ "mimari": {
+  "flat": "/home/claude/tuncer/out/t.flat.pkl",
+  "pencere": [
+   26250,
+   -12850,
+   29900,
+   -10650
+  ],
+  "kat_adi": "ZEMİN KAT PLANI",
+  "kuyu_kutulari": [
+   [
+    26742,
+    -12283,
+    26952,
+    -12093
+   ]
+  ],
+  "kapi_yonu": "+y"
+ },
+ "olcu_notlari": [
+  "Asansör: tek, makine daireli, 1/1 askı, 800 kg / 10 kişi, kabin 1200x1500, kat kapısı 90/210 teleskopik otomatik.",
+  "Duraklar (mimari A-A kesit ölçü zincirinden): +0,20 zemin (ana durak) / +4,70 / +8,20 -> 3 durak, seyir 8,00 m, durak arası 4,50 ve 3,50 m.",
+  "Asansör terasa (+11,70) ÇIKMAZ; teras kotunda kat kapısı yoktur. Kuyu teras döşemesinden geçerek makine dairesine kadar devam eder.",
+  "Kuyu (perde iç yüzleri) 210 x 190 cm; yan perdeler 30 cm, arka 25 cm, kapı tarafı kiriş 25 cm. Tüm katlarda aynı yerde.",
+  "Mimaride kuyu kapı tarafı tüm genişlikte açık çizilmiş: kat kapısı 90/210, kabin ekseninde; kapı yanları duvar/perde ile kapatılmalı.",
+  "Kuyu dibi (ölçü 160 cm): +0,20 -> -1,40, derinlik 1,60 m (imar min 1,40 m - uygun). Altında 60 cm radye.",
+  "Kuyu tavanı (makine dairesi döşemesi altı) +12,70; son durak +8,20 -> kuyu üst boşluğu 4,50 m (yeterli).",
+  "Makine dairesi: döşeme +12,85, tavan altı +15,05 (net 2,20 m), iç ölçü 2,10 x 1,90 m (kuyu üstünde). Teras +11,70 -> 1,15 m kot farkı, erişim merdiveni gerekir."
+ ],
+ "koordinasyon": [
+  "Asansör kuyusundan ve makine dairesinden asansöre ait olmayan boru/kablo geçmez.",
+  "Kuyu dibine pis su süzgeci/bağlantısı yapılmaz; kuyu dibi su yalıtımlı (radye üstü).",
+  "Rögar ve altyapı hatları kuyu dibi altından ve asansör kapı önünden geçmez.",
+  "Teras yağmur suyu ve gideri kuyu ve makine dairesi üzerinden geçirilmez; makine dairesi çatısı yalıtımlı.",
+  "Asansör kuyusu ısıtılmaz; makine dairesi havalandırılır, sıcaklığı +5..+40 °C aralığında tutulur."
+ ],
+ "kesit_notlari": [
+  "Kuyu dibi -1,40 (ilk durak +0,20 -> 1,60 m). Kuyu tavanı +12,70 (son durak +8,20 -> üst boşluk 4,50 m).",
+  "Asansör terasa (+11,70) çıkmaz; teras kotunda kapı yoktur.",
+  "Makine: makine dairesinde titreşim takozlu kaide üzerinde, tahrik + saptırma kasnaklı, 1/1 askı; tip/ölçü firmaya göre kesinleşir.",
+  "Kumanda panosu, regülatör ve ana şalter makine dairesindedir; halat delikleri 5 cm bordürlü."
+ ],
+ "makine_dairesi_notlari": [
+  "Makine dairesi net 2,10 x 1,90 m (3,99 m²), net yükseklik 2,20 m (EN 81-20 min 2,10 m - uygun).",
+  "Alan dar: kumanda panosu önünde 0,70 m çalışma alanı ile makine bakım alanı birlikte sıkışıyor;",
+  "   seçilecek makineyle yerleşim firma tarafından doğrulanmalı, gerekirse makine dairesi büyütülmeli.",
+  "Erişim: teras +11,70 -> makine dairesi döşemesi +12,85 (1,15 m): sabit merdiven + korkuluk gerekir (mimari netleştirilmeli).",
+  "Kapı dışa açılır, kilitli, \"ASANSÖR MAKİNE DAİRESİ - YETKİSİZ GİRİLMEZ\" levhalı.",
+  "Havalandırma menfezi; aydınlatma min 200 lüks; priz ve ana şalter kapı yanında.",
+  "Halat delikleri 5 cm yükseltilmiş bordürlü; makine dairesinden asansöre ait olmayan tesisat geçmez."
+ ],
+ "dosya_adi": "SERDIVAN_5799_EMINE_TUNCE_ASANSOR_AVAN",
+ "bina": "is_merkezi",
+ "izul_sinif": "is_merkezi_tek",
+ "b_toplam": 36,
+ "b_aciklama": "İş yeri: 1. kat ofisler net 214,71 m² + 2. kat ofisler net 214,22 m² = 428,93 m² / 12 m² (Tablo-1) = 35,7 -> 36 kişi (zemin kat dükkânlar ana durakta, hesaba katılmaz)",
+ "gecis_kotlari": [
+  [
+   11.7,
+   "TERAS +11,70 (DURAK YOK)"
+  ]
+ ]
+}

@@ -152,3 +152,8 @@ Yazı yükseklikleri: hesap 12, kat adı 16, pafta başlığı 18–29,5, antet 
 - **Son kat (çatı) döşemesi** (ör. +16,00) kesitlerde kat döşemeleri gibi kot ve adıyla işlenir (`son_kat_doseme_kotu`).
 - Katman (kalem) adları `SCOTT-` önekli (eski `ASN-`).
 - Mimari düzleştirme depoda saklanır (`proje/<proje>/mimari/*.flat.pkl`); R12 DXF'ten kurtarırken POLYLINE da okunur.
+
+## 12. İş yeri / makine daireli ek kurallar (13.10.2026)
+- İş yeri / ofis binası: `bina: is_merkezi`, `izul_sinif: is_merkezi_tek`, `b_toplam` = ana durak üstündeki katların net çalışma alanı / 12 m² (mimari BB net alan tablosundan), `b_aciklama` metni hesap paftasına yazılır.
+- Durak olmayan geçiş kotları (teras vb.) `gecis_kotlari: [[kot, 'TERAS ... (DURAK YOK)']]` ile kesitte gösterilir.
+- Teslim: kullanıcı tercihi - **yalnız DXF** (DWG ve önizleme PDF gönderilmez).
