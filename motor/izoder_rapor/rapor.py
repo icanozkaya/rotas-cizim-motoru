@@ -186,7 +186,8 @@ async def pdf(htmlstr, out):
         await b.close()
 
 
-def main(xls, xlsx, out):
+def main(xls, xlsx, out, blok='B1 BLOK'):
+    P['blok'] = blok
     R = isi_kaybi(xls); G, Ra = radyator(xlsx)
     # ısı kaybı cetvelinde çatı katı 13-14 nolu odalar "Ç 11 / Ç 12" diye yazılmış; radyatör çizelgesindeki numara esas alınır
     gor = set()
@@ -203,4 +204,4 @@ def main(xls, xlsx, out):
 
 
 if __name__ == '__main__':
-    main(*sys.argv[1:4])
+    main(*sys.argv[1:5])
