@@ -40,6 +40,16 @@ python3 pdfp.py  /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_ONI
 ```
 
 ## Kalıcı kurallar (kullanıcı talimatları)
+- GENEL (13.10.2026, kullanıcı: "bir daha söyletme"): Her iş en son onaylanan sürümün üzerinden ve aynı tarzda yapılır (sıhhi = önceki onaylı sıhhi projeler / MTY bloklu kolon şeması; asansör = Korucuk onaylı seti; yangın = VOYAP yangın; ısıtma/yerden ısıtma = Emine Tunçel `p3/et.py` salyangoz + kapıdan geçen ayaklar). Kafaya göre yeni tarz, ayrı şema vb. yapılmaz.
+- Tüm dosyalarda katman (kalem) adları `SCOTT-` ile başlar (teslimde 0 ve Defpoints dışındaki bütün katmanlar SCOTT- önekli).
+- Plan ve akış/kolon şemalarındaki bütün vana ve cihazlar gerçek gösterimleriyle (MTY blokları / gerçek sembol; kutu, daire vb. temsili şekil yok) çizilir ve numaralandırılır (V-01, P-01 ... + ekipman listesi).
+- Sıhhi kolon şeması tek şemadır: temiz su + sıcak su + pis su aynı şemada, kullanıcının MTY şemasındaki gibi vitrifiye "KOLON" blokları, PVC çatal, T.K., rögar blokları ile. Temiz/pis ayrı şema YAPILMAZ.
+- Merkezi sıcak suya geçilen projede termosifon yazısı, termosifon sembolü ve termosifona giden sıcak/soğuk hat parçaları planda ve şemada tamamen kaldırılır; merkezi sıcak su ofisin sıcak su ağına bağlanır.
+- Su deposu gereksiz yere ikiye bölünmez (tek depo).
+- Dükkân peteği: dükkân başına 4 adet, duvar köşelerine dükkâna oranla, ~100x60 (gerekirse büyütülür).
+- Yerden ısıtmada hiçbir çizgi üst üste binmez (serpantin, ayak, kollektör bağlantıları).
+- Yangın pompa grubu şemada kesit (görünüş) olarak çizilir.
+- Pis su kolon (iniş) noktası: kullanıcının MTY 'tavandan' pis su ağının çıkış ucu (en büyük Ø/SB etiketinin parçasından akış yönündeki uç), armatür ucu değil; betonarme kolona düşerse ağ boyunca ≥15 cm geri çekilir (`motor/voyap/tes/piscol2.py`).
 - MRL asansör: makine yan perdeye ankrajlı duvar konsolunda (çapraz askılı, alttan sehpalı), makine askı kancası yok, kuyu aydınlatması her katta, regülatör ana ray yanında (kabin arkasında değil), halat 7xØ6,5, kesitlerde son kat döşemesi (+16,00 gibi) işlenir, döşeme kalınlıkları mimarideki gibi (öneri/kot yazısı yok), katmanlar SCOTT-, kapak sol alt köşede notlar üstünde, paftalar boşluksuz sıkıştırılır ve çizgiler üst üste binmez (`ornekler/asansor/ASANSOR_STANDARDI.md` §11).
 - Yangın (13.10.2026): lift (araç asansörü) ara seviyelerine sprinkler konmaz; kolon (riser) hatları mahal ortasından değil duvar köşesinden çıkar; mahal sprinkler beslemeleri mümkün olduğunca mahal kapısından girer; çapı yazılmamış boru kalmaz (her boru parçasında DN + başlık sayısı).
 - Merkezi sistemli ofis/dükkân binası (VOYAP 13.10.2026): her bağımsız bölüm girişinde sayaç dolabı (soğuk su + sıcak su sayacı + kalorimetre); 3 borulu sıcak su (soğuk / sıcak / sirkülasyon, sirkülasyon sayaç öncesinde biter); ofis yerden ısıtma 45/35, dükkân panel radyatör 70/50; kazan dairesi kullanıcı isterse sığınak içinde EI120 bölmeyle; otopark havalandırması 4 hava değişimi + duman tahliyesi 10 hava değişimi, egzoz çıkışı sığınağın karşı cephesinden, betonarmede boşluk notu; sığınak alanı ölçülür, alana göre taze hava/egzoz, 100 m² üstünde duman egzozu.
