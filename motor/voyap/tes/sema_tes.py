@@ -254,7 +254,8 @@ def isitma_sema(X0=289400.0, YT=-440500.0):
                     px = k0x + 15 + jj * 42
                     PL([(px, yr + 250), (px, yr + 470), (px + 14, yr + 470), (px + 14, yr + 230)], PEX)
                     T(px + 7, yr + 476, f"P{jj + 1}", 6, KLT, TA.BOTTOM_CENTER)
-                    T(px - 4, yr + 262, f"{kat - 1}{k}.{c['pidx'] + 1} {c['room']['name'][:8]} {c.get('W', 0):.0f}W {c['L']:.1f}m", 5.5, PEX, TA.BOTTOM_LEFT, 90)
+                    zn = (' ' + c['user']['zon']) if c.get('user') and c['user'].get('zon') else ''
+                    T(px - 4, yr + 262, f"{kat - 1}{k}.{c['pidx'] + 1}{zn} {c['room']['name'][:8]} {c.get('W', 0):.0f}W {c['L']:.1f}m", 5.5, PEX, TA.BOTTOM_LEFT, 90)
                     T(px + 23, yr + 262, f"PEX 16x2,0 a={c['s']:.0f} {c.get('W', 0):.0f}W-DN15", 5.0, ICAP, TA.BOTTOM_LEFT, 90)
                 x += ow(k)
     offs1 = [k for k in OFIS_S1 if SAFT_OF[k] == 'S1']

@@ -515,6 +515,32 @@ def ofis_k(kat, k, Dd):
                 c['W'] = calc[r['comp']][0]['Q'] * c['rpoly'].area / Ar
         R['circ'] = circ
         R['calc3'] = calc
+    # kullanıcının kendi MTY devreleri (planda onlar çizili): devre listesi + kollektör ağız sayısı onlardan
+    try:
+        import ukat
+        UD = ukat.devreler().get((kat, k))
+    except Exception:
+        UD = None
+    if UD:
+        import copy
+        R = copy.copy(R)
+        calc = R['calc3' if 'calc3' in R else 'calc']
+        circ = []
+        for i, d in enumerate(UD):
+            pt = Point(d['p'])
+            r = min(R['rooms'], key=lambda q: q['poly'].distance(pt))
+            c = dict(room=r, rpoly=r['poly'], s=d['s'], ipart=0, npart=1, full=None, pidx=i, legs=(), path=None,
+                     L=d['L'], W=(d['W'] if d['W'] else calc[r['comp']][0]['Q']), ti=calc[r['comp']][0]['ti'],
+                     Ar=r['poly'].area / 1e4, user=d)
+            circ.append(c)
+        n = len(circ)
+        ux, uy = R['u']; nx_, ny_ = R['n']; kc = R['kc']
+        Wk = 12 + n * 10
+        ports = []
+        for i in range(n):
+            t = -Wk / 2 + 8 + i * 10
+            ports.append(((kc[0] + ux * t - nx_ * 6, kc[1] + uy * t - ny_ * 6), (kc[0] + ux * (t + 4) - nx_ * 6, kc[1] + uy * (t + 4) - ny_ * 6)))
+        R['circ'] = circ; R['ports'] = ports; R['Wk'] = Wk; R['user'] = True
     return R
 
 

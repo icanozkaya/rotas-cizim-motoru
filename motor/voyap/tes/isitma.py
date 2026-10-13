@@ -156,6 +156,9 @@ def draw_ofis_isitma(kat):
         q = R['ofis'][(kat, k)]
         place_text(kc, [f"KL-{kat - 1}{k} KOLLEKTÖR", f"{nd} AĞIZLI  Q={q['Q']} W  DN25"], 5.5, KLT, rmax=80)
         place_text(c, [f"KM-{kat - 1}{k}", "KALORİMETRE"], 6.0, KAL, rmax=50)
+        OUTI[('ofis', kat, k)] = dict(n=nd, K=dict(c=kc, W=Wk), Y=Y)
+        if Y.get('user'):        # kullanıcının kendi MTY serpantinleri, devre etiketleri ve mahal etiketleri (TAM'da yerinde)
+            continue
         # devreler
         for i_, c_ in enumerate(sorted(Y['circ'], key=lambda z: z['pidx'])):
             PL(shl(c_['path']), PEX)

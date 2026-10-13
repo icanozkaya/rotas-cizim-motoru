@@ -302,9 +302,9 @@ def sema(X0=258900.0, YT=-440600.0):
             havalik(kx, top, 1.4)
             T(kx + 12, yf[4] + 40, f"HAVALIK Ø{dk} (ÇATIDAN 50 cm YUKARI)", 6, PSC, TA.BOTTOM_LEFT, 90)
             MTYB('MTY-KOLON NO PIS SU', (kx, top + 75), 0, 1.0, PSN, {'K': nm})
-            for fi, mult in ((2, 2), (3, 1)):
-                T(kx - 12, yf[fi] - 230, f"Ø{dk} / {fmt(sbk * mult)} SB", 7, PSC, TA.BOTTOM_LEFT, 90, mask=True)
-            T(kx - 12, yf[1] + 300, f"Ø{dk} / {fmt(sbk * 2)} SB (ZEMİN ASMA TAVANI)", 7, PSC, TA.BOTTOM_LEFT, 90, mask=True)
+            for fi, mult in ((2, 2), (3, 1)):                   # kat bandı içinde kolon yanında kümülatif SB (onaylı şema düzeni)
+                T(kx - 12, yf[fi] + 40, f"Ø{dk} / {fmt(sbk * mult)} SB", 8, PSC, TA.BOTTOM_LEFT, 90, mask=True)
+            T(kx - 12, yf[1] + 300, f"Ø{dk} / {fmt(sbk * 2)} SB (ZEMİN ASMA TAVANI)", 8, PSC, TA.BOTTOM_LEFT, 90, mask=True)
             MTYB('MTY-TEMIZLEME KAPAGI KOLON', (kx, ybot + 55), 0, 0.8, PSC, {'TK': 'T.K.'})
             MTYB('PVC DIRSEK', (kx, ybot), 0, 1.0, PVC)
             dline((kx + 20, ybot - 26), (kx + 120, ybot - 26), 5)

@@ -163,7 +163,10 @@ def draw_ofis_sihhi(kat):
         p = (pk['kol'][0] + dx, pk['kol'][1])
         INS("T-KOLON-P", p, 0, 1.0, lay=PSK)
         nm = f"P{j + 1}"
-        place_text(p, [nm], 8.0, PSN, rmax=45)
+        # onaylı plan düzeni: kolon balonu (daire içinde kolon no) + 'Ø100 PVC' çap yazısı
+        bp_ = place_text(p, [nm], 9.0, PSN, rmax=60, prefer=[(-1, 1), (-1, 0), (-1, -1), (1, 1)])
+        C((bp_[0], bp_[1]), 14, PSN)
+        place_text(p, [f"{pk['cap']} PVC"], 6.0, PSC, rmax=60, prefer=[(1, 0), (1, 1), (1, -1)])
     for sh in ('S1', 'S2'):
         p = W(SAFT[sh]['boru']['SS'], kat, 'S')
         place_text(p, [f"Ş{sh[1]} TESİSAT ŞAFTI", "SS / SıS / SİRK"], 6.0, SFT, rmax=90, prefer=[(1, 1), (1, -1), (1, 0)])

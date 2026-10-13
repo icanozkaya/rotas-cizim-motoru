@@ -102,7 +102,17 @@ def scott(d, wipe_sil=True):
                 if o.dxf.hasattr(a): nl.dxf.set(a, o.dxf.get(a))
     def fix(e):
         ly = e.dxf.get('layer', '0')
-        if ly in ren: e.dxf.layer = ren[ly]
+        if ly not in ('0', 'Defpoints') and not ly.upper().startswith('SCOTT'):
+            nn = 'SCOTT-' + ly
+            if nn not in d.layers:                      # katman tablosunda olmayan katman (ör. sonradan eklenen varlık): kaynaktan kopyala
+                nl = d.layers.add(nn)
+                o = d.layers.get(ly) if ly in d.layers else (sdoc.layers.get(ly) if ly in sdoc.layers else None)
+                if o is not None:
+                    for a in ('color', 'linetype', 'lineweight', 'true_color', 'plot'):
+                        if o.dxf.hasattr(a):
+                            try: nl.dxf.set(a, o.dxf.get(a))
+                            except Exception: pass
+            e.dxf.layer = nn
         if e.dxftype() == 'INSERT':
             for a in e.attribs: fix(a)
     for lo in d.layouts:
@@ -194,9 +204,7 @@ for e in sdoc.modelspace():
             lay_, q_ = TERMO['trim'][e.dxf.handle]; PL(q_, lay_)
         nx += 1; continue
     # H sırası 1.-2. kat ofisleri: eski MTY yerden ısıtma devreleri / mahal etiketleri (yeni tasarım çizildi)
-    if 284700 < cx < 289044 and -447827 < cy < -440327:
-        if lay in ('MTY-PEX-BORU', 'MTY-ISIKAYBIMAHAL') or lay.startswith('MTY-RADYAT') or (e.dxftype() == 'INSERT' and e.dxf.name == 'MTY-RADYATOR MAHAL'):
-            nx += 1; continue
+    # H sırası 1.-2. kat ofisleri: kullanıcının kendi MTY yerden ısıtma serpantinleri / mahal etiketleri KORUNUR (onaylı tarz)
     # termosifon yazıları (merkezi sıcak suya geçildi)
     if e.dxftype() in ('TEXT', 'MTEXT') and lay == 'MTY-VANA':
         t = e.dxf.text if e.dxftype() == 'TEXT' else e.text
@@ -211,6 +219,36 @@ for e in sdoc.modelspace():
     sec.append(e)
 im = Importer(sdoc, doc)
 im.import_entities(sec, msp); im.finalize()
+# kullanıcının MTY dinamik blok örnekleri ('*U': çap/MB etiketleri, MTY tefrişleri, rögar...) — ezdxf bunları atıyor, ham DXF'ten geri yazılır
+import ulabel
+_U = ulabel.oku('/tmp/claude-0/vy/sih.dxf')
+_rmgeo = []
+for _h in TERMO['rm']:
+    try:
+        _e = sdoc.entitydb[_h]; _b = _bb.extents([_e], fast=True)
+        if _b.has_data: _rmgeo.append((_b.extmin.x - 12, _b.extmin.y - 12, _b.extmax.x + 12, _b.extmax.y + 12))
+    except Exception:
+        pass
+
+
+def _kabul(u):
+    x, y = u['p']
+    tags = {a['tag'] for a in u['att']}
+    if 'SO_001' in tags: return False                                   # termosifon tefrişi (iptal)
+    for x0, x1, y0, y1 in EXC:
+        if x0 < x < x1 and y0 < y < y1: return False
+    if tags <= {'SO', 'SOCP', 'SC', 'SCCP', 'PS', 'PSCP'} and any(a['lay'] in ('MTY-TEMIZSU-CAP', 'MTY-YUK-BIRIMI', 'MTY-PISSU-CAP') for a in u['att']):
+        for x0, y0, x1, y1 in _rmgeo:                                       # termosifon ucu etiketleri
+            if x0 < x < x1 and y0 < y < y1: return False
+    return True
+
+
+_nb, _nt = ulabel.yaz(sdoc, doc, msp, _U, _kabul)
+print('  MTY dinamik blok örnekleri geri yazıldı: blok', _nb, 'metin', _nt)
+if 'MTY-ETIKET' in doc.blocks:          # PEX modunda 2. satır 'PEX BORU' yazar; sabit 'Kcal/h:' yazısı üst üste biniyor
+    _b = doc.blocks.get('MTY-ETIKET')
+    for _e in list(_b.query('TEXT')):
+        if _e.dxf.text.strip().lower().startswith('kcal'): _b.delete_entity(_e)
 for n in ('MIM-BODRUM-GUNCEL', 'MIM-GUNCEL-BODRUM'):
     if n in doc.layers: doc.layers.get(n).color = 8
 scott(doc, wipe_sil=False)
