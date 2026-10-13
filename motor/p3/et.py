@@ -976,13 +976,22 @@ def klima_zemin():
     push(MOVE(dx('Z'), HDY))
     for r in res:
         S = r['S']
-        for i, (io, irot, oo, dtar) in enumerate(S['units'][:r['adet']]):
-            cu, dr = GK.ic_unite(io, irot, r['btu'])
+        uu = S['units'][:r['adet']]
+        sg = 1 if uu[0][1] == -90 else -1                  # batı duvarı: oda +x yönünde
+        cus = [GK.ic_unite(io, irot, r['btu']) for io, irot, oo, dtar in uu]
+        W = min(u[0][0] for u in uu) if sg > 0 else max(u[0][0] for u in uu)   # duvar yüzü
+        for i, (io, irot, oo, dtar) in enumerate(uu):
+            cu, dr = cus[i]
             dc = GK.dis_unite(oo, 180)
-            yb_ = -12300.0
-            path = [cu, (cu[0], yb_), (dc[0], yb_), dc]
+            # hatlar DUVAR İÇİNDE (ünitelerin arkasında), her ünite ayrı şeritte; yatay seviyeler arka duvar içinde ayrı
+            xd = W - sg * (3 + 12 * i); xb = xd - sg * 6
+            yd_ = -12296.0 - 12 * i; yb_ = yd_ - 6
+            path = [cu, (xb, cu[1]), (xb, yb_), (dc[0], yb_), dc]
             pipe(path, GK.LBAK, 'K'); node(path[0], 'KLIMA'); node(path[-1], 'KLIMA')
-            dp = [dr, (dr[0], yb_ + 6), (dtar[0], yb_ + 6), dtar]
+            if i == 0:
+                dp = [dr, (xd, dr[1]), (xd, yd_), (dtar[0], yd_), dtar]
+            else:                                         # sonraki ünite drenajı birinci drenajın yağmur inişine inen düşeyine bağlanır
+                dp = [dr, (xd, dr[1]), (xd, yd_), (dtar[0], yd_)]
             pipe(dp, GK.LDRN, 'KD'); node(dp[0], 'KLIMA'); node(dp[-1], 'KLIMA')
             west = irot == -90
             tx, ty = io
