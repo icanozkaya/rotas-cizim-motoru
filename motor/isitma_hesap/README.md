@@ -12,3 +12,4 @@ Yöntem:
 - Denge kabı D = √(4Q/(π·0,15)); kazan dairesi havalandırma alt 6 cm²/kW, üst 3 cm²/kW.
 Proje: İstanbul Güngören, 69 pafta 944 ada 343 parsel, B1-B2-B3 blok (aynı proje sıhhi hesapları: motor/hesaplar_sema).
 - DXF düzeni: rapor notları (MTEXT) diğer notlarla aynı stil (ARİAL, 14,37, beyaz, katman 0) düz yazıya çevrilir; başlık/madde eklenmez-silinmez, yalnız proje/kat bilgileri doldurulur. Tablolar sıkı (sütun genişliği içeriğe göre), beyaz yazı + kırmızı çerçeve, her hesap ayrı çerçevede.
+- Ekipman tablosu yalnız projede çizili cihazlar için (IK, IP, DK, GT); şablondaki projede olmayan tablolar (nötralizasyon, su yumuşatma, kazan besleme) çıkarılır. Genel bilgiler notu kendi çerçevesi içinde tablo olarak (aynı maddeler).

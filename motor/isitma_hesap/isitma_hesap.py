@@ -110,11 +110,7 @@ EQ = [('DUVAR TİPİ YOĞUŞMALI ISITMA KAZANI TABLOSU', ['CİHAZ NO', 'CİHAZIN
        [['DK-01', 'ISITMA DENGE KABI', QK, D_SEC, 145, 100, f(QMAX, 2), 1]]),
       ('KAPALI GENLEŞME ve BÜZÜLME TANKLARI TABLOSU', ['CİHAZ NO', 'TANIMLAMA', 'TANK TİPİ', 'TANK KAPASİTESİ (Lt)', 'ÖN BASINÇ (bar)', 'EMNİYET VENTİLİ (bar)', 'ADET'],
        [['GT-01', 'ISITMA SİSTEMİ', 'KAPALI, DİKEY TİP, DEĞİŞTİRİLEBİLİR MEMBRANLI', GT, f(P0, 1), f(PSV, 0), 1]]),
-      ('NÖTRALİZASYON TANKI TABLOSU', ['CİHAZ NO', 'TANIMLAMA', 'CİHAZIN BULUNDUĞU YER', 'KAPASİTESİ (kW)', 'DEBİ (L/h)', 'GİRİŞ ÇIKIŞ ÇAPI (")', 'ADET'],
-       [['NT-01', 'NÖTRALİZASYON TANKI', 'BODRUM', 750, 100, '1 1/2"', 1]]),
-      ('KAZAN BESLEME', ['CİHAZ NO', 'TANIMLAMA', 'CİHAZIN BULUNDUĞU YER', 'ÇAP (mm)', 'ADET'], [['KB-1', 'MEKANİK KAZAN BESLEME', 'BODRUM', 25, 1]]),
-      ('SU YUMUŞATMA CİHAZI', ['CİHAZ NO', 'TİP', 'HİZMET ETTİĞİ ALAN', 'KAPASİTE (m³/h)', 'İŞLETME BASINCI (bar)', 'REÇİNE MİKTARI (lt)', 'GİRİŞ - ÇIKIŞ ÇAPI', 'ADET'],
-       [['SYC-1', 'TANDEMLİ VOLUMETRİK SU YUMUŞATMA CİHAZI', 'ISITMA SİSTEMİ', '1,5', '2,5-7,5', 7, '1"-1"', 1]])]
+]
 pickle.dump(dict(SEC=SEC, SEC_H=SEC_H, EQ=EQ, R=R), open('/tmp/claude-0/is/content.pkl', 'wb'))
 # ======================== Excel
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill

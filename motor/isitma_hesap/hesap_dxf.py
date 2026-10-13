@@ -23,24 +23,18 @@ def duz(t):
     t = re.sub(r'^\d+;', '', t); t = t.replace('\\P', '\n').replace('{', '').replace('}', '').replace('**', '')
     t = re.sub(r'\\[LlOoKk]', '', t)
     return t
+GB = None
 for e in list(msp.query('MTEXT')):
     t = duz(e.text)
     if 'GENEL BİLGİLER' in t:
-        t = re.sub(r'BİNA İSTANBUL\s+İLİNDE OLUP .*?OLUŞMAKTADIR', f"BİNA İSTANBUL İLİ GÜNGÖREN İLÇESİ {PROJ['pafta']} PAFTA {PROJ['ada']} ADA {PROJ['parsel']} PARSEL ÜZERİNDE OLUP {PROJ['katlar']}'NDAN OLUŞMAKTADIR (B1-B2-B3 BLOK)", t, flags=re.S)
-        t = t.replace('BİNADA DOĞALGAZLI KOMBİ  KULLANILACAKTIR', f"BİNADA DOĞALGAZ YAKITLI DUVAR TİPİ YOĞUŞMALI KASKAD KAZAN ({PROJ['kazan']}) KULLANILACAKTIR")
-        i = t.find('8.SICAK SU KAPASİTESİ')
-        if i >= 0:
-            j = t.find('KALORİFER PROJE RAPOR')
-            t = t[:i] + f"8.SICAK SU KAPASİTESİ\n\n{PROJ['daire']} ADET 24 kW KAPASİTELİ DUVARA ASILABİLEN HERMETİK ŞOFBEN KULLANILACAKTIR.\n\n({PROJ['daire']} x 24) = {PROJ['daire'] * 24} kW   {PROJ['sahip']}\n" + (t[j:] if j > 0 else '')
+        GB = (e.dxf.insert.x, e.dxf.insert.y, e.dxf.width, t.count('\n') + 1)
+        msp.delete_entity(e); continue
     if 'YALITIM ŞARTNAMESİ' in t and not t.lstrip().startswith('ISI YALITIM'):
         k = t.find('ISI YALITIM ŞARTNAMESİ')          # parça sırası bozulmuş: başlıktan başlat
-        t = t[k:].replace('Dış duvar ı', 'Dış duvar ı', 1) + t[:k]
-        t = t.replace('Dış duvar ısı yalıtımında', 'Dış duvar ısı yalıtımında')
+        t = t[k:] + t[:k]
     lines = [ln.rstrip() for ln in t.split('\n')]
     t = '\\P'.join(re.sub(r'\s+', ' ', ln).strip() for ln in lines)
     e.text = t; e.dxf.style = STY; e.dxf.char_height = H_NOT; e.dxf.layer = '0'; e.dxf.color = 256
-    try: e.dxf.line_spacing_factor = 1.0
-    except Exception: pass
 # ---------------------------------------------------------------- tablolar
 def T(x, y, s, h, al=TA.MIDDLE_LEFT):
     t = msp.add_text(s, height=h, dxfattribs={'layer': '0', 'style': STY, 'width': 0.8}); t.set_placement((x, y), align=al)
@@ -91,6 +85,35 @@ def table(x, y, title, hdr, rows, h=7.5):
             s = str(v); box(xx, y, xx + w, y - RH); T(xx + w / 2, y - RH / 2, s, fit(s, w, h), TA.MIDDLE_CENTER); xx += w
         y -= RH
     return y, sum(ws_)
+# ---------------------------------------------------------------- GENEL BİLGİLER tablosu (notun yerine, aynı maddeler)
+GBR = [('1. GENEL BİLGİLER', None),
+       ('Binanın yeri', f"İSTANBUL İLİ GÜNGÖREN İLÇESİ {PROJ['pafta']} PAFTA {PROJ['ada']} ADA {PROJ['parsel']} PARSEL"),
+       ('Kat durumu', f"{PROJ['katlar']} (B1-B2-B3 BLOK)"),
+       ('2. İKLİM VERİLERİ', None), ('İklim bölgesi', '3'), ('Kış dış hava sıcaklığı', '-3 °C'), ('Binanın durumu', 'BİTİŞİK'),
+       ('Bölgenin durumu', 'RÜZGARLI'), ('İşletme durumu', '1'),
+       ('3. KULLANMA AMACI', None), ('Kullanma amacı', 'KONUT'), ('Isıtma', 'BİNADA D.GAZLI KASKAD KAZAN İLE SAĞLANACAKTIR'),
+       ('4. ISI İLETİM KATSAYILARI', None), ('Isı iletim katsayıları', 'TS 825 ISI YALITIM ESASLARINA GÖRE HESAPLANMIŞTIR'),
+       ('5. YAKIT TÜRÜ', None), ('Yakıt / cihaz', f"DOĞALGAZ - DUVAR TİPİ YOĞUŞMALI KASKAD KAZAN ({PROJ['kazan']})"),
+       ('6. MAHAL SICAKLIKLARI', None), ('Mahal sıcaklıkları', 'MMO 84 NOLU KALORİFER TESİSAT YAYININDAN ALINMIŞTIR'),
+       ('7. ISITICI TİPİ', None), ('Isıtıcı', 'MAHALLERDE RADYATÖR ISITMA KULLANILACAKTIR'), ('Vanalar', 'TERMOSTAT AYARLI OLACAKTIR'),
+       ('8. SICAK SU KAPASİTESİ', None), ('Sıcak su', f"{PROJ['daire']} ADET 24 kW KAPASİTELİ DUVARA ASILABİLEN HERMETİK ŞOFBEN"),
+       ('Toplam', f"({PROJ['daire']} x 24) = {PROJ['daire'] * 24} kW"), ('Yapı sahibi', PROJ['sahip'])]
+if GB:
+    FX0, FX1, FY0, FY1 = 344982, 345913, -493881, -492702       # notun kendi çerçevesi (AAA)
+    gx = 345040; gw = FX1 - 20 - gx            # soldaki rapor çerçevesine (x=345022) binmesin
+    top = FY1 - 18
+    nrow = len(GBR)
+    RHg = (top - 40 - (FY0 + 20)) / nrow
+    yy = top
+    T(gx + gw / 2, yy - 14, 'KALORİFER PROJE RAPORU - GENEL BİLGİLER', H_NOT * 1.15, TA.MIDDLE_CENTER); yy -= 36
+    c1 = gw * 0.30
+    for a_, b_ in GBR:
+        if b_ is None:
+            box(gx, yy, gx + gw, yy - RHg); T(gx + 8, yy - RHg / 2, a_, H_NOT * 0.95); yy -= RHg
+        else:
+            box(gx, yy, gx + c1, yy - RHg); box(gx + c1, yy, gx + gw, yy - RHg)
+            T(gx + 18, yy - RHg / 2, a_, fit(a_, c1 - 22, H_NOT * 0.85)); T(gx + c1 + 8, yy - RHg / 2, b_, fit(b_, gw - c1 - 14, H_NOT * 0.85))
+            yy -= RHg
 YT = -492960
 # ekipman tabloları (sıkı)
 x0 = 346761; y = YT; wmax = 0
