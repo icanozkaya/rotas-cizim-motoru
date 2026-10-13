@@ -114,6 +114,59 @@ if GB:
             box(gx, yy, gx + c1, yy - RHg); box(gx + c1, yy, gx + gw, yy - RHg)
             T(gx + 18, yy - RHg / 2, a_, fit(a_, c1 - 22, H_NOT * 0.85)); T(gx + c1 + 8, yy - RHg / 2, b_, fit(b_, gw - c1 - 14, H_NOT * 0.85))
             yy -= RHg
+
+# ---------------------------------------------------------------- KALORİFER TESİSATI PROJE / TEKNİK RAPORU tablosu (aynı metin)
+RX0, RX1, RY0, RY1 = 344223, 345022, -493172, -491047
+RT = [e for e in msp.query('TEXT') if RX0 < e.dxf.insert.x < RX1 and RY0 < e.dxf.insert.y < RY1 and e.dxf.layer == '0' and e.dxf.style == STY]
+RT.sort(key=lambda e: (-round(e.dxf.insert.y), e.dxf.insert.x))
+lines = [re.sub(r'\s+', ' ', e.dxf.text).strip() for e in RT]
+for e in RT: msp.delete_entity(e)
+items = []      # (tip, a, b): 'T' başlık, 'S' bölüm, 'U' alt başlık, 'K' anahtar/değer, 'P' paragraf
+par = []
+def flush():
+    global par
+    if par: items.append(('P', ' '.join(par).replace(' ,', ','), None)); par = []
+for ln in lines:
+    if not ln: continue
+    if ln.startswith('KALORİFER TESİSATI'): flush(); items.append(('T', ln, None)); continue
+    if re.match(r'^[A-E]\)', ln): flush(); items.append(('S', ln, None)); continue
+    if re.match(r'^\d\)', ln) or ln == 'Kabul Edilen Sıcaklıklar': flush(); items.append(('U', ln, None)); continue
+    m = re.match(r'^(.{2,40}?)\s*:\s*(.+)$', ln)
+    m2 = re.match(r'^(Pencereler|İç Kapı|Dış kapı)\s+(.+)$', ln)
+    if m and len(m.group(1)) < 40: flush(); items.append(('K', m.group(1).strip(), re.sub(r'\s+', ' ', m.group(2)).strip())); continue
+    if m2: flush(); items.append(('K', m2.group(1), m2.group(2))); continue
+    par.append(ln)
+flush()
+HR = 11.5
+def wrap(s, w, h):
+    out, cur = [], ''
+    for wd in s.split():
+        if tw((cur + ' ' + wd).strip(), h * 0.85) > w and cur: out.append(cur); cur = wd
+        else: cur = (cur + ' ' + wd).strip()
+    if cur: out.append(cur)
+    return out
+gx, gw = RX0 + 14, RX1 - RX0 - 28
+rows = []
+for t, a, b in items:
+    if t == 'P':
+        for ln in wrap(a, gw - 16, HR): rows.append(('P', ln, None))
+    else: rows.append((t, a, b))
+nT = sum(1 for r in rows if r[0] == 'T')
+RHr = min(34.0, (RY1 - RY0 - 40 - nT * 16) / (len(rows) + 0.6 * nT))
+yy = RY1 - 14; c1 = gw * 0.55
+for t, a, b in rows:
+    if t == 'T':
+        yy -= 8; box(gx, yy, gx + gw, yy - RHr * 1.3); T(gx + gw / 2, yy - RHr * 0.65, a, HR * 1.2, TA.MIDDLE_CENTER); yy -= RHr * 1.3
+    elif t == 'S':
+        box(gx, yy, gx + gw, yy - RHr); T(gx + 6, yy - RHr / 2, a, fit(a, gw - 10, HR * 1.05)); yy -= RHr
+    elif t == 'U':
+        box(gx, yy, gx + gw, yy - RHr); T(gx + 14, yy - RHr / 2, a, HR); yy -= RHr
+    elif t == 'K':
+        box(gx, yy, gx + c1, yy - RHr); box(gx + c1, yy, gx + gw, yy - RHr)
+        T(gx + 24, yy - RHr / 2, a, fit(a, c1 - 28, HR)); T(gx + c1 + (gw - c1) / 2, yy - RHr / 2, b, fit(b, gw - c1 - 8, HR), TA.MIDDLE_CENTER); yy -= RHr
+    else:
+        box(gx, yy, gx + gw, yy - RHr); T(gx + 8, yy - RHr / 2, a, HR * 0.95); yy -= RHr
+
 YT = -492960
 # ekipman tabloları (sıkı)
 x0 = 346761; y = YT; wmax = 0
