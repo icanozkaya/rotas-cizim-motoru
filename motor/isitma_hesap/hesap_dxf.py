@@ -70,18 +70,5 @@ for t, hdr, rows in C['EQ']:
     y = table(x0, y, t, hdr, rows, w) - 30
 ys = y
 box(x0 - 15, ytop + 15, x0 + max(sum(WID.get(len(h_)) or [1500]) for _, h_, _ in C['EQ']) + 15, ys + 10, 1.0)
-# rapor metinleri: proje bilgisi ve eski proje kalıntıları düzeltilir
-for e in msp.query('TEXT'):
-    s = e.dxf.text
-    if '69/1 Pafta 804 Ada 323 Parsel' in s: e.dxf.text = s.replace('69/1 Pafta 804 Ada 323 Parsel', '69 Pafta 944 Ada 343 Parsel')
-for e in msp.query('MTEXT'):
-    s = e.text
-    if 'GENEL BİLGİLER' in e.plain_text():
-        s = s.replace('BİNADA DOĞALGAZLI KOMBİ  KULLANILACAKTIR', 'BİNADA DOĞALGAZ YAKITLI DUVAR TİPİ YOĞUŞMALI KASKAD KAZAN ({} x {} kW = {} kW) KULLANILACAKTIR'.format(R['K_ADET'], R['K_BIRIM'], R['QK']))
-        i = s.find('8.SICAK SU KAPASİTESİ')
-        if i >= 0:
-            j = s.find('KALORİFER PROJE RAPOR')
-            s = s[:i] + '8.SICAK SU KAPASİTESİ\\P\\P    HER DAİREDE 24 kW KAPASİTELİ DUVARA ASILABİLEN HERMETİK ŞOFBEN KULLANILACAKTIR.\\P\\P    ' + (s[j:] if j > 0 else '')
-        e.text = s
 doc.header['$INSUNITS'] = 5
 doc.saveas('/tmp/claude-0/is/out/ISITMA_HESAPLARI.dxf'); print('ok')

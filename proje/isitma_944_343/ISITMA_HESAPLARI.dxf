@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461327.9702314814
+2461327.973310185
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461327.9702314814
+2461327.973310185
   9
 $TDUUPDATE
  40
@@ -549,7 +549,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-2DD
+2D5
   9
 $SURFTAB1
  70
@@ -933,7 +933,7 @@ $FINGERPRINTGUID
   9
 $VERSIONGUID
   2
-{D5AA7807-FB5F-4FE7-8698-647A426ED016}
+{3F7DB98F-9F81-46B2-ABFE-40EC5253E23D}
   9
 $EXTNAMES
 290
@@ -3527,7 +3527,7 @@ AcCmTransparency
   0
 APPID
   5
-2D9
+2D1
 330
 30
 100
@@ -3541,7 +3541,7 @@ HATCHBACKGROUNDCOLOR
   0
 APPID
   5
-2DA
+2D2
 330
 30
 100
@@ -4125,7 +4125,7 @@ AcDbText
  40
 14.37320475994214
   1
-69 Pafta 944 Ada 343 Parsel üzerinde bulunan ,  2 bodrum,1 zemin, 5 normal
+69/1 Pafta 804 Ada 323 Parsel üzerinde bulunan ,  2 bodrum,1 zemin, 5 normal
   7
 ARİAL
  11
@@ -6805,13 +6805,15 @@ ERİ\P\fTimes New Roman|b0|i0|c162|p18;\H0.85714x;İKLİM BÖLGESİ; 3\PKIŞ DI�
   3
 |i0|c162|p18;\H0.85714x; ;\P\PKONUT  \PISITMA  BİNADA D.GAZLI  KASKAD KAZAN  İLE SAGLANACAKTIR.\P\P\fTimes New Roman|b1|i0|c162|p18;\H1.16667x;4.ISI İLETİM KATSAYILARI ;\P\pl0,t66.54396;\H1.28571x;\P\pl20.47506,tz;\fTimes New Roman|b0|i0|c162|p18;\H0
   3
-.66667x;S825 ISIYALITIM ESASLARINA GÖRE HESAPLANMIŞTIR\P\P\fTimes New Roman|b1|i0|c162|p18;\H1.16667x;5.YAKIT TÜRÜ\P\fTimes New Roman|b0|i0|c162|p18;\H0.85714x;\PBİNADA DOĞALGAZ YAKITLI DUVAR TİPİ YOĞUŞMALI KASKAD KAZAN (2 x 65 kW = 130 kW) KULLANILA
+.66667x;S825 ISIYALITIM ESASLARINA GÖRE HESAPLANMIŞTIR\P\P\fTimes New Roman|b1|i0|c162|p18;\H1.16667x;5.YAKIT TÜRÜ\P\fTimes New Roman|b0|i0|c162|p18;\H0.85714x;\PBİNADA DOĞALGAZLI KOMBİ  KULLANILACAKTIR\P\P\fTimes New Roman|b1|i0|c162|p18;\H1.16667x;
   3
-CAKTIR\P\P\fTimes New Roman|b1|i0|c162|p18;\H1.16667x;6.MAHAL SICAKLIKLARI\fTimes New Roman|b0|i0|c162|p18;;\P\H0.85714x;\PMMO 84 NOLU KALORİFER TESİSAT YAYININDAN ALINMISTIR.\P\pl0;\P\pt66.54396;\fTimes New Roman|b1|i0|c162|p18;\H1.16667x;    7.ISIT
+6.MAHAL SICAKLIKLARI\fTimes New Roman|b0|i0|c162|p18;;\P\H0.85714x;\PMMO 84 NOLU KALORİFER TESİSAT YAYININDAN ALINMISTIR.\P\pl0;\P\pt66.54396;\fTimes New Roman|b1|i0|c162|p18;\H1.16667x;    7.ISITICI TİPİ\P     \P     \fTimes New Roman|b0|i0|c162|p18
   3
-ICI TİPİ\P     \P     \fTimes New Roman|b0|i0|c162|p18;MAHALLERDE\H0.85714x;  RADYATÖR ISITMA  KULLANILACAKTIR.\P      VANALAR  TERMOSTAT  AYARLI  OLACAKTIR.\P\fTimes New Roman|b1|i0|c162|p18;\H1.16667x;     \P    8.SICAK SU KAPASİTESİ\P\P    HER DAİ
+;MAHALLERDE\H0.85714x;  RADYATÖR ISITMA  KULLANILACAKTIR.\P      VANALAR  TERMOSTAT  AYARLI  OLACAKTIR.\P\fTimes New Roman|b1|i0|c162|p18;\H1.16667x;     \P    8.SICAK SU KAPASİTESİ\P\P\fTimes New Roman|b0|i0|c162|p18;\H0.85714x;    43 ADET 24.000 KW
+  3
+, KAPASİTELİ   ELEKTRİKLİ  \P    ŞOFBEN KULLANILACAKTIR.\P\P\pt354.9011;\fTimes New Roman|b1|i0|c162|p18;\H1.5x;(43 x 24.000 )  = 1.032.000 kW }\pt354.9011;{\fTimes New Roman|b1|i0|c162|p18;\H1.5x;\C256;YEŞİM SİVRİCAN VE HİSSait\P\ptz;    K\H0.88889x
   1
-REDE 24 kW KAPASİTELİ DUVARA ASILABİLEN HERMETİK ŞOFBEN KULLANILACAKTIR.\P\P    
+;ALORİFER PROJE RAPOR\fTimes New Roman|b0|i0|c162|p18;\P\pi420.20208;\fTimes New Roman|b1|i0|c162|p18;\H0.75x;\P\pi-20.47506,l40.95013,t40.9501
   7
 yazıkesit
 1001
@@ -8975,7 +8977,7 @@ AcDbText
  40
 8.5
   1
-2 adet
+5 adet
   7
 RTS-HESAP
  41
@@ -9113,7 +9115,7 @@ AcDbText
  40
 8.5
   1
-65 kW
+110 kW
   7
 RTS-HESAP
  41
@@ -9251,7 +9253,7 @@ AcDbText
  40
 8.5
   1
-2 × 65 = 130 kW (111.800 kcal/h)
+5 × 110 = 550 kW (473.000 kcal/h)
   7
 RTS-HESAP
  41
@@ -9603,7 +9605,7 @@ AcDbText
  40
 8.5
   1
-65 / (1,163 × 20) = 2,79 m³/h (kazan başına)
+110 / (1,163 × 20) = 4,73 m³/h (kazan başına)
   7
 RTS-HESAP
  41
@@ -9741,7 +9743,7 @@ AcDbText
  40
 8.5
   1
-3,00 m³/h - 6,0 mSS (kazan başına)
+5,00 m³/h - 5,0 mSS (kazan başına)
   7
 RTS-HESAP
  41
@@ -9843,7 +9845,7 @@ AcDbText
  40
 8.5
   1
-Q sistem = Q ısı kaybı / (1,163 × ΔT)
+Q sistem = Q radyatör / (1,163 × ΔT)
   7
 RTS-HESAP
  41
@@ -9879,7 +9881,7 @@ AcDbText
  40
 8.5
   1
-86,04 / (1,163 × 20) = 3,70 m³/h
+461,1 / (1,163 × 20) = 19,82 m³/h
   7
 RTS-HESAP
  41
@@ -10017,7 +10019,7 @@ AcDbText
  40
 8.5
   1
-4,50 m³/h (≥ 3,70 × 1,10)
+20,00 m³/h - 10,0 mSS
   7
 RTS-HESAP
  41
@@ -11133,7 +11135,7 @@ AcDbText
  40
 8.5
   1
-7,0 mSS
+10,0 mSS
   7
 RTS-HESAP
  41
@@ -11311,7 +11313,7 @@ AcDbText
  40
 8.5
   1
-Radyatör su hacmi
+Toplam sistem su hacmi (V_s)
   7
 RTS-HESAP
  41
@@ -11347,7 +11349,7 @@ AcDbText
  40
 8.5
   1
-222,0 m × 5,7 l/m = 1.265 Litre
+550 kW × 10 lt/kW = 5.500 Litre
   7
 RTS-HESAP
  41
@@ -11449,7 +11451,7 @@ AcDbText
  40
 8.5
   1
-Toplam sistem su hacmi (V_s) (+%30 tesisat)
+Genleşme katsayısı (e) — 90 °C
   7
 RTS-HESAP
  41
@@ -11485,7 +11487,7 @@ AcDbText
  40
 8.5
   1
-1.645 Litre
+0,0359
   7
 RTS-HESAP
  41
@@ -11587,7 +11589,7 @@ AcDbText
  40
 8.5
   1
-Genleşme katsayısı (e) — 90 °C
+Genleşen su hacmi (V_e)
   7
 RTS-HESAP
  41
@@ -11623,7 +11625,7 @@ AcDbText
  40
 8.5
   1
-0,0359
+5.500 × 0,0359 = 197,5 Litre
   7
 RTS-HESAP
  41
@@ -11725,7 +11727,7 @@ AcDbText
  40
 8.5
   1
-Genleşen su hacmi (V_e)
+Yedek su hacmi (V_WR) — %0,5
   7
 RTS-HESAP
  41
@@ -11761,7 +11763,7 @@ AcDbText
  40
 8.5
   1
-1.645 × 0,0359 = 59,1 Litre
+27,5 Litre
   7
 RTS-HESAP
  41
@@ -11863,7 +11865,7 @@ AcDbText
  40
 8.5
   1
-Yedek su hacmi (V_WR) — %0,5
+Statik yükseklik (H_statik)
   7
 RTS-HESAP
  41
@@ -11899,7 +11901,7 @@ AcDbText
  40
 8.5
   1
-8,2 Litre
+24 m
   7
 RTS-HESAP
  41
@@ -12001,7 +12003,7 @@ AcDbText
  40
 8.5
   1
-Statik yükseklik (H_statik)
+Ön basınç (P_0) = H/10 + 0,3
   7
 RTS-HESAP
  41
@@ -12037,7 +12039,7 @@ AcDbText
  40
 8.5
   1
-24 m
+2,7 bar
   7
 RTS-HESAP
  41
@@ -12139,7 +12141,7 @@ AcDbText
  40
 8.5
   1
-Ön basınç (P_0) = H/10 + 0,3
+Emniyet ventili açma basıncı (P_sv)
   7
 RTS-HESAP
  41
@@ -12175,7 +12177,7 @@ AcDbText
  40
 8.5
   1
-2,7 bar
+6,0 bar
   7
 RTS-HESAP
  41
@@ -12277,7 +12279,7 @@ AcDbText
  40
 8.5
   1
-Emniyet ventili açma basıncı (P_sv)
+Son basınç (P_e) = P_sv − 0,5
   7
 RTS-HESAP
  41
@@ -12313,7 +12315,7 @@ AcDbText
  40
 8.5
   1
-6,0 bar
+5,5 bar
   7
 RTS-HESAP
  41
@@ -12415,7 +12417,7 @@ AcDbText
  40
 8.5
   1
-Son basınç (P_e) = P_sv − 0,5
+Gerekli nominal hacim V_n = (V_e+V_WR)·(P_e+1)/(P_e−P_0)
   7
 RTS-HESAP
  41
@@ -12451,7 +12453,7 @@ AcDbText
  40
 8.5
   1
-5,5 bar
+522 Litre
   7
 RTS-HESAP
  41
@@ -12553,7 +12555,7 @@ AcDbText
  40
 8.5
   1
-Gerekli nominal hacim V_n = (V_e+V_WR)·(P_e+1)/(P_e−P_0)
+Seçilen tank (GT-01)
   7
 RTS-HESAP
  41
@@ -12589,7 +12591,7 @@ AcDbText
  40
 8.5
   1
-156 Litre
+1000 Litre
   7
 RTS-HESAP
  41
@@ -12607,147 +12609,9 @@ AcDbText
  73
 2
   0
-LWPOLYLINE
+TEXT
   5
 196
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-350510.0
- 20
--493436.8000000004
- 10
-350890.0
- 20
--493436.8000000004
- 10
-350890.0
- 20
--493457.2000000004
- 10
-350510.0
- 20
--493457.2000000004
-  0
-LWPOLYLINE
-  5
-197
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-350890.0
- 20
--493436.8000000004
- 10
-351250.0
- 20
--493436.8000000004
- 10
-351250.0
- 20
--493457.2000000004
- 10
-350890.0
- 20
--493457.2000000004
-  0
-TEXT
-  5
-198
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-350514.0
- 20
--493447.0000000004
- 30
-0.0
- 40
-8.5
-  1
-Seçilen tank (GT-01)
-  7
-RTS-HESAP
- 41
-0.85
- 11
-350514.0
- 21
--493447.0000000004
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-199
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-351070.0
- 20
--493447.0000000004
- 30
-0.0
- 40
-8.5
-  1
-200 Litre
-  7
-RTS-HESAP
- 41
-0.85
- 72
-1
- 11
-351070.0
- 21
--493447.0000000004
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-19A
 330
 2
 100
@@ -12761,13 +12625,13 @@ AcDbText
  10
 350510.0
  20
--493466.2000000004
+-493445.8000000004
  30
 0.0
  40
 8.5
   1
-Sonuç: Seçilen 200 litre genleşme deposu yeterlidir.
+Sonuç: Seçilen 1000 litre genleşme deposu yeterlidir.
   7
 RTS-HESAP
  41
@@ -12775,7 +12639,145 @@ RTS-HESAP
  11
 350510.0
  21
--493466.2000000004
+-493445.8000000004
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+197
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP-YAZI
+ 62
+5
+100
+AcDbText
+ 10
+350510.0
+ 20
+-493474.8000000004
+ 30
+0.0
+ 40
+9.774999999999999
+  1
+7. DENGE KABI BOYUTLANDIRMA HESABI (DK-01)
+  7
+RTS-HESAP
+ 41
+0.85
+ 11
+350510.0
+ 21
+-493474.8000000004
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LWPOLYLINE
+  5
+198
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+350510.0
+ 20
+-493488.8000000004
+ 10
+350890.0
+ 20
+-493488.8000000004
+ 10
+350890.0
+ 20
+-493509.2000000004
+ 10
+350510.0
+ 20
+-493509.2000000004
+  0
+LWPOLYLINE
+  5
+199
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+350890.0
+ 20
+-493488.8000000004
+ 10
+351250.0
+ 20
+-493488.8000000004
+ 10
+351250.0
+ 20
+-493509.2000000004
+ 10
+350890.0
+ 20
+-493509.2000000004
+  0
+TEXT
+  5
+19A
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP-YAZI
+100
+AcDbText
+ 10
+350514.0
+ 20
+-493499.0000000004
+ 30
+0.0
+ 40
+8.5
+  1
+Maksimum sistem debisi (Q_maks)
+  7
+RTS-HESAP
+ 41
+0.85
+ 11
+350514.0
+ 21
+-493499.0000000004
  31
 0.0
 100
@@ -12792,28 +12794,28 @@ TEXT
 AcDbEntity
   8
 MTY-HESAP-YAZI
- 62
-5
 100
 AcDbText
  10
-350510.0
+351070.0
  20
--493495.2000000004
+-493499.0000000004
  30
 0.0
  40
-9.774999999999999
+8.5
   1
-7. DENGE KABI BOYUTLANDIRMA HESABI (DK-01)
+23,65 m³/h = 0,00657 m³/s
   7
 RTS-HESAP
  41
 0.85
+ 72
+1
  11
-350510.0
+351070.0
  21
--493495.2000000004
+-493499.0000000004
  31
 0.0
 100
@@ -12905,7 +12907,7 @@ AcDbText
  40
 8.5
   1
-Maksimum sistem debisi (Q_maks)
+Azami gövde akış hızı (v)
   7
 RTS-HESAP
  41
@@ -12941,7 +12943,7 @@ AcDbText
  40
 8.5
   1
-5,59 m³/h = 0,00155 m³/s
+0,15 m/s
   7
 RTS-HESAP
  41
@@ -13043,7 +13045,7 @@ AcDbText
  40
 8.5
   1
-Azami gövde akış hızı (v)
+Hesaplanan iç çap D = √[4·Q/(π·v)]
   7
 RTS-HESAP
  41
@@ -13079,7 +13081,7 @@ AcDbText
  40
 8.5
   1
-0,15 m/s
+236 mm
   7
 RTS-HESAP
  41
@@ -13181,7 +13183,7 @@ AcDbText
  40
 8.5
   1
-Hesaplanan iç çap D = √[4·Q/(π·v)]
+Seçilen denge kabı iç çapı
   7
 RTS-HESAP
  41
@@ -13217,7 +13219,7 @@ AcDbText
  40
 8.5
   1
-115 mm
+Ø 300 mm
   7
 RTS-HESAP
  41
@@ -13319,7 +13321,7 @@ AcDbText
  40
 8.5
   1
-Seçilen denge kabı iç çapı
+Denge kabı ısıl yükü
   7
 RTS-HESAP
  41
@@ -13355,7 +13357,7 @@ AcDbText
  40
 8.5
   1
-Ø 150 mm
+550 kW
   7
 RTS-HESAP
  41
@@ -13457,7 +13459,7 @@ AcDbText
  40
 8.5
   1
-Denge kabı ısıl yükü
+Giriş – çıkış çapları
   7
 RTS-HESAP
  41
@@ -13493,7 +13495,7 @@ AcDbText
  40
 8.5
   1
-130 kW
+DN100 (4")
   7
 RTS-HESAP
  41
@@ -13511,285 +13513,9 @@ AcDbText
  73
 2
   0
-LWPOLYLINE
+TEXT
   5
 1B0
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-350510.0
- 20
--493611.20000000054
- 10
-350890.0
- 20
--493611.20000000054
- 10
-350890.0
- 20
--493631.60000000056
- 10
-350510.0
- 20
--493631.60000000056
-  0
-LWPOLYLINE
-  5
-1B1
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-350890.0
- 20
--493611.20000000054
- 10
-351250.0
- 20
--493611.20000000054
- 10
-351250.0
- 20
--493631.60000000056
- 10
-350890.0
- 20
--493631.60000000056
-  0
-TEXT
-  5
-1B2
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-350514.0
- 20
--493621.40000000055
- 30
-0.0
- 40
-8.5
-  1
-Denge kabı yüksekliği
-  7
-RTS-HESAP
- 41
-0.85
- 11
-350514.0
- 21
--493621.40000000055
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-1B3
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-351070.0
- 20
--493621.40000000055
- 30
-0.0
- 40
-8.5
-  1
-900 mm
-  7
-RTS-HESAP
- 41
-0.85
- 72
-1
- 11
-351070.0
- 21
--493621.40000000055
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-LWPOLYLINE
-  5
-1B4
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-350510.0
- 20
--493631.60000000056
- 10
-350890.0
- 20
--493631.60000000056
- 10
-350890.0
- 20
--493652.0000000006
- 10
-350510.0
- 20
--493652.0000000006
-  0
-LWPOLYLINE
-  5
-1B5
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-350890.0
- 20
--493631.60000000056
- 10
-351250.0
- 20
--493631.60000000056
- 10
-351250.0
- 20
--493652.0000000006
- 10
-350890.0
- 20
--493652.0000000006
-  0
-TEXT
-  5
-1B6
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-350514.0
- 20
--493641.80000000057
- 30
-0.0
- 40
-8.5
-  1
-Giriş – çıkış çapları
-  7
-RTS-HESAP
- 41
-0.85
- 11
-350514.0
- 21
--493641.80000000057
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-1B7
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-351070.0
- 20
--493641.80000000057
- 30
-0.0
- 40
-8.5
-  1
-DN50
-  7
-RTS-HESAP
- 41
-0.85
- 72
-1
- 11
-351070.0
- 21
--493641.80000000057
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-1B8
 330
 2
 100
@@ -13803,13 +13529,13 @@ AcDbText
  10
 350510.0
  20
--493661.0000000006
+-493620.20000000054
  30
 0.0
  40
 8.5
   1
-Sonuç: Seçilen Ø150 mm denge kabı yeterlidir.
+Sonuç: Seçilen Ø300 mm denge kabı yeterlidir.
   7
 RTS-HESAP
  41
@@ -13817,7 +13543,7 @@ RTS-HESAP
  11
 350510.0
  21
--493661.0000000006
+-493620.20000000054
  31
 0.0
 100
@@ -13827,7 +13553,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1B9
+1B1
 330
 2
 100
@@ -13853,15 +13579,15 @@ AcDbPolyline
  10
 351260.0
  20
--493686.0000000006
+-493645.20000000054
  10
 350500.0
  20
--493686.0000000006
+-493645.20000000054
   0
 TEXT
   5
-1BA
+1B2
 330
 2
 100
@@ -13899,7 +13625,7 @@ AcDbText
   0
 TEXT
   5
-1BB
+1B3
 330
 2
 100
@@ -13939,7 +13665,7 @@ AcDbText
   0
 TEXT
   5
-1BC
+1B4
 330
 2
 100
@@ -13977,7 +13703,7 @@ AcDbText
   0
 TEXT
   5
-1BD
+1B5
 330
 2
 100
@@ -14013,7 +13739,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1BE
+1B6
 330
 2
 100
@@ -14045,7 +13771,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-1BF
+1B7
 330
 2
 100
@@ -14077,7 +13803,7 @@ AcDbPolyline
   0
 TEXT
   5
-1C0
+1B8
 330
 2
 100
@@ -14113,7 +13839,7 @@ AcDbText
   0
 TEXT
   5
-1C1
+1B9
 330
 2
 100
@@ -14131,7 +13857,7 @@ AcDbText
  40
 8.5
   1
-130 kW
+550 kW
   7
 RTS-HESAP
  41
@@ -14151,7 +13877,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1C2
+1BA
 330
 2
 100
@@ -14183,7 +13909,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-1C3
+1BB
 330
 2
 100
@@ -14215,7 +13941,7 @@ AcDbPolyline
   0
 TEXT
   5
-1C4
+1BC
 330
 2
 100
@@ -14251,7 +13977,7 @@ AcDbText
   0
 TEXT
   5
-1C5
+1BD
 330
 2
 100
@@ -14289,7 +14015,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1C6
+1BE
 330
 2
 100
@@ -14321,7 +14047,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-1C7
+1BF
 330
 2
 100
@@ -14353,7 +14079,7 @@ AcDbPolyline
   0
 TEXT
   5
-1C8
+1C0
 330
 2
 100
@@ -14389,7 +14115,7 @@ AcDbText
   0
 TEXT
   5
-1C9
+1C1
 330
 2
 100
@@ -14427,7 +14153,7 @@ AcDbText
   0
 TEXT
   5
-1CA
+1C2
 330
 2
 100
@@ -14465,7 +14191,7 @@ AcDbText
   0
 TEXT
   5
-1CB
+1C3
 330
 2
 100
@@ -14483,7 +14209,7 @@ AcDbText
  40
 7.65
   1
-A_alt = 130 × 6 = 780 cm²
+A_alt = 550 × 6 = 3.300 cm²
   7
 RTS-HESAP
  41
@@ -14501,7 +14227,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1CC
+1C4
 330
 2
 100
@@ -14533,7 +14259,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-1CD
+1C5
 330
 2
 100
@@ -14565,7 +14291,7 @@ AcDbPolyline
   0
 TEXT
   5
-1CE
+1C6
 330
 2
 100
@@ -14601,7 +14327,7 @@ AcDbText
   0
 TEXT
   5
-1CF
+1C7
 330
 2
 100
@@ -14619,7 +14345,7 @@ AcDbText
  40
 8.5
   1
-30 × 30 cm  (900 cm²)
+60 × 60 cm  (3.600 cm²)
   7
 RTS-HESAP
  41
@@ -14639,7 +14365,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1D0
+1C8
 330
 2
 100
@@ -14671,7 +14397,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-1D1
+1C9
 330
 2
 100
@@ -14703,7 +14429,7 @@ AcDbPolyline
   0
 TEXT
   5
-1D2
+1CA
 330
 2
 100
@@ -14739,7 +14465,7 @@ AcDbText
   0
 TEXT
   5
-1D3
+1CB
 330
 2
 100
@@ -14757,7 +14483,7 @@ AcDbText
  40
 8.5
   1
-Ø320 mm  (804 cm²)
+Ø700 mm  (3.848 cm²)
   7
 RTS-HESAP
  41
@@ -14777,7 +14503,7 @@ AcDbText
   0
 TEXT
   5
-1D4
+1CC
 330
 2
 100
@@ -14797,7 +14523,7 @@ AcDbText
  40
 8.5
   1
-Sonuç: Seçilen alt havalandırma menfezi: 30 × 30 cm.
+Sonuç: Seçilen alt havalandırma menfezi: 60 × 60 cm.
   7
 RTS-HESAP
  41
@@ -14815,7 +14541,7 @@ AcDbText
   0
 TEXT
   5
-1D5
+1CD
 330
 2
 100
@@ -14853,7 +14579,7 @@ AcDbText
   0
 TEXT
   5
-1D6
+1CE
 330
 2
 100
@@ -14871,7 +14597,7 @@ AcDbText
  40
 7.65
   1
-A_üst = 130 × 3 = 390 cm²
+A_üst = 550 × 3 = 1.650 cm²
   7
 RTS-HESAP
  41
@@ -14889,7 +14615,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1D7
+1CF
 330
 2
 100
@@ -14921,7 +14647,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-1D8
+1D0
 330
 2
 100
@@ -14953,7 +14679,7 @@ AcDbPolyline
   0
 TEXT
   5
-1D9
+1D1
 330
 2
 100
@@ -14989,7 +14715,7 @@ AcDbText
   0
 TEXT
   5
-1DA
+1D2
 330
 2
 100
@@ -15007,7 +14733,7 @@ AcDbText
  40
 8.5
   1
-20 × 20 cm  (400 cm²)
+45 × 40 cm  (1.800 cm²)
   7
 RTS-HESAP
  41
@@ -15027,7 +14753,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1DB
+1D3
 330
 2
 100
@@ -15059,7 +14785,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-1DC
+1D4
 330
 2
 100
@@ -15091,7 +14817,7 @@ AcDbPolyline
   0
 TEXT
   5
-1DD
+1D5
 330
 2
 100
@@ -15127,7 +14853,7 @@ AcDbText
   0
 TEXT
   5
-1DE
+1D6
 330
 2
 100
@@ -15145,7 +14871,7 @@ AcDbText
  40
 8.5
   1
-Ø250 mm  (491 cm²)
+Ø500 mm  (1.963 cm²)
   7
 RTS-HESAP
  41
@@ -15165,7 +14891,7 @@ AcDbText
   0
 TEXT
   5
-1DF
+1D7
 330
 2
 100
@@ -15185,7 +14911,7 @@ AcDbText
  40
 8.5
   1
-Sonuç: Seçilen üst havalandırma menfezi: 20 × 20 cm.
+Sonuç: Seçilen üst havalandırma menfezi: 45 × 40 cm.
   7
 RTS-HESAP
  41
@@ -15203,7 +14929,7 @@ AcDbText
   0
 TEXT
   5
-1E0
+1D8
 330
 2
 100
@@ -15241,7 +14967,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1E1
+1D9
 330
 2
 100
@@ -15273,7 +14999,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-1E2
+1DA
 330
 2
 100
@@ -15305,7 +15031,7 @@ AcDbPolyline
   0
 TEXT
   5
-1E3
+1DB
 330
 2
 100
@@ -15341,7 +15067,7 @@ AcDbText
   0
 TEXT
   5
-1E4
+1DC
 330
 2
 100
@@ -15379,7 +15105,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1E5
+1DD
 330
 2
 100
@@ -15411,7 +15137,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-1E6
+1DE
 330
 2
 100
@@ -15443,7 +15169,7 @@ AcDbPolyline
   0
 TEXT
   5
-1E7
+1DF
 330
 2
 100
@@ -15479,7 +15205,7 @@ AcDbText
   0
 TEXT
   5
-1E8
+1E0
 330
 2
 100
@@ -15517,7 +15243,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1E9
+1E1
 330
 2
 100
@@ -15551,7 +15277,7 @@ AcDbPolyline
   0
 TEXT
   5
-1EA
+1E2
 330
 2
 100
@@ -15587,7 +15313,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1EB
+1E3
 330
 2
 100
@@ -15619,7 +15345,7 @@ AcDbPolyline
   0
 TEXT
   5
-1EC
+1E4
 330
 2
 100
@@ -15657,7 +15383,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1ED
+1E5
 330
 2
 100
@@ -15689,7 +15415,7 @@ AcDbPolyline
   0
 TEXT
   5
-1EE
+1E6
 330
 2
 100
@@ -15727,7 +15453,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1EF
+1E7
 330
 2
 100
@@ -15759,7 +15485,7 @@ AcDbPolyline
   0
 TEXT
   5
-1F0
+1E8
 330
 2
 100
@@ -15797,7 +15523,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1F1
+1E9
 330
 2
 100
@@ -15829,7 +15555,7 @@ AcDbPolyline
   0
 TEXT
   5
-1F2
+1EA
 330
 2
 100
@@ -15867,7 +15593,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1F3
+1EB
 330
 2
 100
@@ -15899,7 +15625,7 @@ AcDbPolyline
   0
 TEXT
   5
-1F4
+1EC
 330
 2
 100
@@ -15937,7 +15663,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1F5
+1ED
 330
 2
 100
@@ -15969,7 +15695,7 @@ AcDbPolyline
   0
 TEXT
   5
-1F6
+1EE
 330
 2
 100
@@ -16007,7 +15733,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1F7
+1EF
 330
 2
 100
@@ -16039,7 +15765,7 @@ AcDbPolyline
   0
 TEXT
   5
-1F8
+1F0
 330
 2
 100
@@ -16077,7 +15803,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1F9
+1F1
 330
 2
 100
@@ -16109,7 +15835,7 @@ AcDbPolyline
   0
 TEXT
   5
-1FA
+1F2
 330
 2
 100
@@ -16147,7 +15873,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1FB
+1F3
 330
 2
 100
@@ -16179,7 +15905,7 @@ AcDbPolyline
   0
 TEXT
   5
-1FC
+1F4
 330
 2
 100
@@ -16217,7 +15943,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1FD
+1F5
 330
 2
 100
@@ -16249,7 +15975,7 @@ AcDbPolyline
   0
 TEXT
   5
-1FE
+1F6
 330
 2
 100
@@ -16287,7 +16013,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-1FF
+1F7
 330
 2
 100
@@ -16319,7 +16045,7 @@ AcDbPolyline
   0
 TEXT
   5
-200
+1F8
 330
 2
 100
@@ -16357,7 +16083,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-201
+1F9
 330
 2
 100
@@ -16389,7 +16115,7 @@ AcDbPolyline
   0
 TEXT
   5
-202
+1FA
 330
 2
 100
@@ -16427,7 +16153,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-203
+1FB
 330
 2
 100
@@ -16459,7 +16185,7 @@ AcDbPolyline
   0
 TEXT
   5
-204
+1FC
 330
 2
 100
@@ -16497,7 +16223,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-205
+1FD
 330
 2
 100
@@ -16529,7 +16255,7 @@ AcDbPolyline
   0
 TEXT
   5
-206
+1FE
 330
 2
 100
@@ -16547,7 +16273,7 @@ AcDbText
  40
 8.0
   1
-2
+5
   7
 RTS-HESAP
  41
@@ -16567,7 +16293,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-207
+1FF
 330
 2
 100
@@ -16599,7 +16325,7 @@ AcDbPolyline
   0
 TEXT
   5
-208
+200
 330
 2
 100
@@ -16617,7 +16343,7 @@ AcDbText
  40
 8.0
   1
-65
+110
   7
 RTS-HESAP
  41
@@ -16637,7 +16363,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-209
+201
 330
 2
 100
@@ -16669,7 +16395,7 @@ AcDbPolyline
   0
 TEXT
   5
-20A
+202
 330
 2
 100
@@ -16707,7 +16433,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-20B
+203
 330
 2
 100
@@ -16739,7 +16465,7 @@ AcDbPolyline
   0
 TEXT
   5
-20C
+204
 330
 2
 100
@@ -16777,7 +16503,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-20D
+205
 330
 2
 100
@@ -16809,7 +16535,7 @@ AcDbPolyline
   0
 TEXT
   5
-20E
+206
 330
 2
 100
@@ -16847,7 +16573,7 @@ AcDbText
   0
 TEXT
   5
-20F
+207
 330
 2
 100
@@ -16883,7 +16609,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-210
+208
 330
 2
 100
@@ -16915,7 +16641,7 @@ AcDbPolyline
   0
 TEXT
   5
-211
+209
 330
 2
 100
@@ -16953,7 +16679,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-212
+20A
 330
 2
 100
@@ -16985,7 +16711,7 @@ AcDbPolyline
   0
 TEXT
   5
-213
+20B
 330
 2
 100
@@ -17023,7 +16749,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-214
+20C
 330
 2
 100
@@ -17055,7 +16781,7 @@ AcDbPolyline
   0
 TEXT
   5
-215
+20D
 330
 2
 100
@@ -17093,7 +16819,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-216
+20E
 330
 2
 100
@@ -17125,7 +16851,7 @@ AcDbPolyline
   0
 TEXT
   5
-217
+20F
 330
 2
 100
@@ -17163,7 +16889,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-218
+210
 330
 2
 100
@@ -17195,7 +16921,7 @@ AcDbPolyline
   0
 TEXT
   5
-219
+211
 330
 2
 100
@@ -17233,7 +16959,7 @@ AcDbText
   0
 TEXT
   5
-21A
+212
 330
 2
 100
@@ -17271,7 +16997,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-21B
+213
 330
 2
 100
@@ -17303,7 +17029,7 @@ AcDbPolyline
   0
 TEXT
   5
-21C
+214
 330
 2
 100
@@ -17341,7 +17067,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-21D
+215
 330
 2
 100
@@ -17373,7 +17099,7 @@ AcDbPolyline
   0
 TEXT
   5
-21E
+216
 330
 2
 100
@@ -17411,7 +17137,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-21F
+217
 330
 2
 100
@@ -17443,7 +17169,7 @@ AcDbPolyline
   0
 TEXT
   5
-220
+218
 330
 2
 100
@@ -17481,7 +17207,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-221
+219
 330
 2
 100
@@ -17513,7 +17239,7 @@ AcDbPolyline
   0
 TEXT
   5
-222
+21A
 330
 2
 100
@@ -17551,7 +17277,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-223
+21B
 330
 2
 100
@@ -17583,7 +17309,7 @@ AcDbPolyline
   0
 TEXT
   5
-224
+21C
 330
 2
 100
@@ -17621,7 +17347,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-225
+21D
 330
 2
 100
@@ -17653,7 +17379,7 @@ AcDbPolyline
   0
 TEXT
   5
-226
+21E
 330
 2
 100
@@ -17691,7 +17417,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-227
+21F
 330
 2
 100
@@ -17723,7 +17449,7 @@ AcDbPolyline
   0
 TEXT
   5
-228
+220
 330
 2
 100
@@ -17761,7 +17487,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-229
+221
 330
 2
 100
@@ -17793,7 +17519,7 @@ AcDbPolyline
   0
 TEXT
   5
-22A
+222
 330
 2
 100
@@ -17811,7 +17537,7 @@ AcDbText
  40
 8.0
   1
-3,00
+5,00
   7
 RTS-HESAP
  41
@@ -17831,7 +17557,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-22B
+223
 330
 2
 100
@@ -17863,7 +17589,7 @@ AcDbPolyline
   0
 TEXT
   5
-22C
+224
 330
 2
 100
@@ -17881,7 +17607,7 @@ AcDbText
  40
 8.0
   1
-6,0
+5,0
   7
 RTS-HESAP
  41
@@ -17901,7 +17627,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-22D
+225
 330
 2
 100
@@ -17933,7 +17659,7 @@ AcDbPolyline
   0
 TEXT
   5
-22E
+226
 330
 2
 100
@@ -17951,7 +17677,7 @@ AcDbText
  40
 8.0
   1
-0,09
+0,12
   7
 RTS-HESAP
  41
@@ -17971,7 +17697,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-22F
+227
 330
 2
 100
@@ -18003,7 +17729,7 @@ AcDbPolyline
   0
 TEXT
   5
-230
+228
 330
 2
 100
@@ -18041,7 +17767,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-231
+229
 330
 2
 100
@@ -18073,7 +17799,7 @@ AcDbPolyline
   0
 TEXT
   5
-232
+22A
 330
 2
 100
@@ -18091,7 +17817,7 @@ AcDbText
  40
 8.0
   1
-2
+5
   7
 RTS-HESAP
  41
@@ -18111,7 +17837,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-233
+22B
 330
 2
 100
@@ -18143,7 +17869,7 @@ AcDbPolyline
   0
 TEXT
   5
-234
+22C
 330
 2
 100
@@ -18181,7 +17907,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-235
+22D
 330
 2
 100
@@ -18213,7 +17939,7 @@ AcDbPolyline
   0
 TEXT
   5
-236
+22E
 330
 2
 100
@@ -18251,7 +17977,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-237
+22F
 330
 2
 100
@@ -18283,7 +18009,7 @@ AcDbPolyline
   0
 TEXT
   5
-238
+230
 330
 2
 100
@@ -18321,7 +18047,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-239
+231
 330
 2
 100
@@ -18353,7 +18079,7 @@ AcDbPolyline
   0
 TEXT
   5
-23A
+232
 330
 2
 100
@@ -18391,7 +18117,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-23B
+233
 330
 2
 100
@@ -18423,7 +18149,7 @@ AcDbPolyline
   0
 TEXT
   5
-23C
+234
 330
 2
 100
@@ -18441,7 +18167,7 @@ AcDbText
  40
 8.0
   1
-4,50
+20,00
   7
 RTS-HESAP
  41
@@ -18461,7 +18187,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-23D
+235
 330
 2
 100
@@ -18493,7 +18219,7 @@ AcDbPolyline
   0
 TEXT
   5
-23E
+236
 330
 2
 100
@@ -18511,7 +18237,7 @@ AcDbText
  40
 8.0
   1
-7,0
+10,0
   7
 RTS-HESAP
  41
@@ -18531,7 +18257,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-23F
+237
 330
 2
 100
@@ -18563,7 +18289,7 @@ AcDbPolyline
   0
 TEXT
   5
-240
+238
 330
 2
 100
@@ -18581,7 +18307,7 @@ AcDbText
  40
 8.0
   1
-0,15
+1,10
   7
 RTS-HESAP
  41
@@ -18601,7 +18327,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-241
+239
 330
 2
 100
@@ -18633,7 +18359,7 @@ AcDbPolyline
   0
 TEXT
   5
-242
+23A
 330
 2
 100
@@ -18671,7 +18397,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-243
+23B
 330
 2
 100
@@ -18703,7 +18429,7 @@ AcDbPolyline
   0
 TEXT
   5
-244
+23C
 330
 2
 100
@@ -18741,7 +18467,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-245
+23D
 330
 2
 100
@@ -18773,7 +18499,7 @@ AcDbPolyline
   0
 TEXT
   5
-246
+23E
 330
 2
 100
@@ -18811,7 +18537,7 @@ AcDbText
   0
 TEXT
   5
-247
+23F
 330
 2
 100
@@ -18847,7 +18573,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-248
+240
 330
 2
 100
@@ -18879,7 +18605,7 @@ AcDbPolyline
   0
 TEXT
   5
-249
+241
 330
 2
 100
@@ -18917,7 +18643,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-24A
+242
 330
 2
 100
@@ -18949,7 +18675,7 @@ AcDbPolyline
   0
 TEXT
   5
-24B
+243
 330
 2
 100
@@ -18987,7 +18713,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-24C
+244
 330
 2
 100
@@ -19019,7 +18745,7 @@ AcDbPolyline
   0
 TEXT
   5
-24D
+245
 330
 2
 100
@@ -19057,7 +18783,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-24E
+246
 330
 2
 100
@@ -19089,7 +18815,7 @@ AcDbPolyline
   0
 TEXT
   5
-24F
+247
 330
 2
 100
@@ -19127,7 +18853,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-250
+248
 330
 2
 100
@@ -19159,7 +18885,7 @@ AcDbPolyline
   0
 TEXT
   5
-251
+249
 330
 2
 100
@@ -19197,7 +18923,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-252
+24A
 330
 2
 100
@@ -19229,7 +18955,7 @@ AcDbPolyline
   0
 TEXT
   5
-253
+24B
 330
 2
 100
@@ -19267,7 +18993,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-254
+24C
 330
 2
 100
@@ -19299,7 +19025,7 @@ AcDbPolyline
   0
 TEXT
   5
-255
+24D
 330
 2
 100
@@ -19337,7 +19063,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-256
+24E
 330
 2
 100
@@ -19369,7 +19095,7 @@ AcDbPolyline
   0
 TEXT
   5
-257
+24F
 330
 2
 100
@@ -19407,7 +19133,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-258
+250
 330
 2
 100
@@ -19439,7 +19165,7 @@ AcDbPolyline
   0
 TEXT
   5
-259
+251
 330
 2
 100
@@ -19477,7 +19203,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-25A
+252
 330
 2
 100
@@ -19509,7 +19235,7 @@ AcDbPolyline
   0
 TEXT
   5
-25B
+253
 330
 2
 100
@@ -19547,7 +19273,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-25C
+254
 330
 2
 100
@@ -19579,7 +19305,7 @@ AcDbPolyline
   0
 TEXT
   5
-25D
+255
 330
 2
 100
@@ -19597,7 +19323,7 @@ AcDbText
  40
 8.0
   1
-130
+550
   7
 RTS-HESAP
  41
@@ -19606,6 +19332,286 @@ RTS-HESAP
 1
  11
 347236.0
+ 21
+-494837.5999999999
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LWPOLYLINE
+  5
+256
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+347331.0
+ 20
+-494827.1999999999
+ 10
+347591.0
+ 20
+-494827.1999999999
+ 10
+347591.0
+ 20
+-494847.9999999999
+ 10
+347331.0
+ 20
+-494847.9999999999
+  0
+TEXT
+  5
+257
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP-YAZI
+100
+AcDbText
+ 10
+347461.0
+ 20
+-494837.5999999999
+ 30
+0.0
+ 40
+8.0
+  1
+300
+  7
+RTS-HESAP
+ 41
+0.85
+ 72
+1
+ 11
+347461.0
+ 21
+-494837.5999999999
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LWPOLYLINE
+  5
+258
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+347591.0
+ 20
+-494827.1999999999
+ 10
+347851.0
+ 20
+-494827.1999999999
+ 10
+347851.0
+ 20
+-494847.9999999999
+ 10
+347591.0
+ 20
+-494847.9999999999
+  0
+TEXT
+  5
+259
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP-YAZI
+100
+AcDbText
+ 10
+347721.0
+ 20
+-494837.5999999999
+ 30
+0.0
+ 40
+8.0
+  1
+145
+  7
+RTS-HESAP
+ 41
+0.85
+ 72
+1
+ 11
+347721.0
+ 21
+-494837.5999999999
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LWPOLYLINE
+  5
+25A
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+347851.0
+ 20
+-494827.1999999999
+ 10
+348111.0
+ 20
+-494827.1999999999
+ 10
+348111.0
+ 20
+-494847.9999999999
+ 10
+347851.0
+ 20
+-494847.9999999999
+  0
+TEXT
+  5
+25B
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP-YAZI
+100
+AcDbText
+ 10
+347981.0
+ 20
+-494837.5999999999
+ 30
+0.0
+ 40
+8.0
+  1
+100
+  7
+RTS-HESAP
+ 41
+0.85
+ 72
+1
+ 11
+347981.0
+ 21
+-494837.5999999999
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LWPOLYLINE
+  5
+25C
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+348111.0
+ 20
+-494827.1999999999
+ 10
+348261.0
+ 20
+-494827.1999999999
+ 10
+348261.0
+ 20
+-494847.9999999999
+ 10
+348111.0
+ 20
+-494847.9999999999
+  0
+TEXT
+  5
+25D
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP-YAZI
+100
+AcDbText
+ 10
+348186.0
+ 20
+-494837.5999999999
+ 30
+0.0
+ 40
+8.0
+  1
+23,65
+  7
+RTS-HESAP
+ 41
+0.85
+ 72
+1
+ 11
+348186.0
  21
 -494837.5999999999
  31
@@ -19631,19 +19637,19 @@ AcDbPolyline
  70
 1
  10
-347331.0
+348261.0
  20
 -494827.1999999999
  10
-347591.0
+348341.0
  20
 -494827.1999999999
  10
-347591.0
+348341.0
  20
 -494847.9999999999
  10
-347331.0
+348261.0
  20
 -494847.9999999999
   0
@@ -19659,7 +19665,7 @@ MTY-HESAP-YAZI
 100
 AcDbText
  10
-347461.0
+348301.0
  20
 -494837.5999999999
  30
@@ -19667,7 +19673,7 @@ AcDbText
  40
 8.0
   1
-150
+1
   7
 RTS-HESAP
  41
@@ -19675,7 +19681,7 @@ RTS-HESAP
  72
 1
  11
-347461.0
+348301.0
  21
 -494837.5999999999
  31
@@ -19685,289 +19691,9 @@ AcDbText
  73
 2
   0
-LWPOLYLINE
+TEXT
   5
 260
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-347591.0
- 20
--494827.1999999999
- 10
-347851.0
- 20
--494827.1999999999
- 10
-347851.0
- 20
--494847.9999999999
- 10
-347591.0
- 20
--494847.9999999999
-  0
-TEXT
-  5
-261
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-347721.0
- 20
--494837.5999999999
- 30
-0.0
- 40
-8.0
-  1
-900
-  7
-RTS-HESAP
- 41
-0.85
- 72
-1
- 11
-347721.0
- 21
--494837.5999999999
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-LWPOLYLINE
-  5
-262
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-347851.0
- 20
--494827.1999999999
- 10
-348111.0
- 20
--494827.1999999999
- 10
-348111.0
- 20
--494847.9999999999
- 10
-347851.0
- 20
--494847.9999999999
-  0
-TEXT
-  5
-263
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-347981.0
- 20
--494837.5999999999
- 30
-0.0
- 40
-8.0
-  1
-50
-  7
-RTS-HESAP
- 41
-0.85
- 72
-1
- 11
-347981.0
- 21
--494837.5999999999
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-LWPOLYLINE
-  5
-264
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-348111.0
- 20
--494827.1999999999
- 10
-348261.0
- 20
--494827.1999999999
- 10
-348261.0
- 20
--494847.9999999999
- 10
-348111.0
- 20
--494847.9999999999
-  0
-TEXT
-  5
-265
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-348186.0
- 20
--494837.5999999999
- 30
-0.0
- 40
-8.0
-  1
-5,59
-  7
-RTS-HESAP
- 41
-0.85
- 72
-1
- 11
-348186.0
- 21
--494837.5999999999
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-LWPOLYLINE
-  5
-266
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-348261.0
- 20
--494827.1999999999
- 10
-348341.0
- 20
--494827.1999999999
- 10
-348341.0
- 20
--494847.9999999999
- 10
-348261.0
- 20
--494847.9999999999
-  0
-TEXT
-  5
-267
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-348301.0
- 20
--494837.5999999999
- 30
-0.0
- 40
-8.0
-  1
-1
-  7
-RTS-HESAP
- 41
-0.85
- 72
-1
- 11
-348301.0
- 21
--494837.5999999999
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-268
 330
 2
 100
@@ -20003,7 +19729,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-269
+261
 330
 2
 100
@@ -20035,7 +19761,7 @@ AcDbPolyline
   0
 TEXT
   5
-26A
+262
 330
 2
 100
@@ -20073,7 +19799,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-26B
+263
 330
 2
 100
@@ -20105,7 +19831,7 @@ AcDbPolyline
   0
 TEXT
   5
-26C
+264
 330
 2
 100
@@ -20143,7 +19869,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-26D
+265
 330
 2
 100
@@ -20175,7 +19901,7 @@ AcDbPolyline
   0
 TEXT
   5
-26E
+266
 330
 2
 100
@@ -20213,7 +19939,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-26F
+267
 330
 2
 100
@@ -20245,7 +19971,7 @@ AcDbPolyline
   0
 TEXT
   5
-270
+268
 330
 2
 100
@@ -20283,7 +20009,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-271
+269
 330
 2
 100
@@ -20315,7 +20041,7 @@ AcDbPolyline
   0
 TEXT
   5
-272
+26A
 330
 2
 100
@@ -20353,7 +20079,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-273
+26B
 330
 2
 100
@@ -20385,7 +20111,7 @@ AcDbPolyline
   0
 TEXT
   5
-274
+26C
 330
 2
 100
@@ -20423,7 +20149,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-275
+26D
 330
 2
 100
@@ -20455,7 +20181,7 @@ AcDbPolyline
   0
 TEXT
   5
-276
+26E
 330
 2
 100
@@ -20493,7 +20219,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-277
+26F
 330
 2
 100
@@ -20525,7 +20251,7 @@ AcDbPolyline
   0
 TEXT
   5
-278
+270
 330
 2
 100
@@ -20563,7 +20289,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-279
+271
 330
 2
 100
@@ -20595,7 +20321,7 @@ AcDbPolyline
   0
 TEXT
   5
-27A
+272
 330
 2
 100
@@ -20633,7 +20359,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-27B
+273
 330
 2
 100
@@ -20665,7 +20391,7 @@ AcDbPolyline
   0
 TEXT
   5
-27C
+274
 330
 2
 100
@@ -20703,7 +20429,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-27D
+275
 330
 2
 100
@@ -20735,7 +20461,7 @@ AcDbPolyline
   0
 TEXT
   5
-27E
+276
 330
 2
 100
@@ -20753,7 +20479,7 @@ AcDbText
  40
 8.0
   1
-200
+1000
   7
 RTS-HESAP
  41
@@ -20773,7 +20499,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-27F
+277
 330
 2
 100
@@ -20805,7 +20531,7 @@ AcDbPolyline
   0
 TEXT
   5
-280
+278
 330
 2
 100
@@ -20843,7 +20569,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-281
+279
 330
 2
 100
@@ -20875,7 +20601,7 @@ AcDbPolyline
   0
 TEXT
   5
-282
+27A
 330
 2
 100
@@ -20913,7 +20639,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-283
+27B
 330
 2
 100
@@ -20945,7 +20671,7 @@ AcDbPolyline
   0
 TEXT
   5
-284
+27C
 330
 2
 100
@@ -20983,7 +20709,7 @@ AcDbText
   0
 TEXT
   5
-285
+27D
 330
 2
 100
@@ -21019,7 +20745,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-286
+27E
 330
 2
 100
@@ -21051,7 +20777,7 @@ AcDbPolyline
   0
 TEXT
   5
-287
+27F
 330
 2
 100
@@ -21089,7 +20815,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-288
+280
 330
 2
 100
@@ -21121,7 +20847,7 @@ AcDbPolyline
   0
 TEXT
   5
-289
+281
 330
 2
 100
@@ -21159,7 +20885,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-28A
+282
 330
 2
 100
@@ -21191,7 +20917,7 @@ AcDbPolyline
   0
 TEXT
   5
-28B
+283
 330
 2
 100
@@ -21229,7 +20955,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-28C
+284
 330
 2
 100
@@ -21261,7 +20987,7 @@ AcDbPolyline
   0
 TEXT
   5
-28D
+285
 330
 2
 100
@@ -21299,7 +21025,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-28E
+286
 330
 2
 100
@@ -21331,7 +21057,7 @@ AcDbPolyline
   0
 TEXT
   5
-28F
+287
 330
 2
 100
@@ -21369,7 +21095,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-290
+288
 330
 2
 100
@@ -21401,7 +21127,7 @@ AcDbPolyline
   0
 TEXT
   5
-291
+289
 330
 2
 100
@@ -21439,7 +21165,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-292
+28A
 330
 2
 100
@@ -21471,7 +21197,7 @@ AcDbPolyline
   0
 TEXT
   5
-293
+28B
 330
 2
 100
@@ -21509,7 +21235,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-294
+28C
 330
 2
 100
@@ -21541,7 +21267,7 @@ AcDbPolyline
   0
 TEXT
   5
-295
+28D
 330
 2
 100
@@ -21579,7 +21305,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-296
+28E
 330
 2
 100
@@ -21611,7 +21337,7 @@ AcDbPolyline
   0
 TEXT
   5
-297
+28F
 330
 2
 100
@@ -21649,7 +21375,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-298
+290
 330
 2
 100
@@ -21681,7 +21407,7 @@ AcDbPolyline
   0
 TEXT
   5
-299
+291
 330
 2
 100
@@ -21719,287 +21445,287 @@ AcDbText
   0
 LWPOLYLINE
   5
+292
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+347691.0
+ 20
+-495039.9999999998
+ 10
+347921.0
+ 20
+-495039.9999999998
+ 10
+347921.0
+ 20
+-495060.7999999998
+ 10
+347691.0
+ 20
+-495060.7999999998
+  0
+TEXT
+  5
+293
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP-YAZI
+100
+AcDbText
+ 10
+347806.0
+ 20
+-495050.39999999985
+ 30
+0.0
+ 40
+8.0
+  1
+750
+  7
+RTS-HESAP
+ 41
+0.85
+ 72
+1
+ 11
+347806.0
+ 21
+-495050.39999999985
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LWPOLYLINE
+  5
+294
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+347921.0
+ 20
+-495039.9999999998
+ 10
+348121.0
+ 20
+-495039.9999999998
+ 10
+348121.0
+ 20
+-495060.7999999998
+ 10
+347921.0
+ 20
+-495060.7999999998
+  0
+TEXT
+  5
+295
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP-YAZI
+100
+AcDbText
+ 10
+348021.0
+ 20
+-495050.39999999985
+ 30
+0.0
+ 40
+8.0
+  1
+100
+  7
+RTS-HESAP
+ 41
+0.85
+ 72
+1
+ 11
+348021.0
+ 21
+-495050.39999999985
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LWPOLYLINE
+  5
+296
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+348121.0
+ 20
+-495039.9999999998
+ 10
+348351.0
+ 20
+-495039.9999999998
+ 10
+348351.0
+ 20
+-495060.7999999998
+ 10
+348121.0
+ 20
+-495060.7999999998
+  0
+TEXT
+  5
+297
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP-YAZI
+100
+AcDbText
+ 10
+348236.0
+ 20
+-495050.39999999985
+ 30
+0.0
+ 40
+8.0
+  1
+1 1/2"
+  7
+RTS-HESAP
+ 41
+0.85
+ 72
+1
+ 11
+348236.0
+ 21
+-495050.39999999985
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LWPOLYLINE
+  5
+298
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+348351.0
+ 20
+-495039.9999999998
+ 10
+348431.0
+ 20
+-495039.9999999998
+ 10
+348431.0
+ 20
+-495060.7999999998
+ 10
+348351.0
+ 20
+-495060.7999999998
+  0
+TEXT
+  5
+299
+330
+2
+100
+AcDbEntity
+  8
+MTY-HESAP-YAZI
+100
+AcDbText
+ 10
+348391.0
+ 20
+-495050.39999999985
+ 30
+0.0
+ 40
+8.0
+  1
+1
+  7
+RTS-HESAP
+ 41
+0.85
+ 72
+1
+ 11
+348391.0
+ 21
+-495050.39999999985
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
 29A
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-347691.0
- 20
--495039.9999999998
- 10
-347921.0
- 20
--495039.9999999998
- 10
-347921.0
- 20
--495060.7999999998
- 10
-347691.0
- 20
--495060.7999999998
-  0
-TEXT
-  5
-29B
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-347806.0
- 20
--495050.39999999985
- 30
-0.0
- 40
-8.0
-  1
-200
-  7
-RTS-HESAP
- 41
-0.85
- 72
-1
- 11
-347806.0
- 21
--495050.39999999985
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-LWPOLYLINE
-  5
-29C
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-347921.0
- 20
--495039.9999999998
- 10
-348121.0
- 20
--495039.9999999998
- 10
-348121.0
- 20
--495060.7999999998
- 10
-347921.0
- 20
--495060.7999999998
-  0
-TEXT
-  5
-29D
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-348021.0
- 20
--495050.39999999985
- 30
-0.0
- 40
-8.0
-  1
-25
-  7
-RTS-HESAP
- 41
-0.85
- 72
-1
- 11
-348021.0
- 21
--495050.39999999985
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-LWPOLYLINE
-  5
-29E
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-348121.0
- 20
--495039.9999999998
- 10
-348351.0
- 20
--495039.9999999998
- 10
-348351.0
- 20
--495060.7999999998
- 10
-348121.0
- 20
--495060.7999999998
-  0
-TEXT
-  5
-29F
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-348236.0
- 20
--495050.39999999985
- 30
-0.0
- 40
-8.0
-  1
-1"
-  7
-RTS-HESAP
- 41
-0.85
- 72
-1
- 11
-348236.0
- 21
--495050.39999999985
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-LWPOLYLINE
-  5
-2A0
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP
-100
-AcDbPolyline
- 90
-4
- 70
-1
- 10
-348351.0
- 20
--495039.9999999998
- 10
-348431.0
- 20
--495039.9999999998
- 10
-348431.0
- 20
--495060.7999999998
- 10
-348351.0
- 20
--495060.7999999998
-  0
-TEXT
-  5
-2A1
-330
-2
-100
-AcDbEntity
-  8
-MTY-HESAP-YAZI
-100
-AcDbText
- 10
-348391.0
- 20
--495050.39999999985
- 30
-0.0
- 40
-8.0
-  1
-1
-  7
-RTS-HESAP
- 41
-0.85
- 72
-1
- 11
-348391.0
- 21
--495050.39999999985
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-2A2
 330
 2
 100
@@ -22035,7 +21761,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2A3
+29B
 330
 2
 100
@@ -22067,7 +21793,7 @@ AcDbPolyline
   0
 TEXT
   5
-2A4
+29C
 330
 2
 100
@@ -22105,7 +21831,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2A5
+29D
 330
 2
 100
@@ -22137,7 +21863,7 @@ AcDbPolyline
   0
 TEXT
   5
-2A6
+29E
 330
 2
 100
@@ -22175,7 +21901,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2A7
+29F
 330
 2
 100
@@ -22207,7 +21933,7 @@ AcDbPolyline
   0
 TEXT
   5
-2A8
+2A0
 330
 2
 100
@@ -22245,7 +21971,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2A9
+2A1
 330
 2
 100
@@ -22277,7 +22003,7 @@ AcDbPolyline
   0
 TEXT
   5
-2AA
+2A2
 330
 2
 100
@@ -22315,7 +22041,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2AB
+2A3
 330
 2
 100
@@ -22347,7 +22073,7 @@ AcDbPolyline
   0
 TEXT
   5
-2AC
+2A4
 330
 2
 100
@@ -22385,7 +22111,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2AD
+2A5
 330
 2
 100
@@ -22417,7 +22143,7 @@ AcDbPolyline
   0
 TEXT
   5
-2AE
+2A6
 330
 2
 100
@@ -22455,7 +22181,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2AF
+2A7
 330
 2
 100
@@ -22487,7 +22213,7 @@ AcDbPolyline
   0
 TEXT
   5
-2B0
+2A8
 330
 2
 100
@@ -22525,7 +22251,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2B1
+2A9
 330
 2
 100
@@ -22557,7 +22283,7 @@ AcDbPolyline
   0
 TEXT
   5
-2B2
+2AA
 330
 2
 100
@@ -22595,7 +22321,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2B3
+2AB
 330
 2
 100
@@ -22627,7 +22353,7 @@ AcDbPolyline
   0
 TEXT
   5
-2B4
+2AC
 330
 2
 100
@@ -22665,7 +22391,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2B5
+2AD
 330
 2
 100
@@ -22697,7 +22423,7 @@ AcDbPolyline
   0
 TEXT
   5
-2B6
+2AE
 330
 2
 100
@@ -22735,7 +22461,7 @@ AcDbText
   0
 TEXT
   5
-2B7
+2AF
 330
 2
 100
@@ -22771,7 +22497,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2B8
+2B0
 330
 2
 100
@@ -22803,7 +22529,7 @@ AcDbPolyline
   0
 TEXT
   5
-2B9
+2B1
 330
 2
 100
@@ -22841,7 +22567,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2BA
+2B2
 330
 2
 100
@@ -22873,7 +22599,7 @@ AcDbPolyline
   0
 TEXT
   5
-2BB
+2B3
 330
 2
 100
@@ -22911,7 +22637,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2BC
+2B4
 330
 2
 100
@@ -22943,7 +22669,7 @@ AcDbPolyline
   0
 TEXT
   5
-2BD
+2B5
 330
 2
 100
@@ -22981,7 +22707,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2BE
+2B6
 330
 2
 100
@@ -23013,7 +22739,7 @@ AcDbPolyline
   0
 TEXT
   5
-2BF
+2B7
 330
 2
 100
@@ -23051,7 +22777,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2C0
+2B8
 330
 2
 100
@@ -23083,7 +22809,7 @@ AcDbPolyline
   0
 TEXT
   5
-2C1
+2B9
 330
 2
 100
@@ -23121,7 +22847,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2C2
+2BA
 330
 2
 100
@@ -23153,7 +22879,7 @@ AcDbPolyline
   0
 TEXT
   5
-2C3
+2BB
 330
 2
 100
@@ -23191,7 +22917,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2C4
+2BC
 330
 2
 100
@@ -23223,7 +22949,7 @@ AcDbPolyline
   0
 TEXT
   5
-2C5
+2BD
 330
 2
 100
@@ -23261,7 +22987,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2C6
+2BE
 330
 2
 100
@@ -23293,7 +23019,7 @@ AcDbPolyline
   0
 TEXT
   5
-2C7
+2BF
 330
 2
 100
@@ -23331,7 +23057,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2C8
+2C0
 330
 2
 100
@@ -23363,7 +23089,7 @@ AcDbPolyline
   0
 TEXT
   5
-2C9
+2C1
 330
 2
 100
@@ -23401,7 +23127,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2CA
+2C2
 330
 2
 100
@@ -23433,7 +23159,7 @@ AcDbPolyline
   0
 TEXT
   5
-2CB
+2C3
 330
 2
 100
@@ -23471,7 +23197,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2CC
+2C4
 330
 2
 100
@@ -23503,7 +23229,7 @@ AcDbPolyline
   0
 TEXT
   5
-2CD
+2C5
 330
 2
 100
@@ -23541,7 +23267,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2CE
+2C6
 330
 2
 100
@@ -23573,7 +23299,7 @@ AcDbPolyline
   0
 TEXT
   5
-2CF
+2C7
 330
 2
 100
@@ -23611,7 +23337,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2D0
+2C8
 330
 2
 100
@@ -23643,7 +23369,7 @@ AcDbPolyline
   0
 TEXT
   5
-2D1
+2C9
 330
 2
 100
@@ -23681,7 +23407,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2D2
+2CA
 330
 2
 100
@@ -23713,7 +23439,7 @@ AcDbPolyline
   0
 TEXT
   5
-2D3
+2CB
 330
 2
 100
@@ -23751,7 +23477,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2D4
+2CC
 330
 2
 100
@@ -23783,7 +23509,7 @@ AcDbPolyline
   0
 TEXT
   5
-2D5
+2CD
 330
 2
 100
@@ -23821,7 +23547,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2D6
+2CE
 330
 2
 100
@@ -23853,7 +23579,7 @@ AcDbPolyline
   0
 TEXT
   5
-2D7
+2CF
 330
 2
 100
@@ -23891,7 +23617,7 @@ AcDbText
   0
 LWPOLYLINE
   5
-2D8
+2D0
 330
 2
 100
@@ -23997,7 +23723,7 @@ E4
   3
 EZDXF_META
 350
-2DB
+2D3
   0
 DICTIONARY
   5
@@ -27697,7 +27423,7 @@ Global
   0
 DICTIONARY
   5
-2DB
+2D3
 330
 B
 100
@@ -27709,19 +27435,19 @@ AcDbDictionary
   3
 WRITTEN_BY_EZDXF
 350
-2DC
+2D4
   0
 DICTIONARYVAR
   5
-2DC
+2D4
 330
-2DB
+2D3
 100
 DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-13T20:17:08.772718+00:00
+1.4.4 @ 2026-10-13T20:21:34.509106+00:00
   0
 ENDSEC
   0

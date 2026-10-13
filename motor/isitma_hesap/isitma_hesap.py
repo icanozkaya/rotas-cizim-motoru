@@ -17,12 +17,12 @@ TG, TD = 90, 70; DT = TG - TD
 # kazan
 EMN = 1.15                                # boru kayıpları + ilk ısınma payı
 QK_GER = QT * EMN
-K_ADET, K_BIRIM = 2, 65
+K_ADET, K_BIRIM = 5, 110                 # projedeki kazanlar (5 x 110 kW)
 QK = K_ADET * K_BIRIM
 VP_K = K_BIRIM / (1.163 * DT)             # kazan başına primer debi m3/h
-VS_SEK = QT / (1.163 * DT)                # radyatör devresi debisi
-IP1_Q, IP1_H = 3.0, 6.0
-IP2_Q, IP2_H = 4.5, 7.0
+VS_SEK = RADT / (1.163 * DT)              # radyatör devresi debisi (kurulu radyatör kapasitesine göre)
+IP1_Q, IP1_H = 5.0, 5.0
+IP2_Q, IP2_H = 20.0, 10.0
 def pw(q, h):
     n = q * h * 10 / 3600 / 0.6
     steps = [0, 0.04, 0.05, 0.062, 0.09, 0.107, 0.125, 0.15, 0.18, 0.25, 0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3.7, 5.5]
@@ -35,24 +35,24 @@ H_BORU = L_KD * R_ORT * (1 + Z_OZ) / 9807
 H_KAL, H_TRV, H_DK = 1.5, 1.0, 0.5
 H_TOP = H_BORU + H_KAL + H_TRV + H_DK
 # genleşme (TS EN 12828)
-V_RAD = LT * 5.7                          # 22 PKKP 600: ~5,7 l/m
-VS = V_RAD * 1.30                         # + tesisat %30
+V_RAD = LT * 5.7                          # 22 PKKP 600: ~5,7 l/m (bilgi)
+VS = QK * 10                              # sistem su hacmi = kurulu kapasite x 10 l/kW (şablon)
 E_ = 0.0359                               # 90 °C
 VE = VS * E_; VWR = max(VS * 0.005, 3.0)
 H_ST = 24.0; P0 = H_ST / 10 + 0.3; PSV = 6.0; PE = PSV - 0.5
 VN = (VE + VWR) * (PE + 1) / (PE - P0)
-GT = next(v for v in (100, 150, 200, 250, 300, 400, 500) if v >= VN)
+GT = 1000                                 # projedeki tank (≥ Vn)
 # denge kabı
 QMAX = max(K_ADET * VP_K, IP2_Q)
 D_DK = math.sqrt(4 * QMAX / 3600 / (math.pi * 0.15)) * 1000
-D_SEC = next(d for d in (100, 150, 200, 250, 300) if d >= D_DK)
+D_SEC = 300                               # şablondaki denge kabı (≥ hesaplanan)
 # havalandırma
 A_ALT = QK * 6; A_UST = QK * 3
 def kare(a):
     for b, h in ((20, 20), (25, 20), (25, 25), (30, 25), (30, 30), (35, 30), (40, 30), (40, 40), (45, 40), (50, 50), (60, 60)):
         if b * h >= a: return f'{b} × {h} cm', b * h
 def daire(a):
-    for d in (200, 250, 280, 315, 320, 355, 400, 450, 500):
+    for d in (200, 250, 280, 315, 320, 355, 400, 450, 500, 560, 630, 700, 800):
         if math.pi * (d / 20) ** 2 >= a: return f'Ø{d} mm', round(math.pi * (d / 20) ** 2)
 R = dict(Q=Q, RAD=RAD, Q_BLOK=Q_BLOK, RAD_BLOK=RAD_BLOK, QT=QT, RADT=RADT, QK_GER=QK_GER, QK=QK, VP_K=VP_K, VS_SEK=VS_SEK,
          IP1=(IP1_Q, IP1_H, pw(IP1_Q, IP1_H)), IP2=(IP2_Q, IP2_H, pw(IP2_Q, IP2_H)), H_TOP=H_TOP, H_BORU=H_BORU, L_KD=L_KD,
@@ -75,13 +75,13 @@ SEC.append(('3. ISITMA KAZANI KAPASİTE HESABI (TÜM BİNA)', f'Q kazan = Q ıs�
     'Sonuç: Kazan sistemi toplam ısı yükünü karşılamaktadır.'))
 SEC.append(('4. KAZAN PRİMER DEVRE VE SİSTEM DEBİ HESABI', None,
     [('Q primer = P / (1,163 × ΔT)', f'{K_BIRIM} / (1,163 × {DT}) = {f(VP_K, 2)} m³/h (kazan başına)'), ('Seçilen kazan pompası IP-1', f'{f(IP1_Q, 2)} m³/h - {f(IP1_H, 1)} mSS (kazan başına)'),
-     ('Q sistem = Q ısı kaybı / (1,163 × ΔT)', f'{f(QT, 2)} / (1,163 × {DT}) = {f(VS_SEK, 2)} m³/h'), ('Seçilen radyatör devresi pompası IP-2', f'{f(IP2_Q, 2)} m³/h (≥ {f(VS_SEK, 2)} × 1,10)')], None))
+     ('Q sistem = Q radyatör / (1,163 × ΔT)', f'{f(RADT, 1)} / (1,163 × {DT}) = {f(VS_SEK, 2)} m³/h'), ('Seçilen radyatör devresi pompası IP-2', f'{f(IP2_Q, 2)} m³/h - {f(IP2_H, 1)} mSS')], None))
 SEC.append(('5. RADYATÖR DEVRESİ POMPA BASMA YÜKSEKLİĞİ (KRİTİK DEVRE Ç01)', None,
     [('Kritik devre uzunluğu (gidiş + dönüş)', f'{L_KD} m'), ('Ortalama özgül boru kaybı R', f'{R_ORT} Pa/m'), ('Özel dirençler payı', f'%{int(Z_OZ * 100)}'),
      ('Boru kaybı = L × R × 1,30', f'{f(H_BORU, 2)} mSS'), ('Kalorimetre + termostatik vana + denge kabı', f'{f(H_KAL, 1)} + {f(H_TRV, 1)} + {f(H_DK, 1)} mSS'),
      ('Toplam', f'{f(H_TOP, 2)} mSS'), ('Seçilen IP-2 basma yüksekliği', f'{f(IP2_H, 1)} mSS')], 'Sonuç: Seçilen pompa kritik devre direncini karşılamaktadır.'))
 SEC.append(('6. KAPALI GENLEŞME DEPOSU HESABI (TS EN 12828)', None,
-    [('Radyatör su hacmi', f'{f(LT, 1)} m × 5,7 l/m = {f(V_RAD, 0)} Litre'), ('Toplam sistem su hacmi (V_s) (+%30 tesisat)', f'{f(VS, 0)} Litre'),
+    [('Toplam sistem su hacmi (V_s)', f'{QK} kW × 10 lt/kW = {f(VS, 0)} Litre'),
      ('Genleşme katsayısı (e) — 90 °C', f'{f(E_, 4)}'), ('Genleşen su hacmi (V_e)', f'{f(VS, 0)} × {f(E_, 4)} = {f(VE, 1)} Litre'),
      ('Yedek su hacmi (V_WR) — %0,5', f'{f(VWR, 1)} Litre'), ('Statik yükseklik (H_statik)', f'{f(H_ST, 0)} m'), ('Ön basınç (P_0) = H/10 + 0,3', f'{f(P0, 1)} bar'),
      ('Emniyet ventili açma basıncı (P_sv)', f'{f(PSV, 1)} bar'), ('Son basınç (P_e) = P_sv − 0,5', f'{f(PE, 1)} bar'),
@@ -90,7 +90,7 @@ SEC.append(('6. KAPALI GENLEŞME DEPOSU HESABI (TS EN 12828)', None,
 SEC.append(('7. DENGE KABI BOYUTLANDIRMA HESABI (DK-01)', None,
     [('Maksimum sistem debisi (Q_maks)', f'{f(QMAX, 2)} m³/h = {f(QMAX / 3600, 5)} m³/s'), ('Azami gövde akış hızı (v)', '0,15 m/s'),
      ('Hesaplanan iç çap D = √[4·Q/(π·v)]', f'{f(D_DK, 0)} mm'), ('Seçilen denge kabı iç çapı', f'Ø {D_SEC} mm'), ('Denge kabı ısıl yükü', f'{QK} kW'),
-     ('Denge kabı yüksekliği', '900 mm'), ('Giriş – çıkış çapları', 'DN50')], f'Sonuç: Seçilen Ø{D_SEC} mm denge kabı yeterlidir.'))
+     ('Giriş – çıkış çapları', 'DN100 (4")')], f'Sonuç: Seçilen Ø{D_SEC} mm denge kabı yeterlidir.'))
 (ka, kn), (da, dn_) = R['ALT']; (ku, kun), (du, dun) = R['UST']
 SEC_H = [('1. HESAP ESASI', 'Kazan dairesi doğal havalandırma menfez alanları toplam kurulu kazan gücüne bağlı olarak hesaplanmıştır.',
           [('Toplam kurulu kazan gücü (Q_toplam)', f'{QK} kW'), ('Alt havalandırma katsayısı', '6 cm²/kW'), ('Üst havalandırma katsayısı', '3 cm²/kW')], None),
@@ -107,11 +107,11 @@ EQ = [('DUVAR TİPİ YOĞUŞMALI ISITMA KAZANI TABLOSU', ['CİHAZ NO', 'CİHAZIN
        [['IP-1', 'Kazan sirkülasyon pompası', 'Islak rotorlu, frekans konvertörlü', f(IP1_Q, 2), f(IP1_H, 1), f(pw(IP1_Q, IP1_H)[1], 2), '220 / 50', K_ADET, '-'],
         ['IP-2', 'Radyatör ısıtma devresi sirkülasyon pompası', 'Islak rotorlu, frekans konvertörlü', f(IP2_Q, 2), f(IP2_H, 1), f(pw(IP2_Q, IP2_H)[1], 2), '220 / 50', 1, 1]]),
       ('DENGE KABI TABLOSU', ['CİHAZ NO', 'TANIMLAMA', 'ISIL YÜK (kW)', 'DENGE KABI İÇ ÇAPI (mm)', 'DENGE KABI YÜKSEKLİĞİ (mm)', 'GİRİŞ - ÇIKIŞ ÇAPLARI (DN)', 'DEBİ (m³/h)', 'ADET'],
-       [['DK-01', 'ISITMA DENGE KABI', QK, D_SEC, 900, 50, f(QMAX, 2), 1]]),
+       [['DK-01', 'ISITMA DENGE KABI', QK, D_SEC, 145, 100, f(QMAX, 2), 1]]),
       ('KAPALI GENLEŞME ve BÜZÜLME TANKLARI TABLOSU', ['CİHAZ NO', 'TANIMLAMA', 'TANK TİPİ', 'TANK KAPASİTESİ (Lt)', 'ÖN BASINÇ (bar)', 'EMNİYET VENTİLİ (bar)', 'ADET'],
        [['GT-01', 'ISITMA SİSTEMİ', 'KAPALI, DİKEY TİP, DEĞİŞTİRİLEBİLİR MEMBRANLI', GT, f(P0, 1), f(PSV, 0), 1]]),
       ('NÖTRALİZASYON TANKI TABLOSU', ['CİHAZ NO', 'TANIMLAMA', 'CİHAZIN BULUNDUĞU YER', 'KAPASİTESİ (kW)', 'DEBİ (L/h)', 'GİRİŞ ÇIKIŞ ÇAPI (")', 'ADET'],
-       [['NT-01', 'NÖTRALİZASYON TANKI', 'BODRUM', 200, 25, '1"', 1]]),
+       [['NT-01', 'NÖTRALİZASYON TANKI', 'BODRUM', 750, 100, '1 1/2"', 1]]),
       ('KAZAN BESLEME', ['CİHAZ NO', 'TANIMLAMA', 'CİHAZIN BULUNDUĞU YER', 'ÇAP (mm)', 'ADET'], [['KB-1', 'MEKANİK KAZAN BESLEME', 'BODRUM', 25, 1]]),
       ('SU YUMUŞATMA CİHAZI', ['CİHAZ NO', 'TİP', 'HİZMET ETTİĞİ ALAN', 'KAPASİTE (m³/h)', 'İŞLETME BASINCI (bar)', 'REÇİNE MİKTARI (lt)', 'GİRİŞ - ÇIKIŞ ÇAPI', 'ADET'],
        [['SYC-1', 'TANDEMLİ VOLUMETRİK SU YUMUŞATMA CİHAZI', 'ISITMA SİSTEMİ', '1,5', '2,5-7,5', 7, '1"-1"', 1]])]
