@@ -83,5 +83,9 @@ for r in range(nr + 1, nr + 6):
 y -= 30
 ws = wb['HİDROFOR-DEPO']
 T(X1, y, ws['A1'].value, 9.0); y -= 18
-y = table(X1, y, ws, 3, 3 + 16, range(1, 4), [300, 150, 50])
+y = table(X1, y, ws, 3, 3 + 15, range(1, 4), [300, 150, 70]) - 30
+ws = wb['YAĞMUR SUYU']
+T(X1, y, ws['A1'].value, 9.0); y -= 18
+y = table(X1, y, ws, 3, 10, range(1, 6), [230, 170, 170, 170, 40]) - 8
+T(X1, y, ws['A13'].value, 5.5)
 doc.saveas('/tmp/claude-0/hs/out/HESAPLAR_SIHHI.dxf'); print('ek ok')
