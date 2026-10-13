@@ -23,3 +23,9 @@ Not: şemadaki MTY dinamik blokları DXF'te '*U' adıyla gelir; `voyap/tes/ulabe
 4. Mevcut hidrofor ve pis su pompası seçimleri (varsa) ve pis su çukuru adedi/ölçüsü
 5. Her blok için çatı alanı (m²) ve yağmur oluğu (iniş) adedi
 6. Özel armatürler (ızgara vb.) ve SB değerleri farklıysa bunlar
+
+## Kullanım alanı
+- İlk uygulama: İstanbul projesi (B1-B2-B3 blok). Yöntem genel olarak Sakarya projelerinde de kullanılır.
+- Kullanıcı yalnız şema gönderebilir: daire sayısı, YB/SB, kolonlar, pompa/hidrofor/depo yazıları ve kat sayısı şemadan okunur.
+  Şemada yoksa varsayılanlar: kat yüksekliği 3,00 m; depo = günlük ihtiyaç (daire × 4 kişi × 100 l);
+  hidrofor yoksa etkin basınçta şebeke basıncı (ŞŞB) 40 mSS (şablon değeri); yağmur için çatı alanı/oluk adedi şemada/planda yoksa kullanıcıya sorulur.
