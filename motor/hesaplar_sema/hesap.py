@@ -31,10 +31,10 @@ def ozgul(yb, dn):
 
 PA = 9807
 H_HID = 67.10          # şemadaki hidrofor basma yüksekliği (mSS)
-KAT_H = 3.00           # kat yüksekliği (m) — varsayım
-N_KAT = 7              # bodrum→zemin→1→2→3→4→5→çatı katı döşemesi
-Z_ARM = 1.50           # en üst armatür döşemeden yüksekliği
-STAT = N_KAT * KAT_H + Z_ARM
+BINA_H = 21.0          # kullanıcı: hidrofordan en üst armatüre kot farkı (bina yüksekliği) 21 m
+N_KAT = 7              # bodrum→zemin→1→2→3→4→5→çatı katı
+KAT_H = BINA_H / N_KAT # 3,00 m
+STAT = BINA_H
 AKMA = 49035           # Çizelge 1: musluk DN15 / duş bataryası
 SAYAC = 5 * PA         # sayaç kaybı 5 mSS (şablon notu)
 # kritik devre: B1 blok çatı katı en uzak armatürden hidrofora (şemadaki YB ve çaplar)
@@ -66,6 +66,7 @@ for i in inis:
     if i['kol'] == 'P9' and i['fl'] == 'BODRUM': c['SUZGEC'] = 0
     for k, v in c.items(): KOL[(i['blok'], i['kol'])][k] += v
 SZ = {'B1': 5, 'B2': 7, 'B3': 7}            # bodrum yer süzgeçleri (pis su çukuruna)
+IZG = {'B1': 1, 'B2': 0, 'B3': 0}           # bodrum ızgarası (IZGARA1 KOLON, 8 SB, Ø100) — B1 blokta 1 adet
 ARM = Counter((blok(r['p'][0]), r['nm']) for r in FX if r['nm'] and 'KOLON' in r['nm'])
 KOMBI_YB = defaultdict(float)
 for r in FX:
@@ -87,7 +88,7 @@ txt = ['YÜK BİRİMİ YÖNTEMİ (YB) - TEMİZ SU KRİTİK DEVRE BASINÇ KAYBI H
        'Maksimum su hızı: ana borular 1-3 m/s, daire içi borular 1-2 m/s, sessizlik gereken yerler 0,5-0,7 m/s.',
        'ETKİN BASINÇ = HİDROFOR BASINCI - (STATİK KOT FARKI + AKMA BASINCI + SAYAÇ KAYBI)',
        f'Hidrofor basıncı (şemadaki) = {H_HID:.2f} mSS x 9807 = {round(H_HID * PA)} Pa',
-       f'Statik kot farkı = {N_KAT} kat x {KAT_H:.2f} m + {Z_ARM:.2f} m armatür yüksekliği = {STAT:.2f} m  →  {round(STAT * PA)} Pa',
+       f'Statik kot farkı (bina yüksekliği) = {STAT:.2f} m  →  {round(STAT * PA)} Pa',
        f'Akma basıncı (kritik armatür, Çizelge 1) = {AKMA} Pa ;  Sayaç kaybı = 5 mSS x 9807 = {SAYAC} Pa',
        f'ETKİN BASINÇ = {H_HID:.2f}x9807-({STAT:.2f}x9807+{AKMA}+{SAYAC}) = {H_ETK} Pa',
        f'ORTALAMA ÖZGÜL BASINÇ KAYBI = Etkin basınç / Kritik devre uzunluğu = {H_ETK}/{LTOT:.0f} = {R_ORT:.0f} Pa/m']
@@ -110,7 +111,7 @@ ws.cell(rt + 3, 1, f'=IF(G{rt}<{H_ETK},TEXT(G{rt},"0")&" < {H_ETK} Pa OLDUĞUNDA
 notes = ['Debi = 0,25 x √YB (l/s) ile tespit edilir.',
          'Özgül basınç kaybı Çizelge 3 (plastik boru) tablosundan, YB değerine göre doğrusal enterpolasyonla alınmıştır.',
          'Kritik devre: hidrofordan en uzak ve en yüksek blok olan B1 blok çatı katındaki son armatür.',
-         'Boru YB ve çap değerleri şemadaki MTY çap etiketlerinden alınmıştır; kat yüksekliği 3,00 m kabul edilmiştir.',
+         'Boru YB ve çap değerleri şemadaki MTY çap etiketlerinden alınmıştır; bina yüksekliği 21 m (kat başı 3,00 m) alınmıştır.',
          'Akma basıncı kritik devredeki en son cihaza göre Çizelge 1’den, sayaç kaybı 5 mSS olarak alınmıştır.']
 for i, t in enumerate(notes): ws.cell(rt + 5 + i, 1, '*' + t)
 
@@ -118,7 +119,7 @@ for i, t in enumerate(notes): ws.cell(rt + 5 + i, 1, '*' + t)
 NM = {'LAVABO1 KOLON': 'LAVABO', 'EVIYE1 KOLON': 'SİFON,EVİYE', 'KLOZET1 KOLON': 'KLOZET,HELA', 'DUS TEKNESI1 KOLON': 'BANYO KÜVETİ-DUŞ',
       'CAMASIR MAKINASI1 KOLON': 'ÇAMAŞIR,BUL.MAK', 'SUZGEC': 'YERSÜZGECİ'}
 PSROWS = [('KLOZET,HELA', 10), ('BANYO KÜVETİ-DUŞ', 7), ('SİFON,EVİYE', 4), ('İKİ GÖZLÜ EVİYE', 8), ('LAVABO', 2),
-          ('YERSÜZGECİ', 2), ('ÇAMAŞIR,BUL.MAK', 4), ('PİSUVAR', 2)]
+          ('YERSÜZGECİ', 2), ('ÇAMAŞIR,BUL.MAK', 4), ('PİSUVAR', 2), ('IZGARA (Ø100)', 8)]
 for B in ('B1', 'B2', 'B3'):
     ws = wb.create_sheet(f'{B} BLOK')
     ws.column_dimensions['A'].width = 3; ws.column_dimensions['B'].width = 24
@@ -147,7 +148,7 @@ for B in ('B1', 'B2', 'B3'):
     # pis su kolon adetleri
     kols = sorted({k for b, k in KOL if b == B}, key=lambda s: int(s[1:])) + ['SZ']
     def cnt(kol, row):
-        if kol == 'SZ': return SZ[B] if row == 'YERSÜZGECİ' else 0
+        if kol == 'SZ': return SZ[B] if row == 'YERSÜZGECİ' else (IZG[B] if row.startswith('IZGARA') else 0)
         c = KOL[(B, kol)]
         return sum(v for n, v in c.items() if NM.get(n) == row)
     r = 14
@@ -190,6 +191,109 @@ for B in ('B1', 'B2', 'B3'):
     for j in range(len(kols) + 1): ws.column_dimensions[CL(4 + j)].width = 8
     ws.column_dimensions['C'].width = 10
 
+
+# ======================= PİS SU POMPALARI (3 çukur, ayrı ayrı)
+import math as _m
+def hw(Q_ls, D_mm, L, C=140.0):
+    Q = Q_ls / 1000.0; D = D_mm / 1000.0
+    return 10.67 * Q ** 1.852 / (C ** 1.852 * D ** 4.87) * L
+CUKUR = [('PİS SU ÇUKURU-1', 'B1', 'Bodrum: 5 yer süzgeci + 1 ızgara', 18),
+         ('PİS SU ÇUKURU-2', 'B2', 'Bodrum birimi (P9+P10) + 7 süzgeç', 64),
+         ('PİS SU ÇUKURU-3', 'B3', 'Bodrum birimi (P9+P10) + 7 süzgeç', 64)]
+K_ = 0.5; Q_SEC = 13.7; H_SEC = 5.2; DN_B = 50; L_B = 15.0; ZETA = 5.3
+CA, CB, CH = 0.70, 0.70, 0.85; H_MIN = 0.30; H_PAY = 0.10; Z_ST = 15
+H_GEO = CH + KAT_H - 0.40
+PUMP = []
+for ad, B, kaynak, sb in CUKUR:
+    q = K_ * _m.sqrt(sb); qh = q * 3.6
+    A = _m.pi * (DN_B / 1000) ** 2 / 4
+    def sist(qls):
+        v = qls / 1000 / A
+        return H_GEO + hw(qls, DN_B, L_B) + ZETA * v * v / (2 * 9.81), v
+    hm, v = sist(q); hm_t = hm * 1.10
+    h_sec, v_sec = sist(Q_SEC / 3.6)
+    vreq = Q_SEC / (4 * Z_ST); vakt = CA * CB * (CH - H_MIN - H_PAY)
+    q_on = 10.0 if q * 3.6 <= 9.0 else 15.0                       # önerilen pompa debisi (m³/h)
+    h_on = _m.ceil(sist(q_on / 3.6)[0] * 1.10 * 2) / 2               # 0,5 mSS'ye yuvarlanmış
+    on_olcu = (0.70, 0.70, 0.85) if q_on / (4 * Z_ST) <= vakt else (0.80, 0.80, 1.00)
+    v_on = on_olcu[0] * on_olcu[1] * (on_olcu[2] - H_MIN - H_PAY)
+    P = 1000 * 9.81 * (q_on / 3600) * h_on / (0.40 * 1000)
+    PUMP.append(dict(q_on=q_on, h_on=h_on, olcu=on_olcu, v_on=v_on, vreq_on=q_on / (4 * Z_ST), ad=ad, B=B, kaynak=kaynak, sb=sb, q=q, qh=qh, v=v, hm=hm, hm_t=hm_t, h_sec=h_sec, v_sec=v_sec, vreq=vreq, vakt=vakt, P=P))
+ws = wb.create_sheet('PİS SU POMPALARI')
+ws.column_dimensions['A'].width = 58
+for c in 'BCDE': ws.column_dimensions[c].width = 22
+ws['A1'] = 'PİS SU POMPASI HESAPLARI (TS EN 12056-2 / -4) - HER ÇUKUR İÇİN AYRI'; ws['A1'].font = Font(bold=True, size=12)
+ws['A2'] = 'Qww = K x √ΣSB  (K = 0,5 konut) ;  Hm = Hgeo + sürtünme (Hazen-Williams, C=140) + özel kayıplar ;  Vaktif ≥ Qp / (4 x Z)'
+rows = [('Toplandığı yer', 'kaynak', ''), ('Toplam su birimi ΣSB', 'sb', 'SB'), ('Atık su debisi Qww = 0,5√ΣSB', 'q', 'l/s'),
+        ('Atık su debisi', 'qh', 'm³/h'), ('Basma hattı çapı', 'c:'+f'DN{DN_B}', ''), ('Basma hattında hız (Qww)', 'v', 'm/s'),
+        ('Geometrik yükseklik Hgeo = çukur derinliği + bodrum kat yük. - 0,40', 'c:'+f'{H_GEO:.2f}', 'mSS'),
+        (f'Basma hattı uzunluğu (kabul)', 'c:'+f'{L_B:.0f}', 'm'), (f'Özel kayıp katsayısı Σζ (çek valf+vana+3 dirsek+çıkış)', 'c:'+f'{ZETA}', ''),
+        ('Gerekli basma yüksekliği Hm (Qww)', 'hm', 'mSS'), ('Hm x 1,10 emniyet', 'hm_t', 'mSS'),
+        (f'Şemadaki pompa: {Q_SEC} m³/h - {H_SEC} mSS (1 asıl + 1 yedek)', None, ''),
+        (f'Sistem direnci {Q_SEC} m³/h debide', 'h_sec', 'mSS'), (f'Basma hattında hız ({Q_SEC} m³/h)', 'v_sec', 'm/s'),
+        ('Pompa debisi ≥ Qww', 'chkQ', ''), ('Pompa basma yük. ≥ sistem direnci', 'chkH', ''),
+        (f'Çukur ölçüsü (şemadaki) {int(CA*100)}x{int(CB*100)}x{int(CH*100)} cm - aktif hacim (min. seviye {H_MIN:.2f} m, pay {H_PAY:.2f} m)', 'vakt', 'm³'),
+        (f'Gerekli aktif hacim Qp/(4·Z), Z = {Z_ST} kalkış/saat', 'vreq', 'm³'), ('Çukur hacmi', 'chkV', ''),
+        ('ÖNERİLEN POMPA DEBİSİ', 'q_on', 'm³/h'), ('ÖNERİLEN POMPA BASMA YÜKSEKLİĞİ (x1,10, DN50 basma)', 'h_on', 'mSS'),
+        ('ÖNERİLEN ÇUKUR ÖLÇÜSÜ', 'olcu', 'cm'), ('Önerilen çukur aktif hacmi / gerekli', 'vchk', 'm³'),
+        ('Motor gücü P = ρ·g·Q·H/η (η = 0,40) → seçilecek motor', 'P', 'kW')]
+for j, p in enumerate(PUMP):
+    c = ws.cell(4, 2 + j, f"{p['ad']} ({p['B']} BLOK)"); c.font = HB; c.fill = HF
+ws.cell(4, 1, 'HESAP ADIMI').font = HB; ws.cell(4, 1).fill = HF; ws.cell(4, 5, 'BİRİM').font = HB; ws.cell(4, 5).fill = HF
+for i, (lab, key, unit) in enumerate(rows, 5):
+    ws.cell(i, 1, lab)
+    for j, p in enumerate(PUMP):
+        if key is None: v = ''
+        elif key.startswith('c:'): v = key[2:].replace('.', ',')
+        elif key == 'chkQ': v = 'UYGUNDUR' if Q_SEC >= p['qh'] else f'YETERSİZ (≥{p["qh"]:.1f} m³/h)'
+        elif key == 'chkH': v = 'UYGUNDUR' if H_SEC >= p['h_sec'] else f'YETERSİZ (≥{p["h_sec"]:.1f} mSS)'
+        elif key == 'chkV': v = 'UYGUNDUR' if p['vakt'] >= p['vreq'] else 'YETERSİZ'
+        elif key == 'kaynak': v = p['kaynak']
+        elif key == 'olcu': v = 'x'.join(str(int(round(a * 100))) for a in p['olcu'])
+        elif key == 'vchk': v = f"{p['v_on']:.2f} / {p['vreq_on']:.2f}"
+        elif key == 'P': v = f"{p['P']:.2f} → {next(m_ for m_ in (0.37, 0.55, 0.75, 1.1, 1.5, 2.2) if m_ >= p['P'] * 1.2)} kW"
+        else: v = round(p[key], 2) if isinstance(p[key], float) else p[key]
+        ws.cell(i, 2 + j, v)
+    ws.cell(i, 5, unit)
+box(ws, 4, 1, 4 + len(rows), 5)
+for i in range(5, 5 + len(rows)): ws.cell(i, 1).alignment = Alignment(horizontal='left', vertical='center', wrap_text=True)
+nr = 6 + len(rows)
+for t in ['Pompalar dalgıç-parçalayıcı tip, 1 asıl + 1 yedek, seviye şamandıralı otomatik çalışmalı ve yüksek seviye alarmlı olacaktır.',
+          'Basma hattı kanal geri tepmesine karşı çek valfli ve en yüksek kanal seviyesinin üstünden (geri tepme döngüsü) bağlanacaktır.',
+          'Basma hattı uzunluğu şema ölçeksiz olduğundan 15 m kabul edilmiştir; uygulamada boy farklıysa Hm yeniden kontrol edilmelidir.']:
+    ws.cell(nr, 1, '*' + t); nr += 1
+
+# ======================= HİDROFOR - DEPO
+DAIRE = {B: ARM[(B, 'KOMBI1 KOLON')] for B in ('B1', 'B2', 'B3')}
+ND = sum(DAIRE.values()); KISI = 4; TG = 100
+ws = wb.create_sheet('HİDROFOR-DEPO')
+ws.column_dimensions['A'].width = 62; ws.column_dimensions['B'].width = 18; ws.column_dimensions['C'].width = 14
+ws['A1'] = 'KULLANMA SUYU DEPOSU VE HİDROFOR KONTROLÜ'; ws['A1'].font = Font(bold=True, size=12)
+YBT = 540.0
+qa = 0.25 * _m.sqrt(YBT)
+H_REQ = STAT + KAYIP / PA + AKMA / PA + SAYAC / PA + 2.0
+rr = [('Bağımsız birim (daire) sayısı - şemadaki şofben adedi', f"{ND} (B1 {DAIRE['B1']}, B2 {DAIRE['B2']}, B3 {DAIRE['B3']})", 'adet'),
+      ('Kişi sayısı (daire başına 4 kişi)', ND * KISI, 'kişi'),
+      ('Günlük su ihtiyacı (100 l/kişi·gün)', round(ND * KISI * TG / 1000, 1), 'm³/gün'),
+      ('Seçilen depo hacmi', 16, 'm³'),
+      ('Depo kontrolü', 'UYGUNDUR' if 16 >= ND * KISI * TG / 1000 else 'YETERSİZ', ''),
+      ('Toplam yük birimi ΣYB (şema)', YBT, 'YB'),
+      ('Anlık debi Q = 0,25√ΣYB', round(qa, 2), 'l/s'),
+      ('Anlık debi', round(qa * 3.6, 1), 'm³/h'),
+      ('Statik yükseklik (bina yüksekliği)', STAT, 'mSS'),
+      ('Kritik devre boru kayıpları', round(KAYIP / PA, 2), 'mSS'),
+      ('Akma basıncı + sayaç kaybı', round((AKMA + SAYAC) / PA, 1), 'mSS'),
+      ('Hidrofor kollektörü / emme kayıpları (kabul)', 2.0, 'mSS'),
+      ('Gerekli hidrofor basma yüksekliği (alt çalışma basıncı)', round(H_REQ, 1), 'mSS'),
+      ('Şemadaki hidrofor', '9,75 m³/h - 67,10 mSS', ''),
+      ('Basma yüksekliği kontrolü', 'UYGUNDUR' if 67.10 >= H_REQ else 'YETERSİZ', ''),
+      ('Debi kontrolü (anlık debiye göre)', 'UYGUNDUR' if 9.75 >= qa * 3.6 else f'YETERSİZ (≥{qa*3.6:.1f} m³/h)', '')]
+for j, h in enumerate(('HESAP ADIMI', 'DEĞER', 'BİRİM'), 1): c = ws.cell(3, j, h); c.font = HB; c.fill = HF
+for i, (a, b, c_) in enumerate(rr, 4):
+    ws.cell(i, 1, a); ws.cell(i, 2, b); ws.cell(i, 3, c_)
+box(ws, 3, 1, 3 + len(rr), 3)
+for i in range(4, 4 + len(rr)): ws.cell(i, 1).alignment = Alignment(horizontal='left', vertical='center', wrap_text=True)
+
 # ======================= ÇİZELGELER (şablondan aynen)
 for nm, title in (('Sayfa2', 'ÇİZELGE_1'), ('Sayfa3', 'ÇİZELGE_2'), ('Sayfa4', 'ÇİZELGE_3')):
     sh = W0.sheet_by_name(nm); ws = wb.create_sheet(title)
@@ -201,4 +305,4 @@ wb.save('/tmp/claude-0/hs/out/HESAPLAR_SIHHI.xlsx')
 print('H_ETK', H_ETK, 'L', LTOT, 'R_ort', round(R_ORT), 'KAYIP', round(KAYIP))
 for r in ROWS: print(r, r[2] * r[5])
 print({B: (sum(n * y for (b, nm), n in ARM.items() if b == B and False), ) for B in ('B1',)})
-pickle.dump(dict(ROWS=ROWS, H_ETK=H_ETK, LTOT=LTOT, R_ORT=R_ORT, KAYIP=KAYIP, STAT=STAT, KOL=KOL, ARM=ARM, KOMBI_YB=KOMBI_YB, SZ=SZ), open('/tmp/claude-0/hs/res.pkl', 'wb'))
+pickle.dump(dict(PUMP=PUMP, H_REQ=H_REQ, ROWS=ROWS, H_ETK=H_ETK, LTOT=LTOT, R_ORT=R_ORT, KAYIP=KAYIP, STAT=STAT, KOL=KOL, ARM=ARM, KOMBI_YB=KOMBI_YB, SZ=SZ), open('/tmp/claude-0/hs/res.pkl', 'wb'))
