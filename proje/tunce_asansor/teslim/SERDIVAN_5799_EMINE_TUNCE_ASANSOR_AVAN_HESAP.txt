@@ -21,6 +21,7 @@ Taşıma kapasitesi yeterli (L = 0,23 ≤ 1); bekleme aralığı sınırı aşı
 1.2. ASANSÖR KUVVET HESABI
 Gk (kabin kütlesi) = 550 kg   Gy (beyan yükü) = 800 kg   q = 0,5
 Karşı ağırlık = Gk + q·Gy = 550 + 0,5 x 800 = 950 kg
+Halat: 4 x Ø10,0 mm çelik halat (gh = 0,373 kg/m), 1/1 askı
 Halat kütlesi Gh = gh x lh x nh = 0,373 x 15,5 x 4 = 23,1 kg
 1.2.1. Kuyu Alt Boşluğu Tabanına Gelen Kuvvetler
 P1 (kabin tamponu altı) = 4 x gn x (Gk + Gy) = 4 x 9,81 x (550 + 800) = 52.974 N
@@ -31,7 +32,7 @@ F = gn x (Gmakina + Gsehpa + Gmontör + Gk + Gy + Gh + Gka) = 9,81 x (320 + 100 
 Smaks (artan yük) = Gk + Gh + Gy - Gka = 423 kg   M = Smaks x D/2 = 50,8 kg.m
 N = (1/η) x S x V / 102 = (1/0,80) x 423 x 1,00 / 102 = 5,19 kW (7,0 HP)  ->  seçilen 7,5 kW
 10 kişilik 1,00 m/s hızında 7,5 kW lık 1 adet insan asansörü tesis edilecektir.
-ASANSÖR 4 HALATLI, 1/1 ASKILI OLACAKTIR.
+ASANSÖR 4 x Ø10,0 mm (4 HALATLI), 1/1 ASKILI OLACAKTIR.
 
 KONTROLLER
 Kabin alanı 1,80 m² ≤ EN 81-20 en büyük 2,00 m² : UYGUN
