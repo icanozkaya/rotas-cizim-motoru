@@ -283,7 +283,8 @@ def build():
     Qt = w['Q'] + dol['Q']
     lines = [f"En elverişsiz sprinkler alanı: {w['kat']} {w['Q']:.0f} l/dk; yangın dolabı 2 x 100 l/dk = {dol['Q']:.0f} l/dk",
              f"Toplam: {Qt:.0f} l/dk = {Qt * 0.06:.1f} m³/h; dolap için gerekli basınç {dol['P'] * 10.2:.1f} mSS (2. kat, lüle 4 bar)",
-             f"Seçilen pompa: Q=70 m³/h H=60 mSS; eğri üzerinde 75 m³/h'de ≥58 mSS sağlanacaktır.",
+             (f"Seçilen pompa: Q=70 m³/h H=60 mSS ≥ ihtiyaç {Qt * 0.06:.1f} m³/h / {max(dol['P'], max(r['Pp'] for r in res)) * 10.2:.1f} mSS  ✓"
+              if Qt * 0.06 <= 70 else f"Seçilen pompa: Q=70 m³/h H=60 mSS; eğri üzerinde {Qt * 0.06:.0f} m³/h'de ≥{max(dol['P'], max(r['Pp'] for r in res)) * 10.2 + 2:.0f} mSS sağlanacaktır."),
              f"Depo: {Qt * 0.06:.1f} m³/h x 60 dk = {Qt * 0.06:.1f} m³ ≤ 80 m³ net  ✓",
              "Kat yükseklikleri kabulü: bodrum 3,50 / zemin 3,50 / normal 3,00 m (kesitten teyit)."]
     for k, s in enumerate(lines):

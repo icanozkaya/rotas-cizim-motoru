@@ -19,7 +19,7 @@ nl = 0
 for b in B:
     if any(b.buffer(60).contains(Point(r[2][0])) for r in lifts) and b.area < 13e4:
         c = b.centroid
-        H[0].append(dict(p=(c.x, c.y), t='ARA', yeni=True)); nl += 1
+        nl += 1      # lift ara seviyesine sprinkler KONMAZ (kullanıcı talimatı 13.10)
 DEPO = (248235.0, -451720.0, 248640.0, -450860.0)   # 80 m³ yangın suyu deposu (tesisat alanı kuzeyi)
 n0 = len(H[0])
 H[0] = [h for h in H[0] if not (DEPO[0] < h['p'][0] < DEPO[2] and DEPO[1] < h['p'][1] < DEPO[3])]

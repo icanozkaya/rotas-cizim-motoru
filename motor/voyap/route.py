@@ -10,16 +10,16 @@ from shapely.ops import unary_union
 import networkx as nx
 VY = '/tmp/claude-0/vy/'
 from geo import OFF, KATAD
-K1L = (248395.0, -452225.0)      # sprinkler/dolap kolonu (merdiven üst köşesi, ortak alan)
-K2L = (248520.0, -456100.0)      # 2. dolap kolonu (alt merdiven)
+K1L = (248245.0, -452072.0)      # SP-1 kolonu: üst katlarda koridor sol üst köşesi (duvar köşesi), bodrumda pompa dairesi
+K2L = (248545.0, -456212.0)      # Y-2 kolonu: alt çekirdek, merdiven sağ duvarı ile yatay duvar köşesi
 SRC0 = (248905.0, -451955.0)     # bodrum: pompa dairesi AV1 çıkışı
 
 # kat başına omurga hedefleri (yerel = bodrum çerçevesi)
 SPINE = {   # zincirler: her zincir art arda noktadan noktaya (ilk zincir kaynaktan başlar)
     0: [[None, (249310.0, -451955.0), (249310.0, -456950.0)]],
-    1: [[None, (248440.0, -452410.0), (249760.0, -452410.0)], [(248440.0, -452410.0), (248440.0, -452950.0), (248600.0, -453100.0), (248560.0, -454300.0), (249050.0, -454300.0), (249050.0, -457050.0)]],
-    2: [[None, (248460.0, -452140.0), (249960.0, -452140.0)], [(248460.0, -452140.0), (248460.0, -453300.0), (248560.0, -453480.0), (248545.0, -455950.0)]],
-    3: [[None, (248460.0, -452140.0), (249960.0, -452140.0)], [(248460.0, -452140.0), (248460.0, -453300.0), (248560.0, -453480.0), (248545.0, -455950.0)]],
+    1: [[None, (248440.0, -452072.0), (248440.0, -452410.0), (249760.0, -452410.0)], [(248440.0, -452410.0), (248440.0, -452950.0), (248600.0, -453100.0), (248560.0, -454300.0), (249050.0, -454300.0), (249050.0, -457050.0)]],
+    2: [[None, (248460.0, -452072.0), (248460.0, -452140.0), (249960.0, -452140.0)], [(248460.0, -452140.0), (248460.0, -453300.0), (248560.0, -453480.0), (248545.0, -455950.0)]],
+    3: [[None, (248460.0, -452072.0), (248460.0, -452140.0), (249960.0, -452140.0)], [(248460.0, -452140.0), (248460.0, -453300.0), (248560.0, -453480.0), (248545.0, -455950.0)]],
 }
 # Sprinkler boru çap tablosu: Aselsan 02-Yangın uygulaması (BORUYUK katmanından ölçüldü) = NFPA 13 OH boru tablosu, 100 üstü DN150
 TABLO = [(2, 'DN25', 25), (3, 'DN32', 32), (5, 'DN40', 40), (10, 'DN50', 50), (20, 'DN65', 65), (40, 'DN80', 80), (100, 'DN100', 100)]
@@ -28,7 +28,8 @@ def cap(n):
         if n <= m: return s, dn
     return 'DN150', 150
 
-def make_grid(G, st=5.0):
+WALLPEN = 7.0
+def make_grid(G, st=5.0, wallpen=None):
     x0, y0, x1, y1 = G['win']
     g = Grid((x0, y0, x1, y1), step=st)
     g.base[:] = 1.0
@@ -39,7 +40,7 @@ def make_grid(G, st=5.0):
         ok = (rr >= 0) & (rr < g.nx) & (cc >= 0) & (cc < g.ny)
         wall[rr[ok], cc[ok]] = True
     wall = ndimage.binary_dilation(wall, iterations=1)
-    g.base += 7.0 * wall
+    g.base += (WALLPEN if wallpen is None else wallpen) * wall
     # bina dışı yasak
     fp = G['foot'].buffer(-6)
     xs, ys = fp.exterior.coords.xy
@@ -55,6 +56,7 @@ def make_grid(G, st=5.0):
 def route_floor(i, G, heads, st=5.0, log=True):
     t0 = time.time()
     g = make_grid(G, st)
+    gd = make_grid(G, st, wallpen=120.0)
     ox, oy = OFF[i]
     src = (SRC0[0], SRC0[1]) if i == 0 else (K1L[0] + ox, K1L[1] + oy)
     lines = []
@@ -64,7 +66,7 @@ def route_floor(i, G, heads, st=5.0, log=True):
             tp = (tx + ox, ty + oy)
             pts = g.route(cur, tp, sysn='S', turn=60.0, max_exp=3_000_000)
             assert pts, ('omurga', i, cur, tp)
-            g.add_line(pts, 'S'); lines.append(pts); cur = tp
+            g.add_line(pts, 'S'); gd.add_line(pts, 'S'); lines.append(pts); cur = tp
     todo = list(range(len(heads)))
     hp = [h['p'] for h in heads]
     fail = []
@@ -73,10 +75,14 @@ def route_floor(i, G, heads, st=5.0, log=True):
     YK = {0: 1.6, 1: 1.6, 2: 1.15, 3: 1.15}[i]
     while todo:
         k = todo.pop(0)
-        pts = g.route(hp[k], None, sysn='S', to_tree=True, turn=30.0, free_end=6.0, max_exp=1_500_000, yk=YK)
+        pts = None
+        if i > 0:      # mahal beslemesi kapıdan: duvar geçişi çok pahalı
+            pts = gd.route(hp[k], None, sysn='S', to_tree=True, turn=30.0, free_end=6.0, max_exp=1_500_000, yk=YK)
+        if not pts:
+            pts = g.route(hp[k], None, sysn='S', to_tree=True, turn=30.0, free_end=6.0, max_exp=1_500_000, yk=YK)
         if not pts:
             fail.append(k); continue
-        g.add_line(pts, 'S'); lines.append(pts)
+        g.add_line(pts, 'S'); gd.add_line(pts, 'S'); lines.append(pts)
     if log: print(KATAD[i], 'başlık', len(heads), 'bağlanamayan', len(fail), round(time.time() - t0, 1), 's')
     return src, lines, fail
 
