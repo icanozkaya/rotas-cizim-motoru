@@ -52,10 +52,7 @@ th { font-weight: bold; text-align: center; }
 
 
 def baslik(t):
-    return f"""<table class="bas"><tr>
-<td class="logo"><div class="lg1">ROTAŞ</div><div class="lg2">MÜHENDİSLİK · PROJE · MÜŞAVİRLİK</div></td>
-<td class="ttl">{t}</td>
-<td class="logo"><div class="lg3">{e(P['blok'])}</div><div class="lg2">{P['ada']} ADA {P['parsel']} PARSEL</div></td></tr></table>"""
+    return f"""<table class="bas"><tr><td class="ttl">{t}</td></tr></table>"""
 
 
 def proje_bilgileri():
