@@ -9,7 +9,7 @@ from shapely.affinity import translate
 sys.path.insert(0, '/home/claude/nb/p2')
 from router import Grid
 from veri import *
-import rooms
+import odaplan as rooms
 
 VY = '/tmp/claude-0/vy/'
 GEO = pickle.load(open(VY + 'geo.pkl', 'rb'))

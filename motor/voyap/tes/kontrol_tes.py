@@ -23,7 +23,7 @@ def kontrol(path):
     D = ezdxf.readfile(path)
     hata = []
     for e in D.modelspace().query('LWPOLYLINE'):
-        if e.dxf.layer not in LAYS: continue
+        if e.dxf.layer.replace("SCOTT-", "", 1) not in LAYS: continue
         pts = [p[:2] for p in e.get_points()]
         if len(pts) < 2: continue
         ls = LineString(pts)

@@ -13,6 +13,7 @@ t0 = time.time()
 D = ezdxf.readfile(sys.argv[1] if len(sys.argv) > 1 else VY + 'MEKANIK_TAM.dxf')
 print('okundu', round(time.time() - t0))
 FROZEN = {'MTY-SPRINKLER-KORUMA', 'MTY-SPRINKLER-ALAN', 'MTY-SPRINKLER-ALAN-1'}
+FROZEN |= {'SCOTT-' + n for n in FROZEN}
 C = _bb.Cache()
 ENTS = []
 for e in D.modelspace():
@@ -53,10 +54,7 @@ for (a, b), k in zip(H, K):
     pages.append(render((a, -447827, b, -440327), VY + f'pp_h{k}.png', 15, 120, f'ISITMA TESİSATI - {k} KAT PLANI'))
 pages.append(render((289044, -444100, 315152, -440327), VY + 'pp_h_sema1.png', 30, 110))
 pages.append(render((289044, -447827, 302000, -444000), VY + 'pp_h_sema2.png', 30, 110))
-pages.append(render((248039, -468471, 250190, -460971), VY + 'pp_v_b.png', 15, 120, 'HAVALANDIRMA - BODRUM KAT'))
-pages.append(render((250190, -468471, 252331, -460971), VY + 'pp_v_z.png', 15, 120, 'HAVALANDIRMA - ZEMİN KAT'))
-pages.append(render((252400, -468471, 266000, -460971), VY + 'pp_v_sema.png', 30, 110))
-pages.append(render((266000, -468471, 276712, -460971), VY + 'pp_v_tab.png', 30, 110))
+pages.append(render((262500, -468471, 276712, -460971), VY + 'pp_v_tab.png', 30, 110))
 for (a, b), k in zip([(248039, 250190)] + Y, K):
     pages.append(render((a, -458149, b, -450649), VY + f'pp_y{k}.png', 15, 120, f'YANGIN TESİSATI - {k} KAT PLANI'))
 pages.append(render((256650, -457200, 264000, -450900), VY + 'pp_y_sema.png', 30, 110))

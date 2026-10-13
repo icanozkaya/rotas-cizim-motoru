@@ -3,6 +3,7 @@
 EK  = yalnız eklenen çizimler (kullanıcının koordinatında)
 TAM = kullanıcının tüm dosyası + ekler (eski bodrum, eski kısmi MTY şemaları ve termosifon yazıları yerine yenileri)"""
 import sys, time, pickle, math
+import ezdxf
 sys.path.insert(0, '/home/claude/voyap'); sys.path.insert(0, '/home/claude/voyap/tes')
 t0 = time.time()
 from lib import *
@@ -21,7 +22,7 @@ import sema; sema.build()
 print('yangın', round(time.time() - t0), 's')
 # ------------------------------------------------------------------ TESİSAT
 from veri import *
-import sihhi, isitma, alt, hava, sema_tes
+import sihhi, isitma, alt, sema_tes, termo, sema_sihhi
 from tlib import T as _T
 
 
@@ -54,21 +55,15 @@ alt.zemin_sihhi(); alt.zemin_isitma(); print('zemin', round(time.time() - t0))
 alt.bodrum_sihhi(); alt.bodrum_isitma(); print('bodrum', round(time.time() - t0))
 pickle.dump({k: v for k, v in alt.OUTA.items() if k in ('zemin', 'bodrum')}, open('/tmp/claude-0/vy/outa.pkl', 'wb'))
 tlib.reset_place()
-hava.bodrum_mim(); hava.zemin_mim(); hava.otopark(); hava.siginak(); hava.zemin_saft(); print('hava', round(time.time() - t0))
 # şemalar
-sema_tes.sihhi_sema(); sema_tes.pis_sema(); sema_tes.isitma_sema(); sema_tes.kazan_sema()
-# V sırası: çerçeve + başlıklar (yangın sırası çerçevesi kopyası)
+sema_sihhi.sema(); sema_tes.isitma_sema(); sema_tes.kazan_sema()
+# lejant/not/tablo alanı çerçevesi (eski V sırası yeri; havalandırma kaldırıldı)
 for e in sdoc.modelspace().query('LINE[layer=="ANTED"]'):
     a, b = e.dxf.start, e.dxf.end
     if -458200 < a.y < -450600 and -458200 < b.y < -450600:
         L((a.x, a.y - 10322), (b.x, b.y - 10322), "ANTED")
-_T(249115, -468306, "BODRUM KAT HAVALANDIRMA PLANI", 100, "MKDU0", TA.BOTTOM_CENTER)
-_T(251260, -468306, "ZEMİN KAT ŞAFT / BACA ÇIKIŞLARI", 100, "MKDU0", TA.BOTTOM_CENTER)
-yv = sema_tes.hava_sema(252700, -461100)
-y = hava.notlar_hava(252700, yv - 200)
-yy = sema_tes.lejant(259500, -461100, 'V')
-yy = sema_tes.hava_tablo(259500, yy - 200)
-# lejant / not / tablolar (V sırası sağ)
+_T(256000, -468306, "LEJANT / NOTLAR / HESAP ÖZETLERİ / EKİPMAN LİSTESİ", 100, "MKDU0", TA.BOTTOM_CENTER)
+# lejant / not / tablolar (S sırası altı, eski V sırası yeri)
 x = 263000
 y = sema_tes.lejant(x, -461100, 'S')
 y = sema_tes.lejant(x, y - 120, 'H')
@@ -77,8 +72,86 @@ y2 = sema_tes.notlar(x2, -461100, "SIHHİ TESİSAT NOTLARI", sema_tes.NOT_S, 9.0
 y2 = sema_tes.notlar(x2, y2 - 120, "ISITMA TESİSATI NOTLARI", sema_tes.NOT_H, 9.0)
 y3 = sema_tes.ozet_tablolar(272500 - 1400, -461100) if False else None
 sema_tes.ozet_tablolar(266500, y2 - 150)
+sema_sihhi.ekipman_listesi(271200, -461100)
 pickle.dump(dict(OUT=sihhi.OUT, OUTI={k: v for k, v in isitma.OUTI.items() if k[0] != 'ana'}, OUTA={k: v for k, v in alt.OUTA.items() if k != 'bodrum_isi'}),
             open('/tmp/claude-0/vy/tes_out.pkl', 'wb')) if False else None
+import copy as _cp
+
+
+def scott(d):
+    """tüm katman adları SCOTT- önekiyle (0 ve Defpoints hariç); blok içleri dahil"""
+    ren = {}
+    for l in list(d.layers):
+        n = l.dxf.name
+        if n in ('0', 'Defpoints') or n.upper().startswith('SCOTT'): continue
+        ren[n] = 'SCOTT-' + n
+    for n, nn in ren.items():
+        if nn not in d.layers:
+            o = d.layers.get(n)
+            nl = d.layers.add(nn)
+            for a in ('color', 'linetype', 'lineweight', 'true_color', 'plot'):
+                if o.dxf.hasattr(a): nl.dxf.set(a, o.dxf.get(a))
+    def fix(e):
+        ly = e.dxf.get('layer', '0')
+        if ly in ren: e.dxf.layer = ren[ly]
+        if e.dxftype() == 'INSERT':
+            for a in e.attribs: fix(a)
+    for lo in d.layouts:
+        for e in lo: fix(e)
+    for b in d.blocks:
+        for e in b: fix(e)
+    for n in ren:
+        try: d.layers.remove(n)
+        except Exception: pass
+
+
+
+
+def _ust(s1, s2, tol=1.5):
+    (a, b), (c, d) = s1, s2
+    if abs(a[1] - b[1]) < 0.01 and abs(c[1] - d[1]) < 0.01 and abs(a[1] - c[1]) < tol:
+        return min(max(a[0], b[0]), max(c[0], d[0])) - max(min(a[0], b[0]), min(c[0], d[0])) > 2.0
+    if abs(a[0] - b[0]) < 0.01 and abs(c[0] - d[0]) < 0.01 and abs(a[0] - c[0]) < tol:
+        return min(max(a[1], b[1]), max(c[1], d[1])) - max(min(a[1], b[1]), min(c[1], d[1])) > 2.0
+    return False
+
+
+def ayir_katman(lay, step=5.0, it=200):
+    """aynı katmanda üst üste binen boru parçalarını yanal kaydır (uç noktalar korunur, gerekirse dik bağlantı)"""
+    E = [e for e in msp.query('LWPOLYLINE') if e.dxf.layer == lay and not e.closed]
+    P = {i: [tuple(q[:2]) for q in e.get_points()] for i, e in enumerate(E)}
+    nmove = 0
+    for _ in range(it):
+        segs = [(i, j, (p[j], p[j + 1])) for i, p in P.items() for j in range(len(p) - 1) if p[j] != p[j + 1]]
+        moved = False
+        for i, j, sg in segs:
+            conf = [o for o in segs if o[0] != i and _ust(sg, o[2])]
+            if not conf: continue
+            a, b = sg
+            hor = abs(a[1] - b[1]) < 0.01
+            if not hor and abs(a[0] - b[0]) > 0.01: continue
+            best = None
+            for dd in (step, -step, 2 * step, -2 * step, 3 * step, -3 * step):
+                na = (a[0], a[1] + dd) if hor else (a[0] + dd, a[1]); nb = (b[0], b[1] + dd) if hor else (b[0] + dd, b[1])
+                n = sum(1 for o in segs if o[0] != i and _ust((na, nb), o[2]))
+                if best is None or n < best[0]: best = (n, na, nb)
+                if n == 0: break
+            if best[0] >= len(conf): continue
+            p = list(P[i])
+            new = p[:j] + ([p[j]] if j == 0 else []) + [best[1], best[2]] + ([p[j + 1]] if j + 1 == len(p) - 1 else []) + p[j + 2:]
+            if j > 0: new = p[:j] + [best[1], best[2]] + ([p[j + 1]] if j + 1 == len(p) - 1 else []) + p[j + 2:]
+            P[i] = new; moved = True; nmove += 1
+            break
+        if not moved: break
+    for i, e in enumerate(E):
+        if len(P[i]) != len(list(e.get_points())) or any(abs(x[0] - y[0]) > 0.01 or abs(x[1] - y[1]) > 0.01 for x, y in zip(P[i], [q[:2] for q in e.get_points()])):
+            e.set_points(P[i], format='xy')
+    print('  üst üste ayırma', lay, nmove)
+
+
+for _l in ("MTY-PEX-BORU",):
+    ayir_katman(_l)
+scott(doc)
 doc.saveas('/tmp/claude-0/vy/MEKANIK_EK.dxf')
 print('EK ok', round(time.time() - t0), 's')
 
@@ -92,6 +165,7 @@ EXC = [  # (x0, x1, y0, y1): bu pencerede ANTED ve pafta başlığı dışı kul
     (289044, 315152, -447827, -440327),           # H eski kısmi MTY şeması
     (248039, 250190, -458149, -450649),           # Y eski bodrum
 ]
+TERMO = termo.tara()
 sec = []
 nx = 0
 for e in sdoc.modelspace():
@@ -105,6 +179,15 @@ for e in sdoc.modelspace():
     cx, cy = (b.extmin.x + b.extmax.x) / 2, (b.extmin.y + b.extmax.y) / 2
     # yangın sırası eski sprinkler
     if lay.upper().startswith('MTY-SPRINKLER') and -458200 < cy < -450600: nx += 1; continue
+    # termosifona gelen soğuk/sıcak su uçları (merkezi sıcak suya geçildi)
+    if e.dxf.handle in TERMO['rm']:
+        if e.dxf.handle in TERMO['trim']:
+            lay_, q_ = TERMO['trim'][e.dxf.handle]; PL(q_, lay_)
+        nx += 1; continue
+    # H sırası 1.-2. kat ofisleri: eski MTY yerden ısıtma devreleri / mahal etiketleri (yeni tasarım çizildi)
+    if 284700 < cx < 289044 and -447827 < cy < -440327:
+        if lay in ('MTY-PEX-BORU', 'MTY-ISIKAYBIMAHAL') or lay.startswith('MTY-RADYAT') or (e.dxftype() == 'INSERT' and e.dxf.name == 'MTY-RADYATOR MAHAL'):
+            nx += 1; continue
     # termosifon yazıları (merkezi sıcak suya geçildi)
     if e.dxftype() in ('TEXT', 'MTEXT') and lay == 'MTY-VANA':
         t = e.dxf.text if e.dxftype() == 'TEXT' else e.text
@@ -121,5 +204,7 @@ im = Importer(sdoc, doc)
 im.import_entities(sec, msp); im.finalize()
 for n in ('MIM-BODRUM-GUNCEL', 'MIM-GUNCEL-BODRUM'):
     if n in doc.layers: doc.layers.get(n).color = 8
+scott(doc)
 doc.saveas('/tmp/claude-0/vy/MEKANIK_TAM.dxf')
 print('TAM ok', len(sec), 'kullanıcı varlığı alındı,', nx, 'eski varlık çıkarıldı', round(time.time() - t0), 's')
+

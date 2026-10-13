@@ -205,7 +205,7 @@ def isitma_sema(X0=289400.0, YT=-440500.0):
     # ofis devresi
     xo = k0 + 400
     n1 = sum(1 for k in OFIS_S1 if SAFT_OF[k] == 'S1')
-    xend = k0 + 1900 + 300 + n1 * 260 + 300 + 30
+    xend = k0 + 1900 + 30
     PL([(xo, YG), (xo, yb + 420), (xend, yb + 420)], IG, 2.0)
     PL([(xo + 40, YD), (xo + 40, yb + 390), (xend, yb + 390)], ID, 2.0)
     INS("T-POMPA", (xo, yb + 360), 90, 1.6, lay=CHZ)
@@ -217,38 +217,54 @@ def isitma_sema(X0=289400.0, YT=-440500.0):
     PL([(xd + 40, YD), (xd + 40, yb + 140), (k0 + 1600, yb + 140)], ID, 2.0)
     INS("T-POMPA", (xd, yb + 220), -90, 1.6, lay=CHZ)
     lab((xd + 15, yb + 200), f"P2 {ddk['q']} m³/h {ddk['H']} mSS", 9, CHZ)
+    import yi as _yi
+    YD = {k: _yi.ofis_k(2, k, None) for k in OFIS_S1}
+    ow = lambda k: 150 + len(YD[k]['circ']) * 42
+
     def grup(xr, offs, sh):
         n = len(offs)
         kw = sum(R['ofis'][(kat, k)]['Q'] for kat in (2, 3) for k in offs) / 1000.0
         PL([(xr, yb + 420), (xr, y2 + 60)], IG, 2.0); PL([(xr + 30, yb + 390), (xr + 30, y2 + 60)], ID, 2.0)
         vlab((xr, yz), (xr, y1), f"{dn_isitma(kw, 10)[0]} {kw:.1f} kW", 10, ICAP)
         lab((xr - 20, y2 + 80), f"Ş{sh[1]} ISITMA G/D", 12, SFT)
+        xe = xr + 200 + sum(ow(k) for k in offs)
         for kat, yf in ((2, y1), (3, y2)):
-            yr = yf + 60
+            yr = yf + 40
             kwk = sum(R['ofis'][(kat, k)]['Q'] for k in offs) / 1000.0
-            xe = xr + 200 + n * 260
-            PL([(xr, yr), (xe, yr)], IG); PL([(xr + 30, yr + 25), (xe, yr + 25)], ID)
+            PL([(xr, yr), (xe, yr)], IG); PL([(xr + 30, yr + 20), (xe, yr + 20)], ID)
             hlab((xr, yr), (xr + 200, yr), f"{dn_isitma(kwk, 10)[0]} {kwk:.1f} kW", 9, ICAP)
-            for i, k in enumerate(offs):
-                x = xr + 260 + i * 260
+            x = xr + 230
+            for k in offs:
+                Yk = _yi.ofis_k(kat, k, None)
                 q = R['ofis'][(kat, k)]
-                box(x - 70, yr + 70, x + 70, yr + 160, SAY)
-                lab((x - 68, yr + 165), f"SD-{kat - 1}{k}", 10, SAY)
-                PL([(x - 30, yr), (x - 30, yr + 280)], IG); PL([(x + 30, yr + 25), (x + 30, yr + 280)], ID)
-                INS("T-KALORIMETRE", (x + 30, yr + 115), 90, 1.4, lay=KAL)
-                VANA((x - 30, yr + 95), 90, 'DN20', 0.9); VANA((x + 30, yr + 80), 90, 'DN20', 0.9)
-                box(x - 60, yr + 280, x + 60, yr + 320, KLT)
-                nd = {'A1': 9, 'A2': 9, 'A3': 7, 'B1': 6, 'B2': 6, 'B3': 8, 'C1': 6, 'C2': 6, 'C3': 6, 'D1': 8, 'D2': 6, 'D3': 7, 'E1': 8, 'E2': 6}[k]
-                lab((x - 60, yr + 330), f"KOLL. {nd} AĞIZ", 8, KLT)
-                lab((x - 60, yr + 345), f"{q['Q']} W 3/4\"", 8, ICAP)
+                cs = sorted(Yk['circ'], key=lambda c: c['pidx'])
+                nd = len(cs)
+                # kalorimetre dolabı (gidiş: vana + pislik tutucu, dönüş: kalorimetre + vana)
+                box(x - 45, yr + 50, x + 45, yr + 175, SAY)
+                lab((x - 43, yr + 180), f"SD-{kat - 1}{k}", 8, SAY)
+                PL([(x - 20, yr), (x - 20, yr + 250)], IG); PL([(x + 20, yr + 20), (x + 20, yr + 230)], ID)
+                VANA((x - 20, yr + 70), 90, 'DN20', 0.7); PISLIK((x - 20, yr + 115), 90, 'DN20', 0.7)
+                INS("T-KALORIMETRE", (x + 20, yr + 110), 90, 1.2, lay=KAL); lab((x + 30, yr + 100), f"KM-{kat - 1}{k}", 6, KAL)
+                VANA((x + 20, yr + 150), 90, 'DN20', 0.7)
+                # kollektör (gidiş üstte, dönüş altta) + devreler
+                k0x = x + 60; k1x = x + 60 + nd * 42
+                PL([(x - 20, yr + 250), (k1x, yr + 250)], IG, 2.5); PL([(x + 20, yr + 230), (k1x, yr + 230)], ID, 2.5)
+                lab((k0x, yr + 205), f"KL-{kat - 1}{k} {nd} AĞIZ {q['Q']} W DN25", 6.5, KLT)
+                for jj, c in enumerate(cs):
+                    px = k0x + 15 + jj * 42
+                    PL([(px, yr + 250), (px, yr + 470), (px + 14, yr + 470), (px + 14, yr + 230)], PEX)
+                    T(px + 7, yr + 476, f"P{jj + 1}", 6, KLT, TA.BOTTOM_CENTER)
+                    T(px - 4, yr + 262, f"{kat - 1}{k}.{c['pidx'] + 1} {c['room']['name'][:8]} {c.get('W', 0):.0f}W {c['L']:.1f}m", 5.5, PEX, TA.BOTTOM_LEFT, 90)
+                    T(px + 23, yr + 262, f"PEX 16x2,0 a={c['s']:.0f} {c.get('W', 0):.0f}W-DN15", 5.0, ICAP, TA.BOTTOM_LEFT, 90)
+                x += ow(k)
     offs1 = [k for k in OFIS_S1 if SAFT_OF[k] == 'S1']
     offs2 = [k for k in OFIS_S1 if SAFT_OF[k] == 'S2']
     x1 = k0 + 1900
     grup(x1, offs1, 'S1')
-    x2 = x1 + 300 + len(offs1) * 260 + 300
+    x2 = x1 + 300 + 230 + sum(ow(k) for k in offs1) + 300
     grup(x2, offs2, 'S2')
     # dükkânlar
-    xs = x2 + 300 + len(offs2) * 260 + 300
+    xs = x2 + 300 + 230 + sum(ow(k) for k in offs2) + 300
     PL([(k0 + 1600, yb + 180), (xs + 5 * 300, yb + 180)], IG, 2.0); PL([(k0 + 1600, yb + 140), (xs + 5 * 300, yb + 140)], ID, 2.0)
     hlab((k0 + 1600, yb + 180), (xs, yb + 180), f"{ddk['dn']} {Qd} kW 70/50 °C BODRUM TAVANINDAN", 11, ICAP, 0.8)
     for i, nm in enumerate(DUKKAN_S):
@@ -258,8 +274,8 @@ def isitma_sema(X0=289400.0, YT=-440500.0):
         box(x - 50, yz + 60, x + 80, yz + 150, SAY); lab((x - 48, yz + 155), f"SD-Z{nm[-1]}", 10, SAY)
         INS("T-KALORIMETRE", (x + 30, yz + 100), 90, 1.4, lay=KAL)
         PL([(x, yz + 150), (x, yz + 220), (x + 230, yz + 220)], IG); PL([(x + 30, yz + 150), (x + 30, yz + 200), (x + 230, yz + 200)], ID)
-        for r in range(min(rd['adet'], 3)):
-            INS("T-RAD-SEMA", (x + 70 + r * 60, yz + 230), 0, 1.2, lay=RAD)
+        for r in range(rd['adet']):
+            INS("T-RAD-SEMA", (x + 70 + r * 45, yz + 230), 0, 1.0, lay=RAD); lab((x + 60 + r * 45, yz + 300), f"R{r + 1}", 6, RAD)
         lab((x - 48, yz + 280), f"{nm}", 9, TY)
         lab((x - 48, yz + 265), f"{rd['adet']}x{rd['tip']}/{int(rd['boy'] * 100)} {q['Q']} W", 8, RAD)
 
@@ -270,12 +286,16 @@ def kazan_sema(X0=289400.0, YT=-444150.0):
     y0 = YT - 2600
     n = R['kazan']['adet']
     # kazanlar
+    import kes, ekipman as EQP
+    u = R['kazan']['birim']
+    kk = 'DKAZAN48' if u <= 48 else ('DKAZAN65' if u <= 65 else 'DKAZAN100')
     for i in range(n):
         x = X0 + 300 + i * 450
-        box(x - 120, y0, x + 120, y0 + 400, CHZ, f"K{i + 1}\n{R['kazan']['birim']} kW\nYOĞUŞMALI", 14)
+        kes.ciz(EQP.duvar_kazan, (x, y0 - 140 * 4.5), 4.5, CHZ, False, 'O', (0, 0), kk, 1)
+        lab((x - 100, y0 - 40), f"K-0{i + 1} {u} kW YOĞUŞMALI", 11, CHZ)
         PL([(x - 60, y0 + 400), (x - 60, y0 + 900)], IG, 2.0)
         PL([(x + 60, y0 + 400), (x + 60, y0 + 820)], ID, 2.0)
-        INS("T-POMPA", (x - 60, y0 + 480), 90, 1.6, lay=CHZ)
+        INS("T-POMPA", (x - 60, y0 + 480), 90, 1.6, lay=CHZ); lab((x - 140, y0 + 470), f"KP-0{i + 1}", 9, CHZ)
         CEKV((x - 60, y0 + 540), 90, 'DN32', 1.2); VANA((x - 60, y0 + 600), 90, 'DN32', 1.2); VANA((x + 60, y0 + 600), 90, 'DN32', 1.2)
         PL([(x - 60, y0 + 400), (x - 60, y0 + 380)], IG)
         PL([(x, y0 + 400), (x, y0 + 1500)], BACA, 1.5)
@@ -287,34 +307,37 @@ def kazan_sema(X0=289400.0, YT=-444150.0):
     lab((X0 + 240, y0 + 1520), "KASKAD BACA KOLLEKTÖRÜ (klapeli)", 9, BACA)
     # denge kabı
     xdk = xe + 650
-    box(xdk - 40, y0 + 700, xdk + 40, y0 + 1050, CHZ, "DENGE\nKABI", 10)
+    kes.ciz(EQP.denge_kabi, (xdk, y0 + 680), 2.4, CHZ, False, 'O', (0, 0), 'DENGE65')
+    lab((xdk + 50, y0 + 1060), "DK-01 DENGE KABI DN65", 10, CHZ)
     PL([(xe + 500, y0 + 900), (xdk - 40, y0 + 900)], IG, 3.0); PL([(xe + 500, y0 + 820), (xdk - 40, y0 + 820)], ID, 3.0)
     # kollektörler
     xk0, xk1 = xdk + 200, xdk + 2200
     PL([(xdk + 40, y0 + 1000), (xk0, y0 + 1000), (xk1, y0 + 1000)], IG, 4.0)
     PL([(xdk + 40, y0 + 760), (xk0, y0 + 760), (xk1, y0 + 760)], ID, 4.0)
     lab((xk0, y0 + 1010), "GİDİŞ KOLLEKTÖRÜ DN80", 11, ICAP); lab((xk0, y0 + 735), "DÖNÜŞ KOLLEKTÖRÜ DN80", 11, ICAP)
-    for t, x in (("MANOMETRE", xk0 + 50), ("TERMOMETRE", xk0 + 150)):
-        C((x, y0 + 1030), 10, CHZ); lab((x - 20, y0 + 1045), t, 7, CHZ)
+    for j, (t, x) in enumerate((("M-01 MANOMETRE", xk0 + 50), ("TM-01 TERMOMETRE", xk0 + 150))):
+        PL([(x, y0 + 1000), (x, y0 + 1020)], IG)
+        kes.ciz(EQP.MANO if j == 0 else EQP.TERMO, (x, y0 + 1030), 1.6, CHZ, False, (0, 0)); lab((x - 20, y0 + 1055), t, 7, CHZ)
     devs = [("P1 OFİS YERDEN ISITMA", R['devre']['OFİS YERDEN ISITMA (45/35 °C, karışım vanalı)'], True),
             ("P2 DÜKKÂN RADYATÖR", R['devre']['DÜKKÂN RADYATÖR (70/50 °C)'], False),
             ("P3 BOYLER SERPANTİNİ", R['devre']['BOYLER SERPANTİNİ (75/55 °C)'], False)]
     for i, (ad, d, mix) in enumerate(devs):
         x = xk0 + 400 + i * 550
         PL([(x, y0 + 1000), (x, y0 + 1700)], IG, 2.5); PL([(x + 80, y0 + 760), (x + 80, y0 + 1700)], ID, 2.5)
-        INS("T-POMPA", (x, y0 + 1300), 90, 1.8, lay=CHZ)
+        INS("T-POMPA", (x, y0 + 1300), 90, 1.8, lay=CHZ); lab((x + 30, y0 + 1290), f"P-0{i + 1}", 10, CHZ)
         CEKV((x, y0 + 1380), 90, d['dn'], 1.2); VANA((x, y0 + 1450), 90, d['dn'], 1.2); VANA((x + 80, y0 + 1450), 90, d['dn'], 1.2)
         PISLIK((x + 80, y0 + 1150), 90, d['dn'], 1.2)
         if mix:
             PL([(x + 80, y0 + 1200), (x, y0 + 1200)], ID)
-            C((x, y0 + 1200), 14, CHZ); lab((x + 20, y0 + 1220), "3 YOLLU KARIŞIM VANASI (dış hava kompanzasyonlu)", 8, CHZ)
+            UCYOL((x, y0 + 1200), 90, 1.6, no=False)
+            lab((x + 20, y0 + 1220), "3YV-01 3 YOLLU KARIŞIM VANASI (dış hava kompanzasyonlu)", 8, CHZ)
         lab((x - 20, y0 + 1720), ad, 11, CHZ)
         lab((x - 20, y0 + 1740), f"{d['kw']} kW  {d['dn']}  Q={d['q']} m³/h  H={d['H']} mSS", 9, ICAP)
     # genleşme + emniyet + dolum
     xg = xk1 + 300
     PL([(xk1, y0 + 760), (xg, y0 + 760), (xg, y0 + 600)], ID)
     INS("T-GENLESME", (xg, y0 + 560), 0, 2.4, lay=CHZ)
-    lab((xg + 50, y0 + 560), f"KAPALI GENLEŞME TANKI {R['genlesme']['Vsec']} L (Po={R['genlesme']['Po']} bar)", 10, CHZ)
+    lab((xg + 50, y0 + 560), f"GT-01 KAPALI GENLEŞME TANKI {R['genlesme']['Vsec']} L (Po={R['genlesme']['Po']} bar)", 10, CHZ)
     lab((xg + 50, y0 + 540), "EMNİYET VENTİLİ 3 bar (her kazanda)", 9, CHZ)
     lab((xg + 50, y0 + 520), "OTOMATİK DOLUM + GERİ AKIŞ ÖNLEYİCİ (yumuşak su)", 9, CHZ)
     # gaz
@@ -354,8 +377,8 @@ def lejant(x, y, kind):
 NOT_S = [
     "TEMİZ SU TESİSATI TS EN 806 VE TS 1258'E GÖRE, BORULAR PPRC PN20 (SICAK SU PPRC-AL) OLARAK YAPILACAKTIR.",
     "BİNA GİRİŞİNDE TEK ANA SAYAÇ, HER BAĞIMSIZ BÖLÜM GİRİŞİNDEKİ SAYAÇ DOLABINDA SOĞUK SU VE SICAK SU SAYACI BULUNACAKTIR.",
-    "SICAK SU MERKEZİ BOYLERDEN 3 BORULU (SOĞUK - SICAK - SİRKÜLASYON) SİSTEMLE DAĞITILACAK, OFİS TERMOSİFONLARI İPTAL EDİLMİŞTİR.",
-    "SİRKÜLASYON HATTI SAYAÇ DOLABINDA SAYAÇ ÖNCESİNDE TERMOSTATİK DENGE VANASI İLE SONLANACAKTIR.",
+    "SICAK SU MERKEZİ BOYLERDEN 3 BORULU (SOĞUK - SICAK - SİRKÜLASYON) SİSTEMLE DAĞITILACAKTIR.",
+    "SİRKÜLASYON HATTI HER KAT DAĞITIM HATTININ SONUNDA TERMOSTATİK SİRKÜLASYON VANASI (TSV) İLE SICAK SU HATTINA BAĞLANACAKTIR.",
     "SICAK SU 55 °C'DE DAĞITILACAK, LEJYONELLA İÇİN HAFTADA BİR KEZ 70 °C TERMAL DEZENFEKSİYON YAPILACAKTIR.",
     "KULLANIM SUYU DEPOLARI İLE YANGIN SUYU DEPOSU BİRLEŞTİRİLMEYECEKTİR.",
     "KOLONLAR Ş1 VE Ş2 TESİSAT ŞAFTLARINDA, ANA HATLAR ORTAK ALAN ASMA TAVANINDAN GEÇECEK; OFİSLERE KAPI DIŞINDAKİ DUVARDAN GİRİLECEKTİR.",
@@ -414,7 +437,7 @@ def ozet_tablolar(x, y):
         rows.append((o['ad'], f"{o['A']}", f"{o['Q']}", f"{o['wm2']}", "YERDEN ISITMA", o['yi']))
     for nm, d in R['dukkan'].items():
         rows.append((d['ad'], f"{d['A']}", f"{d['Q']}", f"{d['wm2']}", f"{d['rad']['adet']}x{d['rad']['tip']}/{int(d['rad']['boy'] * 100)}", 'UYGUN'))
-    y = tablo(x, y, "ISI KAYBI ÖZETİ (TS EN 12831)", ("BAĞIMSIZ BÖLÜM", "ALAN m²", "Q (W)", "W/m²", "ISITICI", "KONTROL"), rows,
+    y = tablo(x, y, "ISI KAYBI ÖZETİ (OFİS: TS 2164 MAHAL BAZLI - DÜKKÂN: TS EN 12831)", ("BAĞIMSIZ BÖLÜM", "ALAN m²", "Q (W)", "W/m²", "ISITICI", "KONTROL"), rows,
               [520, 160, 160, 140, 380, 160])
     k = R['kazan']; b = R['boyler']; g = R['genlesme']; bc = R['baca']
     rows2 = [("Ofis toplam ısı kaybı", f"{R['Q_ofis']} kW"), ("Dükkân toplam ısı kaybı", f"{R['Q_dukkan']} kW"),
@@ -424,7 +447,7 @@ def ozet_tablolar(x, y):
              ("Genleşme tankı (Vs={0} l)".format(g['Vs']), f"Vn={g['Vn']} l → {g['Vsec']} L"),
              ("Baca (F=0,012·Q/√h)", f"F={bc['F']} cm² → Ø{bc['Dsec']}"), ("Doğalgaz tüketimi", f"{R['gaz']['Q']} m³/h"),
              ("Hidrofor", f"Q={R['hidrofor']['Q']} m³/h, H={R['hidrofor']['Halt']}/{R['hidrofor']['Hust']} mSS, {R['hidrofor']['Vn']} L tank"),
-             ("Kullanım suyu deposu", f"{R['depo']['kisi']} kişi x {R['depo']['l']} l + 5 dük. → {R['depo']['Vsec']} m³ (2 ad.)")]
+             ("Kullanım suyu deposu", f"{R['depo']['kisi']} kişi x {R['depo']['l']} l + 5 dük. → {R['depo']['Vsec']} m³ (1 ad.)")]
     y = tablo(x, y, "KAZAN / BOYLER / HİDROFOR ÖZETİ", ("KALEM", "DEĞER"), rows2, [700, 820])
     return y
 

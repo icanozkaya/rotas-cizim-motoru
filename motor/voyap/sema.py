@@ -60,26 +60,36 @@ def sema():
     rows = [(y0 + 120, "E", 'ELEKTRİKLİ ANA POMPA', 'Q=70 m³/h H=60 mSS 22 kW', 'DN150', 'DN100', 1.0),
             (y0 + 300, "D", 'DİZEL YEDEK POMPA', 'Q=70 m³/h H=60 mSS 30 kW', 'DN150', 'DN100', 1.0),
             (y0 + 470, "J", 'JOKEY POMPA', 'Q=3 m³/h H=70 mSS 1,5 kW', 'DN40', 'DN25', 0.6)]
+    import kes, ekipman
     for y, tag, ad, oz, de, db, s in rows:
         w = 4 if s == 1 else 2
-        pipe([(dx1, y), (XC, y)], POM, w)
+        # pompa: yan görünüş / kesit (gerçek ölçülü, EN 733 uç emişli + motor/dizel modül, kaide)
+        k = 0.55 if s == 1 else 0.40
+        A_, B_, Hm_, dz = (157.6, 97.8, 179.5, True) if tag == "D" else ((125, 54, 168.2, False) if tag == "E" else (80, 30, 60, False))
+        xp = dx1 + 185
+        ax = (15 + 12 + 35) * k                     # kaide + şasi + mil ekseni
+        yb = y - ax
+        kes.ciz(ekipman._pompa_modul, (xp, yb), k, POM, False, 'Y', 0, 0, A_, B_, Hm_, dz, 65 if s == 1 else 32, 100 if s == 1 else 25)
+        xb = xp + 25 * k; yt = y + (45 + 8) * k     # basma ağzı flanşı üstü
+        pipe([(dx1, y), (xp - 5 * k - 3, y)], POM, w)                                   # emiş hattı
+        yh = y + (82 if tag == 'D' else 62)
+        pipe([(xb, yt), (xb, yh), (dx1 + 300, yh), (dx1 + 300, y), (XC, y)], POM, w)   # basma hattı
         INS("Y-VORTEX", (dx1 - 20, y), 90, s, lay=POM)
-        INS("Y-OSY", (dx1 + 70, y), 0, s, mask=10)
-        INS("Y-MANO", (dx1 + 110, y), 0, s * 0.9)
-        INS("Y-RED", (dx1 + 150, y), 0, s, mask=9)
-        INS("Y-POMPA", (dx1 + 230, y), 0, s * 1.4, lay=POM, mask=26 * s)
-        T(dx1 + 230, y - 32 * s - 6, tag, 12, POM, TA.TOP_CENTER)
-        INS("Y-RED", (dx1 + 310, y), 180, s, mask=9)
+        INS("Y-OSY", (dx1 + 60, y), 0, s, mask=10)
+        INS("Y-MANO", (dx1 + 100, y), 0, s * 0.9)
+        INS("Y-RED", (dx1 + 140, y), 0, s, mask=9)
+        INS("Y-RED", (dx1 + 300, y + 30), -90, s, mask=9)
         INS("Y-MANO", (dx1 + 350, y), 0, s * 0.9)
         CEK((dx1 + 400, y), 0, s * 1.3, mask=10)
         INS("Y-OSY", (dx1 + 460, y), 0, s, mask=10)
+        T(xp + A_ * k / 2, yb - 6, f"P-{tag}", 10, POM, TA.TOP_CENTER)
         if tag == "D":
             pipe([(dx1 + 380, y), (dx1 + 380, y + 50)], POM, 1.5)
             INS("Y-EMNIYET", (dx1 + 380, y + 50), 0, 1.0)
             T(dx1 + 395, y + 60, "EMNİYET VANASI", 7, POM, TA.MIDDLE_LEFT)
-        T(dx1 + 230, y + 30 * s + 6, ad, 9, POM, TA.BOTTOM_CENTER, mask=True)
-        T(dx1 + 230, y + 30 * s + 20, oz, 7, POM, TA.BOTTOM_CENTER, mask=True)
-        caplab((dx1 + 110, y + 8 + (0 if s == 1 else -3)), de, 0, POM, 8)
+        T(xp + A_ * k / 2, yb - 22, ad + " (KESİT)", 8, POM, TA.TOP_CENTER, mask=True)
+        T(xp + A_ * k / 2, yb - 34, oz, 6.5, POM, TA.TOP_CENTER, mask=True)
+        caplab((dx1 + 100, y + 8 + (0 if s == 1 else -3)), de, 0, POM, 8)
         caplab((dx1 + 520, y + 6), db, 0, POM, 8)
     # jokey membranlı tank + basınç anahtarları
     INS("Y-MTANK", (dx1 + 520, y0 + 560), 0, 1.0, lay=POM)
@@ -92,9 +102,9 @@ def sema():
     T(XC - 70, y0 + 640, "PS-E/D/J", 7, POM, TA.MIDDLE_RIGHT)
     # elektrik panoları (kesikli kumanda hatları yerine sembol)
     for k, (t, yy) in enumerate((("ELK. POMPA PANOSU", y0 + 160), ("DİZEL POMPA PANOSU", y0 + 340), ("JOKEY PANOSU", y0 + 510))):
-        INS("Y-PANO", (dx1 + 230, yy + 40), 0, 0.9, lay=POM)
-    INS("Y-YAKIT", (dx1 + 300, y0 + 380), 0, 0.8, lay=POM)
-    T(dx1 + 330, y0 + 380, "YAKIT 100 L", 7, POM, TA.MIDDLE_LEFT)
+        INS("Y-PANO", (dx1 + 620, yy - 40 + 40), 0, 0.9, lay=POM); T(dx1 + 650, yy, t, 7, POM, TA.MIDDLE_LEFT)
+    INS("Y-YAKIT", (dx1 + 560, y0 + 380), 0, 0.8, lay=POM)
+    T(dx1 + 590, y0 + 380, "YAKIT 100 L", 7, POM, TA.MIDDLE_LEFT)
     # test hattı -> debimetre -> depo üstü
     yT = y0 + 700
     pipe([(XC, yT), (XC + 120, yT), (XC + 120, dy1 + 180), (dx0 + 500, dy1 + 180), (dx0 + 500, dy1)], POM, 3)

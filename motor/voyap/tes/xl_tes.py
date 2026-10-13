@@ -44,8 +44,9 @@ def build(src, out):
                 f"otopark üstü döşeme {U['doseme_oto']}, iç duvar {U['ic_duvar']}.  Yön zammı K +%5 / G -%5, işletme zammı %7.")
     r = 5
     ozet = []
-    for key in sorted(R['ofis']) + list(R['dukkan']):
-        o = R['ofis'][key] if key in R['ofis'] else R['dukkan'][key]
+    ws.cell(4, 1, "OFİSLER: mahal bazlı ısı kaybı (TS 2164 / örnek şablon) ve yerden ısıtma devre hesabı ayrı dosyada: VOYAP_ISI_KAYBI_YERDEN_ISITMA.xlsx").font = BOLD
+    for key in list(R['dukkan']):
+        o = R['dukkan'][key]
         ws.cell(r, 1, o['ad']).font = BOLD
         ws.cell(r, 4, f"Net alan {o['A']} m², hacim {o['V']} m³")
         r += 1
@@ -68,7 +69,7 @@ def build(src, out):
     head(ws, 'ISITMA SİSTEMİ: KAZAN, DEVRELER, POMPALAR, GENLEŞME, BACA, YERDEN ISITMA / RADYATÖR')
     rows = []
     for (kat, k), o in sorted(R['ofis'].items()):
-        rows.append((o['ad'], o['A'], o['Q'], o['wm2'], 'Yerden ısıtma 45/35 °C, PEX 16x2,0 / 15 cm (MTY devreleri)', 'Ultrasonik kalorimetre DN15, qp 0,6 m³/h', o['yi']))
+        rows.append((o['ad'], o['A'], o['Q'], o['wm2'], 'Yerden ısıtma 45/35 °C, PEX 16x2,0 / 10-15 cm (mahal bazlı devreler)', 'Ultrasonik kalorimetre DN15, qp 0,6 m³/h', o['yi']))
     for nm, d in R['dukkan'].items():
         rd = d['rad']
         rows.append((d['ad'], d['A'], d['Q'], d['wm2'], f"{rd['adet']} ad. {rd['tip']} / {int(rd['boy'] * 100)} mm ({rd['wm']} W/m, 70/50/20)", 'Ultrasonik kalorimetre DN20, qp 1,5 m³/h', 'UYGUN'))
@@ -128,25 +129,6 @@ def build(src, out):
         sb = float((pk['sb'] or ('21 SB' if pk['cap'] == 'Ø100' else '4 SB')).split()[0])
         rows.append((f"P{j + 1}", pk['cap'], sb, 2 * sb, f"=ROUND(0.5*SQRT(D{5 + j}),2)", 'zemin asma tavanı → bodrum tavanı → ön cephe rögarı'))
     grid(ws, 4, ('Kolon', 'Çap', 'Kat SB', 'Toplam SB (2 kat)', 'Qww (l/s)', 'Bağlantı'), rows, (8, 8, 10, 16, 12, 56))
-    # ---------------- havalandırma
-    ws = wb.create_sheet('HAVALANDIRMA')
-    head(ws, 'OTOPARK EGZOZ / TAZE HAVA / DUMAN TAHLİYESİ VE SIĞINAK HAVALANDIRMASI')
-    o = R['otopark']; s = R['siginak']
-    rows = [('Otopark net alan', o['A'], 'm²', 'tesisat alanı, sığınak, lobi ve çekirdekler hariç'),
-            ('Otopark yüksekliği', o['h'], 'm', 'kabul'), ('Otopark hacmi', '=B5*B6', 'm³', ''),
-            ('Normal havalandırma (4 hava değişimi)', '=B7*4', 'm³/h', 'kullanıcı talimatı'),
-            ('Duman tahliyesi (10 hava değişimi)', '=B7*10', 'm³/h', 'alan > 100 m²'),
-            ('Taze hava normal (%85)', '=ROUND(B8*0.85,0)', 'm³/h', 'otopark negatif basınçta'),
-            ('Taze hava yangın (%85)', '=ROUND(B9*0.85,0)', 'm³/h', ''),
-            ('Egzoz fanı (2 ad., çift hızlı, F300)', f"{o['Qd'] / 2:.0f} / {o['Qn'] / 2:.0f}", 'm³/h', 'her biri yüksek / düşük hız'),
-            ('Sığınak alanı (ölçülen)', s['A'], 'm²', 'mimari iç ölçü 13,39 x 8,52'),
-            ('Sığınak kişi sayısı', s['kisi'], 'kişi', '1 m²/kişi'),
-            ('Sığınak hacmi (h=2,60)', '=B13*2.6', 'm³', ''),
-            ('Normal havalandırma (4 hava değişimi)', '=ROUND(B15*4,0)', 'm³/h', ''),
-            ('Koruma havası (3 m³/h·kişi, 51-150 kişi)', '=B14*3', 'm³/h', 'TS 3419 / kum filtreli'),
-            ('Egzoz (+50 Pa için %80)', '=ROUND(B16*0.8,0)', 'm³/h', ''),
-            ('Duman egzozu (alan > 100 m² → 10 hava değişimi)', '=ROUND(B15*10,0)' if s['duman'] else 'GEREKMEZ', 'm³/h', 'F400 fan')]
-    grid(ws, 4, ('Kalem', 'Değer', 'Birim', 'Açıklama'), rows, (48, 16, 10, 48))
     wb.save(out)
     print(out)
 

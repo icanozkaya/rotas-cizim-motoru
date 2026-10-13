@@ -72,7 +72,7 @@ def write_heat_sheet(ws, tpl, katlbl, sheet_no, rooms, hdr_kat):
             put(r, 'el', vals)
             r += 1
         last = r - 1
-        put(r, 'sum', {'Q': '=SUM(Q%d:Q%d)' % (first, last)})
+        put(r, 'sum', {'Q': ('=SUM(Q%d:Q%d)' % (first, last)) if last >= first else 0})
         rs = r
         r += 1
         put(r, 'qsl', {'J': 'Qs=', 'K': 'S a', 'L': 'L', 'M': 'R', 'N': 'H', 'O': 'D  T', 'P': 'Ze'})

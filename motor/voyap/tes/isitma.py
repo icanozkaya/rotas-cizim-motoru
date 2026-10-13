@@ -117,40 +117,65 @@ def draw_ofis_isitma(kat):
         for rn in r['runs']:
             pipe_label(hl(rn['pts']), rn['cap'], 8.0, ICAP, ust=f"{rn['yuk'] * 1000:.0f} W")
     OUTI[('ana', kat)] = res
-    # ofisler
+    # ofisler: yerden ısıtma (yi motoru — mahal başına karşı akışlı salyangoz, ayaklar kapıdan, çakışma yok)
+    import yi
     for k, Dd in D.items():
         sihhi.draw_dolap(dict(Dd, c=h(Dd['c']), wall=h(Dd['wall'])))
         c = h(Dd['c']); ux, uy = Dd['u']; nx_, ny_ = Dd['n']
         INS("T-KALORIMETRE", (c[0] + ux * 22, c[1] + uy * 22), Dd['ang'], 0.9, lay=KAL)
-        poly = ofis_poly(k, kat, 'S')
-        gi = izgara.grid_ofis(kat, poly, 5.0, far_pen=0.5, soft=250.0)
-        # kollektör alanı bloke olmasın: portlar uçta serbest
-        K, ends, legs = bacaklar(kat, k, Dd, gi)
-        Kh = dict(K, c=h(K['c']))
-        draw_kollektor(Kh, len(ends))
-        # dolap -> kollektör (duvardan geçiş)
-        for key, lay, dd in (('IG', IG, 15), ('ID', ID, 30)):
+        Y = yi.ofis_k(kat, k, Dd)
+        dk = D12[0] if kat == 3 else 0.0
+        sh_ = lambda p_: (p_[0] + dk + HX, p_[1])
+        shl = lambda q_: [sh_(p_) for p_ in q_]
+        kc = sh_(Y['kc']); Wk = Y['Wk']; ku, kv = Y['u']; kn, km = Y['n']
+        nd = len(Y['circ'])
+        # kollektör (gerçek gösterim): gidiş / dönüş kollektör gövdesi, ağız uçları, giriş vanaları
+        box_ = [(kc[0] + sx * ku * Wk / 2 + sy * kn * 9, kc[1] + sx * kv * Wk / 2 + sy * km * 9) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+        MASK(box_); PL(box_, KLT, closed=True)
+        gb = lambda t, o: (kc[0] + ku * t + kn * o, kc[1] + kv * t + km * o)
+        PL([gb(-Wk / 2 + 3, -2), gb(Wk / 2 - 3, -2)], IG, 1.6)
+        PL([gb(-Wk / 2 + 3, 4), gb(Wk / 2 - 3, 4)], ID, 1.6)
+        for c_ in Y['circ']:
+            pa, pb = Y['ports'][c_['pidx']]
+            pa, pb = sh_(pa), sh_(pb)
+            PL([pa, (pa[0] + kn * 4, pa[1] + km * 4)], IG)
+            PL([pb, (pb[0] + kn * 10, pb[1] + km * 10)], ID)
+        reserve(Polygon(box_).buffer(3).bounds)
+        # dolap -> kollektör besleme (kalorimetre sonrası)
+        for key, lay, dd, oo in (('IG', IG, 15, -2), ('ID', ID, 30, 4)):
             p0 = (c[0] + ux * dd - nx_ * 9, c[1] + uy * dd - ny_ * 9)
-            kc = Kh['c']
-            p1 = (kc[0] + ux * (Kh['W'] / 2 - 4) * (1 if dd > 20 else 0.7), kc[1] + uy * (Kh['W'] / 2 - 4) * (1 if dd > 20 else 0.7))
-            PIPE([p0, (p0[0] - nx_ * 0, p0[1]), p1] if False else [p0, p1], lay)
+            p1 = gb(-Wk / 2 + 3, oo) if math.dist(gb(-Wk / 2 + 3, oo), p0) < math.dist(gb(Wk / 2 - 3, oo), p0) else gb(Wk / 2 - 3, oo)
+            PIPE([p0, p1], lay)
         q = R['ofis'][(kat, k)]
-        place_text(Kh['c'], [f"KOLLEKTÖR {len(ends)} AĞIZLI", f"Q={q['Q']} W  1\""], 5.5, KLT, rmax=70)
-        place_text(c, [f"SD-{kat - 1}{k}", "KALORİMETRE"], 6.0, KAL, rmax=50)
-        # bacaklar: çift hat (gidiş / dönüş) ±3 cm
-        for (j, pts), in [((j, pts),) for j, pts in legs]:
-            a, b = ends[j]
-            hp = hl(pts)
-            if len(hp) < 2: continue
-            try:
-                g1 = ag.offset(hp, 3.0); g2 = ag.offset(hp, -3.0)
-            except Exception:
-                g1 = g2 = hp
-            ha, hb = h(a), h(b)
-            # devre uçlarını en yakın paralel hatta bağla
-            if math.dist(ha, g1[0]) + math.dist(hb, g2[0]) <= math.dist(ha, g2[0]) + math.dist(hb, g1[0]):
-                PL([ha] + g1, PEX); PL([hb] + g2, PEX)
+        place_text(kc, [f"KL-{kat - 1}{k} KOLLEKTÖR", f"{nd} AĞIZLI  Q={q['Q']} W  DN25"], 5.5, KLT, rmax=80)
+        place_text(c, [f"KM-{kat - 1}{k}", "KALORİMETRE"], 6.0, KAL, rmax=50)
+        # devreler
+        for i_, c_ in enumerate(sorted(Y['circ'], key=lambda z: z['pidx'])):
+            PL(shl(c_['path']), PEX)
+            no = f"{kat - 1}{k}.{c_['pidx'] + 1}"
+            rp = c_['rpoly']; x0, y0, x1, y1 = rp.bounds
+            cen = sh_(((x0 + x1) / 2, (y0 + y1) / 2))
+            W_ = c_.get('W', 0.0)
+            if min(x1 - x0, y1 - y0) >= 95:
+                s_ = 4.2
+                bx = [(cen[0] - 7.5 * s_, cen[1] - 9 * s_), (cen[0] + 9 * s_, cen[1] - 9 * s_), (cen[0] + 9 * s_, cen[1] + 8.5 * s_), (cen[0] - 7.5 * s_, cen[1] + 8.5 * s_)]
+                MASK(bx)
+                MTYB("MTY-ETIKET", cen, 0, s_, PEX, {'UZ_001': f"{c_['L']:.1f} m", 'AR_001': f"{c_['s']:.1f}", 'NO1_001': no,
+                                                     'BORU_001': 'PEX BORU, 16 x 2.0', 'MAHAL_001': c_['room']['name'][:12],
+                                                     'NO_001': no, 'DERECE_001': f"{c_.get('ti', 20)}°C",
+                                                     'KCAL/H:_001': f"{W_:.1f}W", 'ALAN_001': f"{c_['Ar']:.2f} m²",
+                                                     'MALZEMECINSI_001': 'Seramik', 'YER_001': ''})
+                reserve((bx[0][0], bx[0][1], bx[2][0], bx[2][1]))
             else:
-                PL([ha] + g2, PEX); PL([hb] + g1, PEX)
-        OUTI[('ofis', kat, k)] = dict(n=len(ends), K=Kh, legs=legs)
+                place_text(cen, [f"D{no}", f"{c_['L']:.1f} m  {W_:.0f} W"], 5.0, PEX, rmax=70)
+        # mahal etiketleri (ısı kaybı)
+        for r in Y['rooms']:
+            cc = yi.oda_calc(Y, r)[0]
+            rp = r['poly'].representative_point()
+            pp = sh_((rp.x, rp.y)); sc = 0.45
+            MASK([(pp[0] - 37 * sc, pp[1] - 62 * sc), (pp[0] + 37 * sc, pp[1] - 62 * sc), (pp[0] + 37 * sc, pp[1] + 44 * sc), (pp[0] - 37 * sc, pp[1] + 44 * sc)])
+            MTYB("MTY-RADYATOR MAHAL", sh_((rp.x, rp.y + 0)), 0, 0.45, "MTY-ISIKAYBIMAHAL",
+                 {'DERECE_001': f"{cc['ti']}%%DC", 'MAHAL_001': r['name'][:14], 'ISIKAYBI_001': f"{cc['Q']:.0f} W",
+                  'NO_001': f"{kat - 1}{k}", 'ALAN': f"{r['A']:.2f} m²"}, mask=None)
+        OUTI[('ofis', kat, k)] = dict(n=nd, K=dict(c=kc, W=Wk), Y=Y)
     return D, res

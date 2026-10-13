@@ -5,8 +5,8 @@ import math, pickle
 from shapely.geometry import Polygon, Point, LineString, box
 from veri import *
 from tlib import *
-import izgara, ag, yerlesim
-from piscol import pis_kolonlar
+import termo, izgara, ag, yerlesim
+from piscol2 import pis_kolonlar
 
 INCH = [(1.0, '1/2"'), (2.25, '3/4"'), (7.84, '1"'), (19.36, '1 1/4"'), (46.24, '1 1/2"'), (108.4, '2"'), (256, '2 1/2"'),
         (784, '3"'), (1444, '3 1/2"'), (4096, '4"')]
@@ -95,20 +95,21 @@ def draw_ofis_sihhi(kat):
         SAYAC((c[0] - ux * 18, c[1] - uy * 18), Dd['ang'], 'DN20', 0.55)
         # soğuk: dolaptan kullanıcının besleme ucuna
         bp = ofis_pt(k, 'besleme', kat)
-        sp = (c[0] - ux * 33 - nx_ * 9, c[1] - uy * 33 - ny_ * 9)
-        q = [sp, (sp[0], bp[1]), bp] if abs(uy) < 0.5 else [sp, (bp[0], sp[1]), bp]
+        sp = (c[0] - ux * 42 - nx_ * 9, c[1] - uy * 42 - ny_ * 9)          # ana hat girişinden 9 cm yanda (üst üste binmesin)
+        cands = [[sp, (sp[0], bp[1]), bp], [sp, (bp[0], sp[1]), bp]]
+        mains = [LineString(rn['pts']) for (sh_, key_), r_ in res.items() if key_ == 'SS' for rn in r_['runs']]
+        q = min(cands, key=lambda qq: sum(LineString(qq).buffer(1.5).intersection(m).length for m in mains))
         PIPE(q, SS)
-        # sıcak: dolaptan ofis içindeki eski termosifon noktasına
+        # sıcak: dolaptan ofis içindeki sıcak su ağının başına (merkezi sıcak su)
         poly = ofis_poly(k, kat, 'S')
         gi = izgara.grid_ofis(kat, poly, 5.0, soft=250.0)
         hp = (c[0] - ux * 18 - nx_ * (9 + 26), c[1] - uy * 18 - ny_ * (9 + 26))
-        tp = ofis_pt(k, 'isitici', kat)
+        tp = termo.tara()['head'][(kat, k)]          # termosifon iptal: kullanıcının sıcak su ağının başı
         pts = gi.route((c[0] - ux * 18 - nx_ * 9, c[1] - uy * 18 - ny_ * 9), tp, sysn='H', turn=20.0, free_end=30.0, max_exp=2_000_000)
         if not pts:
             print('  sıcak su ofis hattı yok', kat, k); pts = [hp, tp]
         PIPE(pts, SIS)
         pipe_label(pts, '3/4"', 6.0, TCAP, ust=f"{YB_H:.0f} MB")
-        place_text(tp, ["TERMOSİFON İPTAL", "MERKEZİ SICAK SU"], 5.0, TNOT, rmax=60)
         place_text(c, [f"SD-{kat - 1}{k}"], 8.0, SAY, rmax=40)
         OUT.setdefault(('hat_ic', kat), {})[k] = pts
     # pis su kolonları (kullanıcının MTY ağ uçları)

@@ -146,12 +146,15 @@ def pkkp_wm(tip='PKKP', h=600, dT=40.0):
 
 
 def dukkan_radyator(Q, cephe_m):
-    """vitrin önü: alçak PKKP 300 ağırlıklı; yetmezse yan duvara PKKP 600"""
+    """kullanıcı talimatı: dükkân başına 4 panel, köşelere; 600 yükseklik, ≥100 cm (gerekirse büyütülür, 1,6 m üstü PKKKP)"""
+    n = 4
     wm = pkkp_wm('PKKP', 600)
-    n = max(2, math.ceil(Q / (wm * 2.0)))          # en fazla 2,0 m panel
-    L = Q / wm / n
-    L = math.ceil(L * 10) / 10
-    return dict(adet=n, boy=round(max(0.6, L), 1), tip='PKKP 600', wm=round(wm))
+    L = math.ceil(Q / wm / n * 10) / 10
+    tip = 'PKKP 600 (Tip 22)'
+    if L > 1.6:
+        wm = wm * 1.42                                   # Tip 33 / Tip 22 oranı (EN 442 katalog)
+        L = math.ceil(Q / wm / n * 10) / 10; tip = 'PKKKP 600 (Tip 33)'
+    return dict(adet=n, boy=round(max(1.0, L), 1), tip=tip, wm=round(wm))
 
 
 # ------------------------------------------------------------------ yerden ısıtma ofis devresi (45/35)
@@ -234,7 +237,7 @@ def hidrofor(yb_top, h_bina=9.5, z_dep=-3.5):
 
 def depo(kisi_ofis=180, l_kisi=30, dukkan=5, l_dukkan=100):
     V = (kisi_ofis * l_kisi + dukkan * l_dukkan) / 1000.0
-    return dict(kisi=kisi_ofis, l=l_kisi, dukkan=dukkan, V=round(V, 1), Vsec=2 * math.ceil(V / 2), adet=2)
+    return dict(kisi=kisi_ofis, l=l_kisi, dukkan=dukkan, V=round(V, 1), Vsec=math.ceil(V), adet=1)
 
 
 # ------------------------------------------------------------------ otopark (4 hava değişimi, duman 10 hava değişimi)
@@ -288,6 +291,14 @@ def hesapla():
     for kat in (2, 3):
         for k in OFIS_S1:
             o = ofis_isi(k, kat); o['yi'] = yi_kontrol(o); R['ofis'][(kat, k)] = o
+            try:
+                import yi as _yi
+                oz = _yi.ozet(kat, k)
+            except Exception as ex:
+                oz = None
+            if oz:                                   # mahal bazlı (TS 2164 / örnek şablon) ısı kaybı esas alınır
+                o['odalar'], o['Q'] = oz[0], round(oz[1])
+                o['wm2'] = round(o['Q'] / max(o['A'], 1), 1); o['yi'] = yi_kontrol(o)
     R['dukkan'] = {nm: dukkan_isi(nm) for nm in DUKKAN_S}
     for nm, d in R['dukkan'].items():
         d['rad'] = dukkan_radyator(d['Q'], 0)

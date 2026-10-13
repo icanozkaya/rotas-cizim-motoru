@@ -1,5 +1,5 @@
 """Kullanıcının MTY pis su (tavandan) ağlarından kolon noktalarını bul (1. kat sıhhi sırası)."""
-from rooms import *
+from odaplan import *
 import networkx as nx
 WIN1 = (254422, -447800, 256498, -440300)
 

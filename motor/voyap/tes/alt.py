@@ -125,17 +125,31 @@ def zemin_sihhi():
 
 
 def radyatorler(nm, n, boy):
-    """vitrin cephesi boyunca eşit aralıklı paneller (S, cephe kenarının 15 cm içi)"""
-    d = DUKKAN_S[nm]; poly = Polygon(d['poly'])
-    a, b = d['cephe'][0]
-    L = math.dist(a, b); ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L
-    nx_, ny_ = -uy, ux
-    if not poly.contains(Point(mid(a, b)[0] + nx_ * 10, mid(a, b)[1] + ny_ * 10)): nx_, ny_ = -nx_, -ny_
+    """4 panel: dükkânın 4 köşesinde, uzun yan duvarlar boyunca köşeden 30 cm içeride, duvardan 12 cm (S çerçevesi)"""
+    d = DUKKAN_S[nm]; poly = Polygon(d['poly']); V = list(poly.exterior.coords)[:-1]
+    ca, cb = d['cephe'][0]; aa, ab = d['arka']
+    cu = ((cb[0] - ca[0]), (cb[1] - ca[1])); cl = math.hypot(*cu); cu = (cu[0] / cl, cu[1] / cl)
+    cols = izgara.cols_S(1)
+    Lr = boy * 100
     out = []
-    for i in range(n):
-        t = min(max(L * (i + 0.5) / n, boy * 50 + 25), L - boy * 50 - 25)
-        c = (a[0] + ux * t + nx_ * 16, a[1] + uy * t + ny_ * 16)
-        out.append(dict(c=c, u=(ux, uy), n=(nx_, ny_), boy=boy, port=(c[0] + nx_ * 14 - ux * boy * 35, c[1] + ny_ * 14 - uy * boy * 35)))
+    for corner in (ca, cb, aa, ab):
+        vi = min(range(len(V)), key=lambda i: math.dist(V[i], corner))
+        v = V[vi]
+        cand = []
+        for w_ in (V[vi - 1], V[(vi + 1) % len(V)]):
+            L_ = math.dist(v, w_)
+            u = ((w_[0] - v[0]) / L_, (w_[1] - v[1]) / L_)
+            cand.append((abs(u[0] * cu[0] + u[1] * cu[1]), -L_, u, L_))
+        _, _, (ux, uy), Le = min(cand)                    # cepheye en dik (yan duvar)
+        nx_, ny_ = -uy, ux
+        if not poly.contains(Point(v[0] + ux * 50 + nx_ * 20, v[1] + uy * 50 + ny_ * 20)): nx_, ny_ = -nx_, -ny_
+        for t0 in range(30, 260, 10):
+            t = t0 + Lr / 2
+            c = (v[0] + ux * t + nx_ * 12, v[1] + uy * t + ny_ * 12)
+            pb = Polygon([(c[0] + sx * ux * Lr / 2 + sy * nx_ * 6, c[1] + sx * uy * Lr / 2 + sy * ny_ * 6) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))])
+            if not pb.buffer(8).intersects(cols) and poly.buffer(-2).contains(pb): break
+        # bağlantı ucu: köşeye uzak uç (alttan, duvar dibi)
+        out.append(dict(c=c, u=(ux, uy), n=(nx_, ny_), boy=boy, port=(c[0] + nx_ * 14 + ux * Lr * 0.35, c[1] + ny_ * 14 + uy * Lr * 0.35)))
     return out
 
 
@@ -183,8 +197,9 @@ def zemin_isitma():
             MASK(pts); PL(pts, RAD, closed=True)
             PL([(cc[0] - ux2 * Lr / 2, cc[1] - uy2 * Lr / 2), (cc[0] + ux2 * Lr / 2, cc[1] + uy2 * Lr / 2)], RAD)
             reserve(Polygon(pts).buffer(4).bounds)
-            if i == 0:
-                place_text(cc, [f"{rd['adet']} AD. {rd['tip']}/{int(Lr)}", f"her biri {q['Q'] / rd['adet']:.0f} W"], 6.0, RAD, rmax=80)
+            VANA(h(r['port']), math.degrees(math.atan2(ny2, nx2)), 'DN15', 0.4)      # radyatör vanası (gerçek gösterim)
+            no = f"R-Z{nm[-1]}.{i + 1}"
+            place_text(cc, [f"{no} {rd['tip']} 600/{int(Lr)}", f"{q['Q'] / rd['adet']:.0f} W"], 6.0, RAD, rmax=90)
         out[nm] = dict(rads=rads, runs=rr)
     OUTA['zemin_isi'] = dict(D=D, out=out)
     return D
@@ -195,7 +210,7 @@ KD = dict(
     kazan=[(248655.0, -451650.0), (248655.0, -451565.0), (248655.0, -451480.0)],
     denge=(248800.0, -451560.0), kol_y=(-451360.0, -451395.0), kol_x=(248760.0, 249160.0),
     pompa={'OFIS': 248840.0, 'DUKKAN': 248900.0, 'BOYLER': 249070.0},
-    genlesme=(248705.0, -451300.0), boyler=(249150.0, -451590.0), depo=[(248750.0, -450880.0, 248900.0, -451030.0), (248920.0, -450880.0, 249070.0, -451030.0)],
+    genlesme=(248705.0, -451300.0), boyler=(249150.0, -451590.0), depo=[(248750.0, -450880.0, 249070.0, -451030.0)],
     hidrofor=(248745.0, -451060.0, 248870.0, -451150.0), mtank=(248900.0, -451105.0), yumusatma=(249120.0, -451100.0),
     sirk=(249160.0, -451440.0), baca_cikis=(248700.0, -451719.0),
     menfez_alt=(248760.0, -450867.0), menfez_ust=(249150.0, -450867.0),
@@ -211,29 +226,41 @@ def kd_cizim(row):
     a = X((x0 + 20, y1 - 25))
     T(a[0], a[1], "KAZAN DAİRESİ", 16, CHZ, TA.TOP_LEFT)
     T(a[0], a[1] - 22, f"(sığınak içinde, EI120 bölme) {((x1 - x0) * (y1 - y0) / 1e4):.1f} m²", 7, CHZ, TA.TOP_LEFT)
+    import kes, ekipman as EQP
+    u = R['kazan']['birim']
+    kk = 'DKAZAN48' if u <= 48 else ('DKAZAN65' if u <= 65 else 'DKAZAN100')
     for i, k in enumerate(KD['kazan']):
-        INS("T-KAZAN", X(k), -90, 1.0, lay=CHZ)
-        p = X((k[0] + 50, k[1]))
-        T(p[0], p[1], f"K{i + 1}", 7, CHZ, TA.MIDDLE_LEFT)
+        kes.ciz(EQP.duvar_kazan, X((k[0] - 10, k[1])), 1.0, CHZ, False, 'P', (0, 0), kk, 1, rot=-90)
+        p = X((k[0] + 55, k[1]))
+        T(p[0], p[1], f"K-0{i + 1}", 7, CHZ, TA.MIDDLE_LEFT)
     p = X((KD['kazan'][0][0] + 75, KD['kazan'][0][1] - 50))
-    T(p[0], p[1], f"{R['kazan']['adet']} x {R['kazan']['birim']} kW YOĞUŞMALI KASKAD KAZAN", 6.5, CHZ, TA.TOP_LEFT)
-    C(X(KD['denge']), 12, CHZ); T(*X((KD['denge'][0] + 16, KD['denge'][1])), "DENGE KABI", 5.5, CHZ, TA.MIDDLE_LEFT)
-    C(X(KD['genlesme']), 25, CHZ); T(*X((KD['genlesme'][0] + 30, KD['genlesme'][1])), f"GENLEŞME {R['genlesme']['Vsec']} L", 5.5, CHZ, TA.MIDDLE_LEFT)
-    C(X(KD['boyler']), 45, CHZ); C(X(KD['boyler']), 40, CHZ)
-    T(*X(KD['boyler']), "BOYLER", 7, CHZ, TA.MIDDLE_CENTER)
-    T(*X((KD['boyler'][0], KD['boyler'][1] - 12)), f"{R['boyler']['Vsec']} L", 6, CHZ, TA.MIDDLE_CENTER)
+    T(p[0], p[1], f"K-01..0{R['kazan']['adet']}: {R['kazan']['adet']} x {u} kW DUVAR TİPİ YOĞUŞMALI KASKAD KAZAN", 6.5, CHZ, TA.TOP_LEFT)
+    kes.ciz(EQP.denge_kabi, X(KD['denge']), 1.0, CHZ, False, 'P', (0, 0), 'DENGE65')
+    T(*X((KD['denge'][0] + 16, KD['denge'][1])), "DK-01 DENGE KABI DN65", 5.5, CHZ, TA.MIDDLE_LEFT)
+    gk = 'GEN300' if R['genlesme']['Vsec'] <= 300 else 'GEN500'
+    if gk not in EQP.DATA: gk = 'GEN300'
+    kes.ciz(EQP.genlesme, X(KD['genlesme']), 1.0, CHZ, False, 'P', (0, 0), gk)
+    T(*X((KD['genlesme'][0] + 40, KD['genlesme'][1])), f"GT-01 KAPALI GENLEŞME {R['genlesme']['Vsec']} L", 5.5, CHZ, TA.MIDDLE_LEFT)
+    bk = 'BOYLER1000' if R['boyler']['Vsec'] <= 1000 else ('BOYLER1500' if 'BOYLER1500' in EQP.DATA else 'BOYLER1000')
+    kes.ciz(EQP.boyler, X(KD['boyler']), 1.0, CHZ, False, 'P', (0, 0), bk)
+    T(*X(KD['boyler']), "B-01", 7, CHZ, TA.MIDDLE_CENTER)
+    T(*X((KD['boyler'][0], KD['boyler'][1] - 12)), f"BOYLER {R['boyler']['Vsec']} L", 5, CHZ, TA.MIDDLE_CENTER)
     for i, (a0, b0, a1, b1) in enumerate(KD['depo']):
         p = [X((a0, b0)), X((a1, b0)), X((a1, b1)), X((a0, b1))]
         PL(p, CHZ, closed=True)
-        T(*mid(p[0], p[2]), f"DEPO-{i + 1}", 7, CHZ, TA.MIDDLE_CENTER)
-        T(mid(p[0], p[2])[0], mid(p[0], p[2])[1] - 12, f"{R['depo']['Vsec'] // 2} m³", 6, CHZ, TA.MIDDLE_CENTER)
+        PL([(p[0][0] + 6, p[0][1] + 6), (p[1][0] - 6, p[1][1] + 6), (p[2][0] - 6, p[2][1] - 6), (p[3][0] + 6, p[3][1] - 6)], CHZ, closed=True)
+        T(*mid(p[0], p[2]), "D-01 KULLANIM SUYU DEPOSU", 7, CHZ, TA.MIDDLE_CENTER)
+        T(mid(p[0], p[2])[0], mid(p[0], p[2])[1] - 12, f"V = {R['depo']['Vsec']} m³ (paslanmaz/CTP, 2 bölmeli)", 5.5, CHZ, TA.MIDDLE_CENTER)
     a0, b0, a1, b1 = KD['hidrofor']
-    p = [X((a0, b0)), X((a1, b0)), X((a1, b1)), X((a0, b1))]
-    PL(p, CHZ, closed=True); T(*mid(p[0], p[2]), "HİDROFOR", 6, CHZ, TA.MIDDLE_CENTER)
-    C(X(KD['mtank']), 20, CHZ); T(*X((KD['mtank'][0], KD['mtank'][1] - 26)), f"{R['hidrofor']['Vn']} L", 5, CHZ, TA.TOP_CENTER)
+    kes.ciz(EQP.hidrofor, X(((a0 + a1) / 2, (b0 + b1) / 2)), 1.0, CHZ, False, 'P', (0, 0), 'HIDROFOR2')
+    T(*X(((a0 + a1) / 2, b1 - 12)), "H-01 HİDROFOR (2 POMPALI, FREKANS KONV.)", 5, CHZ, TA.TOP_CENTER)
+    mk = 'MTANK300' if R['hidrofor']['Vn'] <= 300 else 'MTANK500'
+    kes.ciz(EQP.membranli, X(KD['mtank']), 1.0, CHZ, False, 'P', (0, 0), mk)
+    T(*X((KD['mtank'][0], KD['mtank'][1] - 36)), f"MT-01 MEMBRANLI TANK {R['hidrofor']['Vn']} L", 5, CHZ, TA.TOP_CENTER)
     PL([X((KD['yumusatma'][0] - 15, KD['yumusatma'][1] - 25)), X((KD['yumusatma'][0] + 15, KD['yumusatma'][1] - 25)),
         X((KD['yumusatma'][0] + 15, KD['yumusatma'][1] + 25)), X((KD['yumusatma'][0] - 15, KD['yumusatma'][1] + 25))], CHZ, closed=True)
-    T(*X((KD['yumusatma'][0], KD['yumusatma'][1] + 30)), "YUMUŞATMA", 5, CHZ, TA.BOTTOM_CENTER)
+    C(X((KD['yumusatma'][0], KD['yumusatma'][1] + 8)), 11, CHZ); C(X((KD['yumusatma'][0], KD['yumusatma'][1] - 14)), 8, CHZ)
+    T(*X((KD['yumusatma'][0], KD['yumusatma'][1] + 30)), "YC-01 YUMUŞATMA CİHAZI", 5, CHZ, TA.BOTTOM_CENTER)
     INS("T-YER-SUZGECI", X((248950.0, -451650.0)), 0, 1.0, lay=PS)
     T(*X((248965.0, -451650.0)), "YER SÜZGECİ → POMPA ÇUKURU", 5, PSC, TA.MIDDLE_LEFT)
     for k, t in (('menfez_alt', f"ALT MENFEZ {R['kd_hava']['alt']} cm² (+0,30)"), ('menfez_ust', f"ÜST MENFEZ {R['kd_hava']['ust']} cm² (tavan)")):
@@ -378,14 +405,14 @@ def bodrum_isitma():
     PL([X((KD['denge'][0], KD['denge'][1] + 12)), X((KD['denge'][0], yg)), X((xa, yg))], IG, 2.0)
     PL([X((KD['denge'][0] + 8, KD['denge'][1] + 10)), X((KD['denge'][0] + 8, yd)), X((xa, yd))], ID, 2.0)
     PL([X((KD['genlesme'][0], KD['genlesme'][1] + 25)), X((KD['genlesme'][0], yd)), X((xa, yd))], ID)
-    for ad, x in KD['pompa'].items():
-        INS("T-POMPA", X((x, yg - 70)), -90, 1.0, lay=CHZ)
+    for ip, (ad, x) in enumerate(KD['pompa'].items()):
+        INS("T-POMPA", X((x, yg - 70)), -90, 1.0, lay=CHZ); T(*X((x + 14, yg - 70)), f"P-0{ip + 1}", 5, CHZ, TA.MIDDLE_LEFT)
         PL([X((x, yg)), X((x, -451700.0))], IG, 1.5)
         PL([X((x + 25, yd)), X((x + 25, -451700.0))], ID, 1.5)
-        VANA(X((x, yg - 30)), 90, 'DN40', 0.6); CEKV(X((x, yg - 100)), -90, 'DN40', 0.6)
+        VANA(X((x, yg - 48)), 90, 'DN40', 0.6); CEKV(X((x, yg - 100)), -90, 'DN40', 0.6)
         T(*X((x - 6, yg - 140)), {'OFIS': 'P1 OFİS Y.I. 45/35', 'DUKKAN': 'P2 DÜKKÂN 70/50', 'BOYLER': 'P3 BOYLER'}[ad], 5, CHZ, TA.MIDDLE_RIGHT, 90)
-    INS("T-POMPA", X((KD['pompa']['OFIS'] - 0, yg - 180)), 0, 0.7, lay=CHZ)
-    T(*X((KD['pompa']['OFIS'] + 12, yg - 180)), "3 YOLLU KARIŞIM VANASI", 4.5, CHZ, TA.MIDDLE_LEFT)
+    UCYOL(X((KD['pompa']['OFIS'] - 0, yg - 180)), 90, 0.8, no=False)
+    T(*X((KD['pompa']['OFIS'] + 12, yg - 180)), "3YV-01 3 YOLLU KARIŞIM VANASI", 4.5, CHZ, TA.MIDDLE_LEFT)
     # boyler serpantini
     bx = KD['pompa']['BOYLER']
     PL([X((bx, -451700.0)), X((bx, -451690.0)), X((KD['boyler'][0] - 40, -451690.0))], IG)

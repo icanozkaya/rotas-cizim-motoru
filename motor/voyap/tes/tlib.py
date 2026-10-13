@@ -16,7 +16,7 @@ TLAY = {
     "MTY-UFLEME-KANALI": 20, "MTY-EGZOZ-KANALI": 4, "MTY-KANAL-CAP": 21, "MTY-DUMAN-EGZOZ": 1, "MTY-MENFEZ": 7,
     "MTY-HAVALANDIRMA-CIHAZ": 135, "MTY-TES-YAZI": 7, "MTY-TES-SAFT": 8, "MTY-TES-NOT": 1, "MTY-HESAP": 1,
     "MTY-TES-SEMA": 7, "MTY-TES-TABLO": 7, "MTY-BACA": 8, "MTY-DOGALGAZ": 2, "MIM-GUNCEL-BODRUM": 8,
-    "MTY-TES-ISKELET": 9, "MTY-YAGMUR-BORUSU": 3,
+    "MTY-TES-ISKELET": 9, "MTY-YAGMUR-BORUSU": 3, "MTY-PVC": 43, "MTY-ISIKAYBIMAHAL": 2, "MTY-KAT-ADI": 1, "MTY-SEMA": 8,
 }
 SS, SIS, SIRK, TCAP, TKOL = "MTY-SOGUKSU-BORU", "MTY-SICAKSU-BORU", "MTY-SIRKULASYON-BORU", "MTY-TEMIZSU-CAP", "MTY-TEMIZSU-KOLON"
 PS, PSK, PSC, PSN, ROG = "MTY-PISSU-BORU", "MTY-PISSU-KOLON", "MTY-PISSU-CAP", "MTY-PISSU-KOLONNO", "MTY-ROGAR"
@@ -27,7 +27,9 @@ TY, SFT, TNOT, HES, TSEMA, TTAB, BACA = "MTY-TES-YAZI", "MTY-TES-SAFT", "MTY-TES
 LT = {SS: None, SIS: 'BASMA HATTI', SIRK: 'SIRKULASYON HATTI', ID: 'ISITMA DONUS HATTI', PS: 'PIS'}
 
 MTY_BLK = ["MTY-SU SAYACI", "MTY-KURESEL VANA", "MTY-CEKVALF VANA", "MTY-PISLIK TUTUCU", "MTY-KOLON NO PIS SU",
-           "MTY-TEMIZLEME KAPAGI KOLON", "PVC ROGAR", "MTY-TEMIZ SU CAP MB", "MTY-PIS SU CAP SB"]
+           "MTY-TEMIZLEME KAPAGI KOLON", "PVC ROGAR", "MTY-TEMIZ SU CAP MB", "MTY-PIS SU CAP SB",
+           "EVIYE1 KOLON", "KLOZET1 KOLON", "LAVABO1 KOLON", "DUS TEKNESI1 KOLON", "SUZGEC1 KOLON", "PVC CATAL SAG", "PVC DIRSEK",
+           "MTY-ETIKET", "MTY-RADYATOR MAHAL", "MTY-RADYATOR KOLLEKTÖR KOLON", "MTY-RADYATOR CAP"]
 
 
 def setup(sdoc):
@@ -165,20 +167,53 @@ def MTYB(name, p, rot=0.0, s=1.0, lay="MTY-VANA", attrs=None, mask=None):
     return ins
 
 
-def VANA(p, rot=0.0, cap='DN25', s=0.6):
-    return MTYB("MTY-KURESEL VANA", p, rot, s, "MTY-VANA", {'CAP': cap}, mask=7 * s / 0.6)
+NUM = {}
 
 
-def CEKV(p, rot=0.0, cap='DN25', s=0.6):
-    return MTYB("MTY-CEKVALF VANA", p, rot, s, "MTY-VANA", {'CAP': cap}, mask=7 * s / 0.6)
+def numara(p, rot, pre, s=0.6, h=5.0):
+    """vana/cihaz numarası (gerçek gösterimli sembolün yanında): V-01, CV-01, PT-01, SY-01 ..."""
+    NUM[pre] = NUM.get(pre, 0) + 1
+    t = f"{pre}-{NUM[pre]:02d}"
+    a = math.radians(rot + 90); d = 9.0 * s / 0.6 + h * 0.6
+    q = (p[0] + math.cos(a) * d, p[1] + math.sin(a) * d)
+    T(q[0], q[1], t, h, "MTY-VANA", TA.MIDDLE_CENTER, rot if -90 < (rot % 360) < 90 or (rot % 360) > 270 else rot - 180, mask=True)
+    return t
 
 
-def PISLIK(p, rot=0.0, cap='DN25', s=0.6):
-    return MTYB("MTY-PISLIK TUTUCU", p, rot, s, "MTY-VANA", {'CAP': cap}, mask=7 * s / 0.6)
+def VANA(p, rot=0.0, cap='DN25', s=0.6, no=True):
+    e = MTYB("MTY-KURESEL VANA", p, rot, s, "MTY-VANA", {'CAP': cap}, mask=7 * s / 0.6)
+    if no: numara(p, rot, 'V', s)
+    return e
 
 
-def SAYAC(p, rot=0.0, cap='DN20', s=0.7):
-    return MTYB("MTY-SU SAYACI", p, rot, s, SAY, {'CAP': cap}, mask=7)
+def CEKV(p, rot=0.0, cap='DN25', s=0.6, no=True):
+    e = MTYB("MTY-CEKVALF VANA", p, rot, s, "MTY-VANA", {'CAP': cap}, mask=7 * s / 0.6)
+    if no: numara(p, rot, 'CV', s)
+    return e
+
+
+def PISLIK(p, rot=0.0, cap='DN25', s=0.6, no=True):
+    e = MTYB("MTY-PISLIK TUTUCU", p, rot, s, "MTY-VANA", {'CAP': cap}, mask=7 * s / 0.6)
+    if no: numara(p, rot, 'PT', s)
+    return e
+
+
+def UCYOL(p, rot=0.0, s=1.0, lay="MTY-VANA", no=True):
+    """3 yollu vana (gerçek gösterim): papyon + 3. ağız üçgeni + motor"""
+    a = math.radians(rot); ca, sa = math.cos(a), math.sin(a)
+    R_ = lambda x, y: (p[0] + (x * ca - y * sa) * s, p[1] + (x * sa + y * ca) * s)
+    MASKC(p, 9 * s)
+    PL([R_(-8, -5), R_(8, 5), R_(8, -5), R_(-8, 5)], lay, closed=True)
+    PL([R_(0, 0), R_(-5, -9), R_(5, -9)], lay, closed=True)
+    PL([R_(0, 0), R_(0, 7)], lay); PL([R_(-4, 7), R_(4, 7), R_(4, 13), R_(-4, 13)], lay, closed=True)
+    T(*R_(0, 10), "M", 3.5 * s, lay, TA.MIDDLE_CENTER)
+    if no: numara(p, rot, '3YV', s * 0.6 / 0.6 * 1.2)
+
+
+def SAYAC(p, rot=0.0, cap='DN20', s=0.7, no=True):
+    e = MTYB("MTY-SU SAYACI", p, rot, s, SAY, {'CAP': cap}, mask=7)
+    if no: numara(p, rot, 'SY', s)
+    return e
 
 
 # ------------------------------------------------------------------ kendi bloklarım
