@@ -10,7 +10,8 @@ Yöntem (kullanıcı şablonu ile birebir):
 4. **Pis su pompası (her çukur ayrı):** Qww = 0,5√ΣSB; Hm = Hgeo + Hazen-Williams (C=140, DN50) + Σζ·v²/2g, ×1,10; çukur aktif hacmi ≥ Qp/(4·Z), Z=15; motor P = ρgQH/η (η=0,40).
 5. **Depo / hidrofor:** depo = 1 günlük ihtiyaç (kullanıcı verir, ör. 16 ton); hidrofor Q = günlük ihtiyaç × 0,60 (kullanma faktörü) → üst standart değer (9,75 m³/h); Hm = bina yüksekliği + kritik devre kaybı + akma + sayaç + 2 mSS → 5'e yuvarla (45 mSS); kritik devre etkin basıncı bu Hm ile kontrol edilir.
 6. **Yağmur suyu (her blok):** S = P×0,75 (cm²), A = S/f, D = 1,13√A; D < 7 cm → Ø70, 7–10 cm → Ø100.
-7. **Teslim kuralı:** tablolarda "yetersiz" yazılmaz; doğru seçilen değerler (pompa Q/H, çukur ölçüsü, çap) yazılır ve kontrol satırı UYGUNDUR olur — kullanıcı bu değerleri projeye işler.
+7. **DXF düzeni:** her hesap ayrı çerçeve (kare) içinde; yağmur suyu hesabına not yazılmaz.
+8. **Teslim kuralı:** tablolarda "yetersiz" yazılmaz; doğru seçilen değerler (pompa Q/H, çukur ölçüsü, çap) yazılır ve kontrol satırı UYGUNDUR olur — kullanıcı bu değerleri projeye işler.
 
 Proje verileri (B1-B2-B3 blok şeması, 2026-10-13): bina yüksekliği 21 m, su deposu 16 m³ (günlük 16 ton esas), her blok çatı alanı 237 m² ve 4 yağmur oluğu, 38 bağımsız birim (şofben sayısı), 3 pis su çukuru (her blokta 1), B1'de 1 adet ızgara (8 SB).
 Not: şemadaki MTY dinamik blokları DXF'te '*U' adıyla gelir; `voyap/tes/ulabel.py` ile ham DXF'ten okunur.

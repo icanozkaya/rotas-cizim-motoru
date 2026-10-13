@@ -308,7 +308,6 @@ for i, (a_, v, u) in enumerate(YR, 4):
         ws.cell(i, 2 + j, v.format(c=c) if isinstance(v, str) else v)
     ws.cell(i, 5, u)
 box(ws, 3, 1, 3 + len(YR), 5)
-ws.cell(13, 1, '*Yağmur suyu pis su kanalına bağlanmayacak, yağmur suyu kanalına (rögarına) verilecektir.')
 
 # ======================= ÇİZELGELER (şablondan aynen)
 for nm, title in (('Sayfa2', 'ÇİZELGE_1'), ('Sayfa3', 'ÇİZELGE_2'), ('Sayfa4', 'ÇİZELGE_3')):

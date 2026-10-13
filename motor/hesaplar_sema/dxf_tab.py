@@ -44,18 +44,26 @@ def lines(x, y, ws, rows, h=H):
         if v: T(x, y, str(v), h); y -= h * 1.8
     return y
 
+SECT = []
+def mark(): return len(msp)
+def close(i0):
+    SECT.append((i0, len(msp)))
+
 # 1) temiz su kritik devre
 ws = wb['TEMİZ SU KRİTİK DEVRE']
 y = Y0
+_i = mark()
 T(X0, y, ws['A1'].value, 9.0); y -= 18
 y = lines(X0, y, ws, range(2, 9))
 y -= 6
 y = table(X0, y, ws, 10, 21, range(1, 9), [36, 190, 40, 28, 36, 80, 80, 36])
 y -= 8
 y = lines(X0, y, ws, range(23, 31))
+close(_i)
 # 2) bloklar
 y -= 30
 for B in ('B1', 'B2', 'B3'):
+    _i = mark()
     ws = wb[f'{B} BLOK']
     T(X0, y, ws['B1'].value, 9.0); y -= 20
     ya = table(X0, y, ws, 3, 10, range(2, 8), [110, 36, 30, 34, 44, 70])
@@ -67,25 +75,41 @@ for B in ('B1', 'B2', 'B3'):
     y = table(X0, y, ws, 15, 23, range(2, last + 1), [110, 40] + [36] * (last - 3)) - 14
     r2 = [r for r in range(24, 40) if ws.cell(r, 2).value and 'YÜKLERİ' in str(ws.cell(r, 2).value)][0]
     T(X0, y, ws.cell(r2, 2).value, 7.0); y -= 12
-    y = table(X0, y, ws, r2 + 1, r2 + 11, range(2, last + 1), [110, 40] + [36] * (last - 3)) - 40
-doc.saveas('/tmp/claude-0/hs/out/HESAPLAR_SIHHI.dxf')
-print('ok', y)
+    y = table(X0, y, ws, r2 + 1, r2 + 11, range(2, last + 1), [110, 40] + [36] * (last - 3))
+    close(_i); y -= 40
 
 # 3) pis su pompaları + hidrofor-depo (ek sayfalar, sağ sütun)
-doc = ezdxf.readfile('/tmp/claude-0/hs/out/HESAPLAR_SIHHI.dxf'); msp = doc.modelspace()
 X1 = X0 + 900; y = Y0
+_i = mark()
 ws = wb['PİS SU POMPALARI']
 T(X1, y, ws['A1'].value, 9.0); y -= 16; T(X1, y, ws['A2'].value, 5.5); y -= 14
 nr = max(r for r in range(4, 40) if ws.cell(r, 1).value and not str(ws.cell(r, 1).value).startswith('*'))
 y = table(X1, y, ws, 4, nr, range(1, 6), [300, 140, 140, 140, 40]) - 8
 for r in range(nr + 1, nr + 6):
     if ws.cell(r, 1).value: T(X1, y, ws.cell(r, 1).value, 5.5); y -= 10
+close(_i)
 y -= 30
+_i = mark()
 ws = wb['HİDROFOR-DEPO']
 T(X1, y, ws['A1'].value, 9.0); y -= 18
-y = table(X1, y, ws, 3, 3 + 15, range(1, 4), [300, 150, 70]) - 30
+y = table(X1, y, ws, 3, 3 + 15, range(1, 4), [300, 150, 70])
+close(_i); y -= 30
+_i = mark()
 ws = wb['YAĞMUR SUYU']
 T(X1, y, ws['A1'].value, 9.0); y -= 18
-y = table(X1, y, ws, 3, 10, range(1, 6), [230, 170, 170, 170, 40]) - 8
-T(X1, y, ws['A13'].value, 5.5)
-doc.saveas('/tmp/claude-0/hs/out/HESAPLAR_SIHHI.dxf'); print('ek ok')
+y = table(X1, y, ws, 3, 10, range(1, 6), [230, 170, 170, 170, 40])
+close(_i)
+# her hesap ayrı çerçevede
+ents = list(msp)
+for i0, i1 in SECT:
+    xs = []; ys = []
+    for e in ents[i0:i1]:
+        if e.dxftype() == 'LWPOLYLINE':
+            for p in e.get_points('xy'): xs.append(p[0]); ys.append(p[1])
+        else:
+            p = e.dxf.insert; xs.append(p.x); ys.append(p.y)
+            xs.append(p.x + len(e.dxf.text) * e.dxf.height * 0.5 if e.dxf.halign == 0 else p.x); ys.append(p.y + e.dxf.height)
+    x0, x1_, y0, y1 = min(xs) - 12, max(xs) + 12, min(ys) - 12, max(ys) + 12
+    msp.add_lwpolyline([(x0, y0), (x1_, y0), (x1_, y1), (x0, y1)], close=True, dxfattribs={'layer': 'MTY-HESAP', 'const_width': 1.0})
+doc.saveas('/tmp/claude-0/hs/out/HESAPLAR_SIHHI.dxf'); print('çerçeve', len(SECT))
+
