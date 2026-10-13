@@ -11,3 +11,4 @@ Yöntem:
 - Genleşme (TS EN 12828): Vs = radyatör boyu × 5,7 l/m × 1,30; e(90°C)=0,0359; P0 = H/10+0,3; Psv 6 bar; Vn=(Ve+VWR)(Pe+1)/(Pe−P0).
 - Denge kabı D = √(4Q/(π·0,15)); kazan dairesi havalandırma alt 6 cm²/kW, üst 3 cm²/kW.
 Proje: İstanbul Güngören, 69 pafta 944 ada 343 parsel, B1-B2-B3 blok (aynı proje sıhhi hesapları: motor/hesaplar_sema).
+- DXF düzeni: rapor notları (MTEXT) diğer notlarla aynı stil (ARİAL, 14,37, beyaz, katman 0) düz yazıya çevrilir; başlık/madde eklenmez-silinmez, yalnız proje/kat bilgileri doldurulur. Tablolar sıkı (sütun genişliği içeriğe göre), beyaz yazı + kırmızı çerçeve, her hesap ayrı çerçevede.
