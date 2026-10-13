@@ -68,6 +68,25 @@ def kat_ofis_sihhi(kat):
     return D, res
 
 
+_UH = None
+
+
+def _kullanici_hatlari(area):
+    global _UH
+    if _UH is None:
+        S_ = pickle.load(open('/tmp/claude-0/vy/sih.pkl', 'rb'))
+        _UH = []
+        for r in S_:
+            if r[1] in ('MTY-SICAKSU-BORU', 'MTY-SOGUKSU-BORU') and r[0] in 'LP':
+                q = [p[:2] for p in (r[2] if r[0] == 'P' else r[2][:2])]
+                if len(q) > 1: _UH.append(q)
+    T_ = termo.tara()
+    out = []
+    for q in _UH:
+        if LineString(q).intersects(area): out.append(q)
+    return out
+
+
 def draw_ofis_sihhi(kat):
     D, res = kat_ofis_sihhi(kat)
     # şaftlar
@@ -91,18 +110,44 @@ def draw_ofis_sihhi(kat):
     for k, Dd in D.items():
         draw_dolap(Dd)
         ux, uy = Dd['u']; nx_, ny_ = Dd['n']; c = Dd['c']
-        SAYAC((c[0] - ux * 33, c[1] - uy * 33), Dd['ang'], 'DN20', 0.55)
-        SAYAC((c[0] - ux * 18, c[1] - uy * 18), Dd['ang'], 'DN20', 0.55)
+        # dolap içi: ana hat girişi -> vana -> sayaç -> ofis tarafı (kesintisiz)
+        ic = {}
+        for key, off, lay in (('SS', -33, SS), ('SIS', -18, SIS)):
+            pp = yerlesim.dolap_port(Dd, key)
+            ic[key] = (c[0] + ux * off - nx_ * 9, c[1] + uy * off - ny_ * 9)
+            if not any(LineString([pp, ic[key]]).buffer(1.5).intersection(LineString(q_)).length > 2
+                       for q_ in _kullanici_hatlari(LineString([pp, ic[key]]).buffer(3))):      # kullanıcı hattı zaten geçiyorsa tekrar çizme
+                PIPE([pp, ic[key]], lay)
+            SAYAC((c[0] + ux * off, c[1] + uy * off), Dd['ang'] + 90, 'DN20', 0.55)
+        pr = yerlesim.dolap_port(Dd, 'SIRK')
+        PIPE([pr, (c[0] - ux * 3, c[1] - uy * 3), (c[0] - ux * 18, c[1] - uy * 18)], SIRK)
         # soğuk: dolaptan kullanıcının besleme ucuna
         bp = ofis_pt(k, 'besleme', kat)
         sp = (c[0] - ux * 42 - nx_ * 9, c[1] - uy * 42 - ny_ * 9)          # ana hat girişinden 9 cm yanda (üst üste binmesin)
         cands = [[sp, (sp[0], bp[1]), bp], [sp, (bp[0], sp[1]), bp]]
+        for f_ in (0.3, 0.5, 0.7):                                                               # Z biçimli seçenekler
+            ym_ = sp[1] + (bp[1] - sp[1]) * f_; xm_ = sp[0] + (bp[0] - sp[0]) * f_
+            cands += [[sp, (sp[0], ym_), (bp[0], ym_), bp], [sp, (xm_, sp[1]), (xm_, bp[1]), bp]]
         mains = [LineString(rn['pts']) for (sh_, key_), r_ in res.items() if key_ == 'SS' for rn in r_['runs']]
+        mains += [LineString(q_) for q_ in _kullanici_hatlari(Point(bp).buffer(150))]          # kullanıcının soğuk/sıcak hatları
         q = min(cands, key=lambda qq: sum(LineString(qq).buffer(1.5).intersection(m).length for m in mains))
-        PIPE(q, SS)
+        # kullanıcının soğuk hattı dolaptan geçiyorsa: o hatta dik T bağlantı (hat üzerinde yürümeden)
+        for ul in [LineString(q_) for q_ in _kullanici_hatlari(Point(bp).buffer(3))]:
+            if ul.distance(Point(bp)) > 2: continue
+            for a_, b_ in zip(list(ul.coords)[:-1], list(ul.coords)[1:]):
+                sg = LineString([a_, b_])
+                if sg.distance(Point(bp)) > 2: continue
+                t_ = sg.interpolate(sg.project(Point(ic['SS'])))
+                if 0.5 < t_.distance(Point(ic['SS'])) < 150 and (abs(t_.x - ic['SS'][0]) < 0.5 or abs(t_.y - ic['SS'][1]) < 0.5):
+                    q = [(t_.x, t_.y)]
+                    break
+        PIPE([ic['SS']] + q if len(q) > 1 else [ic['SS'], q[0]], SS)
         # sıcak: dolaptan ofis içindeki sıcak su ağının başına (merkezi sıcak su)
         poly = ofis_poly(k, kat, 'S')
         gi = izgara.grid_ofis(kat, poly, 5.0, soft=250.0)
+        # kullanıcının mevcut soğuk/sıcak hatları: yeni sıcak hat bunların üstünden/yanından yürümesin
+        for q_ in _kullanici_hatlari(poly.buffer(80)):
+            gi.add_line(q_, 'U')
         hp = (c[0] - ux * 18 - nx_ * (9 + 26), c[1] - uy * 18 - ny_ * (9 + 26))
         tp = termo.tara()['head'][(kat, k)]          # termosifon iptal: kullanıcının sıcak su ağının başı
         pts = gi.route((c[0] - ux * 18 - nx_ * 9, c[1] - uy * 18 - ny_ * 9), tp, sysn='H', turn=20.0, free_end=30.0, max_exp=2_000_000)

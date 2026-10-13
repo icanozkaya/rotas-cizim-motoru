@@ -57,8 +57,8 @@ def sema():
     T(dx0 + 30, dy0 + 300, "SEVİYE GÖST.", 7, DEP, TA.MIDDLE_LEFT)
     # ---------------- pompalar (yatay), kollektör dikey x=258650
     XC = 258650.0
-    rows = [(y0 + 120, "E", 'ELEKTRİKLİ ANA POMPA', 'Q=70 m³/h H=60 mSS 22 kW', 'DN150', 'DN100', 1.0),
-            (y0 + 300, "D", 'DİZEL YEDEK POMPA', 'Q=70 m³/h H=60 mSS 30 kW', 'DN150', 'DN100', 1.0),
+    rows = [(y0 + 120, "E", 'ELEKTRİKLİ ANA POMPA', 'Q=80 m³/h H=60 mSS 22 kW', 'DN150', 'DN100', 1.0),
+            (y0 + 300, "D", 'DİZEL YEDEK POMPA', 'Q=80 m³/h H=60 mSS 30 kW', 'DN150', 'DN100', 1.0),
             (y0 + 470, "J", 'JOKEY POMPA', 'Q=3 m³/h H=70 mSS 1,5 kW', 'DN40', 'DN25', 0.6)]
     import kes, ekipman
     for y, tag, ad, oz, de, db, s in rows:
@@ -164,6 +164,14 @@ def sema():
             code = {0: "B", 1: "Z", 2: "1", 3: "2"}[i] + nm
             T(xk + 200, yy + 10, f"YD-{code}", 10, DOL, TA.BOTTOM_LEFT)
             T(xk + 200, yy - 6, "TÜPLÜ YANGIN DOLABI TS EN 671-1, 1\" / 30 m", 7, DOL, TA.TOP_LEFT)
+            import plans as _pl
+            for k_, (code2, src2, ad2) in enumerate([e for e in _pl.EKD[i] if e[1] == lab]):
+                y2 = yy + 150 * (k_ + 1)
+                pipe([(xk, y2), (xk + 90, y2)], DOLB, 2)
+                INS("Y-OSY", (xk + 45, y2), 0, 0.9, mask=9)
+                INS("ASL-YD-KOLON", (xk + 150, y2 + 20), 0, 0.8, lay=DOL)
+                T(xk + 200, y2 + 10, f"YD-{code2} ({ad2})", 10, DOL, TA.BOTTOM_LEFT)
+                T(xk + 200, y2 - 6, "TÜPLÜ YANGIN DOLABI TS EN 671-1, 1\" / 30 m", 7, DOL, TA.TOP_LEFT)
     # itfaiye bağlantısı (zemin, YK1'e çek valfle)
     yi = FL[1] + 80
     INS("Y-ITFAIYE", (xk1 - 420, yi), 0, 2.0, lay=ITF)
@@ -260,8 +268,8 @@ def build():
     H = pickle.load(open('/tmp/claude-0/vy/heads.pkl', 'rb'))
     # ekipman listesi
     nU = len([h for h in H[0] if h['t'] == 'U']) + len(H[1]); nP = len(H[2]) + len(H[3]); nA = len([h for h in H[0] if h['t'] == 'ARA'])
-    eq = [(1, "ELEKTRİKLİ ANA YANGIN POMPASI", 1, "Q=70 m³/h H=60 mSS 22 kW 2900 d/d PN16, %140 debide ≥%70 basma"),
-          (2, "DİZEL YEDEK YANGIN POMPASI", 1, "Q=70 m³/h H=60 mSS 30 kW, akülü marş, 100 L yakıt tankı"),
+    eq = [(1, "ELEKTRİKLİ ANA YANGIN POMPASI", 1, "Q=80 m³/h H=60 mSS 22 kW 2900 d/d PN16, %140 debide ≥%70 basma"),
+          (2, "DİZEL YEDEK YANGIN POMPASI", 1, "Q=80 m³/h H=60 mSS 30 kW, akülü marş, 100 L yakıt tankı"),
           (3, "JOKEY POMPA", 1, "Q=3 m³/h H=70 mSS 1,5 kW 400V"),
           (4, "ELEKTRİKLİ POMPA PANOSU", 1, "IP54, yıldız-üçgen, faz koruma, arıza alarmı"),
           (5, "DİZEL POMPA PANOSU", 1, "IP54, otomatik start, 2 set akü şarj, 6 deneme startı"),
@@ -293,8 +301,8 @@ def build():
     Qt = w['Q'] + dol['Q']
     lines = [f"En elverişsiz sprinkler alanı: {w['kat']} {w['Q']:.0f} l/dk; yangın dolabı 2 x 100 l/dk = {dol['Q']:.0f} l/dk",
              f"Toplam: {Qt:.0f} l/dk = {Qt * 0.06:.1f} m³/h; dolap için gerekli basınç {dol['P'] * 10.2:.1f} mSS (2. kat, lüle 4 bar)",
-             (f"Seçilen pompa: Q=70 m³/h H=60 mSS ≥ ihtiyaç {Qt * 0.06:.1f} m³/h / {max(dol['P'], max(r['Pp'] for r in res)) * 10.2:.1f} mSS  ✓"
-              if Qt * 0.06 <= 70 else f"Seçilen pompa: Q=70 m³/h H=60 mSS; eğri üzerinde {Qt * 0.06:.0f} m³/h'de ≥{max(dol['P'], max(r['Pp'] for r in res)) * 10.2 + 2:.0f} mSS sağlanacaktır."),
+             (f"Seçilen pompa: Q=80 m³/h H=60 mSS ≥ ihtiyaç {Qt * 0.06:.1f} m³/h / {max(dol['P'], max(r['Pp'] for r in res)) * 10.2:.1f} mSS  ✓"
+              if Qt * 0.06 <= 80 else f"Seçilen pompa: Q=80 m³/h H=60 mSS; eğri üzerinde {Qt * 0.06:.0f} m³/h'de ≥{max(dol['P'], max(r['Pp'] for r in res)) * 10.2 + 2:.0f} mSS sağlanacaktır."),
              f"Depo: {Qt * 0.06:.1f} m³/h x 60 dk = {Qt * 0.06:.1f} m³ ≤ 80 m³ net  ✓",
              "Kat yükseklikleri kabulü: bodrum 3,50 / zemin 3,50 / normal 3,00 m (kesitten teyit)."]
     for k, s in enumerate(lines):

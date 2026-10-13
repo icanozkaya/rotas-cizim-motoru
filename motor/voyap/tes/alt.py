@@ -70,7 +70,7 @@ def kolon_kaydir():
         def ok(qq, yy):
             bq = Point(qq[0] - 2161.0, qq[1] + 10.0)
             if CZ.contains(Point(qq)) or CB.contains(bq): return False
-            return not (yy and LineString(yy).intersects(izgara.cols_S(1).buffer(3)))
+            return not (yy and LineString(yy).difference(Point(yy[0]).buffer(25)).intersects(izgara.cols_S(1).buffer(3)))   # iniş noktası kolona bitişikse ilk 25 cm serbest
         if not ok(q, yol):
             found = False
             for dd in (30, -30, 60, -60, 90, -90, 130, -130, 180, -180):
@@ -402,8 +402,8 @@ def bodrum_isitma():
     for k in KD['kazan']:
         PL([X((k[0] + 45, k[1] + 12)), X((KD['denge'][0] - 12, k[1] + 12))], IG)
         PL([X((k[0] + 45, k[1] - 12)), X((KD['denge'][0] - 12, k[1] - 12))], ID)
-    PL([X((KD['denge'][0], KD['denge'][1] + 12)), X((KD['denge'][0], yg)), X((xa, yg))], IG, 2.0)
-    PL([X((KD['denge'][0] + 8, KD['denge'][1] + 10)), X((KD['denge'][0] + 8, yd)), X((xa, yd))], ID, 2.0)
+    PL([X((KD['denge'][0], KD['denge'][1] + 12)), X((KD['denge'][0], yg))], IG, 2.0)          # kollektöre T ile (üst üste binmez)
+    PL([X((KD['denge'][0] + 8, KD['denge'][1] + 10)), X((KD['denge'][0] + 8, yd))], ID, 2.0)
     PL([X((KD['genlesme'][0], KD['genlesme'][1] + 25)), X((KD['genlesme'][0], yd)), X((xa, yd))], ID)
     for ip, (ad, x) in enumerate(KD['pompa'].items()):
         INS("T-POMPA", X((x, yg - 70)), -90, 1.0, lay=CHZ); T(*X((x + 14, yg - 70)), f"P-0{ip + 1}", 5, CHZ, TA.MIDDLE_LEFT)

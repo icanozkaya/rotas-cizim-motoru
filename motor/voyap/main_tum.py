@@ -78,8 +78,17 @@ pickle.dump(dict(OUT=sihhi.OUT, OUTI={k: v for k, v in isitma.OUTI.items() if k[
 import copy as _cp
 
 
-def scott(d):
-    """tüm katman adları SCOTT- önekiyle (0 ve Defpoints hariç); blok içleri dahil"""
+def scott(d, wipe_sil=True):
+    """tüm katman adları SCOTT- önekiyle (0 ve Defpoints hariç); blok içleri dahil.
+    Ayrıca: adlı bloklarda yanlış 'anonim' bayrağı temizlenir (AutoCAD bu INSERT'leri göstermiyordu),
+    0 katmanındaki wipeout (görünmeyen maske) nesneleri silinir."""
+    for b in d.blocks:
+        if not b.name.startswith('*') and b.block.dxf.get('flags', 0) & 1:
+            b.block.dxf.flags = b.block.dxf.flags & ~1
+    if wipe_sil:
+        for lo in d.layouts:
+            for e in list(lo.query('WIPEOUT')):
+                lo.delete_entity(e)
     ren = {}
     for l in list(d.layers):
         n = l.dxf.name
@@ -204,7 +213,7 @@ im = Importer(sdoc, doc)
 im.import_entities(sec, msp); im.finalize()
 for n in ('MIM-BODRUM-GUNCEL', 'MIM-GUNCEL-BODRUM'):
     if n in doc.layers: doc.layers.get(n).color = 8
-scott(doc)
+scott(doc, wipe_sil=False)
 doc.saveas('/tmp/claude-0/vy/MEKANIK_TAM.dxf')
 print('TAM ok', len(sec), 'kullanıcı varlığı alındı,', nx, 'eski varlık çıkarıldı', round(time.time() - t0), 's')
 

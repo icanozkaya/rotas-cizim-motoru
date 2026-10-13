@@ -47,19 +47,6 @@ def pis_kolonlar(win=WIN1):
         leaves = [n for n in side if H.degree(n) == 1]
         if not leaves: leaves = [start]
         kol = max(leaves, key=lambda n: nx.shortest_path_length(H2.subgraph(side), start, n)) if len(side) > 1 else start
-        # betonarme kolon içine/yanına düşerse ağ boyunca geri çek (kolondan ≥15 cm)
-        try:
-            import izgara
-            CC = izgara.cols_S(2)
-            if CC.distance(Point(kol)) < 15:
-                path = nx.shortest_path(H2.subgraph(side), kol, start) if len(side) > 1 else [kol]
-                ls = LineString(path + [e[0] if start == e[1] else e[1]]) if len(path) > 0 else None
-                for t in range(5, int(ls.length), 5):
-                    q = ls.interpolate(t)
-                    if CC.distance(q) >= 15:
-                        kol = (round(q.x, 1), round(q.y, 1)); break
-        except Exception as ex:
-            print('kolon geri çekme', ex)
         out.append(dict(lb, kol=kol, d=round(d), n_lab=len(mine)))
     return out
 

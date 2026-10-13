@@ -122,7 +122,9 @@ def draw_ofis_isitma(kat):
     for k, Dd in D.items():
         sihhi.draw_dolap(dict(Dd, c=h(Dd['c']), wall=h(Dd['wall'])))
         c = h(Dd['c']); ux, uy = Dd['u']; nx_, ny_ = Dd['n']
-        INS("T-KALORIMETRE", (c[0] + ux * 22, c[1] + uy * 22), Dd['ang'], 0.9, lay=KAL)
+        INS("T-KALORIMETRE", (c[0] + ux * 30, c[1] + uy * 30), Dd['ang'] + 90, 0.9, lay=KAL)     # dönüş hattı üzerinde
+        for key, lay, dd in (('IG', IG, 15), ('ID', ID, 30)):                                         # dolap içi bağlantı
+            PIPE([h(yerlesim.dolap_port(Dd, key)), (c[0] + ux * dd - nx_ * 9, c[1] + uy * dd - ny_ * 9)], lay)
         Y = yi.ofis_k(kat, k, Dd)
         dk = D12[0] if kat == 3 else 0.0
         sh_ = lambda p_: (p_[0] + dk + HX, p_[1])
@@ -133,19 +135,24 @@ def draw_ofis_isitma(kat):
         box_ = [(kc[0] + sx * ku * Wk / 2 + sy * kn * 9, kc[1] + sx * kv * Wk / 2 + sy * km * 9) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
         MASK(box_); PL(box_, KLT, closed=True)
         gb = lambda t, o: (kc[0] + ku * t + kn * o, kc[1] + kv * t + km * o)
-        PL([gb(-Wk / 2 + 3, -2), gb(Wk / 2 - 3, -2)], IG, 1.6)
-        PL([gb(-Wk / 2 + 3, 4), gb(Wk / 2 - 3, 4)], ID, 1.6)
+        PL([gb(-Wk / 2 + 3, 5), gb(Wk / 2 - 3, 5)], IG, 1.6)
+        PL([gb(-Wk / 2 + 3, 1), gb(Wk / 2 - 3, 1)], ID, 1.6)
         for c_ in Y['circ']:
             pa, pb = Y['ports'][c_['pidx']]
             pa, pb = sh_(pa), sh_(pb)
-            PL([pa, (pa[0] + kn * 4, pa[1] + km * 4)], IG)
-            PL([pb, (pb[0] + kn * 10, pb[1] + km * 10)], ID)
+            PL([pa, (pa[0] + kn * 11, pa[1] + km * 11)], IG)
+            PL([pb, (pb[0] + kn * 7, pb[1] + km * 7)], ID)
         reserve(Polygon(box_).buffer(3).bounds)
         # dolap -> kollektör besleme (kalorimetre sonrası)
-        for key, lay, dd, oo in (('IG', IG, 15, -2), ('ID', ID, 30, 4)):
+        for key, lay, dd, oo in (('IG', IG, 15, 5), ('ID', ID, 30, 1)):
             p0 = (c[0] + ux * dd - nx_ * 9, c[1] + uy * dd - ny_ * 9)
-            p1 = gb(-Wk / 2 + 3, oo) if math.dist(gb(-Wk / 2 + 3, oo), p0) < math.dist(gb(Wk / 2 - 3, oo), p0) else gb(Wk / 2 - 3, oo)
-            PIPE([p0, p1], lay)
+            t0 = (p0[0] - kc[0]) * ku + (p0[1] - kc[1]) * kv
+            t0 = min(max(t0, -Wk / 2 + 3), Wk / 2 - 3)
+            p1 = gb(t0, oo)
+            # dik bağlantı: dolaptan duvara dik in, kollektör çubuğunda T ile birleş
+            dn_ = (p0[0] - p1[0]) * kn + (p0[1] - p1[1]) * km
+            mid_ = (p1[0] + kn * dn_, p1[1] + km * dn_)
+            PIPE([p0, mid_, p1] if math.dist(mid_, p0) > 0.5 else [p0, p1], lay)
         q = R['ofis'][(kat, k)]
         place_text(kc, [f"KL-{kat - 1}{k} KOLLEKTÖR", f"{nd} AĞIZLI  Q={q['Q']} W  DN25"], 5.5, KLT, rmax=80)
         place_text(c, [f"KM-{kat - 1}{k}", "KALORİMETRE"], 6.0, KAL, rmax=50)

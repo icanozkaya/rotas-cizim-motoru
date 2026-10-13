@@ -52,6 +52,7 @@ def runs(src, lines, targets, cap_fn):
         n = near(p); yuk[n] += w; cnt[n] += 1
     for n in reversed(list(nx.topological_sort(T))):
         for c in T.successors(n): yuk[n] += yuk[c]; cnt[n] += cnt[c]
+    T.remove_nodes_from([n for n in list(T.nodes) if cnt[n] == 0 and n != root])     # hedefsiz (boşta) uçları buda
     E = {}
     for a, b in T.edges:
         E[(a, b)] = dict(yuk=yuk[b], n=cnt[b], cap=cap_fn(yuk[b], cnt[b]))

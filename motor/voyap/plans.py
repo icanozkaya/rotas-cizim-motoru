@@ -2,7 +2,7 @@
 """Kat planları: sprinkler boruları + çaplar, kolonlar, kat kontrol istasyonu, yangın dolapları, pompa dairesi + depo (bodrum)."""
 import math, pickle, sys
 import numpy as np
-from shapely.geometry import LineString, Point, box as sbox
+from shapely.geometry import LineString, Point, Polygon, box as sbox
 from lib import *
 sys.path.insert(0, '/home/claude/nb/p2')
 from route import make_grid, K1L, K2L, SRC0, cap
@@ -16,6 +16,7 @@ YK1L = (K1L[0], K1L[1] - 25.0)           # dolap + itfaiye kolonu (3"), SP-1 yan
 DEPO = (248235.0, -451720.0, 248640.0, -450860.0)
 PLACED = []                              # yazı kutuları (çakışma önleme)
 ALL_LINES = {i: [] for i in range(4)}    # kolon kontrolü için tüm borular
+EKD = {i: [] for i in range(4)}          # ek dolaplar (şema için): (kod, 'Y-1'/'Y-2', açıklama)
 
 
 def W(i, p):
@@ -162,13 +163,18 @@ def kolon(i, p, lab, sub, up=True, down=False, bo=(-34.0, 2.0)):
     PLACED.append(sbox(min(bx[0], p[0]) - 60, min(bx[1], p[1]) - 25, max(bx[0], p[0]) + 60, max(bx[1], p[1]) + 18))
 
 
-def dolap(i, want, yk, no):
-    back, ang, front = snap_dolap(i, want)
+def dolap(i, want, yk, no, rota=False, maxd=90):
+    back, ang, front = snap_dolap(i, want, maxd)
     a = math.radians(ang)
     INS("ASL-YD-PLAN", (back[0] + math.cos(a + math.pi / 2) * 33, back[1] + math.sin(a + math.pi / 2) * 33), ang, 0.9, lay=DOL, mask=None)
     # bağlantı: kolondan dolap arka-orta noktasına (önce dik, sonra yatay)
     c = (back[0] + math.cos(a + math.pi / 2) * 6, back[1] + math.sin(a + math.pi / 2) * 6)
-    if abs(math.cos(a)) > 0.7:     # dolap yatay duvarda
+    if rota:                       # uzak dolap: dolap hattından güzergâh (kapılardan, diğer borulara binmeden)
+        try:
+            pts = router_line(i, yk, c, 'YD' + no)
+        except AssertionError:
+            pts = [yk, (c[0], yk[1]), c]
+    elif abs(math.cos(a)) > 0.7:     # dolap yatay duvarda
         pts = [yk, (c[0], yk[1]), c] if abs(yk[1] - c[1]) > 1 else [yk, c]
     else:
         pts = [yk, (yk[0], c[1]), c] if abs(yk[0] - c[0]) > 1 else [yk, c]
@@ -237,7 +243,28 @@ def floor(i):
         kk = {2: '1', 3: '2'}[i]
         d1 = dolap(i, (248380.0, -452060.0), yk1, kk + "1")
         d2 = dolap(i, (248610.0, -456300.0), yk2, kk + "2")
-    for d in (d1, d2):
+    ek = []
+    if i == 1:                      # zemin: her dükkân içinde 1 dolap (kullanıcı talimatı)
+        from veri import DUKKAN_S
+        for n_, (nm, dd) in enumerate(DUKKAN_S.items()):
+            (a0, b0) = dd['arka']
+            m_ = ((a0[0] + b0[0]) / 2, (a0[1] + b0[1]) / 2)
+            poly_ = Polygon(dd['poly'])
+            c_ = poly_.centroid
+            v = (c_.x - m_[0], c_.y - m_[1]); L_ = math.hypot(*v)
+            want = (m_[0] + v[0] / L_ * 40 - 4364.0, m_[1] + v[1] / L_ * 40 - 10312.0)
+            src = min((yk1, yk2), key=lambda q: math.dist(q, W(i, want)))
+            try:
+                ek.append(dolap(i, want, src, f"Z{n_ + 3}", rota=True, maxd=150))
+                EKD[i].append((f"Z{n_ + 3}", 'Y-1' if src == yk1 else 'Y-2', nm))
+            except AssertionError as ex:
+                print('  dükkân dolabı yok', nm, ex)
+    if i in (2, 3):                 # üst katlar: koridor ortasına 1 dolap daha
+        want = (248613.0, -454203.0)
+        src = min((yk1, yk2), key=lambda q: math.dist(q, W(i, want)))
+        ek.append(dolap(i, want, src, {2: '1', 3: '2'}[i] + "3", rota=True, maxd=150))
+        EKD[i].append(({2: '1', 3: '2'}[i] + "3", 'Y-1' if src == yk1 else 'Y-2', 'KORİDOR'))
+    for d in (d1, d2, *ek):
         label_run(d, 'DN50', 8, DOL)
     if i > 0:
         kat_kontrol(i, RT[i]['src'])
@@ -281,8 +308,8 @@ def pompa_dairesi():
     T(x0 + 60, -451630, "BOŞALTMA 2\" (pompa çukuruna)", 6, DEP, TA.BOTTOM_CENTER)
     # ---- pompalar (emiş depodan güneye, basma kollektöre)
     YC = -452050.0
-    pumps = [(248300.0, "E", "ELK. ANA POMPA", "Q=70 m³/h H=60 mSS 22 kW", 'DN150', 'DN100'),
-             (248420.0, "D", "DİZEL YEDEK POMPA", "Q=70 m³/h H=60 mSS 30 kW", 'DN150', 'DN100'),
+    pumps = [(248300.0, "E", "ELK. ANA POMPA", "Q=80 m³/h H=60 mSS 22 kW", 'DN150', 'DN100'),
+             (248420.0, "D", "DİZEL YEDEK POMPA", "Q=80 m³/h H=60 mSS 30 kW", 'DN150', 'DN100'),
              (248545.0, "J", "JOKEY POMPA", "Q=3 m³/h H=70 mSS 1,5 kW", 'DN40', 'DN25')]
     for x, tag, ad, ozl, de, db in pumps:
         big = tag != "J"; s = 1.0 if big else 0.6

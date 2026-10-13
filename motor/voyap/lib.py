@@ -43,7 +43,7 @@ def T(x, y, s, h=10.0, lay=YAZ, al=TA.BOTTOM_LEFT, rot=0.0, mask=False, w=0.8):
         a = math.radians(rot); ca, sa = math.cos(a), math.sin(a)
         pts = [(x0, y0), (x0 + tw, y0), (x0 + tw, y0 + th), (x0, y0 + th)]
         pts = [(x + px * ca - py * sa, y + px * sa + py * ca) for px, py in pts]
-        msp.add_wipeout(pts, dxfattribs={"layer": MSK})
+        if WIPE: msp.add_wipeout(pts, dxfattribs={"layer": MSK})
     t = msp.add_text(s, height=h, rotation=rot, dxfattribs={"layer": lay, "style": "ROTAS", "width": w})
     t.set_placement((x, y), align=al)
     return t
@@ -64,8 +64,11 @@ def C(c, r, lay):
     return msp.add_circle((c[0], c[1]), r, dxfattribs={"layer": lay})
 
 
+WIPE = False        # kullanıcı: 0 katmanında görünmeyen (wipeout) nesne istemiyor
+
+
 def MASK(pts):
-    msp.add_wipeout(pts, dxfattribs={"layer": MSK})
+    if WIPE: msp.add_wipeout(pts, dxfattribs={"layer": MSK})
 
 
 def MASKC(c, r):

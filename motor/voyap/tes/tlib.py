@@ -170,11 +170,11 @@ def MTYB(name, p, rot=0.0, s=1.0, lay="MTY-VANA", attrs=None, mask=None):
 NUM = {}
 
 
-def numara(p, rot, pre, s=0.6, h=5.0):
+def numara(p, rot, pre, s=0.6, h=4.0):
     """vana/cihaz numarası (gerçek gösterimli sembolün yanında): V-01, CV-01, PT-01, SY-01 ..."""
     NUM[pre] = NUM.get(pre, 0) + 1
     t = f"{pre}-{NUM[pre]:02d}"
-    a = math.radians(rot + 90); d = 9.0 * s / 0.6 + h * 0.6
+    a = math.radians(rot + (90 if NUM[pre] % 2 else -90)); d = 9.0 * s / 0.6 + h * 0.6     # komşu semboller: numara sırayla iki yana
     q = (p[0] + math.cos(a) * d, p[1] + math.sin(a) * d)
     T(q[0], q[1], t, h, "MTY-VANA", TA.MIDDLE_CENTER, rot if -90 < (rot % 360) < 90 or (rot % 360) > 270 else rot - 180, mask=True)
     return t

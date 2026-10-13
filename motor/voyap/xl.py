@@ -49,7 +49,7 @@ rows = [
  ('Dolap hattı kayıpları (2" 25 m + 2½" 30 m + vana)', 'Δp', round(dol['P'] - 4.0 - 11.3 / 10.2, 2), 'bar', 'Hazen-Williams C=120'),
  ('Dolap için pompa basıncı', 'Pd', '=(D15+D17)*10.2+D16', 'mSS', ''),
  ('Gerekli pompa basıncı', 'H', '=MAX(D14,D18)', 'mSS', ''),
- ('Seçilen pompa (elektrikli ana + dizel yedek)', 'Qp', 70, 'm³/h', 'H=60 mSS'),
+ ('Seçilen pompa (elektrikli ana + dizel yedek)', 'Qp', 80, 'm³/h', 'H=60 mSS'),
  ('Seçilen pompa basma yüksekliği', 'Hp', 60, 'mSS', ''),
  ('Kontrol: eğride Q=D9 için basınç ≥ D19', '', '=IF(AND(D21>=D19,D20*1.4>=D9),"UYGUN (eğriden teyit)","POMPA BÜYÜT")', '', '%140 debide ≥%70 basma'),
  ('Hidrolik güç', 'Ph', '=1000*9.81*D20/3600*D21/1000', 'kW', ''),
@@ -100,7 +100,7 @@ rr = grid(ws, 3, ['Çap', 'BODRUM', 'ZEMİN', '1. KAT', '2. KAT', 'TOPLAM m'], r
 rr += 1
 nU = sum(1 for i in (0, 1) for h in H[i] if h['t'] == 'U'); nP = sum(1 for i in (2, 3) for h in H[i]); nA = sum(1 for h in H[0] if h['t'] == 'ARA')
 items = [('Sprinkler upright K80 68°C', nU, 'adet'), ('Sprinkler pendant K80 68°C', nP, 'adet'), ('Ara seviye sprinkler (lift)', nA, 'adet'),
-         ('Yangın dolabı TS EN 671-1', 8, 'adet'), ('Islak alarm vanası DN100', 2, 'adet'), ('Kat kontrol istasyonu DN100', 3, 'takım'),
+         ('Yangın dolabı TS EN 671-1', 15, 'adet'), ('Islak alarm vanası DN100', 2, 'adet'), ('Kat kontrol istasyonu DN100', 3, 'takım'),
          ('İtfaiye bağlantısı 2x2½"', 1, 'adet'), ('Yangın pompa grubu (E+D+J)', 1, 'takım'), ('Yangın suyu deposu 80 m³', 1, 'adet'),
          ('Yedek sprinkler dolabı (6 adet başlık + anahtar)', 1, 'adet')]
 grid(ws, rr, ['MALZEME', 'MİKTAR', 'BİRİM'], items, (40, 12, 10))
