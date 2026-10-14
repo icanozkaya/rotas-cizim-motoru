@@ -1,8 +1,33 @@
-# Uçtan uca sıhhi tesisat denemesi — karşılaştırma (new_block.dxf) — R1 / R2 / R3
+# Uçtan uca sıhhi tesisat denemesi — karşılaştırma (new_block.dxf) — R1 / R2 / R3 / R4
 
 Tarih: 14.10.2026. R1: `proje/denemeler/uctan_uca/NB_SIHHI_DENEME.dxf`; **R2 (14.10.2026 kullanıcı kuralları):** `proje/denemeler/uctan_uca/NB_SIHHI_DENEME_R2.dxf` (`motor/deneme/uctan_uca/nb.py` + `r2.py`).
 Referans: kullanıcının aynı dosyadaki MTY çizimi (MTY-* katmanları). Kullanıcı çizimi tanımaya **girmedi**; yalnız burada okundu.
 Koordinatlar zemin kat mimari kaynak koordinatıdır (cm). Kullanıcının kolon konumu = "MTY-KOLON NO" bloğunun yerleştirme noktası (P1, P3, P4, P6, P8, P9 için kullanıcının pis su borusunun ucuyla 8 cm içinde çakışıyor; yani gerçek kolon yeri).
+
+## R4 — new_block sıhhi düzeltmeleri (`nb4.py` + `sema4.py` + `cikti4.py` + `etiket4.py`)
+
+Çıktı: `proje/denemeler/uctan_uca/NB_SIHHI_DENEME_R4.dxf` (AC1032). Özet: `ozet_r4.json`. Önizlemeyle (zemin planı, ıslak hacim yakın
+görünüşü, giriş holü, kolon şeması depo/sayaç bölgesi, lejant paftası) kontrol edildi.
+
+| İstek | R3 (önce) | R4 (sonra) |
+|---|---|---|
+| 1. Dar ıslak hacimde çap etiketi / aspiratör yazısı mahal adına / başka yazıya binmesin; çap etiket yüksekliği 10 | yazı-yazı çakışması **404** (mimari-mimari hariç; mahal adı dahil); çap etiketi 8 | **0** (`ykontrol4`, tüm DXF). Etiket yüksekliği **10**. 156 çap etiketi taşındı (87'si boru ekseni boyunca, gerisi boruya dik + kılavuz), 76 serbest yazı grubu (aspiratör, şaft adı, EK süzgeç, ADK/DBK) taşındı, 592 yerinde; yerleşemeyen 0 |
+| 2. Şebeke hattı bina girişinden ortak alandan, hol ORTASINDAN; daire içinden / salondan geçmesin | giriş holü ile salon arasındaki duvar dibi boyunca | giriş holünün orta kotundan (hol ortası y = −442157), DBK'ya A*; daire mahali içinde **0 cm**, duvara ortalama **48 cm** (uçlardaki 60 cm hariç; DBK duvar köşesinde olduğu için son parça duvara yakın). Boy 9,2 m, 6 nokta. Yasak bölge / daire içi ana hat ihlali 0 |
+| 3. Sayaç düzeni planla şema aynı; zeminde toplu sayaç kalmasın; şemada sayaç hatlarında kesişme 0 | planda daire kapısında sayaç, şemada zemin bandında 9'lu toplu sayaç grubu | şemada çatı deposu → çatı dağıtım hattı (kolon havalıklarının üstünden) → her daire konumu için ADK inişi → her katta vana + SAYAÇ + çek valf + giriş vanası (daire kapısında). Toplu sayaç grubu **yok**; bina girişinde yalnız şebeke ana sayacı (planda da öyle). Sayaç / ADK / dağıtım hattı (13 parça) kesişmesi **0** |
+| 4. SIHHİ DETAYLAR çerçevesi içerikten | sabit genişlik (R1'de 518 095 birimlik hata) | içerik kutusundan: **994** birim (x 28780–29774) |
+| 5. Pis su – temiz su planda üst üste görünme (köprü yok) | **176** nokta | **112** nokta (PIS-SO 52, PIS-SC 60); temiz su güzergâhında pis su hattının ±4 cm bandı ceza 30. Z kat D3'te cezalı güzergâh soğuk hat ötelemesini kendine kestirdiği için bu daire cezasız (R3) çizildi. Köprü 0 |
+| 6. Pafta sonu kendi sembollerimizle lejant + armatür / malzeme adet + boru metrajı; MTY 0 | ROTAS blok lejantı (blok adlarıyla) | "LEJANT, MALZEME / ARMATÜR ADET TABLOSU VE BORU METRAJI" paftası: 24 sembol satırı (kendi saf geometri bloklarımız, açıklamalar semboller2), PLAN ADET / ŞEMA ADET ayrı, 6 boru çizgi örneği; armatür / cihaz adet; vana / sayaç / süzgeç / fan adetleri; boru metrajı. Çerçeve içerikten. **MTY 0** |
+
+R3 kontrolleri (R4): temiz su kesişmesi 0 · pis su kesişmesi 0 · köprü/atlatma 0 · MTY 0 · yasak bölge 0 · kolon-şaft 0 · ıslak hacim başına
+süzgeç 27/27 = 1 · 45° dışı pis su parçası 0 · balkon-pis su teması 0 · boşta uç 0 · kolon çakışması 0 · AUDIT 0/0 · yazı-yazı çakışması 0.
+
+R4 sınırları / sorulacaklar:
+- Şemada her daire konumunun kendi ADK inişi var (plan: ADK-1 D1/D2 konumları, ADK-2 D3); iniş etiketleri planın ADK adıyla. Tek ADK'dan iki
+  konuma kat başında ayrılan yatay çizilirse pis su kolonlarını keserdi; bu yüzden şemada konum başına iniş. Onay gerekir.
+- Şemada daire içi dağıtım hattı (giriş vanasından armatürlere) kendi dairesinin pis su kolonunu düşeyde keser (şema geleneği, farklı düzlem);
+  sayaç hatlarında kesişme yok.
+- Etiketlerin bir kısmı (145) boru ekseninden dik kaydırıldı ve kılavuzla bağlandı (dar ıslak hacimlerde eksende yer yok).
+- Pis su – temiz su üst üste görünme 112'ye indi, 0 değil (armatür bağlantı noktalarında kaçınılmaz temaslar; köprü çizilmez).
 
 ## R3 — 14.10.2026 (B) revizyon talimatı (`nb3.py` + `r3.py` + `semb3.py` + `sema3.py` + `cikti3.py`)
 

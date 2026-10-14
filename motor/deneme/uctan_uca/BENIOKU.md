@@ -1,4 +1,29 @@
-# uctan_uca — new_block.dxf üzerinde uçtan uca sıhhi tesisat denemesi (14.10.2026, R3)
+# uctan_uca — new_block.dxf üzerinde uçtan uca sıhhi tesisat denemesi (14.10.2026, R4)
+
+## R4 — new_block sıhhi düzeltmeleri (`nb4.py`, `sema4.py`, `cikti4.py`, `etiket4.py`, `ykontrol4.py`)
+Çıktı: `proje/denemeler/uctan_uca/NB_SIHHI_DENEME_R4.dxf` (R1-R3 korunur). Karşılaştırma: `KARSILASTIRMA.md` "R4"; özet `ozet_r4.json`.
+```bash
+cd /tmp/claude-0/uu4 && python3 /home/claude/rotas-cizim-motoru/motor/deneme/uctan_uca/nb4.py   # ~5 dk (R3 + R4 yamaları)
+python3 /home/claude/rotas-cizim-motoru/motor/deneme/uctan_uca/cikti4.py    # yalnız son işlem (emit sonrası) tekrar
+python3 /home/claude/rotas-cizim-motoru/motor/deneme/uctan_uca/ykontrol4.py <dxf>   # yazı-yazı çakışması
+```
+- `nb4.py`: `nb3` (R3) aynen çalışır, değişenler yama: çap etiketi ölçeği 10 (`k_cap`); `r3.Alan` → `AlanR4` (temiz su maliyetine pis su
+  hattının ±4 cm bandı cezası `R4_PIS_CEZA`=30; ceza ile bir dairede kendini kesen öteleme / bağlanamayan armatür çıkarsa o daire cezasız
+  yeniden çizilir); `zemin_sebeke4`: şebeke bina girişinden giriş holü ORTASINDAN (cepheden 60-180 cm içeride ortogonal duvar ışınlarıyla
+  hol orta kotu) A* ile DBK'ya; daire mahalleri (salon / oda / antre-kor. / ıslak hacim / balkon) etiketten duvarlara dikdörtgenle kapalı
+  (oda tanımada salon giriş holüyle birleşiyordu), duvar delme pahalı (kapıdan geçer), bina dışı kapalı, giriş basamakları duvar sayılmaz.
+- `sema4.py` (sema3 kopyası): `sihhi_sema4` — çatı deposu → çatı dağıtım hattı (kolon havalıklarının üstünden) → her daire konumu için ADK
+  inişi → her katta T → vana + DAİRE SAYACI + çek valf + giriş vanası (planla aynı: sayaç daire kapısında). Zeminde toplu sayaç YOK; şebeke
+  ana (SASKİ) sayacı bina girişinde tek. `sayac_kesisme`: sayaç / ADK / dağıtım hatlarının diğer borularla kesişmesi (sonuç 0).
+  SIHHİ DETAYLAR çerçevesi `kayit_kutusu` ile içerikten.
+- `etiket4.py`: emit sonrası DXF'te yazı yerleşimi. Engel: bütün yazılar (mahal adı / alanı dahil) + plan sembolleri. Çap etiketi (öznitelikli
+  INSERT) önce boru ekseninde kaydırılır, olmazsa boruya dik + kılavuz; serbest yazılar (aspiratör, şaft adı, EK süzgeç, kombi, ADK/DBK) grup
+  halinde halka aramasıyla, maskesiyle birlikte taşınır, uzaklaşınca kılavuz çizgisi (`ROTAS-SEMBOL-KILAVUZ`).
+- `cikti4.py`: cikti3 akışı + `etiket4` + pafta sonu lejant (`lejant4`: kendi ROTAS saf geometri bloklarımız, açıklama semboller2,
+  PLAN ADET / ŞEMA ADET, boru çizgi örnekleri) + armatür adet + vana/sayaç/süzgeç/fan adet + boru metrajı; çerçeve içerikten.
+  pafta_bitir'e dokunulmadı (semboller v1/MTY bağımlılığı burada semboller2 ile çözüldü).
+R4 sonuç: yazı-yazı çakışması 0 (R3: 404), MTY 0, temiz su / pis su kesişmesi 0, köprü 0, yasak bölge 0, kolon-şaft 0, süzgeç 27/27, 45° dışı 0,
+şemada sayaç hattı kesişmesi 0, pis su–temiz su planda üst üste 176 → 112, AUDIT 0.
 
 ## R3 — 14.10.2026 (B) revizyon talimatı (`nb3.py`, `r3.py`, `semb3.py`, `sema3.py`, `cikti3.py`)
 Çıktı: `proje/denemeler/uctan_uca/NB_SIHHI_DENEME_R3.dxf` (R1/R2 korunur). Karşılaştırma: `KARSILASTIRMA.md` "R3" bölümü; özet `ozet_r3.json`.
