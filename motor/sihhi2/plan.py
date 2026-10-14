@@ -425,12 +425,17 @@ def yay_mesafesi(ring, s0, s1):
     return d, L - d
 
 
-def pah_45(pts, h=8.0):
+def pah_45(pts, h=None):
+    """köşelerde 45° pah; h verilmezse parça boyuna göre 8–20 cm (uzun kolda yol kısalır)"""
     out = [pts[0]]
     for a, b, c in zip(pts, pts[1:], pts[2:]):
         u1, u2 = birim(a, b), birim(b, c)
-        if abs(u1[0] * u2[0] + u1[1] * u2[1]) < 0.05 and dist(a, b) > h and dist(b, c) > h:
-            out += [(b[0] - u1[0] * h, b[1] - u1[1] * h), (b[0] + u2[0] * h, b[1] + u2[1] * h)]
+        if h is None:
+            h_ = max(8.0, min(20.0, dist(a, b) / 3.0, dist(b, c) / 3.0))
+        else:
+            h_ = h
+        if abs(u1[0] * u2[0] + u1[1] * u2[1]) < 0.05 and dist(a, b) > h_ and dist(b, c) > h_:
+            out += [(b[0] - u1[0] * h_, b[1] - u1[1] * h_), (b[0] + u2[0] * h_, b[1] + u2[1] * h_)]
         else:
             out.append(b)
     return temiz(out + [pts[-1]])
@@ -499,6 +504,10 @@ def pis_su_oda(K, oda, fx, kolon_onceki, yasak):
                         continue
                     s = (sb + yon * t) % L
                     adaylar.append((s, t))
+    # diğer katlardaki kolon noktaları (düşey süreklilik): halkaya izdüşümü ≤ 25 cm ise aday
+    for q in (kolon_onceki or []):
+        if poly.buffer(30).contains(Point(q)) and ring.distance(Point(q)) <= 25:
+            adaylar.append((ring.project(Point(q)), 0))
     kb = getattr(K, 'kb', None)
     if kb is not None:              # kontrolörün tanıdığı ıslak hacim köşelerine en yakın halka noktaları
         for r in kb['rooms']:
@@ -517,7 +526,7 @@ def pis_su_oda(K, oda, fx, kolon_onceki, yasak):
             continue
         if any(sf['poly'].buffer(6).contains(pt) for sf in K.saftlar):
             continue
-        if K.kapi_u.distance(pt) < 35:
+        if K.kapi_u.distance(pt) < 15:
             continue
         if yasak is not None and yasak.contains(pt):
             continue
@@ -535,7 +544,9 @@ def pis_su_oda(K, oda, fx, kolon_onceki, yasak):
             pu += 20 * (mx - 250)
         if any(sf['poly'].distance(pt) < 60 for sf in K.saftlar):
             pu -= 40
-        if kolon_onceki and any(dist(p, q) < 20 for q in kolon_onceki):
+        if K.kapi_u.distance(pt) < 35:
+            pu += 60
+        if kolon_onceki and any(dist(p, q) < 25 for q in kolon_onceki):
             pu -= 400
         out.append((pu, s, p))
     if not out:
@@ -547,6 +558,18 @@ def pis_su_oda(K, oda, fx, kolon_onceki, yasak):
             continue
         kollar, br = sonuc
         if pis_dogrula(K, oda, kollar, br, p0):
+            q = min(kolon_onceki, key=lambda q: dist(p0, q)) if kolon_onceki else None
+            if q is not None and 1.0 < dist(p0, q) < 25:      # alt/üst kattaki kolon ekseni: kol başına kısa dik ayak
+                u = birim(q, p0)
+                if abs(u[0]) < 0.02 or abs(u[1]) < 0.02:
+                    for yon in list(kollar):
+                        kollar[yon] = LineString([q] + list(kollar[yon].coords))
+                    for b in br:
+                        if b['kol'] is None:
+                            b['pts'] = temiz(b['pts'][:-1] + [p0, q]) if b['pts'] else [q]
+                        else:
+                            b['t'] += dist(p0, q)
+                    p0 = q
             return dict(kolon=p0, kollar=kollar, br=br, ring=ring, oda=oda, puan=pu)
     pu, s0, p0 = out[0]
     kollar, br = _pis_kur(ring, fx, s0, p0)
@@ -841,10 +864,20 @@ def temiz_su_daire(K, dno, fx, tohum):
     d = ndi.distance_transform_edt(izin_m) * g.res
     cost = np.full(izin_m.shape, np.inf)
     cost[izin_m] = 1.0 + 60.0 / (d[izin_m] + 3.0)
+    blk = [r for r in izin if r['tip'] == 'balkon']
+    if blk:            # kombi balkonda: hat balkonun ortasından değil, duvar dibinden kombiye (kullanıcı çizimi PNG 14)
+        bm = (g.doldur(unary_union([r['poly'] for r in blk])) > 0) & izin_m
+        cost[bm] = 1.0 + 0.3 * np.maximum(d[bm] - 10.0, 0.0)
     yakin = cv2.dilate(izin_m.astype(np.uint8), np.ones((17, 17), np.uint8)) > 0
     dm = duvar_m & yakin & ~izin_m
     cost[dm] = 25.0
     cost[yasak_m & ~izin_m] = np.inf
+    # aynı dairenin kuru mahalleri (oda/salon): yalnız gerekirse, duvar dibinden (ör. odadan girilen duş)
+    kuru = [r for r in yasak if r['daire'] == dno and r['tip'] not in ('ortak', 'balkon')]
+    if kuru:
+        km = (g.doldur(unary_union([r['poly'].buffer(-3) for r in kuru])) > 0) & ~izin_m
+        dk = ndi.distance_transform_edt(km) * g.res
+        cost[km] = 8.0 + 0.5 * np.maximum(dk[km] - 15.0, 0.0)
     cost[kapi_m] = np.inf
     # ---- giriş: hol mahallinin ortak alana bakan DOLU duvarında, daire no yazısına (kapı önü) en yakın nokta
     hol = [r for r in izin if r['tip'] == 'hol']
@@ -922,7 +955,8 @@ def temiz_su_daire(K, dno, fx, tohum):
         ce[yak] += 12.0
         anahtar, yol = dijkstra_agac(ce, agac, {k: v for k, v in kalan.items()})
         if anahtar is None:
-            log('  ! D%s: %d hedefe yol bulunamadı' % (dno, len(kalan)))
+            log('  ! D%s: %d hedefe yol bulunamadı: %s' % (dno, len(kalan), ', '.join(
+                '%s/%s@%.0f,%.0f' % (f['kind'], f['oda']['name'], f['c'][0], f['c'][1]) for f in kalan.values())))
             break
         hc = yol[0]
         hucre_f[hc] = kalan.pop(hc)
@@ -1327,7 +1361,7 @@ def kat_ciz(doc, eng, K, dur, onceki):
         x0, y0 = ps['kolon'][0] - off, ps['kolon'][1]
         no = None
         for kn, kv in dur.kolonlar.items():
-            if dist((x0, y0), (kv['x'], kv['y'])) < 20 and k not in kv['katlar']:
+            if dist((x0, y0), (kv['x'], kv['y'])) < 3 and k not in kv['katlar']:
                 no = kn
                 break
         if no is None:
@@ -1771,7 +1805,7 @@ def main(argv):
     Ks, katlar = [], {}
     dur = Durum()
     onceki = None
-    for k in KATLAR:
+    for k in ('Z', '2', '1'):          # 1. kat en son: alt ve üst katın kolon eksenlerine oturur
         t1 = time.time()
         K = M2.Kat(A, k)
         K.kb = M2.MB.kat_analiz(A, M2.pencere(k), k)
@@ -1779,6 +1813,7 @@ def main(argv):
         katlar[k] = kat_ciz(doc, eng, K, dur, onceki)
         onceki = [(kv['x'], kv['y']) for kv in dur.kolonlar.values()]
         Ks.append(K)
+    Ks.sort(key=lambda K: KATLAR.index(K.k))
     for K in Ks:
         kat_etiketle(doc, eng, K, katlar[K.k], dur)
     lejant(doc, dur)
