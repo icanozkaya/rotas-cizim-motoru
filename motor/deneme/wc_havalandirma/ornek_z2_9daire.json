@@ -1,0 +1,189 @@
+{
+ "proje": "ÖRNEK — Z+2, 9 daireli konut (kullanıcının new_block örnek izometrisindeki kurgu)",
+ "deneme": true,
+ "kaynak": "elle örnek (ORNEK_DUZEN.md son pafta: D3-5-8 240 m³/h, D1-2-4-6-7-9 480 m³/h)",
+ "katlar": [
+  {
+   "kod": "Z",
+   "ad": "ZEMİN KAT",
+   "kot": 0.0,
+   "h": 3.0
+  },
+  {
+   "kod": "1",
+   "ad": "1. KAT",
+   "kot": 3.0,
+   "h": 3.0
+  },
+  {
+   "kod": "2",
+   "ad": "2. KAT",
+   "kot": 6.0,
+   "h": 3.0
+  }
+ ],
+ "cati_kot": 9.0,
+ "cati_ustu": 1.0,
+ "kabul": {
+  "q_oda": 80,
+  "kademeler": [
+   80,
+   160
+  ],
+  "asp_basinc": 50,
+  "baglanti_cap": 150,
+  "oda_basina_aspirator": false
+ },
+ "saftlar": [
+  {
+   "ad": "Ş1",
+   "baglanti_yuk": 2.6
+  },
+  {
+   "ad": "Ş2",
+   "baglanti_yuk": 2.6
+  },
+  {
+   "ad": "Ş3",
+   "baglanti_yuk": 2.6
+  }
+ ],
+ "mahaller": [
+  {
+   "kat": "Z",
+   "daire": "D3",
+   "ad": "wc+banyo",
+   "tip": "BANYO",
+   "saft": "Ş1",
+   "brans_m": 1.2,
+   "alan_m2": 4.37
+  },
+  {
+   "kat": "Z",
+   "daire": "D2",
+   "ad": "banyo",
+   "tip": "BANYO",
+   "saft": "Ş2",
+   "brans_m": 1.4,
+   "alan_m2": 5.36
+  },
+  {
+   "kat": "Z",
+   "daire": "D2",
+   "ad": "wc-lvb.",
+   "tip": "WC",
+   "saft": "Ş2",
+   "brans_m": 1.0,
+   "alan_m2": 1.92
+  },
+  {
+   "kat": "Z",
+   "daire": "D1",
+   "ad": "banyo",
+   "tip": "BANYO",
+   "saft": "Ş3",
+   "brans_m": 1.4,
+   "alan_m2": 5.36
+  },
+  {
+   "kat": "Z",
+   "daire": "D1",
+   "ad": "wc-lvb.",
+   "tip": "WC",
+   "saft": "Ş3",
+   "brans_m": 1.0,
+   "alan_m2": 1.92
+  },
+  {
+   "kat": "1",
+   "daire": "D5",
+   "ad": "wc+banyo",
+   "tip": "BANYO",
+   "saft": "Ş1",
+   "brans_m": 1.2,
+   "alan_m2": 4.37
+  },
+  {
+   "kat": "1",
+   "daire": "D4",
+   "ad": "banyo",
+   "tip": "BANYO",
+   "saft": "Ş2",
+   "brans_m": 1.4,
+   "alan_m2": 5.36
+  },
+  {
+   "kat": "1",
+   "daire": "D4",
+   "ad": "wc-lvb.",
+   "tip": "WC",
+   "saft": "Ş2",
+   "brans_m": 1.0,
+   "alan_m2": 1.92
+  },
+  {
+   "kat": "1",
+   "daire": "D6",
+   "ad": "banyo",
+   "tip": "BANYO",
+   "saft": "Ş3",
+   "brans_m": 1.4,
+   "alan_m2": 5.36
+  },
+  {
+   "kat": "1",
+   "daire": "D6",
+   "ad": "wc-lvb.",
+   "tip": "WC",
+   "saft": "Ş3",
+   "brans_m": 1.0,
+   "alan_m2": 1.92
+  },
+  {
+   "kat": "2",
+   "daire": "D8",
+   "ad": "wc+banyo",
+   "tip": "BANYO",
+   "saft": "Ş1",
+   "brans_m": 1.2,
+   "alan_m2": 4.37
+  },
+  {
+   "kat": "2",
+   "daire": "D7",
+   "ad": "banyo",
+   "tip": "BANYO",
+   "saft": "Ş2",
+   "brans_m": 1.4,
+   "alan_m2": 5.36
+  },
+  {
+   "kat": "2",
+   "daire": "D7",
+   "ad": "wc-lvb.",
+   "tip": "WC",
+   "saft": "Ş2",
+   "brans_m": 1.0,
+   "alan_m2": 1.92
+  },
+  {
+   "kat": "2",
+   "daire": "D9",
+   "ad": "banyo",
+   "tip": "BANYO",
+   "saft": "Ş3",
+   "brans_m": 1.4,
+   "alan_m2": 5.36
+  },
+  {
+   "kat": "2",
+   "daire": "D9",
+   "ad": "wc-lvb.",
+   "tip": "WC",
+   "saft": "Ş3",
+   "brans_m": 1.0,
+   "alan_m2": 1.92
+  }
+ ],
+ "pencereli": []
+}
