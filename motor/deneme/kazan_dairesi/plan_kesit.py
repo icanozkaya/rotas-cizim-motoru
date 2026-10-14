@@ -861,7 +861,7 @@ def uret(P, cikti, numara='ONAYLI'):
     hy = hesap_kutusu(S, LX, ly - 60, QT, alan, gerek_kapi, len(kapilar), formul, S_A, S_U, oran, ba, ha, bu, hu,
                       Y_F - miny, d, Fk, ak)
     ty = min(gor_bb[1], hy) - 120
-    xe, ye = S.tablo(satir, minx - t - 190, ty, 'KAZAN DAİRESİ CİHAZ LİSTESİ (PRENSİP ŞEMASI İLE AYNI NUMARALAR)')
+    xe, ye = S.tablo(satir, minx - t - 190, ty, 'KAZAN DAİRESİ CİHAZ LİSTESİ')
     notlar = [
         'Kazan dairesi duvarları, döşemesi ve tavanı en az 120 dakika (EI 120) yangın dayanımlı olacaktır.',
         f'{"İki" if len(kapilar) > 1 else "Bir"} adet çelik kapı EI2 90-C, dışa açılır ve kendiliğinden kapanır '
@@ -871,7 +871,7 @@ def uret(P, cikti, numara='ONAYLI'):
         'Alt menfez döşemeden ≤ 45 cm, üst menfez tavandan ≤ 40 cm; menfezler birbirine kısa devre yapmayacaktır.',
         'Kazan önünde en az kazan boyu + 1,00 m serbest bakım alanı bırakılacaktır.',
         'Duvar ve döşeme boru geçişleri çelik kılıflı, yangın yalıtımlı (EI 120) yapılacaktır.',
-        'Numaralar prensip şeması ve cihaz listesi ile aynıdır; tüm vana/cihazlar şemada gösterilmiştir.',
+        'Numaralar plan, kesit ve cihaz listesinde aynıdır.',
         'Genleşme tankı ve denge kabı görünüşte gösterilmemiştir (plana bakınız).',
     ]
     if PL.get('temsili'):

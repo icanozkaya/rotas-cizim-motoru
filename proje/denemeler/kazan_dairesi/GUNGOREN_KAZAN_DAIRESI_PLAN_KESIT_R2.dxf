@@ -493,7 +493,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461328.7117592595
+2461328.7670833333
   9
 $TDUCREATE
  40
@@ -501,7 +501,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461328.7117708335
+2461328.7670949074
   9
 $TDUUPDATE
  40
@@ -933,11 +933,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{9A921716-6450-4513-956F-68E2E644C563}
+{7D4D44E7-9471-4439-8456-A72B30164DBC}
   9
 $VERSIONGUID
   2
-{0BC88CD8-7BBF-4FAE-9A01-E638A7EA99FA}
+{DCB4372B-FF82-478A-A7A5-02EDE350CF29}
   9
 $EXTNAMES
 290
@@ -1327,19 +1327,19 @@ ISM
   0
 CLASS
   1
-LAYOUT
+WIPEOUT
   2
-AcDbLayout
+AcDbWipeout
   3
-ObjectDBX Classes
+WipeOut
  90
-0
+127
  91
 0
 280
 0
 281
-0
+1
   0
 CLASS
   1
@@ -1359,27 +1359,27 @@ ObjectDBX Classes
   0
 CLASS
   1
-WIPEOUT
-  2
-AcDbWipeout
-  3
-WipeOut
- 90
-127
- 91
-0
-280
-0
-281
-1
-  0
-CLASS
-  1
 WIPEOUTVARIABLES
   2
 AcDbWipeoutVariables
   3
 WipeOut
+ 90
+0
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+LAYOUT
+  2
+AcDbLayout
+  3
+ObjectDBX Classes
  90
 0
  91
@@ -57659,7 +57659,7 @@ AcDbText
  40
 22.0
   1
-KAZAN DAİRESİ CİHAZ LİSTESİ (PRENSİP ŞEMASI İLE AYNI NUMARALAR)
+KAZAN DAİRESİ CİHAZ LİSTESİ
   7
 ROTAS
  72
@@ -61729,7 +61729,7 @@ AcDbText
  40
 11.0
   1
-9. Numaralar prensip şeması ve cihaz listesi ile aynıdır; tüm vana/cihazlar şemada gösterilmiştir.
+9. Numaralar plan, kesit ve cihaz listesinde aynıdır.
   7
 ROTAS
  41
@@ -62925,7 +62925,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-14T14:04:56.643484+00:00
+1.4.4 @ 2026-10-14T15:24:36.877380+00:00
   0
 VISUALSTYLE
   5
@@ -69529,7 +69529,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-14T14:04:57.207428+00:00
+1.4.4 @ 2026-10-14T15:24:37.394214+00:00
   0
 ENDSEC
   0
