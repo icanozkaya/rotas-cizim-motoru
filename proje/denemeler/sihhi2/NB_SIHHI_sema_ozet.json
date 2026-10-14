@@ -1,0 +1,496 @@
+{
+ "model": "/home/claude/rotas-cizim-motoru/proje/denemeler/sihhi2/sihhi_model.json",
+ "daireler": {
+  "D3": {
+   "kat": 0,
+   "soguk_mb": 11.5,
+   "sicak_mb": 7.5,
+   "cap": "1 1/4\"",
+   "gruplar": {
+    "P9": [
+     "LV",
+     "DUS",
+     "YS"
+    ],
+    "P8": [
+     "WC",
+     "LV",
+     "YS",
+     "CM",
+     "DUS"
+    ],
+    "P7": [
+     "EV",
+     "YS",
+     "BM"
+    ]
+   }
+  },
+  "D5": {
+   "kat": 1,
+   "soguk_mb": 11.5,
+   "sicak_mb": 7.5,
+   "cap": "1 1/4\"",
+   "gruplar": {
+    "P9": [
+     "LV",
+     "DUS",
+     "YS"
+    ],
+    "P8": [
+     "WC",
+     "LV",
+     "YS",
+     "CM",
+     "DUS"
+    ],
+    "P10": [
+     "EV",
+     "YS",
+     "BM"
+    ]
+   }
+  },
+  "D8": {
+   "kat": 2,
+   "soguk_mb": 11.5,
+   "sicak_mb": 7.5,
+   "cap": "1 1/4\"",
+   "gruplar": {
+    "P9": [
+     "LV",
+     "DUS",
+     "YS"
+    ],
+    "P8": [
+     "WC",
+     "LV",
+     "YS",
+     "CM",
+     "DUS"
+    ],
+    "P10": [
+     "EV",
+     "YS",
+     "BM"
+    ]
+   }
+  },
+  "D2": {
+   "kat": 0,
+   "soguk_mb": 9.5,
+   "sicak_mb": 5.0,
+   "cap": "1 1/4\"",
+   "gruplar": {
+    "P6": [
+     "WC",
+     "DUS",
+     "YS",
+     "LV",
+     "CM"
+    ],
+    "P5": [
+     "LV",
+     "YS",
+     "WC"
+    ],
+    "P4": [
+     "BM",
+     "EV",
+     "YS"
+    ]
+   }
+  },
+  "D4": {
+   "kat": 1,
+   "soguk_mb": 9.5,
+   "sicak_mb": 5.0,
+   "cap": "1 1/4\"",
+   "gruplar": {
+    "P6": [
+     "WC",
+     "DUS",
+     "YS",
+     "LV",
+     "CM"
+    ],
+    "P5": [
+     "LV",
+     "YS",
+     "WC"
+    ],
+    "P4": [
+     "BM",
+     "EV",
+     "YS"
+    ]
+   }
+  },
+  "D7": {
+   "kat": 2,
+   "soguk_mb": 9.5,
+   "sicak_mb": 5.0,
+   "cap": "1 1/4\"",
+   "gruplar": {
+    "P6": [
+     "WC",
+     "DUS",
+     "YS",
+     "LV",
+     "CM"
+    ],
+    "P5": [
+     "LV",
+     "YS",
+     "WC"
+    ],
+    "P4": [
+     "BM",
+     "EV",
+     "YS"
+    ]
+   }
+  },
+  "D1": {
+   "kat": 0,
+   "soguk_mb": 9.5,
+   "sicak_mb": 5.0,
+   "cap": "1 1/4\"",
+   "gruplar": {
+    "P3": [
+     "LV",
+     "CM",
+     "WC",
+     "DUS",
+     "YS"
+    ],
+    "P2": [
+     "WC",
+     "LV",
+     "YS"
+    ],
+    "P1": [
+     "BM",
+     "EV",
+     "YS"
+    ]
+   }
+  },
+  "D6": {
+   "kat": 1,
+   "soguk_mb": 12.0,
+   "sicak_mb": 7.5,
+   "cap": "1 1/4\"",
+   "gruplar": {
+    "P11": [
+     "WC",
+     "YS",
+     "LV",
+     "DUS"
+    ],
+    "P12": [
+     "LV",
+     "CM",
+     "WC",
+     "DUS",
+     "YS"
+    ],
+    "P1": [
+     "BM",
+     "EV",
+     "YS"
+    ]
+   }
+  },
+  "D9": {
+   "kat": 2,
+   "soguk_mb": 9.5,
+   "sicak_mb": 5.0,
+   "cap": "1 1/4\"",
+   "gruplar": {
+    "P3": [
+     "LV",
+     "CM",
+     "WC",
+     "DUS",
+     "YS"
+    ],
+    "P2": [
+     "WC",
+     "LV",
+     "YS"
+    ],
+    "P1": [
+     "BM",
+     "EV",
+     "YS"
+    ]
+   }
+  }
+ },
+ "kolonlar": {
+  "P9": {
+   "x_sema": 261570.0,
+   "sb_kat": [
+    11,
+    11,
+    11
+   ],
+   "sb_toplam": 33,
+   "cap": "Ø100"
+  },
+  "P8": {
+   "x_sema": 262159.0,
+   "sb_kat": [
+    25,
+    25,
+    25
+   ],
+   "sb_toplam": 75,
+   "cap": "Ø100"
+  },
+  "P10": {
+   "x_sema": 263008.0,
+   "sb_kat": [
+    0,
+    10,
+    10
+   ],
+   "sb_toplam": 20,
+   "cap": "Ø100"
+  },
+  "P7": {
+   "x_sema": 263597.0,
+   "sb_kat": [
+    10,
+    0,
+    0
+   ],
+   "sb_toplam": 10,
+   "cap": "Ø70"
+  },
+  "P6": {
+   "x_sema": 264454.0,
+   "sb_kat": [
+    25,
+    25,
+    25
+   ],
+   "sb_toplam": 75,
+   "cap": "Ø100"
+  },
+  "P5": {
+   "x_sema": 265303.0,
+   "sb_kat": [
+    14,
+    14,
+    14
+   ],
+   "sb_toplam": 42,
+   "cap": "Ø100"
+  },
+  "P4": {
+   "x_sema": 265892.0,
+   "sb_kat": [
+    10,
+    10,
+    10
+   ],
+   "sb_toplam": 30,
+   "cap": "Ø100"
+  },
+  "P3": {
+   "x_sema": 266749.0,
+   "sb_kat": [
+    25,
+    0,
+    25
+   ],
+   "sb_toplam": 50,
+   "cap": "Ø100"
+  },
+  "P11": {
+   "x_sema": 267598.0,
+   "sb_kat": [
+    0,
+    21,
+    0
+   ],
+   "sb_toplam": 21,
+   "cap": "Ø100"
+  },
+  "P12": {
+   "x_sema": 268317.0,
+   "sb_kat": [
+    0,
+    25,
+    0
+   ],
+   "sb_toplam": 25,
+   "cap": "Ø100"
+  },
+  "P2": {
+   "x_sema": 269166.0,
+   "sb_kat": [
+    14,
+    0,
+    14
+   ],
+   "sb_toplam": 28,
+   "cap": "Ø100"
+  },
+  "P1": {
+   "x_sema": 269755.0,
+   "sb_kat": [
+    10,
+    10,
+    10
+   ],
+   "sb_toplam": 30,
+   "cap": "Ø100"
+  }
+ },
+ "yiginlar": [
+  {
+   "daireler": {
+    "0": "D3",
+    "1": "D5",
+    "2": "D8"
+   },
+   "kolonlar": [
+    "P9",
+    "P8",
+    "P10",
+    "P7"
+   ],
+   "dikme_x": 261532.0,
+   "kombi_x": 264141.0
+  },
+  {
+   "daireler": {
+    "0": "D2",
+    "1": "D4",
+    "2": "D7"
+   },
+   "kolonlar": [
+    "P6",
+    "P5",
+    "P4"
+   ],
+   "dikme_x": 264416.0,
+   "kombi_x": 266436.0
+  },
+  {
+   "daireler": {
+    "0": "D1",
+    "1": "D6",
+    "2": "D9"
+   },
+   "kolonlar": [
+    "P3",
+    "P11",
+    "P12",
+    "P2",
+    "P1"
+   ],
+   "dikme_x": 266711.0,
+   "kombi_x": 270299.0
+  }
+ ],
+ "rogarlar": [
+  {
+   "no": "R1",
+   "x": 254492.0,
+   "y": -441816.0,
+   "kolonlar": [
+    "P7",
+    "P9",
+    "P10"
+   ],
+   "cap_giris": "Ø125",
+   "cap_cikis": "Ø150",
+   "egim": "%1",
+   "olcu_1": "70x70",
+   "olcu_2": "h:-70cm",
+   "sb": 63,
+   "sb_kumulatif": 63
+  },
+  {
+   "no": "R2",
+   "x": 254492.0,
+   "y": -442404.0,
+   "kolonlar": [
+    "P3",
+    "P6",
+    "P8",
+    "P11",
+    "P12"
+   ],
+   "cap_giris": "Ø125",
+   "cap_cikis": "Ø150",
+   "egim": "%1",
+   "olcu_1": "70x70",
+   "olcu_2": "h:-70cm",
+   "sb": 246,
+   "sb_kumulatif": 309
+  },
+  {
+   "no": "R3",
+   "x": 254492.0,
+   "y": -442806.0,
+   "kolonlar": [
+    "P2",
+    "P5"
+   ],
+   "cap_giris": "Ø125",
+   "cap_cikis": "Ø150",
+   "egim": "%1",
+   "olcu_1": "70x70",
+   "olcu_2": "h:-70cm",
+   "sb": 70,
+   "sb_kumulatif": 379
+  },
+  {
+   "no": "R4",
+   "x": 254492.0,
+   "y": -443204.0,
+   "kolonlar": [
+    "P1",
+    "P4"
+   ],
+   "cap_giris": "Ø125",
+   "cap_cikis": "Ø150",
+   "egim": "%1",
+   "olcu_1": "70x70",
+   "olcu_2": "h:-70cm",
+   "sb": 60,
+   "sb_kumulatif": 439
+  },
+  {
+   "no": "PB",
+   "x": 254998.0,
+   "y": -443204.0,
+   "kolonlar": [],
+   "cap_giris": "Ø150",
+   "cap_cikis": "Ø150",
+   "egim": "%1",
+   "olcu_1": "80x80",
+   "olcu_2": "h:-80cm",
+   "sb": 0,
+   "sb_kumulatif": 439
+  }
+ ],
+ "pafta": [
+  260714.0,
+  -444050.0,
+  271120.0,
+  -441150.0
+ ],
+ "sema_genislik": 9614.0,
+ "temel": {
+  "cati_alani_m2": 353.5,
+  "cephe_x": 254382.0,
+  "rogar_x": 254492.0,
+  "dxf": "/home/claude/rotas-cizim-motoru/proje/denemeler/sihhi2/NB_SIHHI_TEMEL.dxf"
+ }
+}
