@@ -184,7 +184,7 @@ def ciz(g, yol):
     if g.get('deneme', True):
         c.T(XL - 25, ty, 'DENEME — değerler örnek/test girdisidir: ' + g.get('kaynak', ''), th * 1.1, 'BL', lay=NT, mask=False)
     yb2 = -ts - 100
-    c.tablo(XL - 25, yb2, 'HİDROFOR GRUBU CİHAZ LİSTESİ', liste)
+    yend = c.tablo(XL - 25, yb2, 'HİDROFOR GRUBU CİHAZ LİSTESİ', liste)
     notlar = [
         f'1. Hidrofor seti {n} pompalı ({n - P.get("yedek", 1)} asıl + {P.get("yedek", 1)} yedek) olup set debisi Q={tr(Q, 2)} m³/h, basma yüksekliği H={tr(P["H"], 0)} mSS seçilmiştir.',
         f'2. Emiş kollektörü DN{dn_s} (v={tr(hiz(Q, dn_s))} m/s), basma kollektörü DN{dn_b} (v={tr(hiz(Q, dn_b))} m/s) yapılacaktır.',
@@ -194,6 +194,7 @@ def ciz(g, yol):
         '6. Basınç şalteri ayar değerleri öneridir; en elverişsiz musluk basıncına göre devreye almada kesinleştirilecektir.',
         '7. Vana ve armatür sembolleri saf geometri ROTAS-SMB bloklarıdır; çaplar boru üzerindeki DN etiketlerindedir. Elektrik bağlantıları gösterilmez.',
     ]
-    c.notlar(XL - 25 + th * 101 + th * 6, yb2, 'NOTLAR', notlar, th * 70)
+    ynot = c.notlar(XL - 25 + th * 101 + th * 6, yb2, 'NOTLAR', notlar, th * 70)
+    c.lejant(XL - 25, min(yend, ynot) - th * 8)      # R2b: kullanılan sembollerin lejantı + adet
     nuy = c.kaydet(yol)
     return c, nuy, dict(dn_s=dn_s, dn_p=dn_p, dn_b=dn_b, ny=ny, q1=q1)

@@ -36,7 +36,8 @@ def fmt(v, n=2):
 
 
 def tw(s, h):
-    return len(s) * h * 0.62 * WF + h * 0.4
+    # R2b: denetim aracının yazı kutusu tahmini (0,8·h·karakter·WF) + pay
+    return len(s) * h * 0.8 * WF + h * 0.4
 
 
 def th(h):
@@ -197,11 +198,16 @@ def ciz(D, P, k, hes, net, sonuc, hd, liste, cikti, pompa_girdi=None):
     x_bas = -560.0
     # ---------------------------------------------------------------- kat bantları + kotlar
     tepe = katlar[-1]['kot_m'] * 100.0 + 350.0
-    seviyeler = [(pk['ad'] + (' - aynı kot, şematik' if ayni else ''), pk['kot_m'], yP)] + \
-        [(q['ad'], q['kot_m'], q['kot_m'] * 100.0) for q in katlar]
-    for ad, kot, y in seviyeler:
+    # R2b: aynı kotta şematik pompa dairesi bandının adı çizginin ALTINA, kot yazısının yanına (depo çizgisine binmez)
+    seviyeler = [(pk['ad'][:-1] + ', aynı kot)' if ayni and pk['ad'].endswith(')') else
+                  pk['ad'] + (' - aynı kot' if ayni else ''), pk['kot_m'], yP, ayni)] + \
+        [(q['ad'], q['kot_m'], q['kot_m'] * 100.0, False) for q in katlar]
+    for ad, kot, y, alta in seviyeler:
         S.PL([(x_bas, y), (x_son, y)], 'ROTAS-YANGIN-SEMA-KAT', w=1.5)
-        S.T(x_bas + 5, y + 18, ad, 13, 'ROTAS-YANGIN-SEMA-KOT', al='ML')
+        if alta:
+            S.T(x_bas + 70, y - 16, ad, 13, 'ROTAS-YANGIN-SEMA-KOT', al='ML')
+        else:
+            S.T(x_bas + 5, y + 18, ad, 13, 'ROTAS-YANGIN-SEMA-KOT', al='ML')
         s_ = '±0,00' if abs(kot) < 1e-6 else (f'+{fmt(kot)}' if kot > 0 else f'-{fmt(-kot)}')
         S.T(x_bas + 5, y - 16, s_, 11, 'ROTAS-YANGIN-SEMA-KOT', al='ML')
     S.PL([(x_bas, tepe), (x_son, tepe)], 'ROTAS-YANGIN-SEMA-KAT')
@@ -230,7 +236,7 @@ def ciz(D, P, k, hes, net, sonuc, hd, liste, cikti, pompa_girdi=None):
         S.cap((a, y_kol), (b, y_kol), f'DN{bdn}', yan=-1, f=0.5 if b - a > 300 else 0.45)
     N = {a: pompa_no(liste, a) for a in ISIM}
     S.balon((dx0 + 40, yP + 300), N['depo'], (dx0 + 40, yP + 260))
-    S.balon(((dx1 + pg_sol) / 2 - 30, y_em - 45), N['emk'], ((dx1 + pg_sol) / 2 - 30, y_em))
+    S.balon(((dx1 + pg_sol) / 2 - 30, y_em + 45), N['emk'], ((dx1 + pg_sol) / 2 - 30, y_em))   # R2b: kat yazısından uzak, boru üstünde
     S.balon((x_pg - 42, yP - 40), N['pe'], (x_pg - 42, y_pg - 13))
     S.balon((x_pg + 5, yP - 40), N['pd'], (x_pg, y_pg - 13))
     S.balon((x_pg + 52, yP - 40), N['pj'], (x_pg + 42, y_pg - 9))
@@ -406,12 +412,14 @@ def ciz(D, P, k, hes, net, sonuc, hd, liste, cikti, pompa_girdi=None):
         notlar.append(f"Alt katlarda dolap girişinde basınç {fmt(hd['p_alt'], 1)} bar > 9 bar: dolap girişlerine basınç düşürücü konacaktır.")
     if P.get('deneme'):
         notlar.append('DENEME: değerler örnektir, uygulamada kullanılmayacaktır.')
+    y_not = min(y1, y3)          # R2b: notlar her iki tablo sütununun altından başlar (POMPA SEÇİMİ tablosuna binmez)
     S.msp.add_text('NOTLAR :', height=14, dxfattribs={'layer': 'ROTAS-YANGIN-NOT', 'style': 'ROTAS', 'width': WF}) \
-        .set_placement((x_bas, y1 - 60), align=TA.BOTTOM_LEFT)
+        .set_placement((x_bas, y_not - 60), align=TA.BOTTOM_LEFT)
     for i, s_ in enumerate(notlar):
         S.msp.add_text(f'{i + 1}. {s_}', height=10, dxfattribs={'layer': 'ROTAS-YANGIN-NOT', 'style': 'ROTAS', 'width': WF}) \
-            .set_placement((x_bas, y1 - 85 - i * 22), align=TA.BOTTOM_LEFT)
-    _, sayim = SB.lejant(S.doc, x_son + 150, tepe)
+            .set_placement((x_bas, y_not - 85 - i * 22), align=TA.BOTTOM_LEFT)
+    # R2b: pafta sonu LEJANT + ADET tablosu (yalnız çizimde kullanılan ROTAS-SMB sembolleri, INSERT sayımından)
+    _, sayim = SB.lejant(S.doc, x_son + 150, tepe, baslik='LEJANT VE ADET TABLOSU - YANGIN TESİSATI SEMBOLLERİ')
     S.kademe = dict(zincir=[('kollektör', zdn['kollektor']), ('SP-1 kolonu', zdn['kolon']), ('zon hattı', zdn['zon']),
                             ('kat ağı kökü', max(kok_dn, zdn['kok']))],
                     ag=kademe.kontrol_ag(net, zdn['zon']))

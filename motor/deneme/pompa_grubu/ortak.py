@@ -457,9 +457,17 @@ class Cizim:
                     break
         return n
 
+    def lejant(self, x, y, baslik='LEJANT VE ADET TABLOSU - KULLANILAN SEMBOLLER'):
+        """R2b: pafta sonu lejant + adet tablosu (x, y = tablonun sol üstü). Yalnız çizimde kullanılan ROTAS-SMB
+        sembolleri; adet INSERT sayımından (rotas_sembol.lejant). Kaydet sırasında, bloklar yazıldıktan sonra çizilir."""
+        self.LEJ = (x, y, baslik)
+
     def kaydet(self, yol):
         self._write_geom()
         self._write_ins()
+        if getattr(self, 'LEJ', None):
+            x, y, b = self.LEJ
+            _, self.lejant_sayim = RS.lejant(self.doc, x, y, haric=(), baslik=b, h=self.th, katman='ROTAS-LEJANT')
         self._write_text()
         n = self.denetle()
         os.makedirs(os.path.dirname(yol), exist_ok=True)

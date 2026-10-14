@@ -337,9 +337,10 @@ def ciz(g, yol):
         '8. Basınç şalteri ayar değerleri öneridir; devreye alma sırasında sistem eğrisine göre kesinleştirilecektir.',
         '9a. İtfaiye bağlantısı: 2 x DN65 storz (cephe, kör kapaklı) -> DN100 itfaiye kollektörü -> çek valf -> izlenebilir kelebek vana -> pompa çek valflerinden sonraki tesisat ana hattı; akış dışarıdan tesisata doğrudur, kollektör altında otomatik boşaltma vardır (BYKHY Md. 97).' if itf else '',
         '9. Dizel egzozu yalıtımlı ve susturuculu olarak dış atmosfere verilecek, pompa dairesi en az +10 °C\'de tutulacak, yanma havası menfezi yapılacaktır.',
-        '10. Vana ve armatür sembolleri saf geometri ROTAS-SMB bloklarıdır; çaplar boru üzerindeki DN etiketlerindedir. Elektrik kablo/sinyal hatları bu kesitte gösterilmez (elektrik projesi).',
+        '10. Vana ve armatür sembolleri saf geometri ROTAS-SMB bloklarıdır; çaplar boru üzerindeki DN etiketlerindedir.',
     ]
     notlar = [n_ for n_ in notlar if n_]
-    c.notlar(-WS + sum([th * 4, th * 30, th * 5, th * 62]) + th * 6, yb, 'NOTLAR', notlar, th * 75)
+    ynot = c.notlar(-WS + sum([th * 4, th * 30, th * 5, th * 62]) + th * 6, yb, 'NOTLAR', notlar, th * 75)
+    c.lejant(-WS, min(yend, ynot) - th * 8)          # R2b: kullanılan sembollerin lejantı + adet
     n = c.kaydet(yol)
     return c, n, dict(itf_hedef=itf_hedef if g.get('itfaiye') else None, dn_se=dn_se, dn_be=dn_be, dn_kb=dn_kb, dn_t=dn_t, dn_js=dn_js, dn_jb=dn_jb, derinlik=derinlik, h_min=h_min)

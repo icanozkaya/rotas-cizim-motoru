@@ -493,7 +493,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461328.7121527777
+2461328.7418981483
   9
 $TDUCREATE
  40
@@ -501,7 +501,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461328.7121759257
+2461328.7419328704
   9
 $TDUUPDATE
  40
@@ -933,11 +933,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{D133FB1C-27F3-4783-975A-8ED37345D3DF}
+{8F7227F2-980C-4A3A-86AD-B74F6CAB1EB4}
   9
 $VERSIONGUID
   2
-{BA6EEDFF-77A0-45C7-8F4B-F2C6E21E5D85}
+{BDB263D7-D294-4BF8-A4D7-3DB190F9B5A2}
   9
 $EXTNAMES
 290
@@ -1327,9 +1327,41 @@ ISM
   0
 CLASS
   1
+WIPEOUTVARIABLES
+  2
+AcDbWipeoutVariables
+  3
+WipeOut
+ 90
+0
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
 SORTENTSTABLE
   2
 AcDbSortentsTable
+  3
+ObjectDBX Classes
+ 90
+0
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+LAYOUT
+  2
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -1359,22 +1391,6 @@ ObjectDBX Classes
   0
 CLASS
   1
-WIPEOUTVARIABLES
-  2
-AcDbWipeoutVariables
-  3
-WipeOut
- 90
-0
- 91
-0
-280
-0
-281
-0
-  0
-CLASS
-  1
 WIPEOUT
   2
 AcDbWipeout
@@ -1388,22 +1404,6 @@ WipeOut
 0
 281
 1
-  0
-CLASS
-  1
-LAYOUT
-  2
-AcDbLayout
-  3
-ObjectDBX Classes
- 90
-0
- 91
-0
-280
-0
-281
-0
   0
 ENDSEC
   0
@@ -174687,7 +174687,7 @@ AcDbText
  40
 10.0
   1
-3  Kalorimetre (ısı pay ölçer): ultrasonik debi ölçer DÖNÜŞTE + gidiş/dönüş Pt1000 sıcaklık sensörü (okuma kablosu elektrik projesinde)
+3  Kalorimetre (ısı pay ölçer): ultrasonik debi ölçer DÖNÜŞTE + gidiş/dönüş Pt1000 sıcaklık sensörü
   7
 ROTAS
  41
@@ -213417,7 +213417,7 @@ AcDbText
  40
 12.0
   1
-PANEL RADYATÖR + TERMOSTATİK VANA + DÖNÜŞ RAKORU (PLAN)
+RADYATÖR + TERMOSTATİK VANA + RAKOR (PLAN)
   7
 ROTAS
  41
@@ -214193,7 +214193,7 @@ AcDbText
  40
 12.0
   1
-PANEL RADYATÖR + TERMOSTATİK VANA + DÖNÜŞ RAKORU (ŞEMA)
+RADYATÖR + TERMOSTATİK VANA + RAKOR (ŞEMA)
   7
 ROTAS
  41
@@ -254153,7 +254153,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-14T14:05:30.827218+00:00
+1.4.4 @ 2026-10-14T14:48:20.845114+00:00
   0
 VISUALSTYLE
   5
@@ -261799,7 +261799,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-14T14:05:32.817639+00:00
+1.4.4 @ 2026-10-14T14:48:23.021422+00:00
   0
 ENDSEC
   0

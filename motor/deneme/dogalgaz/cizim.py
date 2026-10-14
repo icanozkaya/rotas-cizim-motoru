@@ -422,7 +422,7 @@ class Cizim:
                 lay = TAB
                 if renkli and renkli(r_i, j, v):
                     lay = UYA
-                if j == 1 and isinstance(v, str) and tw(v, h) > g - 6:
+                if j == 1 and isinstance(v, str) and max(tw(v, h), len(v) * 0.8 * h) > g - 6:   # 0,8·h: denetim tahmini (emniyetli)
                     self.yazi(v, (x + 3, y - rh / 2), h * 0.85, lay, align='MIDDLE_LEFT')
                 elif j <= 1:
                     self.yazi(str(v), (x + 3, y - rh / 2), h, lay, align='MIDDLE_LEFT')

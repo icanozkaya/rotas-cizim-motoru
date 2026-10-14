@@ -493,7 +493,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461328.7115625
+2461328.745266204
   9
 $TDUCREATE
  40
@@ -501,7 +501,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461328.7115625
+2461328.745266204
   9
 $TDUUPDATE
  40
@@ -553,7 +553,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-4A3
+548
   9
 $SURFTAB1
  70
@@ -933,11 +933,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{7F7EAFB3-3551-4C09-B772-AD9550098DA2}
+{1A9FB0E2-8D7B-4B7C-96F1-039BAF3B2A02}
   9
 $VERSIONGUID
   2
-{1AED4871-0EDE-44CB-BD6C-B988E003E9DC}
+{5C998724-55F6-418C-AB82-E2E27BB2FF80}
   9
 $EXTNAMES
 290
@@ -1327,11 +1327,11 @@ ISM
   0
 CLASS
   1
-LAYOUT
+WIPEOUTVARIABLES
   2
-AcDbLayout
+AcDbWipeoutVariables
   3
-ObjectDBX Classes
+WipeOut
  90
 0
  91
@@ -1359,11 +1359,11 @@ WipeOut
   0
 CLASS
   1
-WIPEOUTVARIABLES
+ACDBPLACEHOLDER
   2
-AcDbWipeoutVariables
+AcDbPlaceHolder
   3
-WipeOut
+ObjectDBX Classes
  90
 0
  91
@@ -1375,9 +1375,9 @@ WipeOut
   0
 CLASS
   1
-ACDBPLACEHOLDER
+LAYOUT
   2
-AcDbPlaceHolder
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -2269,7 +2269,7 @@ LAYER
 100
 AcDbSymbolTable
  70
-26
+28
   0
 LAYER
   5
@@ -2888,6 +2888,54 @@ ROTAS-HESAP-BASLIK
 0
  62
 2
+  6
+Continuous
+370
+-3
+390
+13
+347
+21
+  0
+LAYER
+  5
+49F
+330
+1
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+ROTAS-LEJANT
+ 70
+0
+ 62
+7
+  6
+Continuous
+370
+-3
+390
+13
+347
+21
+  0
+LAYER
+  5
+4A0
+330
+1
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+ROTAS-LEJANT-YAZI
+ 70
+0
+ 62
+7
   6
 Continuous
 370
@@ -3739,7 +3787,7 @@ ROTAS
   0
 APPID
   5
-4A0
+545
 330
 3
 100
@@ -3753,7 +3801,7 @@ HATCHBACKGROUNDCOLOR
   0
 APPID
   5
-4A1
+546
 330
 3
 100
@@ -39421,9 +39469,4259 @@ AcDbText
  73
 1
   0
+TEXT
+  5
+4A1
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+890.0
+ 20
+-766.0
+ 30
+0.0
+ 40
+16.0
+  1
+LEJANT VE ADET TABLOSU (KULLANILAN SEMBOLLER)
+  7
+ROTAS
+ 41
+0.85
+ 11
+890.0
+ 21
+-766.0
+ 31
+0.0
+100
+AcDbText
+ 73
+1
+  0
+LINE
+  5
+4A2
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-780.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-780.0
+ 31
+0.0
+  0
+TEXT
+  5
+4A3
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+975.0
+ 20
+-797.0
+ 30
+0.0
+ 40
+12.0
+  1
+SEMBOL
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+975.0
+ 21
+-797.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4A4
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1295.0
+ 20
+-797.0
+ 30
+0.0
+ 40
+12.0
+  1
+AÇIKLAMA
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1295.0
+ 21
+-797.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4A5
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-797.0
+ 30
+0.0
+ 40
+12.0
+  1
+ADET
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-797.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4A6
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-814.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-814.0
+ 31
+0.0
+  0
+INSERT
+  5
+4A7
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-KAZAN-DUVAR
+ 10
+963.1
+ 20
+-851.64
+ 30
+0.0
+ 41
+0.17
+ 42
+0.17
+  0
+TEXT
+  5
+4A9
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-836.0
+ 30
+0.0
+ 40
+11.0
+  1
+KAZAN (DUVAR TİPİ, YOĞUŞMALI)
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-836.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4AA
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-836.0
+ 30
+0.0
+ 40
+11.0
+  1
+2
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-836.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4AB
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-858.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-858.0
+ 31
+0.0
+  0
+INSERT
+  5
+4AC
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-POMPA
+ 10
+975.0
+ 20
+-880.0
+ 30
+0.0
+ 41
+1.3654618473895583
+ 42
+1.3654618473895583
+  0
+TEXT
+  5
+4AE
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-880.0
+ 30
+0.0
+ 40
+11.0
+  1
+SİRKÜLASYON POMPASI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-880.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4AF
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-880.0
+ 30
+0.0
+ 40
+11.0
+  1
+6
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-880.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4B0
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-902.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-902.0
+ 31
+0.0
+  0
+INSERT
+  5
+4B1
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-DENGE-KABI
+ 10
+969.1497975708502
+ 20
+-913.331983805668
+ 30
+0.0
+ 41
+0.13765182186234817
+ 42
+0.13765182186234817
+  0
+TEXT
+  5
+4B3
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-924.0
+ 30
+0.0
+ 40
+11.0
+  1
+DENGE KABI (HİDROLİK AYIRICI)
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-924.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4B4
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-924.0
+ 30
+0.0
+ 40
+11.0
+  1
+1
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-924.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4B5
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-946.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-946.0
+ 31
+0.0
+  0
+INSERT
+  5
+4B6
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-HAVA-AYIRICI
+ 10
+956.5217391304348
+ 20
+-973.9130434782609
+ 30
+0.0
+ 41
+0.7391304347826086
+ 42
+0.7391304347826086
+  0
+TEXT
+  5
+4B8
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-968.0
+ 30
+0.0
+ 40
+11.0
+  1
+MİKRO KABARCIK HAVA AYIRICI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-968.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4B9
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-968.0
+ 30
+0.0
+ 40
+11.0
+  1
+1
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-968.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4BA
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-990.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-990.0
+ 31
+0.0
+  0
+INSERT
+  5
+4BB
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-TORTU-AYIRICI
+ 10
+961.71875
+ 20
+-1001.375
+ 30
+0.0
+ 41
+0.53125
+ 42
+0.53125
+  0
+TEXT
+  5
+4BD
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1012.0
+ 30
+0.0
+ 40
+11.0
+  1
+TORTU VE PİSLİK AYIRICI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1012.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4BE
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1012.0
+ 30
+0.0
+ 40
+11.0
+  1
+1
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1012.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4BF
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1034.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1034.0
+ 31
+0.0
+  0
+INSERT
+  5
+4C0
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-GENLESME-TANKI
+ 10
+975.0
+ 20
+-1073.0
+ 30
+0.0
+ 41
+0.40476190476190477
+ 42
+0.40476190476190477
+  0
+TEXT
+  5
+4C2
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1056.0
+ 30
+0.0
+ 40
+11.0
+  1
+KAPALI GENLEŞME TANKI (MEMBRANLI)
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1056.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4C3
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1056.0
+ 30
+0.0
+ 40
+11.0
+  1
+1
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1056.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4C4
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1078.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1078.0
+ 31
+0.0
+  0
+INSERT
+  5
+4C5
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-KOLLEKTOR-390
+ 10
+908.0882352941177
+ 20
+-1100.0
+ 30
+0.0
+ 41
+0.3431372549019608
+ 42
+0.3431372549019608
+  0
+TEXT
+  5
+4C7
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1100.0
+ 30
+0.0
+ 40
+11.0
+  1
+KOLLEKTÖR
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1100.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4C8
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1100.0
+ 30
+0.0
+ 40
+11.0
+  1
+2
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1100.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4C9
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1122.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1122.0
+ 31
+0.0
+  0
+INSERT
+  5
+4CA
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-BOYLER
+ 10
+975.0
+ 20
+-1161.0
+ 30
+0.0
+ 41
+0.13076923076923078
+ 42
+0.13076923076923078
+  0
+TEXT
+  5
+4CC
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1144.0
+ 30
+0.0
+ 40
+11.0
+  1
+BOYLER
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1144.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4CD
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1144.0
+ 30
+0.0
+ 40
+11.0
+  1
+1
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1144.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4CE
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1166.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1166.0
+ 31
+0.0
+  0
+INSERT
+  5
+4CF
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-KURESEL-VANA
+ 10
+975.0
+ 20
+-1190.25
+ 30
+0.0
+ 41
+1.5
+ 42
+1.5
+  0
+TEXT
+  5
+4D1
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1188.0
+ 30
+0.0
+ 40
+11.0
+  1
+KÜRESEL VANA (DN50 VE ALTI)
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1188.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4D2
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1188.0
+ 30
+0.0
+ 40
+11.0
+  1
+16
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1188.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4D3
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1210.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1210.0
+ 31
+0.0
+  0
+INSERT
+  5
+4D4
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-KELEBEK-VANA
+ 10
+975.0
+ 20
+-1238.1489361702127
+ 30
+0.0
+ 41
+1.446808510638298
+ 42
+1.446808510638298
+  0
+TEXT
+  5
+4D6
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1232.0
+ 30
+0.0
+ 40
+11.0
+  1
+KELEBEK VANA (DN65 VE ÜZERİ)
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1232.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4D7
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1232.0
+ 30
+0.0
+ 40
+11.0
+  1
+12
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1232.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4D8
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1254.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1254.0
+ 31
+0.0
+  0
+INSERT
+  5
+4D9
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-CEKVALF
+ 10
+975.0
+ 20
+-1279.75
+ 30
+0.0
+ 41
+1.5
+ 42
+1.5
+  0
+TEXT
+  5
+4DB
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1276.0
+ 30
+0.0
+ 40
+11.0
+  1
+ÇEK VALF
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1276.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4DC
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1276.0
+ 30
+0.0
+ 40
+11.0
+  1
+8
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1276.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4DD
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1298.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1298.0
+ 31
+0.0
+  0
+INSERT
+  5
+4DE
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-PISLIK-TUTUCU
+ 10
+975.0
+ 20
+-1314.0
+ 30
+0.0
+ 41
+1.5
+ 42
+1.5
+  0
+TEXT
+  5
+4E0
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1320.0
+ 30
+0.0
+ 40
+11.0
+  1
+PİSLİK TUTUCU (Y TİPİ)
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1320.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4E1
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1320.0
+ 30
+0.0
+ 40
+11.0
+  1
+4
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1320.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4E2
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1342.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1342.0
+ 31
+0.0
+  0
+INSERT
+  5
+4E3
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-OTOMATIK-DOLUM
+ 10
+975.0
+ 20
+-1369.25
+ 30
+0.0
+ 41
+1.5
+ 42
+1.5
+  0
+TEXT
+  5
+4E5
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1364.0
+ 30
+0.0
+ 40
+11.0
+  1
+OTOMATİK DOLUM VANASI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1364.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4E6
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1364.0
+ 30
+0.0
+ 40
+11.0
+  1
+1
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1364.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4E7
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1386.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1386.0
+ 31
+0.0
+  0
+INSERT
+  5
+4E8
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-KILITLI-VANA
+ 10
+975.0
+ 20
+-1415.95
+ 30
+0.0
+ 41
+1.5
+ 42
+1.5
+  0
+TEXT
+  5
+4EA
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1408.0
+ 30
+0.0
+ 40
+11.0
+  1
+KİLİTLENEBİLİR (MÜHÜRLÜ) VANA
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1408.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4EB
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1408.0
+ 30
+0.0
+ 40
+11.0
+  1
+1
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1408.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4EC
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1430.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1430.0
+ 31
+0.0
+  0
+INSERT
+  5
+4ED
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-ESNEK-BAGLANTI
+ 10
+975.0
+ 20
+-1452.0
+ 30
+0.0
+ 41
+1.5
+ 42
+1.5
+  0
+TEXT
+  5
+4EF
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1452.0
+ 30
+0.0
+ 40
+11.0
+  1
+ESNEK BAĞLANTI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1452.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4F0
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1452.0
+ 30
+0.0
+ 40
+11.0
+  1
+2
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1452.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4F1
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1474.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1474.0
+ 31
+0.0
+  0
+INSERT
+  5
+4F2
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-EMNIYET-VENTILI
+ 10
+973.1111111111111
+ 20
+-1513.0
+ 30
+0.0
+ 41
+1.2592592592592593
+ 42
+1.2592592592592593
+  0
+TEXT
+  5
+4F4
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1496.0
+ 30
+0.0
+ 40
+11.0
+  1
+EMNİYET VENTİLİ (YAYLI)
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1496.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4F5
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1496.0
+ 30
+0.0
+ 40
+11.0
+  1
+3
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1496.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4F6
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1518.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1518.0
+ 31
+0.0
+  0
+INSERT
+  5
+4F7
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-MANOMETRE
+ 10
+975.0
+ 20
+-1556.5
+ 30
+0.0
+ 41
+1.5
+ 42
+1.5
+  0
+TEXT
+  5
+4F9
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1540.0
+ 30
+0.0
+ 40
+11.0
+  1
+MANOMETRE
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1540.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4FA
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1540.0
+ 30
+0.0
+ 40
+11.0
+  1
+5
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1540.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+4FB
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1562.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1562.0
+ 31
+0.0
+  0
+INSERT
+  5
+4FC
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-TERMOMETRE
+ 10
+974.93359375
+ 20
+-1601.0
+ 30
+0.0
+ 41
+1.328125
+ 42
+1.328125
+  0
+TEXT
+  5
+4FE
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1584.0
+ 30
+0.0
+ 40
+11.0
+  1
+TERMOMETRE
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1584.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+4FF
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1584.0
+ 30
+0.0
+ 40
+11.0
+  1
+9
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1584.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+500
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1606.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1606.0
+ 31
+0.0
+  0
+INSERT
+  5
+501
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-OHAC
+ 10
+975.0
+ 20
+-1645.0
+ 30
+0.0
+ 41
+1.3076923076923077
+ 42
+1.3076923076923077
+  0
+TEXT
+  5
+503
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1628.0
+ 30
+0.0
+ 40
+11.0
+  1
+OTOMATİK HAVA PURJÖRÜ (O.H.A.C)
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1628.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+504
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1628.0
+ 30
+0.0
+ 40
+11.0
+  1
+4
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1628.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+505
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1650.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1650.0
+ 31
+0.0
+  0
+INSERT
+  5
+506
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-SELENOID
+ 10
+975.0
+ 20
+-1681.1538461538462
+ 30
+0.0
+ 41
+1.3076923076923077
+ 42
+1.3076923076923077
+  0
+TEXT
+  5
+508
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1672.0
+ 30
+0.0
+ 40
+11.0
+  1
+SELENOİD VANA (DOĞALGAZ)
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1672.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+509
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1672.0
+ 30
+0.0
+ 40
+11.0
+  1
+1
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1672.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+50A
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1694.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1694.0
+ 31
+0.0
+  0
+INSERT
+  5
+50B
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-GAZ-ALARM
+ 10
+975.0
+ 20
+-1727.25
+ 30
+0.0
+ 41
+1.5
+ 42
+1.5
+  0
+TEXT
+  5
+50D
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1716.0
+ 30
+0.0
+ 40
+11.0
+  1
+GAZ ALARM CİHAZI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1716.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+50E
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1716.0
+ 30
+0.0
+ 40
+11.0
+  1
+1
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1716.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+50F
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1738.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1738.0
+ 31
+0.0
+  0
+INSERT
+  5
+510
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-NOTRALIZASYON
+ 10
+928.6363636363636
+ 20
+-1760.0
+ 30
+0.0
+ 41
+0.7727272727272727
+ 42
+0.7727272727272727
+  0
+TEXT
+  5
+512
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1760.0
+ 30
+0.0
+ 40
+11.0
+  1
+NÖTRALİZASYON ÜNİTESİ
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1760.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+513
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1760.0
+ 30
+0.0
+ 40
+11.0
+  1
+1
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1760.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+514
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1782.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1782.0
+ 31
+0.0
+  0
+INSERT
+  5
+515
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-BACA-SAPKA
+ 10
+975.0
+ 20
+-1820.5
+ 30
+0.0
+ 41
+1.5
+ 42
+1.5
+  0
+TEXT
+  5
+517
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1804.0
+ 30
+0.0
+ 40
+11.0
+  1
+BACA ŞAPKASI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1804.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+518
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1804.0
+ 30
+0.0
+ 40
+11.0
+  1
+1
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1804.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+519
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1826.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1826.0
+ 31
+0.0
+  0
+INSERT
+  5
+51A
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbBlockReference
+  2
+ROTAS-OK
+ 10
+985.5
+ 20
+-1848.0
+ 30
+0.0
+ 41
+1.5
+ 42
+1.5
+  0
+TEXT
+  5
+51C
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1848.0
+ 30
+0.0
+ 40
+11.0
+  1
+AKIŞ YÖNÜ OKU
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1848.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+51D
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1848.0
+ 30
+0.0
+ 40
+11.0
+  1
+12
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1848.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+51E
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1870.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1870.0
+ 31
+0.0
+  0
+LINE
+  5
+51F
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-ISITMA-GIDIS
+ 48
+0.5
+100
+AcDbLine
+ 10
+905.0
+ 20
+-1892.0
+ 30
+0.0
+ 11
+1045.0
+ 21
+-1892.0
+ 31
+0.0
+  0
+TEXT
+  5
+520
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1892.0
+ 30
+0.0
+ 40
+11.0
+  1
+ISITMA GİDİŞ HATTI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1892.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+521
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1892.0
+ 30
+0.0
+ 40
+11.0
+  1
+-
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1892.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+522
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1914.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1914.0
+ 31
+0.0
+  0
+LINE
+  5
+523
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-ISITMA-DONUS
+ 48
+0.5
+100
+AcDbLine
+ 10
+905.0
+ 20
+-1936.0
+ 30
+0.0
+ 11
+1045.0
+ 21
+-1936.0
+ 31
+0.0
+  0
+TEXT
+  5
+524
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1936.0
+ 30
+0.0
+ 40
+11.0
+  1
+ISITMA DÖNÜŞ HATTI (KESİKLİ)
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1936.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+525
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1936.0
+ 30
+0.0
+ 40
+11.0
+  1
+-
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1936.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+526
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-1958.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-1958.0
+ 31
+0.0
+  0
+LINE
+  5
+527
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-DOGALGAZ-BORU
+ 48
+0.5
+100
+AcDbLine
+ 10
+905.0
+ 20
+-1980.0
+ 30
+0.0
+ 11
+1045.0
+ 21
+-1980.0
+ 31
+0.0
+  0
+TEXT
+  5
+528
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-1980.0
+ 30
+0.0
+ 40
+11.0
+  1
+DOĞALGAZ HATTI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-1980.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+529
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-1980.0
+ 30
+0.0
+ 40
+11.0
+  1
+-
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-1980.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+52A
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-2002.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-2002.0
+ 31
+0.0
+  0
+LINE
+  5
+52B
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-ISITMA-BACA
+ 48
+0.5
+100
+AcDbLine
+ 10
+905.0
+ 20
+-2024.0
+ 30
+0.0
+ 11
+1045.0
+ 21
+-2024.0
+ 31
+0.0
+  0
+TEXT
+  5
+52C
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-2024.0
+ 30
+0.0
+ 40
+11.0
+  1
+BACA BAĞLANTISI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-2024.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+52D
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-2024.0
+ 30
+0.0
+ 40
+11.0
+  1
+-
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-2024.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+52E
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-2046.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-2046.0
+ 31
+0.0
+  0
+LINE
+  5
+52F
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-ISITMA-YOGUSMA
+ 48
+0.5
+100
+AcDbLine
+ 10
+905.0
+ 20
+-2068.0
+ 30
+0.0
+ 11
+1045.0
+ 21
+-2068.0
+ 31
+0.0
+  0
+TEXT
+  5
+530
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-2068.0
+ 30
+0.0
+ 40
+11.0
+  1
+YOĞUŞMA DRENAJ HATTI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-2068.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+531
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-2068.0
+ 30
+0.0
+ 40
+11.0
+  1
+-
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-2068.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+532
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-2090.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-2090.0
+ 31
+0.0
+  0
+LINE
+  5
+533
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-SIHHI-SOGUK-SU
+ 48
+0.5
+100
+AcDbLine
+ 10
+905.0
+ 20
+-2112.0
+ 30
+0.0
+ 11
+1045.0
+ 21
+-2112.0
+ 31
+0.0
+  0
+TEXT
+  5
+534
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-2112.0
+ 30
+0.0
+ 40
+11.0
+  1
+SOĞUK SU HATTI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-2112.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+535
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-2112.0
+ 30
+0.0
+ 40
+11.0
+  1
+-
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-2112.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+536
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-2134.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-2134.0
+ 31
+0.0
+  0
+LINE
+  5
+537
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-SIHHI-SICAK-SU
+ 48
+0.5
+100
+AcDbLine
+ 10
+905.0
+ 20
+-2156.0
+ 30
+0.0
+ 11
+1045.0
+ 21
+-2156.0
+ 31
+0.0
+  0
+TEXT
+  5
+538
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-2156.0
+ 30
+0.0
+ 40
+11.0
+  1
+SICAK KULLANIM SUYU HATTI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-2156.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+539
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-2156.0
+ 30
+0.0
+ 40
+11.0
+  1
+-
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-2156.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+53A
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-2178.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-2178.0
+ 31
+0.0
+  0
+LINE
+  5
+53B
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-SIHHI-SIRKULASYON
+ 48
+0.5
+100
+AcDbLine
+ 10
+905.0
+ 20
+-2200.0
+ 30
+0.0
+ 11
+1045.0
+ 21
+-2200.0
+ 31
+0.0
+  0
+TEXT
+  5
+53C
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1070.0
+ 20
+-2200.0
+ 30
+0.0
+ 40
+11.0
+  1
+SİRKÜLASYON HATTI
+  7
+ROTAS
+ 41
+0.85
+ 11
+1070.0
+ 21
+-2200.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+53D
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+1575.0
+ 20
+-2200.0
+ 30
+0.0
+ 40
+11.0
+  1
+-
+  7
+ROTAS
+ 41
+0.85
+ 72
+1
+ 11
+1575.0
+ 21
+-2200.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+LINE
+  5
+53E
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-2222.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-2222.0
+ 31
+0.0
+  0
+LINE
+  5
+53F
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+890.0
+ 20
+-780.0
+ 30
+0.0
+ 11
+890.0
+ 21
+-2222.0
+ 31
+0.0
+  0
+LINE
+  5
+540
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+1060.0
+ 20
+-780.0
+ 30
+0.0
+ 11
+1060.0
+ 21
+-2222.0
+ 31
+0.0
+  0
+LINE
+  5
+541
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+1530.0
+ 20
+-780.0
+ 30
+0.0
+ 11
+1530.0
+ 21
+-2222.0
+ 31
+0.0
+  0
+LINE
+  5
+542
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT
+100
+AcDbLine
+ 10
+1620.0
+ 20
+-780.0
+ 30
+0.0
+ 11
+1620.0
+ 21
+-2222.0
+ 31
+0.0
+  0
+TEXT
+  5
+543
+330
+17
+100
+AcDbEntity
+  8
+ROTAS-LEJANT-YAZI
+100
+AcDbText
+ 10
+890.0
+ 20
+-2238.0
+ 30
+0.0
+ 40
+9.0
+  1
+Adetler çizimdeki sembol (INSERT) sayımından otomatiktir; boru hatları çizgi örneğidir.
+  7
+ROTAS
+ 41
+0.85
+ 11
+890.0
+ 21
+-2238.0
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
 LWPOLYLINE
   5
-49F
+544
 330
 17
 100
@@ -40553,7 +44851,7 @@ CREATED_BY_EZDXF
   3
 WRITTEN_BY_EZDXF
 350
-4A2
+547
   0
 DICTIONARYVAR
   5
@@ -40565,7 +44863,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-14T14:04:39.121409+00:00
+1.4.4 @ 2026-10-14T14:53:11.314086+00:00
   0
 VISUALSTYLE
   5
@@ -47161,7 +51459,7 @@ DictionaryVariables
   0
 DICTIONARYVAR
   5
-4A2
+547
 330
 2D
 100
@@ -47169,7 +51467,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-14T14:04:39.406994+00:00
+1.4.4 @ 2026-10-14T14:53:11.730972+00:00
   0
 ENDSEC
   0

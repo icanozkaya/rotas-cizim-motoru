@@ -445,7 +445,7 @@ def detay_ciz(cz, P, A, x, y):
         cz.yazi(f(25, by0 - 6), 'HOL – KALORİMETRE (SAYAÇ) DOLABI 50×100×15', 8, DT, maske=False)
         cz.yazi(f(25, by0 - 13), 'okuma kapağı ortak alana açılır', 7, DT, maske=False)
         lst += ['1  Küresel vana (tam geçişli, PN16) – daire girişi', '2  Pislik tutucu (Y tipi, paslanmaz elek)',
-                '3  Kalorimetre (ısı pay ölçer): ultrasonik debi ölçer DÖNÜŞTE + gidiş/dönüş Pt1000 sıcaklık sensörü (okuma kablosu elektrik projesinde)',
+                '3  Kalorimetre (ısı pay ölçer): ultrasonik debi ölçer DÖNÜŞTE + gidiş/dönüş Pt1000 sıcaklık sensörü',
                 '4  Balans (dengeleme) vanası – ölçüm nipelli, ön ayarlı', '5  Küresel vana – daire çıkışı',
                 'Dolaptan sonra hatlar daire kapısı eşiğinden şap içinde kolektör dolabına gider.']
         xk0 = 90.0

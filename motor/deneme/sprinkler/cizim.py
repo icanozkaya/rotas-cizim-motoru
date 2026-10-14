@@ -28,7 +28,8 @@ def fmt(v, n=2):
 
 
 def tw(s, h):
-    return len(s) * h * 0.62 * WF + h * 0.4
+    # R2b: genişlik denetim aracının tahminiyle (0,8·h·karakter·WF) aynı + pay -> tahmini kutular da çakışmaz
+    return len(s) * h * 0.8 * WF + h * 0.4
 
 
 def th(h):
@@ -324,8 +325,8 @@ class Cizim:
             s = v['no']
             h = 7.0
             ok = False
-            for r in (4, 10, 18, 28, 40):
-                for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+            for r in (4, 10, 18, 28, 40, 55):
+                for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (-1, 1), (1, -1), (-1, -1)):
                     w, t = tw(s, h), th(h)
                     x = cx + dx * ((kx[2] - kx[0]) / 2 + r + w / 2)
                     y = cy + dy * ((kx[3] - kx[1]) / 2 + r + t / 2)

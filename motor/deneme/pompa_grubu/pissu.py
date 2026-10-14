@@ -125,7 +125,7 @@ def ciz(g, yol):
     if g.get('deneme', True):
         c.T(XL, ty, 'DENEME — değerler örnek/test girdisidir: ' + g.get('kaynak', ''), th * 1.1, 'BL', lay=NT, mask=False)
     yb2 = -h - tb - 90
-    c.tablo(XL, yb2, 'PİS SU POMPA ÇUKURU CİHAZ LİSTESİ', liste)
+    yend = c.tablo(XL, yb2, 'PİS SU POMPA ÇUKURU CİHAZ LİSTESİ', liste)
     durum = 'SAĞLANIYOR' if V_fayda >= V_gerek else 'SAĞLANMIYOR'
     notlar = [
         f'1. Çukur iç ölçüsü {a:.0f}x{b:.0f}x{h:.0f} cm; çalışma-durma arası faydalı hacim {tr(V_fayda, 3)} m³.',
@@ -136,7 +136,8 @@ def ciz(g, yol):
         '5. Çek valf ve vana kapak üstünde erişilebilir yükseklikte yapılacaktır.',
         '6. Pis su çukuru ve pompası için havalık gösterilmemiştir (ROTAŞ kuralı).',
     ]
-    c.notlar(XL + th * 101 + th * 6, yb2, 'NOTLAR', notlar, th * 62)
+    ynot = c.notlar(XL + th * 101 + th * 6, yb2, 'NOTLAR', notlar, th * 62)
+    c.lejant(XL, min(yend, ynot) - th * 8)           # R2b: kullanılan sembollerin lejantı + adet
     nuy = c.kaydet(yol)
     return c, nuy, dict(V_fayda=round(V_fayda, 3), V_gerek=round(V_gerek, 3), h_gerek=round(h_gerek), durum=durum)
 

@@ -383,6 +383,84 @@ def tablo_ciz(m, satir, x0, y0, baslik='KAZAN DAİRESİ CİHAZ LİSTESİ'):
     return X[-1], ys[-1]
 
 
+# R2b: pafta sonu LEJANT + ADET tablosu — yalnız çizimde kullanılan ROTAS- sembolleri (INSERT sayımı) + boru katmanları
+LEJ, LEJ_Y = 'ROTAS-LEJANT', 'ROTAS-LEJANT-YAZI'
+LEJ_ACIKLAMA = {
+    'ROTAS-KAZAN-DUVAR': 'KAZAN (DUVAR TİPİ, YOĞUŞMALI)', 'ROTAS-POMPA': 'SİRKÜLASYON POMPASI',
+    'ROTAS-DENGE-KABI': 'DENGE KABI (HİDROLİK AYIRICI)', 'ROTAS-HAVA-AYIRICI': 'MİKRO KABARCIK HAVA AYIRICI',
+    'ROTAS-TORTU-AYIRICI': 'TORTU VE PİSLİK AYIRICI', 'ROTAS-GENLESME-TANKI': 'KAPALI GENLEŞME TANKI (MEMBRANLI)',
+    'ROTAS-KOLLEKTOR': 'KOLLEKTÖR', 'ROTAS-BOYLER': 'BOYLER', 'ROTAS-KURESEL-VANA': 'KÜRESEL VANA (DN50 VE ALTI)',
+    'ROTAS-KELEBEK-VANA': 'KELEBEK VANA (DN65 VE ÜZERİ)', 'ROTAS-CEKVALF': 'ÇEK VALF',
+    'ROTAS-PISLIK-TUTUCU': 'PİSLİK TUTUCU (Y TİPİ)', 'ROTAS-OTOMATIK-DOLUM': 'OTOMATİK DOLUM VANASI',
+    'ROTAS-KILITLI-VANA': 'KİLİTLENEBİLİR (MÜHÜRLÜ) VANA', 'ROTAS-ESNEK-BAGLANTI': 'ESNEK BAĞLANTI',
+    'ROTAS-EMNIYET-VENTILI': 'EMNİYET VENTİLİ (YAYLI)', 'ROTAS-MANOMETRE': 'MANOMETRE',
+    'ROTAS-TERMOMETRE': 'TERMOMETRE', 'ROTAS-OHAC': 'OTOMATİK HAVA PURJÖRÜ (O.H.A.C)',
+    'ROTAS-SELENOID': 'SELENOİD VANA (DOĞALGAZ)', 'ROTAS-REGULATOR': 'BASINÇ REGÜLATÖRÜ (DOĞALGAZ)',
+    'ROTAS-GAZ-ALARM': 'GAZ ALARM CİHAZI', 'ROTAS-NOTRALIZASYON': 'NÖTRALİZASYON ÜNİTESİ',
+    'ROTAS-BACA-SAPKA': 'BACA ŞAPKASI', 'ROTAS-OK': 'AKIŞ YÖNÜ OKU',
+}
+LEJ_BORU = [(GID, 'ISITMA GİDİŞ HATTI'), (DON, 'ISITMA DÖNÜŞ HATTI (KESİKLİ)'), (GAZ, 'DOĞALGAZ HATTI'),
+            (BACA, 'BACA BAĞLANTISI'), (YOG, 'YOĞUŞMA DRENAJ HATTI'), (SOG, 'SOĞUK SU HATTI'),
+            (SIC, 'SICAK KULLANIM SUYU HATTI'), (SIR, 'SİRKÜLASYON HATTI')]
+
+
+def lejant_ciz(doc, x0, y0):
+    """sol üst (x0, y0). Dönüş: (sağ x, alt y). Adet = modeldeki INSERT sayısı (kollektör boy türevleri tek satır)."""
+    from ezdxf import bbox as zb
+    m = doc.modelspace()
+    for ad, renk in ((LEJ, 7), (LEJ_Y, 7)):
+        if ad not in doc.layers:
+            doc.layers.add(ad, color=renk)
+    say, ornek = {}, {}
+    for e in m.query('INSERT'):
+        n = e.dxf.name
+        k = 'ROTAS-KOLLEKTOR' if n.startswith('ROTAS-KOLLEKTOR-') else n
+        if k in LEJ_ACIKLAMA:
+            say[k] = say.get(k, 0) + 1
+            ornek.setdefault(k, n)
+    kat = {e.dxf.layer for e in m if e.dxftype() in ('LINE', 'LWPOLYLINE')}
+    satir = [('B', n, LEJ_ACIKLAMA[n], say[n]) for n in LEJ_ACIKLAMA if n in say]
+    satir += [('L', lay, ac, '-') for lay, ac in LEJ_BORU if lay in kat]
+    W = [170, 470, 90]
+    X = [x0, x0 + W[0], x0 + W[0] + W[1], x0 + sum(W)]
+    H, RH, HB = 11.0, 44.0, 34.0
+
+    def ln(a, b):
+        m.add_line(a, b, dxfattribs={'layer': LEJ})
+
+    def tx(t, p, h, al=TA.MIDDLE_CENTER):
+        m.add_text(t, height=h, dxfattribs={'layer': LEJ_Y, 'style': 'ROTAS', 'width': WF}).set_placement(p, align=al)
+    tx('LEJANT VE ADET TABLOSU (KULLANILAN SEMBOLLER)', (x0, y0 + 14), 16, TA.BOTTOM_LEFT)
+    y = y0
+    ln((X[0], y), (X[3], y))
+    for i, b in enumerate(('SEMBOL', 'AÇIKLAMA', 'ADET')):
+        tx(b, ((X[i] + X[i + 1]) / 2, y - HB / 2), 12)
+    y -= HB
+    ln((X[0], y), (X[3], y))
+    for tur, n, ac, adet in satir:
+        cy = y - RH / 2
+        if tur == 'B':
+            bb = zb.extents(doc.blocks[ornek[n]], fast=True)
+            if bb.has_data:
+                w_, h_ = max(bb.size.x, 1e-3), max(bb.size.y, 1e-3)
+                k = min(1.5, (W[0] - 30) / w_, (RH - 10) / h_)
+                c = bb.center
+                m.add_blockref(ornek[n], ((X[0] + X[1]) / 2 - c.x * k, cy - c.y * k),
+                               dxfattribs={'layer': LEJ, 'xscale': k, 'yscale': k})
+        else:
+            e = m.add_line((X[0] + 15, cy), (X[1] - 15, cy), dxfattribs={'layer': n})
+            e.dxf.ltscale = 0.5
+        tx(ac, (X[1] + 10, cy), H, TA.MIDDLE_LEFT)
+        tx(str(adet), ((X[2] + X[3]) / 2, cy), H)
+        y -= RH
+        ln((X[0], y), (X[3], y))
+    for xx in X:
+        ln((xx, y0), (xx, y))
+    tx('Adetler çizimdeki sembol (INSERT) sayımından otomatiktir; boru hatları çizgi örneğidir.', (x0, y - 16), 9,
+       TA.MIDDLE_LEFT)
+    return X[3], y - 30
+
+
 def notlar_ciz(m, notlar, x, y):
     m.add_text('NOTLAR', height=18, dxfattribs={'layer': BAS, 'style': 'ROTAS'}).set_placement((x, y), align=TA.BOTTOM_LEFT)
     for i, s in enumerate(notlar):
@@ -821,6 +899,7 @@ def ciz(P, cikti, gomulu=False):
         ty = y_bolge_alt - 80
         xe, ye = tablo_ciz(S.msp, satir, xmin, ty)
         notlar_ciz(S.msp, S.notlar, xmin, ye - 60)
+        lejant_ciz(S.doc, xe + 120, ty)         # R2b: cihaz listesinin sağında lejant + adet
         from ezdxf import bbox as zb
         bb = zb.extents(S.msp, fast=True)
         x0f, y0f, x1f, y1f = bb.extmin.x - 60, bb.extmin.y - 60, bb.extmax.x + 60, bb.extmax.y + 60
