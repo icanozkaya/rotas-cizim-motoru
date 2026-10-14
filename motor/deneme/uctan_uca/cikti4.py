@@ -10,10 +10,13 @@ import design
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'semboller2'))
+sys.path.insert(0, os.path.join(HERE, '..', 'denetim'))
 import cikti3
 from cikti3 import ADI, mty_temizle, mty_kontrol
 
 WD = '/tmp/claude-0/uu4'
+# eski (MTY dışı) katman adlarının ROTAS- karşılıkları; listede olmayan X → ROTAS-X (MIMARI* → ROTAS-MIMARI*)
+ESKI_KATMAN = {'RAST-TEM-SU DEPOSU': 'ROTAS-TEMIZ-SU-DEPOSU', 'STM-ISITMA-CAP': 'ROTAS-ISITMA-CAP'}
 
 
 def yaz(OUT, G, HAV=None):
@@ -64,7 +67,7 @@ def son_islem(OUT=None, G=None):
         nn = ren.get(lay)
         if nn is None:
             base = lay[4:] if lay.startswith(('MTY-', 'STM-')) else lay
-            nn = 'ROTAS-' + base.replace(' ', '-').replace('MTY', 'R')
+            nn = ESKI_KATMAN.get(lay) or 'ROTAS-' + base.replace(' ', '-').replace('MTY', 'R')
             src = doc.layers.get(lay)
             if nn not in doc.layers:
                 doc.layers.add(nn, color=src.dxf.color, linetype=src.dxf.linetype)
@@ -102,6 +105,7 @@ def son_islem(OUT=None, G=None):
     OUT['kontrol']['etiket4'] = etiket4.yerlestir(msp, alanlar)
     lejant4(doc, OUT, G)
     mty_temizle(doc)
+    katman_tablosu_onek(doc, yeni_katman)
     doc.dxfversion = 'AC1032'
     doc.saveas(out)
     d2 = ezdxf.readfile(out)
@@ -114,11 +118,33 @@ def son_islem(OUT=None, G=None):
     yc = ykontrol4.cakisma(d2.modelspace())
     OUT['kontrol']['yazi_cakisma'] = dict(sayi=len(yc), ornek=yc[:30])
     OUT['kontrol']['pafta'] = pafta_kontrol(d2)
+    # boru kesişmesi: denetim aracıyla ORTAK kural (denetle.boru_kesismeleri) — pis su / temiz su farklı düzlem bilgi
+    import denetle
+    bk = denetle.boru_kesismeleri(d2)
+    OUT['kontrol']['boru_kesisme'] = dict(sayi=len(bk['kesisme']), ornek=bk['kesisme'][:20], kopru=len(bk['kopru_hata']),
+                                          pis_temiz_farkli_duzlem_bilgi=len(bk['duzlem']))
+    OUT['kontrol']['onek_disi_katman'] = [l.dxf.name for l in d2.layers
+                                         if l.dxf.name not in ('0', 'Defpoints') and not l.dxf.name.startswith('ROTAS-')]
     a = d2.audit()
     OUT['kontrol']['audit'] = (len(a.errors), len(a.fixes))
     json.dump(OUT, open(WD + '/nb_ozet_r4.json', 'w'), ensure_ascii=False, indent=1, default=str)
     print(json.dumps(dict(kontrol=OUT['kontrol'], kontrol3={k: v for k, v in OUT['kontrol3'].items() if k not in ('suzgec', 'kesisim_ornek')},
                           yasak=OUT['yasak'], rapor4=OUT.get('rapor4')), ensure_ascii=False, indent=1, default=str)[:9000])
+
+
+def katman_tablosu_onek(doc, yeni_katman):
+    """Katman tablosunda kalan ROTAS- öneksiz katmanlar (mimari altlıktan / eski şablondan gelen, artık nesnesi olmayan:
+    MIMARI*, RAST-TEM-SU DEPOSU, STM-ISITMA-CAP ...): ROTAS- karşılığı zaten varsa silinir, yoksa yeniden adlandırılır."""
+    kull = {e.dxf.layer for e in doc.modelspace()}
+    for blk in doc.blocks:
+        for e in blk:
+            kull.add(e.dxf.layer)
+    for l in list(doc.layers):
+        n = l.dxf.name
+        if n in ('0', 'Defpoints') or n.startswith('ROTAS-') or n in kull:
+            continue
+        yeni_katman(n)              # karşılığı (renk / çizgi tipiyle) oluşturur
+        doc.layers.remove(n)
 
 
 def pafta_kontrol(doc):

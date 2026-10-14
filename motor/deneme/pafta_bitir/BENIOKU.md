@@ -5,7 +5,7 @@
 
 1. **Pafta bulma**: Önce `PAFTA/CERCEVE/ANTET` katmanlı kapalı dikdörtgenler aranır. Bunlar yoksa büyük dikdörtgenler, onlar da yoksa çizim kümeleri kullanılır. İç içe dikdörtgenden iç çerçeve ofseti çıkarılır. Pafta başlığı, çerçeve içinde "ÖLÇEK" geçen en alttaki yazıdır. Pafta türü başlıktan bulunur: PLAN / SEMA / YERLESIM / DETAY / LEJANT / DIGER. Toplam sınır da çıkarılır.
    - Genişliği medyanın 4 katını aşan ve içeriği yarısını doldurmayan çerçeve **anormal** sayılır. Raporlanır ve sağ kenarı içerik + boşluk kadar içeri çekilir (`cerceve_duzelt=False` ile kapatılır).
-2. **Lejant + adet**: `semboller` modülü kullanılır (`kullanim_say_grup`, `lejant_tablosu`). Sayım pafta türü başına (PLAN, SEMA, DIGER) yapılır. **Adet = türler arasındaki en büyük sayı**, çünkü aynı vana planda ve şemada iki kez gösterilir ve toplanmaz. Lejant, detay ve yerleşim paftaları sayılmaz. Kütüphanede karşılığı olmayan, etiket olmayan bloklar (PVC çatal, rögar, kombi vb.) ayrı bir "DİĞER BLOKLAR" adet tablosuna yazılır.
+2. **Lejant + adet**: `semboller2` (ROTAS saf geometri kütüphanesi v2, MTY'siz) kullanılır (`katman_grubu`, `lejant_tablosu`; sayım `_kullanim_say`). **Girdide hazır "LEJANT ... ADET/METRAJ" paftası varsa (uctan_uca R4 `lejant4`) yenisi üretilmez** (`bitir(..., lejant='otomatik')`; `True` her zaman üretir, `False` hiç). Sayım pafta türü başına (PLAN, SEMA, DIGER) yapılır. **Adet = türler arasındaki en büyük sayı**, çünkü aynı vana planda ve şemada iki kez gösterilir ve toplanmaz. Lejant, detay ve yerleşim paftaları sayılmaz. Kütüphanede karşılığı olmayan, etiket olmayan bloklar (PVC çatal, rögar, kombi vb.) ayrı bir "DİĞER BLOKLAR" adet tablosuna yazılır.
    **Boru metrajı** katman + çap bazında, metre cinsinden (`$INSUNITS` dikkate alınır) ve yalnız PLAN paftalarından hesaplanır.
    - Boru katmanı adında BORU/PVC/PEX geçer; CAP/YAZI/NO/ETIKET geçen katmanlar hariçtir.
    - Çap DN / Ø / inç etiketinden (TEXT, MTEXT, MTY öznitelikleri SOCP/SCCP/PSCP) gelir. Her etiket en yakın uyumlu boru parçasına bağlanır. Etiketsiz parçalar, aynı katmanda uç uca ya da T ile bağlı parçalardan çapı alır.
@@ -17,6 +17,9 @@
    - Katman adları korunur. Hedefte aynı adlı katman varsa hedefteki tanım kalır ve bu raporlanır.
    - Aynı adlı blok içerikçe aynıysa paylaşılır. Farklıysa `<ad>-<etiket>` olarak yeniden adlandırılır.
    - Anonim bloklar yeni anonim blok olur.
+   - Ek başına seçenekler: `katman_cevir` (ör. `{"MTY-": "ROTAS-"}` → `MTY-HESAP` → `ROTAS-HESAP`, `MTY-HESAP-YAZI` → `ROTAS-HESAP-YAZI`),
+     `metin_cevir` (ör. `{"MTY": "ROTAŞ"}`), `yazi_sigdir` (ekin içinde birbirine taşan yazıların genişlik çarpanı daraltılır,
+     konum/boy aynı; rapora yazılır). Çeviriler kaynağın bellekteki kopyasında yapılır, kaynak dosya değişmez.
 4. **Kontroller** (rapor):
    - ROTAS- öneki: 0 ve Defpoints hariç tüm üst seviye katmanlar denetlenir. Yalnız blok içinde kullanılan katmanlar (MTY blok içi) ayrı listelenir ve hata sayılmaz.
    - Yazı-yazı çakışması (MİMARİ katmanları hariç): tüm çizimde ve yeni paftalarda ayrı ayrı sayılır.
@@ -38,6 +41,11 @@ PB.rapor_yaz(R)
 ```
 
 ## Deneme çıktıları (`proje/denemeler/pafta_bitir/`)
+- **`NB_SIHHI_BITMIS_DENEME_R2.dxf`** (14.10.2026): girdi `uctan_uca/NB_SIHHI_DENEME_R4.dxf`. Ekler (sol alt): kapak,
+  `proje/hesaplar_sema/HESAPLAR_SIHHI.dxf` (MTY-HESAP* → ROTAS-HESAP*, notta MTY → ROTAŞ, 2 taşan başlık daraltıldı:
+  "ÖZGÜL BASINÇ KAYBI (Pa/m)" 0,85→0,72, "TOPLAM BASINÇ KAYBI (Pa)" 0,85→0,78). R4'teki hazır lejant/adet/metraj paftası
+  kullanıldı (ikinci lejant yok). 10 pafta, AUDIT 0/0, denetim ✓ (MTY 0, önek 0, kesişme 0, yazı 0; pis/temiz bilgi 80).
+- R1 (`NB_SIHHI_BITMIS_DENEME.dxf`, girdi R1, semboller v1/MTY) `proje/denemeler/_arsiv/pafta_bitir/` altında.
 - `NB_SIHHI_BITMIS_DENEME.dxf`: girdi `NB_SIHHI_DENEME.dxf`. Ekler: kapak, `ISITMA_HESAPLARI_TABLOLAR.dxf` (ısı kaybı yerine), `HESAPLAR_SIHHI.dxf`.
 - `KAPAK_SIHHI_DENEME.dxf`: şablondan üretilen kapak. Değerler örnektir ("DENEME").
 
@@ -49,7 +57,8 @@ Sonuç:
 - AUDIT 0/0. Yeni paftalarda yazı çakışması yok.
 
 ## Sınırlar / açık konular
-- `HESAPLAR_SIHHI.dxf` `MTY-HESAP*` katmanlarıyla geliyor. Bu katmanlar ROTAS- kontrolünde raporlanıyor. İstenirse ek alınırken `MTY-` → `ROTAS-` çevirisi eklenebilir; şu an "katman adlarını koru" kuralı geçerli.
+- `HESAPLAR_SIHHI.dxf` başka bir projenin (B1-B2-B3 blok) hesabıdır; denemede yalnız ek yerleşimini göstermek için kullanıldı.
+- Hedefte aynı adlı katman varsa (R4'te `ROTAS-HESAP`) hedefteki renk/çizgi tipi kalır.
 - `ISITMA_HESAPLARI_TABLOLAR.dxf` içindeki tablolar kaynakta dağınık. Ek kendi iç düzeniyle alındığı için çerçevesi büyük ve 4 550 birim yüksek. Ekin iç düzeni değiştirilmez.
 - Girdideki 6 yazı çakışması uctan_uca çıktısından geliyor: kat planlarında "0.5 YB / Ø20" ile "Ø100 / n SB" üst üste. Bunlar düzeltilmez, raporlanır.
 - Metraja yalnız kat planları girer. Yağmur inişleri şemada olduğu için planda kısa kalır. Kolon boyları için şemadan dikey uzunluk eklenmesi açık iş olarak duruyor.

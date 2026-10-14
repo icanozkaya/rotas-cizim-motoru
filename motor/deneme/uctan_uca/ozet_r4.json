@@ -1631,6 +1631,13 @@
     "genislik": 2020
    }
   ],
+  "boru_kesisme": {
+   "sayi": 0,
+   "ornek": [],
+   "kopru": 0,
+   "pis_temiz_farkli_duzlem_bilgi": 80
+  },
+  "onek_disi_katman": [],
   "audit": [
    0,
    0
@@ -1717,13 +1724,13 @@
    "ROTAS-PISSU-CAP",
    "ROTAS-PISSU-KOLONNO",
    "ROTAS-PVC",
-   "ROTAS-RAST-TEM-SU-DEPOSU",
    "ROTAS-ROGAR",
    "ROTAS-SEMA",
    "ROTAS-SEMBOL-KILAVUZ",
    "ROTAS-SICAKSU-BORU",
    "ROTAS-SOGUKSU-BORU",
    "ROTAS-TEFRIS",
+   "ROTAS-TEMIZ-SU-DEPOSU",
    "ROTAS-TEMIZSU-CAP",
    "ROTAS-VANA",
    "ROTAS-YAGMUR-BORUSU",

@@ -5,11 +5,14 @@
 
 1. Model uzayındaki paftaları (çerçeve dikdörtgenleri; yoksa çizim kümeleri) bulur, toplam sınırı çıkarır.
    Aşırı geniş (içeriğinin çok dışına taşan) çerçeveyi raporlar ve isteğe bağlı içeriğe göre daraltır.
-2. Kullanılan sembollerin LEJANT + ADET tablosunu (semboller modülü) ve BORU METRAJI tablosunu
-   (katman + çap bazında toplam uzunluk; çap DN/Ø/inç etiketlerinden) en sağa yeni bir paftaya koyar.
+2. Kullanılan sembollerin LEJANT + ADET tablosunu (semboller2: ROTAS saf geometri kütüphanesi, MTY'siz) ve BORU
+   METRAJI tablosunu (katman + çap bazında toplam uzunluk; çap DN/Ø/inç etiketlerinden) en sağa yeni bir paftaya koyar.
+   Girdide zaten "LEJANT ... METRAJ" paftası varsa (ör. uctan_uca R4 çıktısı) ikinci kez üretilmez (lejant='otomatik').
 3. Ek DXF'leri (ısı kaybı / yerden ısıtma hesapları, proje kapağı) paftaların SOL ALT köşesine,
    alt kenarları hizalı, aralıklı ve kendi pafta çerçeveleriyle yerleştirir (ezdxf Importer; katman adları korunur,
-   aynı adlı FARKLI blok yeniden adlandırılır, aynı içerikli blok paylaşılır).
+   aynı adlı FARKLI blok yeniden adlandırılır, aynı içerikli blok paylaşılır). Ek başına isteğe bağlı:
+   katman_cevir {'MTY-': 'ROTAS-'} (önek çevirisi), metin_cevir {'MTY': 'ROTAŞ'}, yazi_sigdir (ekin kendi içinde
+   birbirine taşan yazılarının genişlik çarpanı daraltılır; konum / boy değişmez).
 4. Kontroller: katman öneki ROTAS- (0 / Defpoints / yalnız blok içinde kullanılan katmanlar hariç), yazı-yazı çakışması,
    boş katman temizliği, AUDIT (yazmadan önce ve geri okumada).
 
@@ -30,8 +33,8 @@ from shapely.geometry import LineString, Point, Polygon
 from shapely.strtree import STRtree
 
 BURASI = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(BURASI, '..', 'semboller'))
-import sembol as S  # noqa: E402
+sys.path.insert(0, os.path.join(BURASI, '..', 'semboller2'))
+import sembol2 as S  # noqa: E402  (ROTAS sembol kütüphanesi v2 — MTY bağımlılığı yok)
 
 PAFTA_KATMAN_ANAHTAR = ('PAFTA', 'CERCEVE', 'ÇERÇEVE', 'ANTET', 'FRAME')
 SERBEST = {'0', 'DEFPOINTS'}
@@ -243,14 +246,25 @@ def anormal_cerceve_duzelt(msp, paftalar, kl, duzelt=True):
 
 
 # =====================================================================================  2) lejant + adet
-class _Secim:
-    """kullanim_say_grup için layout yerine geçen süzülmüş INSERT listesi"""
+def _kullanim_say(doc, ents, ornek):
+    """semboller2.kullanim_say'ın seçili INSERT listesi üzerinde çalışan hali: {(grup, blok): adet}. Grup INSERT
+    katmanından (iç içe kullanıcı bloklarında en dıştaki anlamlı katman), bulunamazsa sembolün kendi grubundan."""
+    say = {}
 
-    def __init__(self, ents):
-        self.ents = ents
-
-    def query(self, q='*'):
-        return [e for e in self.ents if e.dxftype() == 'INSERT']
+    def tara(liste, derin, dis):
+        for e in liste:
+            if e.dxftype() != 'INSERT' or e.dxf.layer.startswith('ROTAS-LEJANT'):
+                continue
+            n = e.dxf.name
+            g = dis or S.katman_grubu(e.dxf.layer)
+            if n in S.SEMBOL:
+                k = (g or S.SEMBOL[n]['grup'], n)
+                say[k] = say.get(k, 0) + 1
+                ornek.setdefault(k, n)
+            elif derin < 8 and n in doc.blocks and not n.startswith('*'):
+                tara(doc.blocks.get(n), derin + 1, g)
+    tara(ents, 0, None)
+    return say
 
 
 def sembol_sayimi(doc, paftalar, kl):
@@ -269,9 +283,7 @@ def sembol_sayimi(doc, paftalar, kl):
         turler[t].append(e)
     tur_sayim, ornek = {}, {}
     for t, ents in turler.items():
-        tur_sayim[t] = S.kullanim_say_grup(doc, _Secim(ents))
-        for k, v in S._SON_ORNEK.items():
-            ornek.setdefault(k, v)
+        tur_sayim[t] = _kullanim_say(doc, ents, ornek)
     son = {}
     for t, sg in tur_sayim.items():
         for k, v in sg.items():
@@ -281,7 +293,7 @@ def sembol_sayimi(doc, paftalar, kl):
 
 def diger_bloklar(doc, paftalar, kl):
     """Kütüphanede karşılığı olmayan, etiket olmayan ve içinde kütüphane sembolü barındırmayan blokların adedi (max kuralı)."""
-    harita = S._ters_harita(doc)
+    harita = set(S.SEMBOL)
 
     def kutuphaneli(n, d=0):
         if n in harita:
@@ -312,37 +324,70 @@ def diger_bloklar(doc, paftalar, kl):
 
 
 def lejant_ciz(msp, x, y, sayim, ornek, diger):
-    """Grup tablolarını x,y (sol üst) noktasından sağa doğru çizer. Dönüş: (genişlik, yükseklik, tablo sayısı)."""
+    """Grup tablolarını x,y (sol üst) noktasından sağa doğru çizer (semboller2 lejant_tablosu).
+    Dönüş: (genişlik, yükseklik, tablo sayısı)."""
     doc = msp.doc
-    S.hazirla(doc)
+    S.katmanlar(doc)
+    S.ekle(doc, sorted({a for (_, a) in sayim}))          # tanım zaten var: yalnız kapsam hesaplanır
     cx, hmax, n = x, 0.0, 0
     not_ortak = 'Adet: plan ve şema paftalarındaki sayımların büyüğü (aynı eleman iki yerde gösterildiği için toplanmaz).'
-    for g, baslik, kat, _ in S.GRUPLAR:
+    for g, (baslik, kat, _) in S.GRUP.items():
         ads = [ad for (gg, ad) in sayim if gg == g]
         if not ads:
             continue
         ads.sort(key=lambda a: list(S.SEMBOL).index(a))
-        cel = {S.SEMBOL[a]['ek'].get('celiski') for a in ads} - {None}
-        satir = [dict(ad=a, blok=ornek.get((g, a)), aciklama=S.SEMBOL[a]['aciklama'], adet=sayim[(g, a)],
-                      celiski=S.SEMBOL[a]['ek'].get('celiski'), katman=kat) for a in ads]
+        satir = [dict(ad=a, aciklama=S.SEMBOL[a]['aciklama'], adet=sayim[(g, a)], celiski=S.SEMBOL[a]['celiski'],
+                      katman=S.LEJ_SEM) for a in ads]
         top = sum(sayim[(g, a)] for a in ads)
-        w, h = S.lejant_tablosu(msp, cx, y, 'LEJANT VE ADET — ' + baslik, satir, adet=True,
-                                notlar=['Toplam sembol adedi: %d.' % top, not_ortak] + S._not_satirlari(cel))
+        w, h = S.lejant_tablosu(msp, cx, y, 'LEJANT VE ADET — ' + baslik, satir)
+        notlar = ['Toplam sembol adedi: %d.' % top, not_ortak] + \
+            ['(*) ' + c for c in sorted({S.SEMBOL[a]['celiski'] for a in ads} - {None})]
+        yy = y - h - 14
+        for t in notlar:
+            for parca in _sar(t, 80):
+                S._metin(msp, parca, (cx, yy), 7, S.LEJ_YAZ, TA.MIDDLE_LEFT)
+                yy -= 11
         cx += w + 60
-        hmax = max(hmax, h)
+        hmax = max(hmax, y - yy)
         n += 1
     if diger:
-        satir = [dict(ad=bn, blok=bn, aciklama=_insan_adi(bn), adet=v, katman='ROTAS-LEJANT-SEMBOL') for bn, v in sorted(diger.items())]
-        w, h = S.lejant_tablosu(msp, cx, y, 'DİĞER BLOKLAR (KÜTÜPHANE DIŞI) — ADET', satir, adet=True,
-                                notlar=['Açıklama blok adından üretildi; kullanıcı teyit edecek.', not_ortak])
+        w, h = _diger_tablo(msp, cx, y, diger, not_ortak)
         cx += w + 60
         hmax = max(hmax, h)
         n += 1
     return cx - x - (60 if n else 0), hmax, n
 
 
+def _diger_tablo(msp, x0, y0, diger, not_ortak, SG=70.0, W_A=400.0, W_N=60.0, RH=34.0):
+    """Kütüphane dışı bloklar: SEMBOL (bloğun kendisi, hücreye sığdırılmış) | AÇIKLAMA | ADET"""
+    W = SG + W_A + W_N
+    y = y0
+    S._kutu(msp, x0, y - 40, x0 + W, y)
+    S._metin(msp, 'DİĞER BLOKLAR (KÜTÜPHANE DIŞI) — ADET', (x0 + W / 2, y - 20), 16, S.LEJ_BAS, TA.MIDDLE_CENTER, 0.9)
+    y -= 40
+    for bn, v in sorted(diger.items()):
+        S._kutu(msp, x0, y - RH, x0 + W, y)
+        for xx in (SG, SG + W_A):
+            msp.add_line((x0 + xx, y), (x0 + xx, y - RH), dxfattribs={'layer': S.LEJ_CER})
+        cy = y - RH / 2
+        ents = [e for e in msp.doc.blocks.get(bn) if e.dxftype() != 'ATTDEF'] if bn in msp.doc.blocks else []
+        bb = _bbox.extents(ents, fast=True) if ents else None
+        if bb is not None and bb.has_data and max(bb.size.x, bb.size.y) > 1e-6:
+            k = min(SG * 0.8 / max(bb.size.x, 1e-6), RH * 0.8 / max(bb.size.y, 1e-6), 3.0)
+            msp.add_blockref(bn, (x0 + SG / 2 - bb.center.x * k, cy - bb.center.y * k),
+                             dxfattribs={'layer': S.LEJ_SEM, 'xscale': k, 'yscale': k})
+        S._metin(msp, _insan_adi(bn), (x0 + SG + 8, cy), 9, S.LEJ_YAZ, TA.MIDDLE_LEFT)
+        S._metin(msp, str(v), (x0 + SG + W_A + W_N / 2, cy), 10, S.LEJ_YAZ, TA.MIDDLE_CENTER)
+        y -= RH
+    yy = y - 14
+    for t in ('Açıklama blok adından üretildi; kullanıcı teyit edecek.', not_ortak):
+        S._metin(msp, t, (x0, yy), 7, S.LEJ_YAZ, TA.MIDDLE_LEFT)
+        yy -= 11
+    return W, y0 - yy
+
+
 def _insan_adi(bn):
-    s = re.sub(r'^MTY-', '', bn)
+    s = re.sub(r'^(MTY|ROTAS)-', '', bn).replace('-', ' ')
     s = re.sub(r'(\D)1( |$)', r'\1\2', s)
     return s.replace('_', ' ').strip().upper()
 
@@ -545,13 +590,13 @@ def boru_metraji(msp, paftalar, kl, birim=0.01, turler=('PLAN',), ek_anahtar=())
 def metraj_ciz(msp, x0, y0, tablo, basliklar, birim_ad='m'):
     """Lejant tarzında BORU METRAJI tablosu (sol üst x0,y0). Dönüş: (genişlik, yükseklik)."""
     doc = msp.doc
-    S.hazirla(doc)
+    S.katmanlar(doc)
     W_S, W_A, W_C, W_L = 150.0, 340.0, 110.0, 130.0
     W = W_S + W_A + W_C + W_L
     PAD = 10.0
     y = y0
     S._kutu(msp, x0, y - 70, x0 + W + 2 * PAD, y)
-    S._kutu(msp, x0 + PAD, y - 60, x0 + W + PAD, y - 10, w=1.0)
+    S._kutu(msp, x0 + PAD, y - 60, x0 + W + PAD, y - 10)
     S._metin(msp, 'BORU METRAJI (KATMAN / ÇAP)', (x0 + PAD + W / 2, y - 35), 18, S.LEJ_BAS, TA.MIDDLE_CENTER, 0.9)
     y -= 80
     ytab0 = y
@@ -671,13 +716,120 @@ def _blok_imza(doc, ad):
     return tuple(sorted(sayac.items())), k
 
 
-def ek_ice_al(hedef, kaynak_yol, etiket):
+def _katman_cevir(doc, harita):
+    """harita {eski_önek: yeni_önek}: katman tablosu + model uzayı / blok içi nesneler (öznitelikler dahil).
+    Dönüş: {eski: yeni}"""
+    def yeni_ad(n):
+        for a, b in harita.items():
+            if n.upper().startswith(a.upper()):
+                return b + n[len(a):]
+        return None
+    ceviri = {l.dxf.name: yeni_ad(l.dxf.name) for l in doc.layers if yeni_ad(l.dxf.name)}
+    for eski, yeni in ceviri.items():
+        src = doc.layers.get(eski)
+        if yeni not in doc.layers:
+            doc.layers.add(yeni, color=src.dxf.color, linetype=src.dxf.linetype)
+    for lay in [doc.modelspace()] + [b for b in doc.blocks if not b.block_record.is_any_layout]:
+        for e in lay:
+            if e.dxf.get('layer', '0') in ceviri:
+                e.dxf.layer = ceviri[e.dxf.layer]
+            if e.dxftype() == 'INSERT':
+                for a in e.attribs:
+                    if a.dxf.layer in ceviri:
+                        a.dxf.layer = ceviri[a.dxf.layer]
+    for eski in ceviri:
+        doc.layers.remove(eski)
+    return ceviri
+
+
+def _metin_cevir(doc, harita):
+    n = 0
+    for e in doc.modelspace():
+        t = e.dxftype()
+        if t == 'TEXT':
+            yeni = e.dxf.text
+            for a, b in harita.items():
+                yeni = yeni.replace(a, b)
+            if yeni != e.dxf.text:
+                e.dxf.text = yeni
+                n += 1
+        elif t == 'MTEXT':
+            yeni = e.text
+            for a, b in harita.items():
+                yeni = yeni.replace(a, b)
+            if yeni != e.text:
+                e.text = yeni
+                n += 1
+    return n
+
+
+def yazi_sigdir(msp, ents=None, min_w=0.5, bosluk=1.0):
+    """Birbirine taşan TEXT çiftlerinde (MİMARİ hariç) taşan yazının genişlik çarpanını, komşusuna `bosluk` kalacak
+    kadar daraltır (hizalama noktası / yazı boyu değişmez). Dönüş: [(yazı, eski_w, yeni_w)]"""
+    ents = list(msp) if ents is None else ents
+    out = []
+    for _ in range(6):
+        ys = []
+        for e in ents:
+            if e.dxftype() == 'TEXT' and (e.dxf.text or '').strip() and not any(k in _u(e.dxf.layer) for k in MIMARI):
+                try:
+                    v = [(p.x, p.y) for p in disassemble.make_primitive(e).vertices()]
+                    pg = Polygon(v)
+                except Exception:
+                    continue
+                if pg.is_valid and pg.area > 0:
+                    ys.append((e, pg))
+        if len(ys) < 2:
+            break
+        agac = STRtree([y[1] for y in ys])
+        degisen = 0
+        for i, (e, pg) in enumerate(ys):
+            for j in agac.query(pg):
+                j = int(j)
+                if j <= i:
+                    continue
+                f, pf = ys[j]
+                if pg.intersection(pf).area <= 0.02 * min(pg.area, pf.area):
+                    continue
+                # soldaki yazı daraltılır (yatay yazılar); taşma = soldakinin sağ ucu - sağdakinin sol ucu
+                sol, ps, sag, pd = (e, pg, f, pf) if pg.bounds[0] <= pf.bounds[0] else (f, pf, e, pg)
+                gen = ps.bounds[2] - ps.bounds[0]
+                hedef = pd.bounds[0] - bosluk - ps.bounds[0]
+                if gen <= 0 or hedef <= 0:
+                    continue
+                w0 = sol.dxf.get('width', 1.0) or 1.0
+                w1 = max(min_w, w0 * hedef / gen * 0.98)
+                if w1 < w0 - 1e-3:
+                    sol.dxf.width = round(w1, 3)
+                    out.append((sol.dxf.text[:30], w0, sol.dxf.width))
+                    degisen += 1
+        if not degisen:
+            break
+    return out
+
+
+def ek_ice_al(hedef, kaynak_yol, etiket, katman_cevir=None, metin_cevir=None, sigdir=False):
     """kaynak DXF model uzayını hedefe alır. Dönüş: (yeni nesneler, rapor satırları).
-    Katman/stil adları korunur (aynı adlı katman varsa hedefteki tanım kalır); aynı adlı blok içerikçe aynıysa paylaşılır,
-    farklıysa '<ad>-<etiket>' olarak yeniden adlandırılır; anonim bloklar yeni anonim blok olur."""
+    Katman/stil adları korunur (aynı adlı katman varsa hedefteki tanım kalır) — katman_cevir {eski_önek: yeni_önek}
+    verilirse önce kaynakta çevrilir (ör. MTY-HESAP → ROTAS-HESAP); metin_cevir {eski: yeni} yazılarda değiştirilir;
+    sigdir=True ise ekin kendi içinde taşan yazıları daraltılır (yazi_sigdir). Aynı adlı blok içerikçe aynıysa
+    paylaşılır, farklıysa '<ad>-<etiket>' olarak yeniden adlandırılır; anonim bloklar yeni anonim blok olur."""
     kay = ezdxf.readfile(kaynak_yol)
-    imp = Importer(kay, hedef)
     rapor = []
+    if katman_cevir:
+        c = _katman_cevir(kay, katman_cevir)
+        if c:
+            rapor.append('%s: katman çevirisi %s' % (etiket, ', '.join('%s→%s' % kv for kv in sorted(c.items()))))
+    if metin_cevir:
+        n = _metin_cevir(kay, metin_cevir)
+        if n:
+            rapor.append('%s: %d yazıda metin çevirisi %s' % (etiket, n, metin_cevir))
+    if sigdir:
+        sg = yazi_sigdir(kay.modelspace())
+        if sg:
+            rapor.append('%s: taşan %d yazı daraltıldı (genişlik çarpanı): %s' % (
+                etiket, len(sg), '; '.join('"%s" %.2f→%.2f' % x for x in sg)))
+    imp = Importer(kay, hedef)
     yeniden = []
     for blk in kay.blocks:
         ad = blk.name
@@ -734,7 +886,7 @@ def ekleri_yerlestir(doc, ekler, paftalar, sinir, ref):
         yol = ek['yol']
         etiket = ek.get('etiket') or 'EK%d' % (i + 1)
         baslik = ek.get('baslik') or os.path.splitext(os.path.basename(yol))[0].replace('_', ' ')
-        ents, r = ek_ice_al(doc, yol, etiket)
+        ents, r = ek_ice_al(doc, yol, etiket, ek.get('katman_cevir'), ek.get('metin_cevir'), ek.get('yazi_sigdir', False))
         rapor += r
         kl = list(_tek_tek(ents))
         bb = _birlesim(b for _, b in kl)
@@ -861,9 +1013,24 @@ def audit(doc):
 
 
 # =====================================================================================  ana fonksiyon
-def bitir(giris, cikis, ekler=(), cerceve_duzelt=True, metraj_turleri=('PLAN',), boru_ek_anahtar=(), yaz=True):
-    """giris.dxf -> cikis.dxf. ekler: [yol | dict(yol, baslik?, etiket?)] — soldan sağa sırayla sol alta konur.
-    Dönüş: rapor dict."""
+def mevcut_lejant(msp, paftalar):
+    """Girdide hazır "LEJANT ... ADET / METRAJ" paftası var mı: başlık yazısı (LEJANT + METRAJ/ADET geçen) ve onu içeren
+    pafta. Dönüş: (x0, y0, x1, y1) veya None"""
+    for e in msp.query('TEXT MTEXT'):
+        t = _u(_metin_al(e))
+        if 'LEJANT' in t and ('METRAJ' in t or 'ADET' in t):
+            p = e.dxf.insert
+            for pf in paftalar:
+                if _icinde((p.x, p.y), (pf['x0'], pf['y0'], pf['x1'], pf['y1'])):
+                    return (round(pf['x0']), round(pf['y0']), round(pf['x1']), round(pf['y1']))
+    return None
+
+
+def bitir(giris, cikis, ekler=(), cerceve_duzelt=True, metraj_turleri=('PLAN',), boru_ek_anahtar=(), yaz=True,
+          lejant='otomatik'):
+    """giris.dxf -> cikis.dxf. ekler: [yol | dict(yol, baslik?, etiket?, katman_cevir?, metin_cevir?, yazi_sigdir?)]
+    — soldan sağa sırayla sol alta konur. lejant: 'otomatik' (girdide hazır lejant/metraj paftası varsa üretme),
+    True (her zaman üret), False (üretme). Dönüş: rapor dict."""
     doc = ezdxf.readfile(giris)
     msp = doc.modelspace()
     R = dict(giris=giris, cikis=cikis, uyari=[])
@@ -884,6 +1051,15 @@ def bitir(giris, cikis, ekler=(), cerceve_duzelt=True, metraj_turleri=('PLAN',),
         ref = next((p for p in paftalar if p['baslik_ent'] is not None), ref)
 
     # ---- 2) lejant + adet + metraj
+    hazir = mevcut_lejant(msp, paftalar)
+    if lejant is False or (lejant == 'otomatik' and hazir):
+        R['lejant_pafta'] = hazir
+        R['lejant_uretildi'] = False
+        R['sembol_adet'], R['sembol_tur'], R['diger_blok'], R['metraj'] = {}, {}, {}, {}
+        if hazir:
+            R['uyari'].append('Girdide hazır lejant / adet / metraj paftası var %s; yenisi üretilmedi.' % (hazir,))
+        return _ekler_ve_kontrol(doc, msp, R, ekler, paftalar, sinir, ref, yaz, cikis)
+    R['lejant_uretildi'] = True
     sayim, ornek, tur_sayim = sembol_sayimi(doc, paftalar, kl)
     diger = diger_bloklar(doc, paftalar, kl)
     R['sembol_adet'] = {'%s/%s' % k: v for k, v in sorted(sayim.items())}
@@ -914,7 +1090,10 @@ def bitir(giris, cikis, ekler=(), cerceve_duzelt=True, metraj_turleri=('PLAN',),
         R['uyari'].append('Lejant/metraj paftası içerik nedeniyle %.0f birim yüksek; çerçeve yukarı uzatıldı.' % (yuk - H))
     _pafta_ciz(msp, x0, y0, x0 + gen, y0 + yuk, ref, 'LEJANT, MALZEME / ARMATÜR ADET TABLOSU VE BORU METRAJI   ÖLÇEK : ÖLÇEKSİZ')
     R['lejant_pafta'] = (round(x0), round(y0), round(x0 + gen), round(y0 + yuk))
+    return _ekler_ve_kontrol(doc, msp, R, ekler, paftalar, sinir, ref, yaz, cikis)
 
+
+def _ekler_ve_kontrol(doc, msp, R, ekler, paftalar, sinir, ref, yaz, cikis):
     # ---- 3) ekler sol alt
     R['ekler'], r = ekleri_yerlestir(doc, list(ekler), paftalar, sinir, ref) if ekler else ([], [])
     R['uyari'] += r
@@ -924,7 +1103,8 @@ def bitir(giris, cikis, ekler=(), cerceve_duzelt=True, metraj_turleri=('PLAN',),
     R['katman_hatali'] = hatali
     R['katman_blok_ici'] = blok_ic
     R['bos_katman_silinen'] = bos_katman_temizle(doc)
-    yeni_alan = [R['lejant_pafta']] + [(e['x0'], e['y0'], e['x1'], e['y1']) for e in R['ekler']]
+    yeni_alan = ([R['lejant_pafta']] if R.get('lejant_uretildi') else []) + \
+        [(e['x0'], e['y0'], e['x1'], e['y1']) for e in R['ekler']]
     R['yazi_cakisma_tum'] = yazi_cakisma(msp)
     R['yazi_cakisma_yeni'] = yazi_cakisma(msp, alan=yeni_alan)
     R['audit_cikis'] = audit(doc)
@@ -953,7 +1133,7 @@ def rapor_yaz(R, akis=sys.stdout):
     p('Boru metrajı (m):')
     for k, v in R['metraj'].items():
         p('   %-32s %s  toplam %.1f' % (k, {c: round(x, 1) for c, x in sorted(v.items(), key=lambda a: _cap_sira(a[0]))}, sum(v.values())))
-    p('Lejant paftası: %s' % (R['lejant_pafta'],))
+    p('Lejant paftası: %s%s' % (R['lejant_pafta'], '' if R.get('lejant_uretildi') else ' (girdide hazır, üretilmedi)'))
     for e in R['ekler']:
         p('Ek: %-40s %s  (%d nesne)' % (e['baslik'], (round(e['x0']), round(e['y0']), round(e['x1']), round(e['y1'])), e['nesne']))
     p('KATMAN: ROTAS- olmayan üst seviye katmanlar: %s' % (R['katman_hatali'] or 'yok'))

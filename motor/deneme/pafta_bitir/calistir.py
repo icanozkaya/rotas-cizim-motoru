@@ -59,7 +59,7 @@ def main():
     if '--png' in sys.argv:
         k = sys.argv[sys.argv.index('--png') + 1]
         s = R['sinir_son']
-        lp = R['lejant_pafta']
+        lp = R['lejant_pafta'] or s
         e0 = R['ekler'][0] if R['ekler'] else None
         pen = [('genel', (s[0] - 200, s[1] - 200, s[2] + 200, s[3] + 200), 150),
                ('lejant_metraj', (lp[0] - 300, lp[1] - 100, lp[2] + 100, lp[3] + 100), 200)]

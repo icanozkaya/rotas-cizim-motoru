@@ -1,7 +1,7 @@
 {
-  "_not": "DENEME parametreleri — kapak değerleri örnektir, gerçek projede kullanıcıdan alınır.",
-  "giris": "proje/denemeler/uctan_uca/NB_SIHHI_DENEME.dxf",
-  "cikis": "proje/denemeler/pafta_bitir/NB_SIHHI_BITMIS_DENEME.dxf",
+  "_not": "DENEME parametreleri (R2: girdi uctan_uca R4, MTY'siz) — kapak değerleri örnektir, gerçek projede kullanıcıdan alınır.",
+  "giris": "proje/denemeler/uctan_uca/NB_SIHHI_DENEME_R4.dxf",
+  "cikis": "proje/denemeler/pafta_bitir/NB_SIHHI_BITMIS_DENEME_R2.dxf",
   "kapak_cikis": "proje/denemeler/pafta_bitir/KAPAK_SIHHI_DENEME.dxf",
   "ekler": [
     {
@@ -10,14 +10,16 @@
       "etiket": "KAPAK"
     },
     {
-      "yol": "proje/isitma_944_343/ISITMA_HESAPLARI_TABLOLAR.dxf",
-      "baslik": "ISI KAYBI HESAPLARI",
-      "etiket": "ISIKAYBI"
-    },
-    {
       "yol": "proje/hesaplar_sema/HESAPLAR_SIHHI.dxf",
       "baslik": "SIHHİ TESİSAT HESAPLARI",
-      "etiket": "SIHHIHESAP"
+      "etiket": "SIHHIHESAP",
+      "katman_cevir": {
+        "MTY-": "ROTAS-"
+      },
+      "metin_cevir": {
+        "MTY": "ROTAŞ"
+      },
+      "yazi_sigdir": true
     }
   ],
   "kapak_metin": {

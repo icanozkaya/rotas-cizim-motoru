@@ -7,10 +7,11 @@
 Her DXF için:
   MTY     : MTY kalıntısı (blok adı, blok içi katman, katman tablosu, çizgi tipi, yazı stili, yazıda 'MTY')
   ÖNEK    : 0 / Defpoints dışında ROTAS- ile başlamayan katman sayısı
-  LEJANT  : 'LEJANT' yazısı var mı
+  LEJANT  : 'LEJANT' yazısı var mı (adında KAPAK geçen dosya muaf)
   KÖPRÜ   : boru katmanında köprü (atlatma) yayı: ARC (≥150°, r≤40) veya LWPOLYLINE kavis segmenti (|bulge|≥0,8, kiriş≤80)
   KESİŞME : boru-boru kesişmesi (iki boru geometrisi uç noktaları dışında kesişiyor; köprülü kesişmeler ayrıca KÖPRÜ'de)
-  YAZI    : yazı-yazı çakışması (tahmini yazı kutuları, küçük kutunun ≥%15'i örtüşüyor)
+  YAZI    : yazı-yazı çakışması (ezdxf ölçülü yazı kutuları, küçük kutunun >%2'si; mimari-mimari ve aynı INSERT hariç)
+  PIS/TEMIZ: pis su – temiz su üst üste geçişi (farklı düzlem): kesişme değil, BİLGİ
   ELEK    : elektrik/kablo/sinyal katmanındaki nesne sayısı + 'KABLO' geçen yazı
   AUDIT   : ezdxf audit hata sayısı (düzeltmeler ayrıca)
   YETERSİZ: 'yetersiz' / 'uygun değil' geçen yazı
@@ -25,6 +26,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import ezdxf
+from ezdxf import disassemble
 from shapely import STRtree
 from shapely.geometry import LineString, Point, Polygon, box
 
@@ -32,6 +34,7 @@ KOK = Path(__file__).resolve().parents[3]
 VARSAYILAN = KOK / 'proje' / 'denemeler'
 RAPOR = KOK / 'kutuphane' / 'arastirma' / 'DENETIM_RAPORU.md'
 UC_TOL = 15.0  # cm: bir borunun ucu kesişmeye bu kadar yakınsa bağlantı (T / ağız) sayılır
+YAZI_ORAN = 0.02  # yazı çakışması eşiği: kesişim > küçük yazı kutusunun %2'si (yazı tipi ölçülü kutu)
 
 TR = str.maketrans({'İ': 'I', 'ı': 'I', 'i': 'I', 'Ğ': 'G', 'ğ': 'G', 'Ü': 'U', 'ü': 'U', 'Ş': 'S', 'ş': 'S',
                     'Ö': 'O', 'ö': 'O', 'Ç': 'C', 'ç': 'C'})
@@ -139,6 +142,131 @@ def yazi_kutusu(e):
     return Polygon(pts)
 
 
+def yazi_poligonu(e):
+    """Yazının çizimdeki kutusu: ezdxf yazı tipi ölçüsüyle (disassemble.make_primitive — uctan_uca ykontrol4 ile
+    aynı yöntem); ölçülemezse tahmini kutu (0,8·h·karakter)."""
+    try:
+        v = [(p.x, p.y) for p in disassemble.make_primitive(e).vertices()]
+        if len(v) >= 4:
+            pg = Polygon(v)
+            if pg.is_valid and pg.area > 0:
+                return pg
+    except Exception:
+        pass
+    return yazi_kutusu(e)
+
+
+def mimari_katman(ad):
+    return 'MIMARI' in norm(ad)
+
+
+def yazi_cakismalari(msp, oran=None):
+    """Yazı-yazı çakışması — denetim ve uctan_uca/ykontrol4 ORTAK kuralı.
+    Yazılar: model alanı TEXT / MTEXT / görünür ATTRIB. Sayılmayan: aynı INSERT'in kendi öznitelikleri; iki yazı da
+    MİMARİ katmanında (mimar altlığının kendi yazıları — bilgi olarak ayrı döner). Çakışma: kesişim alanı küçük
+    kutunun `oran`'ından büyük. Dönüş: (cakisma_listesi, mimari_mimari_sayisi); liste öğesi
+    (katman1, yazı1, katman2, yazı2, (x, y))."""
+    oran = YAZI_ORAN if oran is None else oran
+    ys = []
+    for e in msp:
+        t = e.dxftype()
+        if t in ('TEXT', 'MTEXT'):
+            parca = [(e, e.dxf.handle)]
+        elif t == 'INSERT':
+            parca = [(a, e.dxf.handle) for a in e.attribs if not a.is_invisible]
+        else:
+            continue
+        for y, sahip in parca:
+            s_ = (y.plain_text() if y.dxftype() == 'MTEXT' else y.dxf.text) or ''
+            if not s_.strip():
+                continue
+            pg = yazi_poligonu(y)
+            if pg is not None and pg.is_valid and pg.area > 0:
+                ys.append((y.dxf.layer, s_.strip(), pg, sahip))
+    out, mim = [], 0
+    if len(ys) < 2:
+        return out, mim
+    agac = STRtree([y[2] for y in ys])
+    sol, sag = agac.query([y[2] for y in ys], predicate='intersects')
+    for i, j in zip(sol, sag):
+        if i >= j:
+            continue
+        l1, s1, a, h1 = ys[i]
+        l2, s2, b, h2 = ys[j]
+        if h1 == h2:
+            continue
+        if a.intersection(b).area <= oran * min(a.area, b.area):
+            continue
+        if mimari_katman(l1) and mimari_katman(l2):
+            mim += 1
+            continue
+        c = a.centroid
+        out.append((l1, s1[:25], l2, s2[:25], (round(c.x), round(c.y))))
+    return out, mim
+
+
+def pis_su_katmani(ad):
+    """cazibeli pis su borusu (tavandan geçen dahil); yağmur / drenaj DEĞİL"""
+    n = norm(ad)
+    return 'PIS' in n and boru_katmani(ad)
+
+
+def temiz_su_katmani(ad):
+    n = norm(ad)
+    return any(k in n for k in ('SOGUK', 'SICAK', 'SIRKULASYON', 'TEMIZ', 'SEBEKE')) and boru_katmani(ad)
+
+
+def farkli_duzlem(l1, l2):
+    """Pis su (eğimli, döşeme altı / tavandan) ile temiz su (basınçlı, duvar / döşeme içi) farklı düzlemdedir: planda
+    veya şemada üst üste geçmeleri kesişme sayılmaz, ayrı bilgi sütununda gösterilir."""
+    return (pis_su_katmani(l1) and temiz_su_katmani(l2)) or (pis_su_katmani(l2) and temiz_su_katmani(l1))
+
+
+def boru_kesismeleri(doc, onayda=lambda p: False):
+    """Boru-boru kesişmesi — denetim ve uctan_uca çıktısının ORTAK kuralı.
+    Boru katmanları `boru_katmani`; uçlarından UC_TOL içindeki geçiş bağlantı (T / ağız) sayılır; köprü yayına 45 cm
+    içindeki kesişme köprüde sayılır. Dönüş sözlüğü: kesisme [(katman1, katman2, (x, y))] (HATA), duzlem (pis su -
+    temiz su, farklı düzlem — BİLGİ), kesisme_onayli (onaylı kazan dairesi — BİLGİ), kopru_hata, kopru_bilgi."""
+    msp = doc.modelspace()
+    boru_k = {l.dxf.name for l in doc.layers if boru_katmani(l.dxf.name)}
+    geos, lays, koprus = [], [], []
+    for e in msp:
+        if e.dxf.get('layer', '') not in boru_k or e.dxftype() not in ('LINE', 'LWPOLYLINE', 'POLYLINE', 'ARC'):
+            continue
+        g = geometri(e)
+        if g is not None:
+            geos.append(g)
+            lays.append(e.dxf.layer)
+        for p, acik in koprü_segmentleri(e):
+            koprus.append((p, acik, e.dxf.layer))
+    out = dict(boru_katman=len(boru_k), kesisme=[], duzlem=[], kesisme_onayli=[],
+               kopru_hata=[k for k in koprus if not onayda(k[0])], kopru_bilgi=[k for k in koprus if onayda(k[0])])
+    kopru_noktalari = [k[0] for k in koprus]
+    if len(geos) > 1:
+        agac = STRtree(geos)
+        sol, sag = agac.query(geos, predicate='crosses')
+        for i, j in zip(sol, sag):
+            if i >= j:
+                continue
+            a, b = geos[i], geos[j]
+            x = a.intersection(b)
+            noktalar = [x] if x.geom_type == 'Point' else \
+                [g for g in getattr(x, 'geoms', []) if g.geom_type == 'Point']
+            for p in noktalar:
+                if not (ic_nokta(a, p, UC_TOL) and ic_nokta(b, p, UC_TOL)):
+                    continue
+                if any(p.distance(k) <= 45 for k in kopru_noktalari):
+                    continue  # köprülü kesişme: KÖPRÜ sütununda sayıldı
+                kay = (lays[i], lays[j], (round(p.x, 1), round(p.y, 1)))
+                if onayda(p):
+                    out['kesisme_onayli'].append(kay)
+                elif farkli_duzlem(lays[i], lays[j]):
+                    out['duzlem'].append(kay)
+                else:
+                    out['kesisme'].append(kay)
+    return out
+
+
 def koprü_segmentleri(e):
     """boru varlığındaki köprü yaylarının (merkez nokta, açıklama) listesi"""
     out = []
@@ -200,6 +328,8 @@ def denetle(yol):
         return r
     msp = doc.modelspace()
     onayli_dosya = 'KAZAN_DAIRESI_PLAN_KESIT' in yol.name.upper()
+    # kapak istisnası: proje kapağı paftasında sembol yoktur, lejant aranmaz (diğer bütün kontroller geçerli)
+    r['kapak'] = 'KAPAK' in norm(yol.stem)
     onay_bolge = []
     for e in msp:
         try:
@@ -285,72 +415,23 @@ def denetle(yol):
     r['elektrik_katman_n'] = elek_n
     r['kablo_ornek'] = kablo_ornek[:3]
 
-    # --- boru: köprü + kesişme
-    boru_k = {l.dxf.name for l in doc.layers if boru_katmani(l.dxf.name)}
-    geos, koprus = [], []
-    for e in msp:
-        if e.dxf.get('layer', '') not in boru_k or e.dxftype() not in ('LINE', 'LWPOLYLINE', 'POLYLINE', 'ARC'):
-            continue
-        g = geometri(e)
-        if g is not None:
-            geos.append(g)
-        for p, acik in koprü_segmentleri(e):
-            koprus.append((p, acik, e.dxf.layer))
-    kopru_hata = [k for k in koprus if not onayda(k[0])]
-    kopru_bilgi = [k for k in koprus if onayda(k[0])]
-    kopru_noktalari = [k[0] for k in koprus]
-    kesisme_hata, kesisme_bilgi, kesisme_ornek = 0, 0, []
-    if len(geos) > 1:
-        agac = STRtree(geos)
-        sol, sag = agac.query(geos, predicate='crosses')
-        for i, j in zip(sol, sag):
-            if i >= j:
-                continue
-            a, b = geos[i], geos[j]
-            x = a.intersection(b)
-            noktalar = [x] if x.geom_type == 'Point' else \
-                [g for g in getattr(x, 'geoms', []) if g.geom_type == 'Point']
-            for p in noktalar:
-                if not (ic_nokta(a, p, UC_TOL) and ic_nokta(b, p, UC_TOL)):
-                    continue
-                if any(p.distance(k) <= 45 for k in kopru_noktalari):
-                    continue  # köprülü kesişme: KÖPRÜ sütununda sayıldı
-                if onayda(p):
-                    kesisme_bilgi += 1
-                else:
-                    kesisme_hata += 1
-                    if len(kesisme_ornek) < 5:
-                        kesisme_ornek.append('(%.0f, %.0f)' % (p.x, p.y))
-    r['boru_katman'] = len(boru_k)
-    r['kopru'] = len(kopru_hata)
-    r['kopru_bilgi'] = len(kopru_bilgi)
-    r['kopru_ornek'] = ['%s (%.0f, %.0f) %s' % (k[2], k[0].x, k[0].y, k[1]) for k in kopru_hata[:5]]
-    r['kesisme'] = kesisme_hata
-    r['kesisme_bilgi'] = kesisme_bilgi
-    r['kesisme_ornek'] = kesisme_ornek
+    # --- boru: köprü + kesişme (ortak kural: boru_kesismeleri)
+    bk = boru_kesismeleri(doc, onayda)
+    r['boru_katman'] = bk['boru_katman']
+    r['kopru'] = len(bk['kopru_hata'])
+    r['kopru_bilgi'] = len(bk['kopru_bilgi'])
+    r['kopru_ornek'] = ['%s (%.0f, %.0f) %s' % (k[2], k[0].x, k[0].y, k[1]) for k in bk['kopru_hata'][:5]]
+    r['kesisme'] = len(bk['kesisme'])
+    r['kesisme_bilgi'] = len(bk['kesisme_onayli'])
+    r['kesisme_ornek'] = ['%s / %s (%.0f, %.0f)' % (l1, l2, x, y) for l1, l2, (x, y) in bk['kesisme'][:5]]
+    r['duzlem'] = len(bk['duzlem'])
+    r['duzlem_ornek'] = ['(%.0f, %.0f)' % xy for _, _, xy in bk['duzlem'][:3]]
 
-    # --- yazı-yazı çakışması
-    kutular = []
-    for e in yazilar:
-        k = yazi_kutusu(e)
-        if k is not None and k.is_valid and k.area > 0:
-            kutular.append(k)
-    cak, cak_ornek = 0, []
-    if len(kutular) > 1:
-        agac = STRtree(kutular)
-        sol, sag = agac.query(kutular, predicate='intersects')
-        for i, j in zip(sol, sag):
-            if i >= j:
-                continue
-            a, b = kutular[i], kutular[j]
-            alan = a.intersection(b).area
-            if alan >= 0.15 * min(a.area, b.area):
-                cak += 1
-                if len(cak_ornek) < 5:
-                    c = a.centroid
-                    cak_ornek.append('(%.0f, %.0f)' % (c.x, c.y))
-    r['yazi'] = cak
-    r['yazi_ornek'] = cak_ornek
+    # --- yazı-yazı çakışması (ortak kural: yazi_cakismalari)
+    yc, yc_mim = yazi_cakismalari(msp)
+    r['yazi'] = len(yc)
+    r['yazi_mimari'] = yc_mim
+    r['yazi_ornek'] = ['%s "%s" / %s "%s" (%d, %d)' % (a, b, c, d, p[0], p[1]) for a, b, c, d, p in yc[:5]]
 
     # --- audit (son: belgeyi değiştirebilir)
     try:
@@ -363,7 +444,7 @@ def denetle(yol):
         r['audit_duzeltme'] = 0
         r['audit_ornek'] = ['audit çöktü: %s' % ex]
 
-    r['gecti'] = (r['mty'] == 0 and r['onek'] == 0 and r['lejant'] and r['kopru'] == 0 and r['kesisme'] == 0
+    r['gecti'] = (r['mty'] == 0 and r['onek'] == 0 and (r['lejant'] or r['kapak']) and r['kopru'] == 0 and r['kesisme'] == 0
                   and r['yazi'] == 0 and r['elektrik'] == 0 and r['audit'] == 0 and not r['yetersiz'])
     return r
 
@@ -404,7 +485,9 @@ def dosyalari_topla(args):
     for k in kaynak:
         k = k if k.is_absolute() else (Path.cwd() / k)
         if k.is_dir():
-            out += sorted(k.rglob('*.dxf'))
+            # _arsiv (eski revizyon arşivi) yalnız açıkça verilirse denetlenir
+            out += sorted(f for f in k.rglob('*.dxf')
+                          if '_arsiv' not in f.relative_to(k).parts)
         elif k.suffix.lower() == '.dxf' and k.exists():
             out.append(k)
         else:
@@ -424,7 +507,7 @@ def isaret(ok):
 
 
 SUTUN = ['Dosya', 'Rev', 'Sonuç', 'MTY', 'Önek', 'Lejant', 'Köprü', 'Kesişme', 'Yazı', 'Elek', 'Audit',
-         'Yetersiz', 'Onaylı (bilgi)']
+         'Yetersiz', 'Pis/temiz (bilgi)', 'Onaylı (bilgi)']
 
 
 def satir(r, durum):
@@ -433,8 +516,9 @@ def satir(r, durum):
     bilgi = ''
     if r['onayli']:
         bilgi = '%s: köprü %d, kesişme %d' % (r['onayli'], r['kopru_bilgi'], r['kesisme_bilgi'])
-    return [goreli(r['dosya']), durum, isaret(r['gecti']), r['mty'], r['onek'], isaret(r['lejant']),
-            r['kopru'], r['kesisme'], r['yazi'], r['elektrik'], r['audit'], len(r['yetersiz']), bilgi]
+    lej = '- (kapak)' if r['kapak'] else isaret(r['lejant'])
+    return [goreli(r['dosya']), durum, isaret(r['gecti']), r['mty'], r['onek'], lej,
+            r['kopru'], r['kesisme'], r['yazi'], r['elektrik'], r['audit'], len(r['yetersiz']), r['duzlem'] or '', bilgi]
 
 
 def konsol_tablo(baslik, satirlar):
@@ -468,14 +552,19 @@ def ayrinti_md(r):
                   ' — örn. ' + '; '.join('%s: %s' % (k, ', '.join(v[:3])) for k, v in r['mty_ornek'].items() if v))
     if r['onek']:
         ps.append('ROTAS- olmayan katman: ' + ', '.join(r['onek_ornek']))
-    if not r['lejant']:
+    if not r['lejant'] and not r['kapak']:
         ps.append('LEJANT yazısı yok')
     if r['kopru']:
         ps.append('köprü: ' + '; '.join(r['kopru_ornek']))
     if r['kesisme']:
         ps.append('kesişme noktaları: ' + ', '.join(r['kesisme_ornek']))
     if r['yazi']:
-        ps.append('yazı çakışması: ' + ', '.join(r['yazi_ornek']))
+        ps.append('yazı çakışması: ' + '; '.join(r['yazi_ornek']))
+    if r['duzlem']:
+        ps.append('pis su / temiz su farklı düzlem üst üste geçiş (bilgi, hata değil): %d — örn. %s'
+                  % (r['duzlem'], ', '.join(r['duzlem_ornek'])))
+    if r.get('yazi_mimari'):
+        ps.append('mimari altlığın kendi yazı çakışması (bilgi, mimar çizimi değiştirilmez): %d' % r['yazi_mimari'])
     if r['elektrik']:
         ps.append('elektrik: katman %s (%d nesne); KABLO yazısı %d%s' % (
             ', '.join(r['elektrik_ornek']) or '-', r['elektrik_katman_n'], r['elektrik'] - r['elektrik_katman_n'],
@@ -545,7 +634,8 @@ def rapor_yaz_md(yol, dosyalar, sonuc, guncel, eski, n_g, args):
           'istisnası **yok**; onaylı çizimdeki köprü/kesişmeler yalnız bilgi olarak verilir.', '',
           '**Sütunlar:** MTY = MTY kalıntısı toplamı (blok adı + blok içi katman + katman + çizgi tipi + yazı stili + '
           'blok ekleme + yazı); Önek = 0/Defpoints dışında ROTAS- olmayan katman; Köprü = boru katmanında atlatma yayı; '
-          'Kesişme = köprüsüz boru-boru kesişmesi; Yazı = yazı-yazı çakışan çift; Elek = elektrik/kablo/sinyal '
+          'Kesişme = köprüsüz boru-boru kesişmesi (pis su-temiz su hariç); Yazı = yazı-yazı çakışan çift; '
+          'Pis/temiz (bilgi) = farklı düzlemdeki pis su-temiz su üst üste geçişi; Elek = elektrik/kablo/sinyal '
           'katmanındaki nesne + KABLO yazısı; Audit = ezdxf audit hatası; Yetersiz = "yetersiz/uygun değil" yazısı.',
           '', '## En yeni revizyonlar (%d dosya: %d ✓, %d ✗)' % (len(guncel), n_g, len(guncel) - n_g), '',
           md_tablo(guncel), '## Eski revizyonlar (bilgi; yerini daha yeni R almış)', '', md_tablo(eski),
@@ -559,8 +649,10 @@ def rapor_yaz_md(yol, dosyalar, sonuc, guncel, eski, n_g, args):
            '15 cm içerideki geçişler (T bağlantısı, kanal ağzına giren flex vb. sayılmaz).',
            '- Köprü: boru katmanında ARC (≥150°, r≤40 cm) veya LWPOLYLINE kavis segmenti (|bulge|≥0,8, kiriş≤80 cm). '
            'Köprü noktasına 45 cm içindeki kesişmeler kesişme sütununda tekrar sayılmaz.',
-           '- Yazı kutuları yazı tipi ölçülmeden tahmin edilir (karakter genişliği 0,8·h); küçük kutunun ≥%15 '
-           'örtüşmesi çakışma sayılır. Yalnız model alanı yazıları (blok öznitelikleri dahil).',
+           '- Yazı kutuları ezdxf yazı tipi ölçüsüyle (ölçülemezse 0,8·h·karakter); kesişim > küçük kutunun %2\'si çakışma. '
+           'Aynı INSERT\'in öznitelikleri ve mimari-mimari çiftleri sayılmaz (uctan_uca ykontrol4 ile ortak kural).',
+           '- Pis su ile temiz su farklı düzlemdedir: üst üste geçişleri kesişme sayılmaz, "Pis/temiz (bilgi)" sütununda verilir.',
+           '- Dosya adında KAPAK geçen pafta lejant kontrolünden muaftır. Varsayılan taramada `_arsiv` atlanır.',
            '- Onaylı bölge: `*KAZAN_DAIRESI_PLAN_KESIT*` dosyaları tamamen; diğer dosyalarda XDATA '
            '`ROTAS: ONAYLI_KAZAN_DAIRESI` çerçevesinin içi.', '']
     yol.parent.mkdir(parents=True, exist_ok=True)

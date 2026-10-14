@@ -22,6 +22,12 @@ python3 /home/claude/rotas-cizim-motoru/motor/deneme/uctan_uca/ykontrol4.py <dxf
 - `cikti4.py`: cikti3 akışı + `etiket4` + pafta sonu lejant (`lejant4`: kendi ROTAS saf geometri bloklarımız, açıklama semboller2,
   PLAN ADET / ŞEMA ADET, boru çizgi örnekleri) + armatür adet + vana/sayaç/süzgeç/fan adet + boru metrajı; çerçeve içerikten.
   pafta_bitir'e dokunulmadı (semboller v1/MTY bağımlılığı burada semboller2 ile çözüldü).
+- 14.10.2026 düzeltme (`cikti4.son_islem` yeniden çalıştırıldı, tasarım aynı): katman tablosunda kalan öneksiz eski
+  katmanlar ROTAS- karşılığına (`MIMARI*` → `ROTAS-MIMARI*`, `RAST-TEM-SU DEPOSU` → `ROTAS-TEMIZ-SU-DEPOSU`,
+  `STM-ISITMA-CAP` → `ROTAS-ISITMA-CAP`; `katman_tablosu_onek`). `ykontrol4` artık `denetim/denetle.yazi_cakismalari`
+  kullanır, özet `kontrol.boru_kesisme` = `denetle.boru_kesismeleri` (iki araç aynı sayı: yazı 0, kesişme 0, pis su - temiz
+  su farklı düzlem bilgi 80 — plan 29 tavandan pis su geçişi + şema 51 kat dağıtım hattı / pis su kolonu). Çalıştırma:
+  `cd /tmp/claude-0/uu4 && PYTHONPATH=/home/claude/nb:/home/claude/nb/p2:<depo>/motor/deneme/uctan_uca python3 <depo>/motor/deneme/uctan_uca/cikti4.py`
 R4 sonuç: yazı-yazı çakışması 0 (R3: 404), MTY 0, temiz su / pis su kesişmesi 0, köprü 0, yasak bölge 0, kolon-şaft 0, süzgeç 27/27, 45° dışı 0,
 şemada sayaç hattı kesişmesi 0, pis su–temiz su planda üst üste 176 → 112, AUDIT 0.
 
