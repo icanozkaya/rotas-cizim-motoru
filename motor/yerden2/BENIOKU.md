@@ -1,81 +1,132 @@
 # yerden2 — yerden ısıtma kat planları + kolon şeması (new_block)
 
 ```
-python3 motor/yerden2/yerden.py [--png] [--etiket-ust] [--ayaklar] [--yenile]
-python3 motor/yerden2/yi_onizleme.py          # yalnız önizleme (DXF üretilmişse)
+python3 motor/yerden2/yerden.py [--png] [--cep] [--ayaklar] [--yenile]
+python3 motor/yerden2/yi_kirp.py            # kontrolör tarzı yan yana kırpımlar (motor | kullanıcı) -> onizleme/kirp/
+python3 motor/yerden2/yi_onizleme.py        # yalnız önizleme (DXF üretilmişse)
 python3 motor/deneme/denetim/denetle.py proje/denemeler/yerden2/NB_YERDEN_ISITMA.dxf
 ```
 | Seçenek | Ne yapar |
 |---|---|
 | `--png` | `proje/denemeler/yerden2/onizleme/` içine kat planı, şema ve referansla yan yana PNG'ler |
-| `--etiket-ust` | Devre etiketi için cep bırakılmaz; tablo serpantinin üstüne maskeli olarak konur (kullanıcının kendi çizimindeki gibi) |
-| `--ayaklar` | Varsayılan olarak kapalı. Henüz uygulanmadı, yalnız uyarı verir. Kullanıcının çiziminde planda ayak yok, bağlantı yalnız şemada gösteriliyor |
+| `--cep` | (eski, tur 1) devre etiketi için serpantinde cep bırakır. **Varsayılan (tur 2): etiket serpantinin üstünde, altı WIPEOUT maskeli** (kullanıcının çizimi gibi) |
+| `--ayaklar` | Uygulanmadı, yalnız uyarı. Kullanıcının çiziminde planda ayak yok, bağlantı yalnız şemada |
 | `--yenile` | Mimari tanıma önbelleğini (`/tmp/claude-0/y2/onbellek`) yeniden kurar |
 
-Çıktılar `proje/denemeler/yerden2/` içinde:
-- `NB_YERDEN_ISITMA.dxf`: AC1032 biçiminde, birimi cm. Zemin, 1. ve 2. kat planları kaynak koordinatlarında, kolon şeması 2. katın sağında (x 258 850). Ayrıca lejant ve notlar var.
-- `NB_YERDEN_ISITMA.xlsx`: `sablon/ornek_yi.xlsx` kopyası, formüller korunuyor.
-- `NB_YERDEN_ISITMA_model.json`: mahal ve devre verisi. Şema ve Excel bu dosyadan okunuyor.
-- `KONTROL.json`: kontrol sonuçları.
-
-Bir koşu yaklaşık 25 s sürüyor, `--png` ile yaklaşık 60 s.
+Çıktılar `proje/denemeler/yerden2/` içinde: `NB_YERDEN_ISITMA.dxf` (AC1032, cm; 3 kat planı kaynak koordinatında, kolon
+şeması x 258 850'de), `NB_YERDEN_ISITMA.xlsx`, `NB_YERDEN_ISITMA_model.json`, `KONTROL.json` (tüm kontroller, yoğunluk
+tablosu, MMO yüzey sıcaklıkları). Bir koşu ≈ 30 s, `--png` ile ≈ 70 s, `yi_kirp.py` ≈ 75 s.
 
 ## Modüller
 | Dosya | Görev |
 |---|---|
-| `mimari_yi.py` | Mahal tanıma `sihhi2/mimari2.Kat` ile yapılıyor (kontrolörle aynı yöntem). Bu modül ısıtılan mahalleri ve sıcaklıklarını belirler, poligonu başka bir mahal etiketini içine alan odayı böler (yatak odasından açılan yüklük gibi), kapıları bulur ve tefriş engellerini çıkarır. Engeller, mahal içindeki çizgilerin kapattığı bölgelerdir: tezgâh, buzdolabı, klozet, lavabo, duş teknesi, çamaşır makinesi. Kapı kanadı ve süpürme yayı engel sayılmaz. Isıtma bölgesi de burada çıkarılır: duvardan 7,5 cm içeride, girinti ve çıkıntıları temizlenmiş alan |
-| `serpantin.py` | Meander geometrisi kanonik çerçevede kurulur (uç köşesi sol altta), sonra aynalanarak yerine konur |
-| `tasarim.py` | Köşe seçimi (kapıya en yakın köşe; kaplama en iyinin %93'ünden düşükse daha iyi kaplayan köşe), devre sayısı, bant bölmesi ve etiket cebi |
-| `yerden.py` | Ana akış: mimari altlık, numaralama, etiket yerleşimi, DXF |
-| `yi_sema.py` | Kolon şeması (saf geometri) |
-| `excel_yi.py` | Excel girdileri |
-| `yi_kontrol.py` | Kontroller ve `denetle.py` çağrısı |
-| `yi_onizleme.py` | PNG önizlemeler |
+| `mimari_yi.py` | Mahal tanıma (`sihhi2/mimari2.Kat`), ısıtılan mahal ve sıcaklık, yüklük bölme, kapılar, tefriş engelleri, ısıtma bölgesi. Kapı kanadına değen kısa çizgiler ve kapı etiket dairesi (K2, r≈8) kapı parçasıdır; süpürme alanı engel değildir. Islak hacimde yalnız duş teknesi/küvet, klozet, lavabo (ve küçük süzgeç) hariç tutulur. Lavabo, içinde batarya daireleri olan küçük kutudan tanınır |
+| `serpantin.py` | Meander. `kur()` satır fazını (0–12,5 cm) ve uç tarafında atlanan satır sayısını (0–6) tarayıp en çok boru veren düzeni seçer. `kur_merdiven()` tek devreli mahallerde **basamaklı besleme** kurar: besleme hattı her satır grubunda sol sınıra yaslanır, gruplar arasında kısa yatay bir basamakla kayar (klozet/lavabo yanı, L hol, kapı girintisi) |
+| `tasarim.py` | Köşe seçimi (kapıya en yakın köşe; kaplama en iyinin %97'sinden azsa daha iyi kaplayan köşe), devre sayısı, bant bölmesi. Tek devrede normal ve basamaklı düzenden uzun olanı alır |
+| `yerden.py` | Ana akış, numaralama, etiket yerleşimi, DXF |
+| `yi_sema.py` | Kolon şeması (saf geometri), gerçek kollektör çizimi |
+| `excel_yi.py` | Excel (şablon formülleri korunur) |
+| `yi_kontrol.py` | Kontroller, yoğunluk tablosu, `denetle.py` |
+| `yi_onizleme.py`, `yi_kirp.py` | PNG önizlemeler, kontrolör tarzı yan yana kırpımlar |
 
-## Uygulanan kurallar
-Referans: `YERDEN_ISITMA_ALTIN_REFERANS.md` §7 ve README.
-- **Serpantin:** Her devre tek bir açık LWPOLYLINE, katmanı `ROTAS-ISITMA-PEX` (renk 1, lw 30). Parmaklar X eksenine paralel, boru aralığı 15. U dönüşü r 7 yay + 1 cm düz + r 7 yay (bulge 0,4142). Besleme hattı dikey ve ilk dönüş tepesinin 15 cm dışında. İki uç aynı köşede, aralarında 15 cm. Kenar mesafesi 7,5.
-- **Devre bölme:** 14 m² ve üstü mahaller en az 2 devre. Hedef devre boyu ≤ 70 m, kesin sınır ≤ 80 m. Bölme parmaklara paralel bantlarla yapılıyor. Uzak devrenin besleme ve dönüş ayağı köşeye kadar iniyor; yakın devrenin besleme hattı 30 cm içeride.
-- **Isıtılan / ısıtılmayan mahaller:**
-  - Isıtılır: oda, salon, mutfak 20 °C; antre-koridor 15 °C (ayrı devre); banyo, wc-banyo ve 2 m² üstü wc-duş 24 °C.
-  - Isıtılmaz: balkon, yüklük, 2 m² altı wc-lvb ve duş, merdiven, asansör, ortak alanlar.
-- **Numaralama:** Kat içinde daire sırasıyla, sonra mutfak, oda, hol, banyo sırasıyla gider. Zon kodları zeminde Z01…, 1. katta 101…, 2. katta 201…. Devre numarası her katta 1'den başlar.
-- **Devre etiketi:** `ROTAS-YI-ETIKET` bloğu. Sarı tablo 150×80, 4 satır: Hat uzunluğu / Modülasyon Aralığı 15.0 / Kcal/h: W / Isıtma Devresi-No. Yazı yüksekliği 10, genişlik çarpanı 0,65. W = 35 W/m × L ve L yaylar dahil gerçek polyline boyu. Yerleşim sırası:
-  1. **Cep:** Devrenin kendi bandında, uç köşesine yakın, besleme hattının 10 cm içinde. Parmaklar cebin 7,5 cm dışında kısalıyor, yani serpantin dışında boş bir alan kalıyor.
-  2. Cep sığmazsa oda içinde boş bir yer; o da yoksa oda içinde maskeli (WIPEOUT).
-  3. O da olmazsa oda dışında boş bir yer ve uca bir kılavuz çizgi. Bu yer yazı, etiket ve boru içermiyor, mimari çizgi üstüne binmesi cezalandırılıyor.
-- **Mahal etiketi:** `ROTAS-YI-MAHAL` bloğu: yuvarlatılmış kutu ve 3 halka (sarı-cyan-cyan-sarı). Üstte cyan h12 "20°C", altta kırmızı h12 "Z05". Mahal adının üstünde duruyor, altı maskeli (README: "altı maskeli").
-- **Planda olmayanlar:** Kollektör, kombi ve ayak yok (kullanıcının çiziminde de yok). Mimari (`ROTAS-MIMARI*`) hiç silinmiyor.
-- **Şema:** Kat bantları 400 cm yüksekliğinde, sol sütunda dikey kırmızı h25 kat adı. Kombi ve kollektör çiziliyor, yanında "H. KOMBİ 24KW" (daire toplamı 20 kW'yi aşarsa 28). Daire balonu r 55/49, h40. Paneller kollektörden 290 cm sonra başlıyor, 200 cm adımla diziliyor, devre numarası büyükten küçüğe. Gidiş (Px−5) ve dönüş (Px) hatları döşeme altında kademeli iniyor, aralık 5/10. Hat etiketi "NNNN.NW-Ø20", kollektör etiketi "ΣW-Ø32". Değerler plan etiketleriyle aynı.
+## Uygulanan kurallar (tur 2)
+- **Serpantin:** Her devre tek açık LWPOLYLINE (`ROTAS-ISITMA-PEX`). Parmaklar X eksenine paralel, aralık 15. U dönüşü r 7 + 1 + r 7 (bulge 0,4142). İki uç aynı köşede, 15 cm arayla. Kenar payı 7,5. Etiket için cep yok, mahal tam doldurulur.
+- **Devre bölme:** 14 m² ve üstü mahal en az 2 devre. Hedef ≤ 70 m, kesin sınır ≤ 80 m (bu koşuda en uzun 65,76 m). 3 m'den kısa devre yok.
+- **Isıtılan:** oda, salon, mutfak 20 °C; antre-koridor 15 °C; banyo ve wc-banyo 24 °C.
+- **Isıtılmayan:** balkon, yüklük, merdiven, asansör, ortak alan. Adında "banyo" geçmeyen ve 2,7 m² ya da daha küçük ıslak hacimler de ısıtılmaz (wc-lavabo, duş, 1. kat D6 wc-duş 2,65 m²). Kullanıcı da bu katta yalnız yanındaki banyoyu ısıtmış ve ona 121 numarasını vermiş.
+- **Devre etiketi** (`ROTAS-YI-ETIKET`, 150×80, W = 35 W/m × L): Yalnız kendi mahalinin içinde, serpantinin üstünde, altı WIPEOUT. Kılavuz çizgisi yok. Yer arama sırası:
+  1. Serbest zemin (vitrifiye ve mimari çizgi dışı)
+  2. Mimari çizgi üstü
+  3. Mahal içinde her yer
+  4. Sığmazsa ölçek sırasıyla: 0,85 / 0,75 → 90° (hol boyunca) → 0,7 / 0,65. Bu koşuda 90° hiç kullanılmadı, küçük ölçek kat başına 3 etikette var (2 hol, 1 wc-banyo).
 
-## Kontrol sonuçları (son koşu, 3 kat, 82 devre)
-| Kontrol | Sonuç |
-|---|---|
-| Devre kendini kesiyor mu | 0 |
-| Devre–devre kesişme | 0 |
-| Devreler arası mesafe 10 cm'nin altında | 0 |
-| Tefriş ile kesişme | 0 |
-| Isıtılmayan mahal ile kesişme | 0 |
-| Mahal dışına taşma | 0 |
-| L > 80 m | 0 (en uzun 59,5 m) |
-| Uç aralığı 15 değil | 0 |
-| Bulge ≠ 90° | 0 |
-| Etiket–etiket çakışma | 0 |
-| Etiket–mimari yazı çakışma | 0 |
-| Cepteki etiket–boru çakışma | 0 |
-| `denetle.py` | MTY 0, önek 0, köprü 0, kesişme 0, yazı 0, audit 0, lejant var: GEÇTİ (mimarın kendi yazı çakışmaları 111, yalnız bilgi) |
+  Küçük mahalde önce mahal etiketi, sonra devre etiketi yerleşir; sığmazsa sıra tersine çevrilir.
+- **Mahal etiketi** (`ROTAS-YI-MAHAL`): Mahal içinde durur. Vitrifiye, duş teknesi, küvet, duvar ve yazı üstüne binmez. Gerekirse 0,8 ölçeğe iner, boru üstündeyse maskelenir.
+- **Şema:** Pafta 6692 × 2900, bant içi 6490 (kullanıcının şemasında 6693 / 6490). Daire genişliği 290 + 200·(n−1) + 254.
+  - **Kollektör** gerçek çizimle gösterilir: dolap ve kaide, gidiş/dönüş barı, ağız başına gidişte ayar vanası + rekor ve dönüşte debimetre + rekor, uç braketleri, sol uçlarda kelebek kollu küresel vana + rakor, hava pürjörleri. Ağız adımı 10, gidiş–dönüş kaydırması 5.
+  - **Kombi bağlantısı** kullanıcının bloğundaki gibi: Gidiş kombinin sağından iner ve üst bara girer. Dönüş soldan iner, alt bara girer ve aşağıda küresel vanaya devam eder. Vana yalnız dönüşte.
+  - Bantların üstü boş bırakılır. Başlık, lejant ve notlar bantların altındaki şeritte.
+- **Isıl güç esası (R6):** Plan etiketi, şema ve Excel aynı esası kullanır: **35 W/m × L**. Excel'de bu PETEK LİST D/E/F, YERDEN ISITMA D/M/N ve MMO qh sütunlarına yazılır. Esas, teknik raporun 1.3 bölümünde belirtilir. Şablonda başka projeye ait U değerleri vardı, kaldırıldı.
+- **MMO yüzey sıcaklığı:** Ty = Ti + (q"/8,92)^0,91. 35 W/m × L ve 15 cm aralıkta q" ≈ 160–220 W/m², Ty 30–40 °C çıkıyor. **81 devrenin tamamı sınırı aşıyor** (oturma 29 °C, banyo 33 °C).
+  - Sınırda kalmak için q" ≤ 100 W/m² olmalı. 35 W/m ile bu yaklaşık 35 cm boru aralığı demek.
+  - Bu aralık, R1 yoğunluk şartıyla (≥ 6 m/m²) ve kullanıcının 15 cm seçimiyle çelişiyor. Bu yüzden aralık değiştirilmedi.
+  - MMO sayfalarında sınırı aşan hücreler kırmızı, altta UYARI satırı var.
+  - Karar kullanıcıda: ısı kaybı hesabıyla qh girilmeli ya da W esası değişmeli.
+- **Excel:**
+  - Dış bağlantı (`…/dcm/PROJE/MEKANİK HESAPLAR KOMBİ.xls`) paketten silindi, "dcm" izi kalmadı.
+  - Yazdırma alanları: kapak A1:I42, TEKNİK RAPOR A1:H40; ikisi de A4 dikey, sayfaya sığdır.
+  - LibreOffice ile yeniden hesap: 1981 formül, hata 0.
 
-Etiketlerin 46'sı cepte, 36'sı oda içinde maskeli ya da oda dışında kılavuzlu. Bu 36'nın çoğu banyo, hol, wc-banyo gibi küçük mahallerde.
+## Boru yoğunluğu (son koşu)
+- **m/m² mimari:** boru boyu / mimarın m² yazısı (kontrolörün ölçüsü)
+- **m/m² net:** boru boyu / ısıtma alanı (mahal − tefriş/vitrifiye)
 
-## Referanstan farklar
-- **Etiket cebi:** Kullanıcının çiziminde tablo serpantinin üstüne biniyor (maske yok). Görev tanımı "serpantin dışında boş alanda" dediği için burada cep bırakılıyor. Bunun bedeli devre başına yaklaşık 9 m daha az boru. Örneğin 9 m² oda cepsiz 51 m, cepli 42 m; 14 m² oda cepsiz 82 m, cepli 64 m. `--etiket-ust` kullanıcının çizim davranışına döner.
-- **Etiket bloğu:** Etiket blokları ölçek 1, dönüş 0. Yazılar okunur, referanstaki aynalı INSERT yok.
-- **Uç köşesi:** Kuralla seçiliyor (kapıya en yakın köşe). Kullanıcı köşeyi elle seçmiş.
-- **Alt satır atlama:** Bazı odalarda köşe girintisi yüzünden alttaki 1–4 satır atlanıyor ve köşede küçük boşluk kalıyor.
-- **Excel:** Isı kaybı sayfaları (ZEMİN, 1 NK) ve TEKNİK RAPOR (2) şablondaki başka bir projenin verisi, bu yüzden kaldırıldı. Bu projede ısı kaybı hesabı yok. PETEK LİST "D" ve MMO "qh" değerleri şablonun birim verimiyle (17,5 W/m × L) yazıldı. Plandaki etiket ise kullanıcının davranışına göre 35 W/m × L. 35 W/m ile q" yaklaşık 200 W/m² çıkıyor ve döşeme yüzeyi 37 °C oluyor, gerçekçi değil. Mahal m² değeri mimarın m² yazısından alınıyor. Formüller korunuyor; LibreOffice ile yeniden hesaplamada hata 0.
+| Zon | Daire | Mahal | m² mimari | m² net | L (m) | Devreler | m/m² mimari | m/m² net |
+|---|---|---|---|---|---|---|---|---|
+| Z01 | D1 | mutfak | 11.07 | 7.83 | 48.24 | 48.24 | 4.36 | 6.16 |
+| Z02 | D1 | yatak od. | 14.25 | 13.60 | 82.06 | 42.89 + 39.17 | 5.76 | 6.04 |
+| Z03 | D1 | yatak od. | 9.31 | 8.78 | 52.88 | 52.88 | 5.68 | 6.03 |
+| Z04 | D1 | yatak od. | 9.31 | 8.84 | 53.32 | 53.32 | 5.73 | 6.03 |
+| Z05 | D1 | salon | 21.18 | 20.10 | 121.17 | 59.14 + 62.03 | 5.72 | 6.03 |
+| Z06 | D1 | antre-kor. | 7.77 | 7.61 | 43.50 | 43.50 | 5.60 | 5.72 |
+| Z07 | D1 | banyo | 5.36 | 3.38 | 17.03 | 17.03 | 3.18 | 5.04 |
+| Z08 | D2 | mutfak | 11.07 | 7.87 | 48.40 | 48.40 | 4.37 | 6.15 |
+| Z09 | D2 | yatak od. | 14.25 | 13.84 | 81.29 | 41.72 + 39.57 | 5.70 | 5.87 |
+| Z10 | D2 | yatak od. | 9.31 | 8.76 | 52.88 | 52.88 | 5.68 | 6.04 |
+| Z11 | D2 | yatak od. | 9.31 | 8.83 | 53.16 | 53.16 | 5.71 | 6.02 |
+| Z12 | D2 | salon | 21.18 | 20.17 | 121.53 | 59.50 + 62.03 | 5.74 | 6.03 |
+| Z13 | D2 | antre-kor. | 7.77 | 7.67 | 43.80 | 43.80 | 5.64 | 5.71 |
+| Z14 | D2 | banyo | 5.36 | 3.29 | 16.03 | 16.03 | 2.99 | 4.88 |
+| Z15 | D3 | mutfak | 10.11 | 7.23 | 39.16 | 39.16 | 3.87 | 5.41 |
+| Z16 | D3 | yatak od. | 15.44 | 14.32 | 86.62 | 43.80 + 42.82 | 5.61 | 6.05 |
+| Z17 | D3 | yatak od. | 9.05 | 8.64 | 53.12 | 53.12 | 5.87 | 6.15 |
+| Z18 | D3 | salon | 22.31 | 20.95 | 126.78 | 65.76 + 61.02 | 5.68 | 6.05 |
+| Z19 | D3 | oda | 7.75 | 7.31 | 46.26 | 46.26 | 5.97 | 6.33 |
+| Z20 | D3 | antre-kor. | 11.00 | 10.28 | 57.11 | 57.11 | 5.19 | 5.56 |
+| Z21 | D3 | wc+banyo | 4.37 | 2.36 | 11.99 | 11.99 | 2.74 | 5.08 |
+| 101 | D4 | mutfak | 11.07 | 7.87 | 48.44 | 48.44 | 4.38 | 6.15 |
+| 102 | D4 | yatak od. | 14.25 | 15.15 | 87.70 | 41.72 + 45.98 | 6.15 | 5.79 |
+| 103 | D4 | yatak od. | 9.31 | 8.78 | 52.88 | 52.88 | 5.68 | 6.02 |
+| 104 | D4 | yatak od. | 9.31 | 8.83 | 53.16 | 53.16 | 5.71 | 6.02 |
+| 105 | D4 | salon | 21.18 | 20.13 | 121.02 | 59.10 + 61.92 | 5.71 | 6.01 |
+| 106 | D4 | antre-kor. | 7.77 | 7.66 | 43.80 | 43.80 | 5.64 | 5.72 |
+| 107 | D4 | banyo | 5.04 | 3.28 | 16.02 | 16.02 | 3.18 | 4.88 |
+| 108 | D5 | mutfak | 10.11 | 7.11 | 38.32 | 38.32 | 3.79 | 5.39 |
+| 109 | D5 | yatak od. | 15.44 | 14.31 | 86.62 | 43.80 + 42.82 | 5.61 | 6.05 |
+| 110 | D5 | yatak od. | 9.05 | 8.64 | 53.12 | 53.12 | 5.87 | 6.15 |
+| 111 | D5 | salon | 22.31 | 20.93 | 122.85 | 60.92 + 61.93 | 5.51 | 5.87 |
+| 112 | D5 | oda | 7.75 | 7.29 | 46.14 | 46.14 | 5.95 | 6.33 |
+| 113 | D5 | antre-kor. | 11.00 | 10.30 | 57.29 | 57.29 | 5.21 | 5.56 |
+| 114 | D5 | wc-banyo | 4.37 | 2.36 | 11.99 | 11.99 | 2.74 | 5.08 |
+| 115 | D6 | mutfak | 11.07 | 7.83 | 48.24 | 48.24 | 4.36 | 6.16 |
+| 116 | D6 | yatak od. | 14.25 | 13.62 | 82.22 | 43.01 + 39.21 | 5.77 | 6.03 |
+| 117 | D6 | yatak od. | 9.31 | 8.80 | 53.04 | 53.04 | 5.70 | 6.03 |
+| 118 | D6 | yatak od. | 9.31 | 8.88 | 53.51 | 53.51 | 5.75 | 6.02 |
+| 119 | D6 | salon | 21.18 | 20.14 | 121.33 | 59.22 + 62.11 | 5.73 | 6.03 |
+| 120 | D6 | antre-kor. | 7.77 | 7.61 | 43.50 | 43.50 | 5.60 | 5.72 |
+| 121 | D6 | banyo | 4.37 | 2.61 | 12.17 | 12.17 | 2.78 | 4.66 |
+| 201 | D7 | mutfak | 11.07 | 7.57 | 45.65 | 45.65 | 4.12 | 6.03 |
+| 202 | D7 | yatak od. | 14.25 | 15.15 | 87.35 | 41.48 + 45.87 | 6.13 | 5.76 |
+| 203 | D7 | yatak od. | 9.31 | 8.76 | 52.80 | 52.80 | 5.67 | 6.03 |
+| 204 | D7 | yatak od. | 9.31 | 8.83 | 53.12 | 53.12 | 5.71 | 6.02 |
+| 205 | D7 | salon | 21.18 | 20.03 | 120.38 | 58.58 + 61.80 | 5.68 | 6.01 |
+| 206 | D7 | antre-kor. | 7.77 | 7.64 | 43.61 | 43.61 | 5.61 | 5.71 |
+| 207 | D7 | banyo | 5.04 | 3.33 | 17.75 | 17.75 | 3.52 | 5.32 |
+| 208 | D8 | mutfak | 10.11 | 6.92 | 36.81 | 36.81 | 3.64 | 5.32 |
+| 209 | D8 | yatak od. | 15.44 | 14.21 | 83.92 | 41.53 + 42.39 | 5.44 | 5.91 |
+| 210 | D8 | yatak od. | 9.05 | 8.66 | 53.12 | 53.12 | 5.87 | 6.14 |
+| 211 | D8 | salon | 22.31 | 20.82 | 122.53 | 60.72 + 61.81 | 5.49 | 5.88 |
+| 212 | D8 | oda | 7.75 | 7.28 | 46.02 | 46.02 | 5.94 | 6.32 |
+| 213 | D8 | antre-kor. | 11.00 | 10.51 | 57.31 | 57.31 | 5.21 | 5.45 |
+| 214 | D8 | wc-banyo | 4.37 | 2.33 | 12.01 | 12.01 | 2.75 | 5.14 |
+| 215 | D9 | mutfak | 11.07 | 7.80 | 47.99 | 47.99 | 4.34 | 6.15 |
+| 216 | D9 | yatak od. | 14.25 | 13.58 | 81.84 | 42.80 + 39.04 | 5.74 | 6.03 |
+| 217 | D9 | yatak od. | 9.31 | 8.77 | 52.80 | 52.80 | 5.67 | 6.02 |
+| 218 | D9 | yatak od. | 9.31 | 8.85 | 53.28 | 53.28 | 5.72 | 6.02 |
+| 219 | D9 | salon | 21.18 | 19.98 | 119.90 | 58.10 + 61.80 | 5.66 | 6.00 |
+| 220 | D9 | antre-kor. | 7.77 | 8.07 | 44.15 | 44.15 | 5.68 | 5.47 |
+| 221 | D9 | banyo | 5.04 | 3.35 | 17.93 | 17.93 | 3.56 | 5.35 |
 
-## Açık sorular
-1. Etiket cebi mi kalsın, yoksa kullanıcının çizimindeki gibi üstte (maskeli) mi olsun? Cebin kaplamaya etkisi yukarıda.
-2. Plan etiketindeki "Kcal/h" değeri 35 W/m × L mi kalsın? Excel'de şablonun 17,5 W/m'si kullanıldı.
-3. Isı kaybı hesabı yapılacak mı (`motor/isitma_hesap`)? Excel'in D sütunu ona bağlanabilir.
-4. Planda kollektör ayakları istenirse `--ayaklar` uygulanmalı (yalnız hol ve kapı üzerinden, 15 cm çift).
+Notlar:
+- 100 cm'lik koridorda 7,5 cm kenar payı ve 15 cm aralıkla ulaşılabilecek en yüksek yoğunluk yaklaşık 5,7–6,0 m/m² (parmak boyu 85 cm).
+- Banyolarda klozet, lavabo ve duş teknesi hariç tutulduğu için boru kullanıcınınkinden kısa. Kullanıcı boruyu klozet ve lavabonun altından geçiriyor (banyo 23,53 m).

@@ -310,14 +310,22 @@ def bolmeler(N, n):
 
 
 # ---------------------------------------------------------------- basamaklı besleme (tek devre)
-def kur_merdiven(R, faz=None, ust_kirp=0, pay=0.0):
+NEDEN = []
+
+
+def _red(k):
+    NEDEN.append(k)
+    return None
+
+
+def kur_merdiven(R, faz=None, ust_kirp=0, pay=0.0, alt=0):
     """Tek devre, besleme hattı BASAMAKLI: dikey besleme her satır grubunda o grubun sol sınırına yaslanır,
     gruplar arasında (sağdan bağlı satır çiftinin arasında, satırlardan 7,5 cm) yatay kısa bir basamakla kayar.
     Klozet/lavabo gibi duvara yaslı engellerin iki yanında ve L biçimli mahallerde besleme hattının mahalin
     ortasında kalıp bir şeridi boş bırakmasını önler (R2, R10). Kanonik çerçeve: uçlar sol-altta.
     Dönüş: kur() ile aynı biçim (devreler=[pts]) | None"""
     if R.is_empty:
-        return None
+        return _red(7)
     ys_all = _satirlar_faz(R, faz)
     rows = []
     for y in ys_all:
@@ -327,12 +335,13 @@ def kur_merdiven(R, faz=None, ust_kirp=0, pay=0.0):
                 break
             continue
         rows.append((y, max(a, key=lambda t: t[1] - t[0])))
+    rows = rows[alt:]
     if ust_kirp:
         rows = rows[:-ust_kirp]
     if len(rows) % 2:
         rows = rows[:-1]
     if len(rows) < 2:
-        return None
+        return _red(22)
     # kanonik: rows aşağıdan yukarı; devre yukarıdan aşağı gider
     top = rows[::-1]
     N = len(top)
@@ -386,22 +395,22 @@ def kur_merdiven(R, faz=None, ust_kirp=0, pay=0.0):
         if sag:
             xr = min(top[k][1][1], top[k + 1][1][1])
             if xr - R_DON < pts[-1][0] + 0.5:
-                return None
+                return _red(76)
             pts += [(xr - R_DON, y, -T), (xr, y - R_DON, 0.0), (xr, y2 + R_DON, -T), (xr - R_DON, y2, 0.0)]
         else:
             xl = max(ret[k], ret[k + 1])
             if xl + R_DON > pts[-1][0] - 0.5:
-                return None
+                return _red(81)
             pts += [(xl + R_DON, y, T), (xl, y - R_DON, 0.0), (xl, y2 + R_DON, T), (xl + R_DON, y2, 0.0)]
         sag = not sag
     # son satır sola, ret'e kadar gidiyor; ret son satırın aralığında olmalı
     if ret[-1] + 0.5 < top[-1][1][0] or ret[-1] > top[-1][1][1] - MIN_SATIR:
-        return None
+        return _red(86)
     # ilk satır: F_0 aralıkta
     for gi, g in enumerate(gruplar):
         for k in g:
             if F[gi] < top[k][1][0] - 0.5 or F[gi] > top[k][1][1] - MIN_SATIR:
-                return None
+                return _red(91)
     temiz = [pts[0]]
     for p in pts[1:]:
         if math.hypot(p[0] - temiz[-1][0], p[1] - temiz[-1][1]) < 1e-6:
@@ -410,7 +419,7 @@ def kur_merdiven(R, faz=None, ust_kirp=0, pay=0.0):
         temiz.append(p)
     g = cizgi(temiz)
     if not g.is_simple or not R.buffer(0.6).covers(g):
-        return None
+        return _red(100)
     ys = [t[0] for t in rows]
     return dict(devreler=[temiz], ys=ys, x_f=F[-1], bolme=[N], y_u=y_u, atla=0, faz=faz, merdiven=True)
 
@@ -418,14 +427,15 @@ def kur_merdiven(R, faz=None, ust_kirp=0, pay=0.0):
 def en_iyi_merdiven(R):
     best = None
     for faz in [None] + [2.5 * i for i in range(6)]:
-        for uk in (0, 1, 2):
-            for pay in (0.0, 2.5, 5.0):
-                r = kur_merdiven(R, faz, uk, pay)
-                if r is not None:
-                    break
-            if r is None:
-                continue
-            L = uzunluk(r['devreler'][0])
-            if best is None or L > best[0]:
-                best = (L, r)
+        for alt in (0, 1, 2, 3):
+            for uk in (0, 1, 2):
+                for pay in (0.0, 2.5, 5.0):
+                    r = kur_merdiven(R, faz, uk, pay, alt)
+                    if r is not None:
+                        break
+                if r is None:
+                    continue
+                L = uzunluk(r['devreler'][0])
+                if best is None or L > best[0]:
+                    best = (L, r)
     return best[1] if best else None

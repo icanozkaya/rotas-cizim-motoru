@@ -1,9 +1,9 @@
 {
- "devre_sayisi": 82,
- "etiketli_devre": 82,
- "etiket_cepte": 46,
- "etiket_maskeli_veya_disarida": 36,
- "L_max_m": 59.5,
+ "devre_sayisi": 81,
+ "etiketli_devre": 81,
+ "etiket_cepte": 0,
+ "etiket_maskeli_veya_disarida": 81,
+ "L_max_m": 65.76,
  "L_gt_80": [],
  "uc_aralik_15_degil": [],
  "bulge_90_degil": [],
@@ -49,5 +49,3797 @@
   "audit_duzeltme": 0,
   "audit_ornek": [],
   "gecti": true
- }
+ },
+ "yogunluk": [
+  {
+   "kat": "Z",
+   "zon": "Z01",
+   "daire": "D1",
+   "ad": "mutfak",
+   "tur": "mutfak",
+   "alan_mimari": 11.07,
+   "alan_poligon": 8.99,
+   "alan_net": 7.83,
+   "L_m": 48.24,
+   "devre": [
+    48.24
+   ],
+   "m_m2_mimari": 4.36,
+   "m_m2_poligon": 5.37,
+   "m_m2_net": 6.16
+  },
+  {
+   "kat": "Z",
+   "zon": "Z02",
+   "daire": "D1",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 14.25,
+   "alan_poligon": 13.76,
+   "alan_net": 13.6,
+   "L_m": 82.06,
+   "devre": [
+    42.89,
+    39.17
+   ],
+   "m_m2_mimari": 5.76,
+   "m_m2_poligon": 5.96,
+   "m_m2_net": 6.04
+  },
+  {
+   "kat": "Z",
+   "zon": "Z03",
+   "daire": "D1",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.9,
+   "alan_net": 8.78,
+   "L_m": 52.88,
+   "devre": [
+    52.88
+   ],
+   "m_m2_mimari": 5.68,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "Z",
+   "zon": "Z04",
+   "daire": "D1",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.97,
+   "alan_net": 8.84,
+   "L_m": 53.32,
+   "devre": [
+    53.32
+   ],
+   "m_m2_mimari": 5.73,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "Z",
+   "zon": "Z05",
+   "daire": "D1",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 21.18,
+   "alan_poligon": 20.36,
+   "alan_net": 20.1,
+   "L_m": 121.17,
+   "devre": [
+    59.14,
+    62.03
+   ],
+   "m_m2_mimari": 5.72,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "Z",
+   "zon": "Z06",
+   "daire": "D1",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 7.77,
+   "alan_poligon": 7.76,
+   "alan_net": 7.61,
+   "L_m": 43.5,
+   "devre": [
+    43.5
+   ],
+   "m_m2_mimari": 5.6,
+   "m_m2_poligon": 5.61,
+   "m_m2_net": 5.72
+  },
+  {
+   "kat": "Z",
+   "zon": "Z07",
+   "daire": "D1",
+   "ad": "banyo",
+   "tur": "banyo",
+   "alan_mimari": 5.36,
+   "alan_poligon": 4.85,
+   "alan_net": 3.38,
+   "L_m": 17.03,
+   "devre": [
+    17.03
+   ],
+   "m_m2_mimari": 3.18,
+   "m_m2_poligon": 3.51,
+   "m_m2_net": 5.04
+  },
+  {
+   "kat": "Z",
+   "zon": "Z08",
+   "daire": "D2",
+   "ad": "mutfak",
+   "tur": "mutfak",
+   "alan_mimari": 11.07,
+   "alan_poligon": 9.05,
+   "alan_net": 7.87,
+   "L_m": 48.4,
+   "devre": [
+    48.4
+   ],
+   "m_m2_mimari": 4.37,
+   "m_m2_poligon": 5.35,
+   "m_m2_net": 6.15
+  },
+  {
+   "kat": "Z",
+   "zon": "Z09",
+   "daire": "D2",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 14.25,
+   "alan_poligon": 14.1,
+   "alan_net": 13.84,
+   "L_m": 81.29,
+   "devre": [
+    41.72,
+    39.57
+   ],
+   "m_m2_mimari": 5.7,
+   "m_m2_poligon": 5.77,
+   "m_m2_net": 5.87
+  },
+  {
+   "kat": "Z",
+   "zon": "Z10",
+   "daire": "D2",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.89,
+   "alan_net": 8.76,
+   "L_m": 52.88,
+   "devre": [
+    52.88
+   ],
+   "m_m2_mimari": 5.68,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.04
+  },
+  {
+   "kat": "Z",
+   "zon": "Z11",
+   "daire": "D2",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.95,
+   "alan_net": 8.83,
+   "L_m": 53.16,
+   "devre": [
+    53.16
+   ],
+   "m_m2_mimari": 5.71,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "Z",
+   "zon": "Z12",
+   "daire": "D2",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 21.18,
+   "alan_poligon": 20.41,
+   "alan_net": 20.17,
+   "L_m": 121.53,
+   "devre": [
+    59.5,
+    62.03
+   ],
+   "m_m2_mimari": 5.74,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "Z",
+   "zon": "Z13",
+   "daire": "D2",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 7.77,
+   "alan_poligon": 7.83,
+   "alan_net": 7.67,
+   "L_m": 43.8,
+   "devre": [
+    43.8
+   ],
+   "m_m2_mimari": 5.64,
+   "m_m2_poligon": 5.59,
+   "m_m2_net": 5.71
+  },
+  {
+   "kat": "Z",
+   "zon": "Z14",
+   "daire": "D2",
+   "ad": "banyo",
+   "tur": "banyo",
+   "alan_mimari": 5.36,
+   "alan_poligon": 4.8,
+   "alan_net": 3.29,
+   "L_m": 16.03,
+   "devre": [
+    16.03
+   ],
+   "m_m2_mimari": 2.99,
+   "m_m2_poligon": 3.34,
+   "m_m2_net": 4.88
+  },
+  {
+   "kat": "Z",
+   "zon": "Z15",
+   "daire": "D3",
+   "ad": "mutfak",
+   "tur": "mutfak",
+   "alan_mimari": 10.11,
+   "alan_poligon": 7.79,
+   "alan_net": 7.23,
+   "L_m": 39.16,
+   "devre": [
+    39.16
+   ],
+   "m_m2_mimari": 3.87,
+   "m_m2_poligon": 5.03,
+   "m_m2_net": 5.41
+  },
+  {
+   "kat": "Z",
+   "zon": "Z16",
+   "daire": "D3",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 15.44,
+   "alan_poligon": 14.48,
+   "alan_net": 14.32,
+   "L_m": 86.62,
+   "devre": [
+    43.8,
+    42.82
+   ],
+   "m_m2_mimari": 5.61,
+   "m_m2_poligon": 5.98,
+   "m_m2_net": 6.05
+  },
+  {
+   "kat": "Z",
+   "zon": "Z17",
+   "daire": "D3",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.05,
+   "alan_poligon": 8.77,
+   "alan_net": 8.64,
+   "L_m": 53.12,
+   "devre": [
+    53.12
+   ],
+   "m_m2_mimari": 5.87,
+   "m_m2_poligon": 6.06,
+   "m_m2_net": 6.15
+  },
+  {
+   "kat": "Z",
+   "zon": "Z18",
+   "daire": "D3",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 22.31,
+   "alan_poligon": 21.15,
+   "alan_net": 20.95,
+   "L_m": 126.78,
+   "devre": [
+    65.76,
+    61.02
+   ],
+   "m_m2_mimari": 5.68,
+   "m_m2_poligon": 5.99,
+   "m_m2_net": 6.05
+  },
+  {
+   "kat": "Z",
+   "zon": "Z19",
+   "daire": "D3",
+   "ad": "oda",
+   "tur": "oda",
+   "alan_mimari": 7.75,
+   "alan_poligon": 7.47,
+   "alan_net": 7.31,
+   "L_m": 46.26,
+   "devre": [
+    46.26
+   ],
+   "m_m2_mimari": 5.97,
+   "m_m2_poligon": 6.19,
+   "m_m2_net": 6.33
+  },
+  {
+   "kat": "Z",
+   "zon": "Z20",
+   "daire": "D3",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 11.0,
+   "alan_poligon": 10.47,
+   "alan_net": 10.28,
+   "L_m": 57.11,
+   "devre": [
+    57.11
+   ],
+   "m_m2_mimari": 5.19,
+   "m_m2_poligon": 5.45,
+   "m_m2_net": 5.56
+  },
+  {
+   "kat": "Z",
+   "zon": "Z21",
+   "daire": "D3",
+   "ad": "wc+banyo",
+   "tur": "banyo",
+   "alan_mimari": 4.37,
+   "alan_poligon": 3.47,
+   "alan_net": 2.36,
+   "L_m": 11.99,
+   "devre": [
+    11.99
+   ],
+   "m_m2_mimari": 2.74,
+   "m_m2_poligon": 3.46,
+   "m_m2_net": 5.08
+  },
+  {
+   "kat": "1",
+   "zon": "101",
+   "daire": "D4",
+   "ad": "mutfak",
+   "tur": "mutfak",
+   "alan_mimari": 11.07,
+   "alan_poligon": 9.05,
+   "alan_net": 7.87,
+   "L_m": 48.44,
+   "devre": [
+    48.44
+   ],
+   "m_m2_mimari": 4.38,
+   "m_m2_poligon": 5.35,
+   "m_m2_net": 6.15
+  },
+  {
+   "kat": "1",
+   "zon": "102",
+   "daire": "D4",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 14.25,
+   "alan_poligon": 15.45,
+   "alan_net": 15.15,
+   "L_m": 87.7,
+   "devre": [
+    41.72,
+    45.98
+   ],
+   "m_m2_mimari": 6.15,
+   "m_m2_poligon": 5.68,
+   "m_m2_net": 5.79
+  },
+  {
+   "kat": "1",
+   "zon": "103",
+   "daire": "D4",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.9,
+   "alan_net": 8.78,
+   "L_m": 52.88,
+   "devre": [
+    52.88
+   ],
+   "m_m2_mimari": 5.68,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "1",
+   "zon": "104",
+   "daire": "D4",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.95,
+   "alan_net": 8.83,
+   "L_m": 53.16,
+   "devre": [
+    53.16
+   ],
+   "m_m2_mimari": 5.71,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "1",
+   "zon": "105",
+   "daire": "D4",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 21.18,
+   "alan_poligon": 20.37,
+   "alan_net": 20.13,
+   "L_m": 121.02,
+   "devre": [
+    59.1,
+    61.92
+   ],
+   "m_m2_mimari": 5.71,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.01
+  },
+  {
+   "kat": "1",
+   "zon": "106",
+   "daire": "D4",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 7.77,
+   "alan_poligon": 7.81,
+   "alan_net": 7.66,
+   "L_m": 43.8,
+   "devre": [
+    43.8
+   ],
+   "m_m2_mimari": 5.64,
+   "m_m2_poligon": 5.61,
+   "m_m2_net": 5.72
+  },
+  {
+   "kat": "1",
+   "zon": "107",
+   "daire": "D4",
+   "ad": "banyo",
+   "tur": "banyo",
+   "alan_mimari": 5.04,
+   "alan_poligon": 4.8,
+   "alan_net": 3.28,
+   "L_m": 16.02,
+   "devre": [
+    16.02
+   ],
+   "m_m2_mimari": 3.18,
+   "m_m2_poligon": 3.34,
+   "m_m2_net": 4.88
+  },
+  {
+   "kat": "1",
+   "zon": "108",
+   "daire": "D5",
+   "ad": "mutfak",
+   "tur": "mutfak",
+   "alan_mimari": 10.11,
+   "alan_poligon": 7.67,
+   "alan_net": 7.11,
+   "L_m": 38.32,
+   "devre": [
+    38.32
+   ],
+   "m_m2_mimari": 3.79,
+   "m_m2_poligon": 5.0,
+   "m_m2_net": 5.39
+  },
+  {
+   "kat": "1",
+   "zon": "109",
+   "daire": "D5",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 15.44,
+   "alan_poligon": 14.47,
+   "alan_net": 14.31,
+   "L_m": 86.62,
+   "devre": [
+    43.8,
+    42.82
+   ],
+   "m_m2_mimari": 5.61,
+   "m_m2_poligon": 5.99,
+   "m_m2_net": 6.05
+  },
+  {
+   "kat": "1",
+   "zon": "110",
+   "daire": "D5",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.05,
+   "alan_poligon": 8.77,
+   "alan_net": 8.64,
+   "L_m": 53.12,
+   "devre": [
+    53.12
+   ],
+   "m_m2_mimari": 5.87,
+   "m_m2_poligon": 6.06,
+   "m_m2_net": 6.15
+  },
+  {
+   "kat": "1",
+   "zon": "111",
+   "daire": "D5",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 22.31,
+   "alan_poligon": 21.12,
+   "alan_net": 20.93,
+   "L_m": 122.85,
+   "devre": [
+    60.92,
+    61.93
+   ],
+   "m_m2_mimari": 5.51,
+   "m_m2_poligon": 5.82,
+   "m_m2_net": 5.87
+  },
+  {
+   "kat": "1",
+   "zon": "112",
+   "daire": "D5",
+   "ad": "oda",
+   "tur": "oda",
+   "alan_mimari": 7.75,
+   "alan_poligon": 7.45,
+   "alan_net": 7.29,
+   "L_m": 46.14,
+   "devre": [
+    46.14
+   ],
+   "m_m2_mimari": 5.95,
+   "m_m2_poligon": 6.19,
+   "m_m2_net": 6.33
+  },
+  {
+   "kat": "1",
+   "zon": "113",
+   "daire": "D5",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 11.0,
+   "alan_poligon": 10.74,
+   "alan_net": 10.3,
+   "L_m": 57.29,
+   "devre": [
+    57.29
+   ],
+   "m_m2_mimari": 5.21,
+   "m_m2_poligon": 5.33,
+   "m_m2_net": 5.56
+  },
+  {
+   "kat": "1",
+   "zon": "114",
+   "daire": "D5",
+   "ad": "wc-banyo",
+   "tur": "banyo",
+   "alan_mimari": 4.37,
+   "alan_poligon": 3.47,
+   "alan_net": 2.36,
+   "L_m": 11.99,
+   "devre": [
+    11.99
+   ],
+   "m_m2_mimari": 2.74,
+   "m_m2_poligon": 3.46,
+   "m_m2_net": 5.08
+  },
+  {
+   "kat": "1",
+   "zon": "115",
+   "daire": "D6",
+   "ad": "mutfak",
+   "tur": "mutfak",
+   "alan_mimari": 11.07,
+   "alan_poligon": 9.01,
+   "alan_net": 7.83,
+   "L_m": 48.24,
+   "devre": [
+    48.24
+   ],
+   "m_m2_mimari": 4.36,
+   "m_m2_poligon": 5.35,
+   "m_m2_net": 6.16
+  },
+  {
+   "kat": "1",
+   "zon": "116",
+   "daire": "D6",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 14.25,
+   "alan_poligon": 13.79,
+   "alan_net": 13.62,
+   "L_m": 82.22,
+   "devre": [
+    43.01,
+    39.21
+   ],
+   "m_m2_mimari": 5.77,
+   "m_m2_poligon": 5.96,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "1",
+   "zon": "117",
+   "daire": "D6",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.92,
+   "alan_net": 8.8,
+   "L_m": 53.04,
+   "devre": [
+    53.04
+   ],
+   "m_m2_mimari": 5.7,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "1",
+   "zon": "118",
+   "daire": "D6",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 9.01,
+   "alan_net": 8.88,
+   "L_m": 53.51,
+   "devre": [
+    53.51
+   ],
+   "m_m2_mimari": 5.75,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "1",
+   "zon": "119",
+   "daire": "D6",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 21.18,
+   "alan_poligon": 20.4,
+   "alan_net": 20.14,
+   "L_m": 121.33,
+   "devre": [
+    59.22,
+    62.11
+   ],
+   "m_m2_mimari": 5.73,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "1",
+   "zon": "120",
+   "daire": "D6",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 7.77,
+   "alan_poligon": 7.76,
+   "alan_net": 7.61,
+   "L_m": 43.5,
+   "devre": [
+    43.5
+   ],
+   "m_m2_mimari": 5.6,
+   "m_m2_poligon": 5.61,
+   "m_m2_net": 5.72
+  },
+  {
+   "kat": "1",
+   "zon": "121",
+   "daire": "D6",
+   "ad": "banyo",
+   "tur": "banyo",
+   "alan_mimari": 4.37,
+   "alan_poligon": 4.11,
+   "alan_net": 2.61,
+   "L_m": 12.17,
+   "devre": [
+    12.17
+   ],
+   "m_m2_mimari": 2.78,
+   "m_m2_poligon": 2.96,
+   "m_m2_net": 4.66
+  },
+  {
+   "kat": "2",
+   "zon": "201",
+   "daire": "D7",
+   "ad": "mutfak",
+   "tur": "mutfak",
+   "alan_mimari": 11.07,
+   "alan_poligon": 8.98,
+   "alan_net": 7.57,
+   "L_m": 45.65,
+   "devre": [
+    45.65
+   ],
+   "m_m2_mimari": 4.12,
+   "m_m2_poligon": 5.08,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "2",
+   "zon": "202",
+   "daire": "D7",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 14.25,
+   "alan_poligon": 15.45,
+   "alan_net": 15.15,
+   "L_m": 87.35,
+   "devre": [
+    41.48,
+    45.87
+   ],
+   "m_m2_mimari": 6.13,
+   "m_m2_poligon": 5.65,
+   "m_m2_net": 5.76
+  },
+  {
+   "kat": "2",
+   "zon": "203",
+   "daire": "D7",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.88,
+   "alan_net": 8.76,
+   "L_m": 52.8,
+   "devre": [
+    52.8
+   ],
+   "m_m2_mimari": 5.67,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "2",
+   "zon": "204",
+   "daire": "D7",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.96,
+   "alan_net": 8.83,
+   "L_m": 53.12,
+   "devre": [
+    53.12
+   ],
+   "m_m2_mimari": 5.71,
+   "m_m2_poligon": 5.93,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "2",
+   "zon": "205",
+   "daire": "D7",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 21.18,
+   "alan_poligon": 20.3,
+   "alan_net": 20.03,
+   "L_m": 120.38,
+   "devre": [
+    58.58,
+    61.8
+   ],
+   "m_m2_mimari": 5.68,
+   "m_m2_poligon": 5.93,
+   "m_m2_net": 6.01
+  },
+  {
+   "kat": "2",
+   "zon": "206",
+   "daire": "D7",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 7.77,
+   "alan_poligon": 7.8,
+   "alan_net": 7.64,
+   "L_m": 43.61,
+   "devre": [
+    43.61
+   ],
+   "m_m2_mimari": 5.61,
+   "m_m2_poligon": 5.59,
+   "m_m2_net": 5.71
+  },
+  {
+   "kat": "2",
+   "zon": "207",
+   "daire": "D7",
+   "ad": "banyo",
+   "tur": "banyo",
+   "alan_mimari": 5.04,
+   "alan_poligon": 4.79,
+   "alan_net": 3.33,
+   "L_m": 17.75,
+   "devre": [
+    17.75
+   ],
+   "m_m2_mimari": 3.52,
+   "m_m2_poligon": 3.71,
+   "m_m2_net": 5.32
+  },
+  {
+   "kat": "2",
+   "zon": "208",
+   "daire": "D8",
+   "ad": "mutfak",
+   "tur": "mutfak",
+   "alan_mimari": 10.11,
+   "alan_poligon": 7.47,
+   "alan_net": 6.92,
+   "L_m": 36.81,
+   "devre": [
+    36.81
+   ],
+   "m_m2_mimari": 3.64,
+   "m_m2_poligon": 4.93,
+   "m_m2_net": 5.32
+  },
+  {
+   "kat": "2",
+   "zon": "209",
+   "daire": "D8",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 15.44,
+   "alan_poligon": 14.46,
+   "alan_net": 14.21,
+   "L_m": 83.92,
+   "devre": [
+    41.53,
+    42.39
+   ],
+   "m_m2_mimari": 5.44,
+   "m_m2_poligon": 5.8,
+   "m_m2_net": 5.91
+  },
+  {
+   "kat": "2",
+   "zon": "210",
+   "daire": "D8",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.05,
+   "alan_poligon": 8.78,
+   "alan_net": 8.66,
+   "L_m": 53.12,
+   "devre": [
+    53.12
+   ],
+   "m_m2_mimari": 5.87,
+   "m_m2_poligon": 6.05,
+   "m_m2_net": 6.14
+  },
+  {
+   "kat": "2",
+   "zon": "211",
+   "daire": "D8",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 22.31,
+   "alan_poligon": 21.02,
+   "alan_net": 20.82,
+   "L_m": 122.53,
+   "devre": [
+    60.72,
+    61.81
+   ],
+   "m_m2_mimari": 5.49,
+   "m_m2_poligon": 5.83,
+   "m_m2_net": 5.88
+  },
+  {
+   "kat": "2",
+   "zon": "212",
+   "daire": "D8",
+   "ad": "oda",
+   "tur": "oda",
+   "alan_mimari": 7.75,
+   "alan_poligon": 7.44,
+   "alan_net": 7.28,
+   "L_m": 46.02,
+   "devre": [
+    46.02
+   ],
+   "m_m2_mimari": 5.94,
+   "m_m2_poligon": 6.19,
+   "m_m2_net": 6.32
+  },
+  {
+   "kat": "2",
+   "zon": "213",
+   "daire": "D8",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 11.0,
+   "alan_poligon": 10.73,
+   "alan_net": 10.51,
+   "L_m": 57.31,
+   "devre": [
+    57.31
+   ],
+   "m_m2_mimari": 5.21,
+   "m_m2_poligon": 5.34,
+   "m_m2_net": 5.45
+  },
+  {
+   "kat": "2",
+   "zon": "214",
+   "daire": "D8",
+   "ad": "wc-banyo",
+   "tur": "banyo",
+   "alan_mimari": 4.37,
+   "alan_poligon": 3.44,
+   "alan_net": 2.33,
+   "L_m": 12.01,
+   "devre": [
+    12.01
+   ],
+   "m_m2_mimari": 2.75,
+   "m_m2_poligon": 3.49,
+   "m_m2_net": 5.14
+  },
+  {
+   "kat": "2",
+   "zon": "215",
+   "daire": "D9",
+   "ad": "mutfak",
+   "tur": "mutfak",
+   "alan_mimari": 11.07,
+   "alan_poligon": 8.98,
+   "alan_net": 7.8,
+   "L_m": 47.99,
+   "devre": [
+    47.99
+   ],
+   "m_m2_mimari": 4.34,
+   "m_m2_poligon": 5.34,
+   "m_m2_net": 6.15
+  },
+  {
+   "kat": "2",
+   "zon": "216",
+   "daire": "D9",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 14.25,
+   "alan_poligon": 13.75,
+   "alan_net": 13.58,
+   "L_m": 81.84,
+   "devre": [
+    42.8,
+    39.04
+   ],
+   "m_m2_mimari": 5.74,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "2",
+   "zon": "217",
+   "daire": "D9",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.89,
+   "alan_net": 8.77,
+   "L_m": 52.8,
+   "devre": [
+    52.8
+   ],
+   "m_m2_mimari": 5.67,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "2",
+   "zon": "218",
+   "daire": "D9",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.98,
+   "alan_net": 8.85,
+   "L_m": 53.28,
+   "devre": [
+    53.28
+   ],
+   "m_m2_mimari": 5.72,
+   "m_m2_poligon": 5.93,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "2",
+   "zon": "219",
+   "daire": "D9",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 21.18,
+   "alan_poligon": 20.25,
+   "alan_net": 19.98,
+   "L_m": 119.9,
+   "devre": [
+    58.1,
+    61.8
+   ],
+   "m_m2_mimari": 5.66,
+   "m_m2_poligon": 5.92,
+   "m_m2_net": 6.0
+  },
+  {
+   "kat": "2",
+   "zon": "220",
+   "daire": "D9",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 7.77,
+   "alan_poligon": 8.26,
+   "alan_net": 8.07,
+   "L_m": 44.15,
+   "devre": [
+    44.15
+   ],
+   "m_m2_mimari": 5.68,
+   "m_m2_poligon": 5.35,
+   "m_m2_net": 5.47
+  },
+  {
+   "kat": "2",
+   "zon": "221",
+   "daire": "D9",
+   "ad": "banyo",
+   "tur": "banyo",
+   "alan_mimari": 5.04,
+   "alan_poligon": 4.82,
+   "alan_net": 3.35,
+   "L_m": 17.93,
+   "devre": [
+    17.93
+   ],
+   "m_m2_mimari": 3.56,
+   "m_m2_poligon": 3.72,
+   "m_m2_net": 5.35
+  }
+ ],
+ "mmo_yuzey": [
+  {
+   "kat": "Z",
+   "zon": "Z01",
+   "devre": 1,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.83,
+   "L": 48.24,
+   "q": 215.6,
+   "Ty": 38.15,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z02",
+   "devre": 2,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.11,
+   "L": 42.89,
+   "q": 211.2,
+   "Ty": 37.81,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z02",
+   "devre": 3,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 6.49,
+   "L": 39.17,
+   "q": 211.2,
+   "Ty": 37.81,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z03",
+   "devre": 4,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.78,
+   "L": 52.88,
+   "q": 210.8,
+   "Ty": 37.78,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z04",
+   "devre": 5,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.84,
+   "L": 53.32,
+   "q": 211.1,
+   "Ty": 37.8,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z05",
+   "devre": 6,
+   "ad": "salon",
+   "sic": 20,
+   "A": 9.81,
+   "L": 59.14,
+   "q": 211.0,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z05",
+   "devre": 7,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.29,
+   "L": 62.03,
+   "q": 211.0,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z06",
+   "devre": 8,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 7.61,
+   "L": 43.5,
+   "q": 200.1,
+   "Ty": 31.95,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z07",
+   "devre": 9,
+   "ad": "banyo",
+   "sic": 24,
+   "A": 3.38,
+   "L": 17.03,
+   "q": 176.3,
+   "Ty": 39.11,
+   "sinir": 33.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z08",
+   "devre": 10,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.87,
+   "L": 48.4,
+   "q": 215.2,
+   "Ty": 38.12,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z09",
+   "devre": 11,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.1,
+   "L": 41.72,
+   "q": 205.6,
+   "Ty": 37.38,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z09",
+   "devre": 12,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 6.74,
+   "L": 39.57,
+   "q": 205.6,
+   "Ty": 37.38,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z10",
+   "devre": 13,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.76,
+   "L": 52.88,
+   "q": 211.3,
+   "Ty": 37.82,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z11",
+   "devre": 14,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.83,
+   "L": 53.16,
+   "q": 210.7,
+   "Ty": 37.77,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z12",
+   "devre": 15,
+   "ad": "salon",
+   "sic": 20,
+   "A": 9.88,
+   "L": 59.5,
+   "q": 210.9,
+   "Ty": 37.78,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z12",
+   "devre": 16,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.29,
+   "L": 62.03,
+   "q": 210.9,
+   "Ty": 37.78,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z13",
+   "devre": 17,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 7.67,
+   "L": 43.8,
+   "q": 199.9,
+   "Ty": 31.94,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z14",
+   "devre": 18,
+   "ad": "banyo",
+   "sic": 24,
+   "A": 3.29,
+   "L": 16.03,
+   "q": 170.5,
+   "Ty": 38.66,
+   "sinir": 33.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z15",
+   "devre": 19,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.23,
+   "L": 39.16,
+   "q": 189.6,
+   "Ty": 36.14,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z16",
+   "devre": 20,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.24,
+   "L": 43.8,
+   "q": 211.7,
+   "Ty": 37.85,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z16",
+   "devre": 21,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.08,
+   "L": 42.82,
+   "q": 211.7,
+   "Ty": 37.85,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z17",
+   "devre": 22,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.64,
+   "L": 53.12,
+   "q": 215.2,
+   "Ty": 38.11,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z18",
+   "devre": 23,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.87,
+   "L": 65.76,
+   "q": 211.8,
+   "Ty": 37.86,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z18",
+   "devre": 24,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.08,
+   "L": 61.02,
+   "q": 211.8,
+   "Ty": 37.86,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z19",
+   "devre": 25,
+   "ad": "oda",
+   "sic": 20,
+   "A": 7.31,
+   "L": 46.26,
+   "q": 221.5,
+   "Ty": 38.6,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z20",
+   "devre": 26,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 10.28,
+   "L": 57.11,
+   "q": 194.4,
+   "Ty": 31.52,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z21",
+   "devre": 27,
+   "ad": "wc+banyo",
+   "sic": 24,
+   "A": 2.36,
+   "L": 11.99,
+   "q": 177.8,
+   "Ty": 39.23,
+   "sinir": 33.0
+  },
+  {
+   "kat": "1",
+   "zon": "101",
+   "devre": 1,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.87,
+   "L": 48.44,
+   "q": 215.4,
+   "Ty": 38.13,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "102",
+   "devre": 2,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.21,
+   "L": 41.72,
+   "q": 202.6,
+   "Ty": 37.15,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "102",
+   "devre": 3,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.94,
+   "L": 45.98,
+   "q": 202.6,
+   "Ty": 37.15,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "103",
+   "devre": 4,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.78,
+   "L": 52.88,
+   "q": 210.8,
+   "Ty": 37.78,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "104",
+   "devre": 5,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.83,
+   "L": 53.16,
+   "q": 210.7,
+   "Ty": 37.77,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "105",
+   "devre": 6,
+   "ad": "salon",
+   "sic": 20,
+   "A": 9.83,
+   "L": 59.1,
+   "q": 210.4,
+   "Ty": 37.75,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "105",
+   "devre": 7,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.3,
+   "L": 61.92,
+   "q": 210.4,
+   "Ty": 37.75,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "106",
+   "devre": 8,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 7.66,
+   "L": 43.8,
+   "q": 200.1,
+   "Ty": 31.96,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "107",
+   "devre": 9,
+   "ad": "banyo",
+   "sic": 24,
+   "A": 3.28,
+   "L": 16.02,
+   "q": 170.9,
+   "Ty": 38.69,
+   "sinir": 33.0
+  },
+  {
+   "kat": "1",
+   "zon": "108",
+   "devre": 10,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.11,
+   "L": 38.32,
+   "q": 188.6,
+   "Ty": 36.07,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "109",
+   "devre": 11,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.24,
+   "L": 43.8,
+   "q": 211.9,
+   "Ty": 37.86,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "109",
+   "devre": 12,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.07,
+   "L": 42.82,
+   "q": 211.9,
+   "Ty": 37.86,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "110",
+   "devre": 13,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.64,
+   "L": 53.12,
+   "q": 215.2,
+   "Ty": 38.11,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "111",
+   "devre": 14,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.38,
+   "L": 60.92,
+   "q": 205.4,
+   "Ty": 37.37,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "111",
+   "devre": 15,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.55,
+   "L": 61.93,
+   "q": 205.4,
+   "Ty": 37.37,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "112",
+   "devre": 16,
+   "ad": "oda",
+   "sic": 20,
+   "A": 7.29,
+   "L": 46.14,
+   "q": 221.5,
+   "Ty": 38.6,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "113",
+   "devre": 17,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 10.3,
+   "L": 57.29,
+   "q": 194.7,
+   "Ty": 31.54,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "114",
+   "devre": 18,
+   "ad": "wc-banyo",
+   "sic": 24,
+   "A": 2.36,
+   "L": 11.99,
+   "q": 177.8,
+   "Ty": 39.23,
+   "sinir": 33.0
+  },
+  {
+   "kat": "1",
+   "zon": "115",
+   "devre": 19,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.83,
+   "L": 48.24,
+   "q": 215.6,
+   "Ty": 38.15,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "116",
+   "devre": 20,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.12,
+   "L": 43.01,
+   "q": 211.3,
+   "Ty": 37.82,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "116",
+   "devre": 21,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 6.5,
+   "L": 39.21,
+   "q": 211.3,
+   "Ty": 37.82,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "117",
+   "devre": 22,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.8,
+   "L": 53.04,
+   "q": 211.0,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "118",
+   "devre": 23,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.88,
+   "L": 53.51,
+   "q": 210.9,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "119",
+   "devre": 24,
+   "ad": "salon",
+   "sic": 20,
+   "A": 9.83,
+   "L": 59.22,
+   "q": 210.9,
+   "Ty": 37.78,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "119",
+   "devre": 25,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.31,
+   "L": 62.11,
+   "q": 210.9,
+   "Ty": 37.78,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "120",
+   "devre": 26,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 7.61,
+   "L": 43.5,
+   "q": 200.1,
+   "Ty": 31.95,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "121",
+   "devre": 27,
+   "ad": "banyo",
+   "sic": 24,
+   "A": 2.61,
+   "L": 12.17,
+   "q": 163.2,
+   "Ty": 38.08,
+   "sinir": 33.0
+  },
+  {
+   "kat": "2",
+   "zon": "201",
+   "devre": 1,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.57,
+   "L": 45.65,
+   "q": 211.1,
+   "Ty": 37.8,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "202",
+   "devre": 2,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.19,
+   "L": 41.48,
+   "q": 201.8,
+   "Ty": 37.09,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "202",
+   "devre": 3,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.96,
+   "L": 45.87,
+   "q": 201.8,
+   "Ty": 37.09,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "203",
+   "devre": 4,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.76,
+   "L": 52.8,
+   "q": 211.0,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "204",
+   "devre": 5,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.83,
+   "L": 53.12,
+   "q": 210.6,
+   "Ty": 37.76,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "205",
+   "devre": 6,
+   "ad": "salon",
+   "sic": 20,
+   "A": 9.75,
+   "L": 58.58,
+   "q": 210.3,
+   "Ty": 37.74,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "205",
+   "devre": 7,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.28,
+   "L": 61.8,
+   "q": 210.3,
+   "Ty": 37.74,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "206",
+   "devre": 8,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 7.64,
+   "L": 43.61,
+   "q": 199.8,
+   "Ty": 31.93,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "207",
+   "devre": 9,
+   "ad": "banyo",
+   "sic": 24,
+   "A": 3.33,
+   "L": 17.75,
+   "q": 186.6,
+   "Ty": 39.91,
+   "sinir": 33.0
+  },
+  {
+   "kat": "2",
+   "zon": "208",
+   "devre": 10,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 6.92,
+   "L": 36.81,
+   "q": 186.2,
+   "Ty": 35.88,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "209",
+   "devre": 11,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.03,
+   "L": 41.53,
+   "q": 206.7,
+   "Ty": 37.46,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "209",
+   "devre": 12,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.18,
+   "L": 42.39,
+   "q": 206.7,
+   "Ty": 37.46,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "210",
+   "devre": 13,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.66,
+   "L": 53.12,
+   "q": 214.7,
+   "Ty": 38.08,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "211",
+   "devre": 14,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.32,
+   "L": 60.72,
+   "q": 206.0,
+   "Ty": 37.41,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "211",
+   "devre": 15,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.5,
+   "L": 61.81,
+   "q": 206.0,
+   "Ty": 37.41,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "212",
+   "devre": 16,
+   "ad": "oda",
+   "sic": 20,
+   "A": 7.28,
+   "L": 46.02,
+   "q": 221.2,
+   "Ty": 38.58,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "213",
+   "devre": 17,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 10.51,
+   "L": 57.31,
+   "q": 190.9,
+   "Ty": 31.24,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "214",
+   "devre": 18,
+   "ad": "wc-banyo",
+   "sic": 24,
+   "A": 2.33,
+   "L": 12.01,
+   "q": 180.4,
+   "Ty": 39.43,
+   "sinir": 33.0
+  },
+  {
+   "kat": "2",
+   "zon": "215",
+   "devre": 19,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.8,
+   "L": 47.99,
+   "q": 215.3,
+   "Ty": 38.13,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "216",
+   "devre": 20,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.1,
+   "L": 42.8,
+   "q": 210.9,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "216",
+   "devre": 21,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 6.48,
+   "L": 39.04,
+   "q": 210.9,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "217",
+   "devre": 22,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.77,
+   "L": 52.8,
+   "q": 210.7,
+   "Ty": 37.77,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "218",
+   "devre": 23,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.85,
+   "L": 53.28,
+   "q": 210.7,
+   "Ty": 37.77,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "219",
+   "devre": 24,
+   "ad": "salon",
+   "sic": 20,
+   "A": 9.68,
+   "L": 58.1,
+   "q": 210.0,
+   "Ty": 37.72,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "219",
+   "devre": 25,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.3,
+   "L": 61.8,
+   "q": 210.0,
+   "Ty": 37.72,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "220",
+   "devre": 26,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 8.07,
+   "L": 44.15,
+   "q": 191.5,
+   "Ty": 31.29,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "221",
+   "devre": 27,
+   "ad": "banyo",
+   "sic": 24,
+   "A": 3.35,
+   "L": 17.93,
+   "q": 187.3,
+   "Ty": 39.97,
+   "sinir": 33.0
+  }
+ ],
+ "mmo_yuzey_asim": [
+  {
+   "kat": "Z",
+   "zon": "Z01",
+   "devre": 1,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.83,
+   "L": 48.24,
+   "q": 215.6,
+   "Ty": 38.15,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z02",
+   "devre": 2,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.11,
+   "L": 42.89,
+   "q": 211.2,
+   "Ty": 37.81,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z02",
+   "devre": 3,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 6.49,
+   "L": 39.17,
+   "q": 211.2,
+   "Ty": 37.81,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z03",
+   "devre": 4,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.78,
+   "L": 52.88,
+   "q": 210.8,
+   "Ty": 37.78,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z04",
+   "devre": 5,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.84,
+   "L": 53.32,
+   "q": 211.1,
+   "Ty": 37.8,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z05",
+   "devre": 6,
+   "ad": "salon",
+   "sic": 20,
+   "A": 9.81,
+   "L": 59.14,
+   "q": 211.0,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z05",
+   "devre": 7,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.29,
+   "L": 62.03,
+   "q": 211.0,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z06",
+   "devre": 8,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 7.61,
+   "L": 43.5,
+   "q": 200.1,
+   "Ty": 31.95,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z07",
+   "devre": 9,
+   "ad": "banyo",
+   "sic": 24,
+   "A": 3.38,
+   "L": 17.03,
+   "q": 176.3,
+   "Ty": 39.11,
+   "sinir": 33.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z08",
+   "devre": 10,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.87,
+   "L": 48.4,
+   "q": 215.2,
+   "Ty": 38.12,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z09",
+   "devre": 11,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.1,
+   "L": 41.72,
+   "q": 205.6,
+   "Ty": 37.38,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z09",
+   "devre": 12,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 6.74,
+   "L": 39.57,
+   "q": 205.6,
+   "Ty": 37.38,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z10",
+   "devre": 13,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.76,
+   "L": 52.88,
+   "q": 211.3,
+   "Ty": 37.82,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z11",
+   "devre": 14,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.83,
+   "L": 53.16,
+   "q": 210.7,
+   "Ty": 37.77,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z12",
+   "devre": 15,
+   "ad": "salon",
+   "sic": 20,
+   "A": 9.88,
+   "L": 59.5,
+   "q": 210.9,
+   "Ty": 37.78,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z12",
+   "devre": 16,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.29,
+   "L": 62.03,
+   "q": 210.9,
+   "Ty": 37.78,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z13",
+   "devre": 17,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 7.67,
+   "L": 43.8,
+   "q": 199.9,
+   "Ty": 31.94,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z14",
+   "devre": 18,
+   "ad": "banyo",
+   "sic": 24,
+   "A": 3.29,
+   "L": 16.03,
+   "q": 170.5,
+   "Ty": 38.66,
+   "sinir": 33.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z15",
+   "devre": 19,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.23,
+   "L": 39.16,
+   "q": 189.6,
+   "Ty": 36.14,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z16",
+   "devre": 20,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.24,
+   "L": 43.8,
+   "q": 211.7,
+   "Ty": 37.85,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z16",
+   "devre": 21,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.08,
+   "L": 42.82,
+   "q": 211.7,
+   "Ty": 37.85,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z17",
+   "devre": 22,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.64,
+   "L": 53.12,
+   "q": 215.2,
+   "Ty": 38.11,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z18",
+   "devre": 23,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.87,
+   "L": 65.76,
+   "q": 211.8,
+   "Ty": 37.86,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z18",
+   "devre": 24,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.08,
+   "L": 61.02,
+   "q": 211.8,
+   "Ty": 37.86,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z19",
+   "devre": 25,
+   "ad": "oda",
+   "sic": 20,
+   "A": 7.31,
+   "L": 46.26,
+   "q": 221.5,
+   "Ty": 38.6,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z20",
+   "devre": 26,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 10.28,
+   "L": 57.11,
+   "q": 194.4,
+   "Ty": 31.52,
+   "sinir": 29.0
+  },
+  {
+   "kat": "Z",
+   "zon": "Z21",
+   "devre": 27,
+   "ad": "wc+banyo",
+   "sic": 24,
+   "A": 2.36,
+   "L": 11.99,
+   "q": 177.8,
+   "Ty": 39.23,
+   "sinir": 33.0
+  },
+  {
+   "kat": "1",
+   "zon": "101",
+   "devre": 1,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.87,
+   "L": 48.44,
+   "q": 215.4,
+   "Ty": 38.13,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "102",
+   "devre": 2,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.21,
+   "L": 41.72,
+   "q": 202.6,
+   "Ty": 37.15,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "102",
+   "devre": 3,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.94,
+   "L": 45.98,
+   "q": 202.6,
+   "Ty": 37.15,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "103",
+   "devre": 4,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.78,
+   "L": 52.88,
+   "q": 210.8,
+   "Ty": 37.78,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "104",
+   "devre": 5,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.83,
+   "L": 53.16,
+   "q": 210.7,
+   "Ty": 37.77,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "105",
+   "devre": 6,
+   "ad": "salon",
+   "sic": 20,
+   "A": 9.83,
+   "L": 59.1,
+   "q": 210.4,
+   "Ty": 37.75,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "105",
+   "devre": 7,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.3,
+   "L": 61.92,
+   "q": 210.4,
+   "Ty": 37.75,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "106",
+   "devre": 8,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 7.66,
+   "L": 43.8,
+   "q": 200.1,
+   "Ty": 31.96,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "107",
+   "devre": 9,
+   "ad": "banyo",
+   "sic": 24,
+   "A": 3.28,
+   "L": 16.02,
+   "q": 170.9,
+   "Ty": 38.69,
+   "sinir": 33.0
+  },
+  {
+   "kat": "1",
+   "zon": "108",
+   "devre": 10,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.11,
+   "L": 38.32,
+   "q": 188.6,
+   "Ty": 36.07,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "109",
+   "devre": 11,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.24,
+   "L": 43.8,
+   "q": 211.9,
+   "Ty": 37.86,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "109",
+   "devre": 12,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.07,
+   "L": 42.82,
+   "q": 211.9,
+   "Ty": 37.86,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "110",
+   "devre": 13,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.64,
+   "L": 53.12,
+   "q": 215.2,
+   "Ty": 38.11,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "111",
+   "devre": 14,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.38,
+   "L": 60.92,
+   "q": 205.4,
+   "Ty": 37.37,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "111",
+   "devre": 15,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.55,
+   "L": 61.93,
+   "q": 205.4,
+   "Ty": 37.37,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "112",
+   "devre": 16,
+   "ad": "oda",
+   "sic": 20,
+   "A": 7.29,
+   "L": 46.14,
+   "q": 221.5,
+   "Ty": 38.6,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "113",
+   "devre": 17,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 10.3,
+   "L": 57.29,
+   "q": 194.7,
+   "Ty": 31.54,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "114",
+   "devre": 18,
+   "ad": "wc-banyo",
+   "sic": 24,
+   "A": 2.36,
+   "L": 11.99,
+   "q": 177.8,
+   "Ty": 39.23,
+   "sinir": 33.0
+  },
+  {
+   "kat": "1",
+   "zon": "115",
+   "devre": 19,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.83,
+   "L": 48.24,
+   "q": 215.6,
+   "Ty": 38.15,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "116",
+   "devre": 20,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.12,
+   "L": 43.01,
+   "q": 211.3,
+   "Ty": 37.82,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "116",
+   "devre": 21,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 6.5,
+   "L": 39.21,
+   "q": 211.3,
+   "Ty": 37.82,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "117",
+   "devre": 22,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.8,
+   "L": 53.04,
+   "q": 211.0,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "118",
+   "devre": 23,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.88,
+   "L": 53.51,
+   "q": 210.9,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "119",
+   "devre": 24,
+   "ad": "salon",
+   "sic": 20,
+   "A": 9.83,
+   "L": 59.22,
+   "q": 210.9,
+   "Ty": 37.78,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "119",
+   "devre": 25,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.31,
+   "L": 62.11,
+   "q": 210.9,
+   "Ty": 37.78,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "120",
+   "devre": 26,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 7.61,
+   "L": 43.5,
+   "q": 200.1,
+   "Ty": 31.95,
+   "sinir": 29.0
+  },
+  {
+   "kat": "1",
+   "zon": "121",
+   "devre": 27,
+   "ad": "banyo",
+   "sic": 24,
+   "A": 2.61,
+   "L": 12.17,
+   "q": 163.2,
+   "Ty": 38.08,
+   "sinir": 33.0
+  },
+  {
+   "kat": "2",
+   "zon": "201",
+   "devre": 1,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.57,
+   "L": 45.65,
+   "q": 211.1,
+   "Ty": 37.8,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "202",
+   "devre": 2,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.19,
+   "L": 41.48,
+   "q": 201.8,
+   "Ty": 37.09,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "202",
+   "devre": 3,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.96,
+   "L": 45.87,
+   "q": 201.8,
+   "Ty": 37.09,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "203",
+   "devre": 4,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.76,
+   "L": 52.8,
+   "q": 211.0,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "204",
+   "devre": 5,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.83,
+   "L": 53.12,
+   "q": 210.6,
+   "Ty": 37.76,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "205",
+   "devre": 6,
+   "ad": "salon",
+   "sic": 20,
+   "A": 9.75,
+   "L": 58.58,
+   "q": 210.3,
+   "Ty": 37.74,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "205",
+   "devre": 7,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.28,
+   "L": 61.8,
+   "q": 210.3,
+   "Ty": 37.74,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "206",
+   "devre": 8,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 7.64,
+   "L": 43.61,
+   "q": 199.8,
+   "Ty": 31.93,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "207",
+   "devre": 9,
+   "ad": "banyo",
+   "sic": 24,
+   "A": 3.33,
+   "L": 17.75,
+   "q": 186.6,
+   "Ty": 39.91,
+   "sinir": 33.0
+  },
+  {
+   "kat": "2",
+   "zon": "208",
+   "devre": 10,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 6.92,
+   "L": 36.81,
+   "q": 186.2,
+   "Ty": 35.88,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "209",
+   "devre": 11,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.03,
+   "L": 41.53,
+   "q": 206.7,
+   "Ty": 37.46,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "209",
+   "devre": 12,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.18,
+   "L": 42.39,
+   "q": 206.7,
+   "Ty": 37.46,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "210",
+   "devre": 13,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.66,
+   "L": 53.12,
+   "q": 214.7,
+   "Ty": 38.08,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "211",
+   "devre": 14,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.32,
+   "L": 60.72,
+   "q": 206.0,
+   "Ty": 37.41,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "211",
+   "devre": 15,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.5,
+   "L": 61.81,
+   "q": 206.0,
+   "Ty": 37.41,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "212",
+   "devre": 16,
+   "ad": "oda",
+   "sic": 20,
+   "A": 7.28,
+   "L": 46.02,
+   "q": 221.2,
+   "Ty": 38.58,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "213",
+   "devre": 17,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 10.51,
+   "L": 57.31,
+   "q": 190.9,
+   "Ty": 31.24,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "214",
+   "devre": 18,
+   "ad": "wc-banyo",
+   "sic": 24,
+   "A": 2.33,
+   "L": 12.01,
+   "q": 180.4,
+   "Ty": 39.43,
+   "sinir": 33.0
+  },
+  {
+   "kat": "2",
+   "zon": "215",
+   "devre": 19,
+   "ad": "mutfak",
+   "sic": 20,
+   "A": 7.8,
+   "L": 47.99,
+   "q": 215.3,
+   "Ty": 38.13,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "216",
+   "devre": 20,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 7.1,
+   "L": 42.8,
+   "q": 210.9,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "216",
+   "devre": 21,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 6.48,
+   "L": 39.04,
+   "q": 210.9,
+   "Ty": 37.79,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "217",
+   "devre": 22,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.77,
+   "L": 52.8,
+   "q": 210.7,
+   "Ty": 37.77,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "218",
+   "devre": 23,
+   "ad": "yatak od.",
+   "sic": 20,
+   "A": 8.85,
+   "L": 53.28,
+   "q": 210.7,
+   "Ty": 37.77,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "219",
+   "devre": 24,
+   "ad": "salon",
+   "sic": 20,
+   "A": 9.68,
+   "L": 58.1,
+   "q": 210.0,
+   "Ty": 37.72,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "219",
+   "devre": 25,
+   "ad": "salon",
+   "sic": 20,
+   "A": 10.3,
+   "L": 61.8,
+   "q": 210.0,
+   "Ty": 37.72,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "220",
+   "devre": 26,
+   "ad": "antre-kor.",
+   "sic": 15,
+   "A": 8.07,
+   "L": 44.15,
+   "q": 191.5,
+   "Ty": 31.29,
+   "sinir": 29.0
+  },
+  {
+   "kat": "2",
+   "zon": "221",
+   "devre": 27,
+   "ad": "banyo",
+   "sic": 24,
+   "A": 3.35,
+   "L": 17.93,
+   "q": 187.3,
+   "Ty": 39.97,
+   "sinir": 33.0
+  }
+ ],
+ "yogunluk_6_alti": [
+  {
+   "kat": "Z",
+   "zon": "Z02",
+   "daire": "D1",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 14.25,
+   "alan_poligon": 13.76,
+   "alan_net": 13.6,
+   "L_m": 82.06,
+   "devre": [
+    42.89,
+    39.17
+   ],
+   "m_m2_mimari": 5.76,
+   "m_m2_poligon": 5.96,
+   "m_m2_net": 6.04
+  },
+  {
+   "kat": "Z",
+   "zon": "Z03",
+   "daire": "D1",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.9,
+   "alan_net": 8.78,
+   "L_m": 52.88,
+   "devre": [
+    52.88
+   ],
+   "m_m2_mimari": 5.68,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "Z",
+   "zon": "Z04",
+   "daire": "D1",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.97,
+   "alan_net": 8.84,
+   "L_m": 53.32,
+   "devre": [
+    53.32
+   ],
+   "m_m2_mimari": 5.73,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "Z",
+   "zon": "Z05",
+   "daire": "D1",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 21.18,
+   "alan_poligon": 20.36,
+   "alan_net": 20.1,
+   "L_m": 121.17,
+   "devre": [
+    59.14,
+    62.03
+   ],
+   "m_m2_mimari": 5.72,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "Z",
+   "zon": "Z06",
+   "daire": "D1",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 7.77,
+   "alan_poligon": 7.76,
+   "alan_net": 7.61,
+   "L_m": 43.5,
+   "devre": [
+    43.5
+   ],
+   "m_m2_mimari": 5.6,
+   "m_m2_poligon": 5.61,
+   "m_m2_net": 5.72
+  },
+  {
+   "kat": "Z",
+   "zon": "Z09",
+   "daire": "D2",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 14.25,
+   "alan_poligon": 14.1,
+   "alan_net": 13.84,
+   "L_m": 81.29,
+   "devre": [
+    41.72,
+    39.57
+   ],
+   "m_m2_mimari": 5.7,
+   "m_m2_poligon": 5.77,
+   "m_m2_net": 5.87
+  },
+  {
+   "kat": "Z",
+   "zon": "Z10",
+   "daire": "D2",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.89,
+   "alan_net": 8.76,
+   "L_m": 52.88,
+   "devre": [
+    52.88
+   ],
+   "m_m2_mimari": 5.68,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.04
+  },
+  {
+   "kat": "Z",
+   "zon": "Z11",
+   "daire": "D2",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.95,
+   "alan_net": 8.83,
+   "L_m": 53.16,
+   "devre": [
+    53.16
+   ],
+   "m_m2_mimari": 5.71,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "Z",
+   "zon": "Z12",
+   "daire": "D2",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 21.18,
+   "alan_poligon": 20.41,
+   "alan_net": 20.17,
+   "L_m": 121.53,
+   "devre": [
+    59.5,
+    62.03
+   ],
+   "m_m2_mimari": 5.74,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "Z",
+   "zon": "Z13",
+   "daire": "D2",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 7.77,
+   "alan_poligon": 7.83,
+   "alan_net": 7.67,
+   "L_m": 43.8,
+   "devre": [
+    43.8
+   ],
+   "m_m2_mimari": 5.64,
+   "m_m2_poligon": 5.59,
+   "m_m2_net": 5.71
+  },
+  {
+   "kat": "Z",
+   "zon": "Z16",
+   "daire": "D3",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 15.44,
+   "alan_poligon": 14.48,
+   "alan_net": 14.32,
+   "L_m": 86.62,
+   "devre": [
+    43.8,
+    42.82
+   ],
+   "m_m2_mimari": 5.61,
+   "m_m2_poligon": 5.98,
+   "m_m2_net": 6.05
+  },
+  {
+   "kat": "Z",
+   "zon": "Z17",
+   "daire": "D3",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.05,
+   "alan_poligon": 8.77,
+   "alan_net": 8.64,
+   "L_m": 53.12,
+   "devre": [
+    53.12
+   ],
+   "m_m2_mimari": 5.87,
+   "m_m2_poligon": 6.06,
+   "m_m2_net": 6.15
+  },
+  {
+   "kat": "Z",
+   "zon": "Z18",
+   "daire": "D3",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 22.31,
+   "alan_poligon": 21.15,
+   "alan_net": 20.95,
+   "L_m": 126.78,
+   "devre": [
+    65.76,
+    61.02
+   ],
+   "m_m2_mimari": 5.68,
+   "m_m2_poligon": 5.99,
+   "m_m2_net": 6.05
+  },
+  {
+   "kat": "Z",
+   "zon": "Z19",
+   "daire": "D3",
+   "ad": "oda",
+   "tur": "oda",
+   "alan_mimari": 7.75,
+   "alan_poligon": 7.47,
+   "alan_net": 7.31,
+   "L_m": 46.26,
+   "devre": [
+    46.26
+   ],
+   "m_m2_mimari": 5.97,
+   "m_m2_poligon": 6.19,
+   "m_m2_net": 6.33
+  },
+  {
+   "kat": "Z",
+   "zon": "Z20",
+   "daire": "D3",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 11.0,
+   "alan_poligon": 10.47,
+   "alan_net": 10.28,
+   "L_m": 57.11,
+   "devre": [
+    57.11
+   ],
+   "m_m2_mimari": 5.19,
+   "m_m2_poligon": 5.45,
+   "m_m2_net": 5.56
+  },
+  {
+   "kat": "1",
+   "zon": "103",
+   "daire": "D4",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.9,
+   "alan_net": 8.78,
+   "L_m": 52.88,
+   "devre": [
+    52.88
+   ],
+   "m_m2_mimari": 5.68,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "1",
+   "zon": "104",
+   "daire": "D4",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.95,
+   "alan_net": 8.83,
+   "L_m": 53.16,
+   "devre": [
+    53.16
+   ],
+   "m_m2_mimari": 5.71,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "1",
+   "zon": "105",
+   "daire": "D4",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 21.18,
+   "alan_poligon": 20.37,
+   "alan_net": 20.13,
+   "L_m": 121.02,
+   "devre": [
+    59.1,
+    61.92
+   ],
+   "m_m2_mimari": 5.71,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.01
+  },
+  {
+   "kat": "1",
+   "zon": "106",
+   "daire": "D4",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 7.77,
+   "alan_poligon": 7.81,
+   "alan_net": 7.66,
+   "L_m": 43.8,
+   "devre": [
+    43.8
+   ],
+   "m_m2_mimari": 5.64,
+   "m_m2_poligon": 5.61,
+   "m_m2_net": 5.72
+  },
+  {
+   "kat": "1",
+   "zon": "109",
+   "daire": "D5",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 15.44,
+   "alan_poligon": 14.47,
+   "alan_net": 14.31,
+   "L_m": 86.62,
+   "devre": [
+    43.8,
+    42.82
+   ],
+   "m_m2_mimari": 5.61,
+   "m_m2_poligon": 5.99,
+   "m_m2_net": 6.05
+  },
+  {
+   "kat": "1",
+   "zon": "110",
+   "daire": "D5",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.05,
+   "alan_poligon": 8.77,
+   "alan_net": 8.64,
+   "L_m": 53.12,
+   "devre": [
+    53.12
+   ],
+   "m_m2_mimari": 5.87,
+   "m_m2_poligon": 6.06,
+   "m_m2_net": 6.15
+  },
+  {
+   "kat": "1",
+   "zon": "111",
+   "daire": "D5",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 22.31,
+   "alan_poligon": 21.12,
+   "alan_net": 20.93,
+   "L_m": 122.85,
+   "devre": [
+    60.92,
+    61.93
+   ],
+   "m_m2_mimari": 5.51,
+   "m_m2_poligon": 5.82,
+   "m_m2_net": 5.87
+  },
+  {
+   "kat": "1",
+   "zon": "112",
+   "daire": "D5",
+   "ad": "oda",
+   "tur": "oda",
+   "alan_mimari": 7.75,
+   "alan_poligon": 7.45,
+   "alan_net": 7.29,
+   "L_m": 46.14,
+   "devre": [
+    46.14
+   ],
+   "m_m2_mimari": 5.95,
+   "m_m2_poligon": 6.19,
+   "m_m2_net": 6.33
+  },
+  {
+   "kat": "1",
+   "zon": "113",
+   "daire": "D5",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 11.0,
+   "alan_poligon": 10.74,
+   "alan_net": 10.3,
+   "L_m": 57.29,
+   "devre": [
+    57.29
+   ],
+   "m_m2_mimari": 5.21,
+   "m_m2_poligon": 5.33,
+   "m_m2_net": 5.56
+  },
+  {
+   "kat": "1",
+   "zon": "116",
+   "daire": "D6",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 14.25,
+   "alan_poligon": 13.79,
+   "alan_net": 13.62,
+   "L_m": 82.22,
+   "devre": [
+    43.01,
+    39.21
+   ],
+   "m_m2_mimari": 5.77,
+   "m_m2_poligon": 5.96,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "1",
+   "zon": "117",
+   "daire": "D6",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.92,
+   "alan_net": 8.8,
+   "L_m": 53.04,
+   "devre": [
+    53.04
+   ],
+   "m_m2_mimari": 5.7,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "1",
+   "zon": "118",
+   "daire": "D6",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 9.01,
+   "alan_net": 8.88,
+   "L_m": 53.51,
+   "devre": [
+    53.51
+   ],
+   "m_m2_mimari": 5.75,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "1",
+   "zon": "119",
+   "daire": "D6",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 21.18,
+   "alan_poligon": 20.4,
+   "alan_net": 20.14,
+   "L_m": 121.33,
+   "devre": [
+    59.22,
+    62.11
+   ],
+   "m_m2_mimari": 5.73,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "1",
+   "zon": "120",
+   "daire": "D6",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 7.77,
+   "alan_poligon": 7.76,
+   "alan_net": 7.61,
+   "L_m": 43.5,
+   "devre": [
+    43.5
+   ],
+   "m_m2_mimari": 5.6,
+   "m_m2_poligon": 5.61,
+   "m_m2_net": 5.72
+  },
+  {
+   "kat": "2",
+   "zon": "203",
+   "daire": "D7",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.88,
+   "alan_net": 8.76,
+   "L_m": 52.8,
+   "devre": [
+    52.8
+   ],
+   "m_m2_mimari": 5.67,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "2",
+   "zon": "204",
+   "daire": "D7",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.96,
+   "alan_net": 8.83,
+   "L_m": 53.12,
+   "devre": [
+    53.12
+   ],
+   "m_m2_mimari": 5.71,
+   "m_m2_poligon": 5.93,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "2",
+   "zon": "205",
+   "daire": "D7",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 21.18,
+   "alan_poligon": 20.3,
+   "alan_net": 20.03,
+   "L_m": 120.38,
+   "devre": [
+    58.58,
+    61.8
+   ],
+   "m_m2_mimari": 5.68,
+   "m_m2_poligon": 5.93,
+   "m_m2_net": 6.01
+  },
+  {
+   "kat": "2",
+   "zon": "206",
+   "daire": "D7",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 7.77,
+   "alan_poligon": 7.8,
+   "alan_net": 7.64,
+   "L_m": 43.61,
+   "devre": [
+    43.61
+   ],
+   "m_m2_mimari": 5.61,
+   "m_m2_poligon": 5.59,
+   "m_m2_net": 5.71
+  },
+  {
+   "kat": "2",
+   "zon": "209",
+   "daire": "D8",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 15.44,
+   "alan_poligon": 14.46,
+   "alan_net": 14.21,
+   "L_m": 83.92,
+   "devre": [
+    41.53,
+    42.39
+   ],
+   "m_m2_mimari": 5.44,
+   "m_m2_poligon": 5.8,
+   "m_m2_net": 5.91
+  },
+  {
+   "kat": "2",
+   "zon": "210",
+   "daire": "D8",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.05,
+   "alan_poligon": 8.78,
+   "alan_net": 8.66,
+   "L_m": 53.12,
+   "devre": [
+    53.12
+   ],
+   "m_m2_mimari": 5.87,
+   "m_m2_poligon": 6.05,
+   "m_m2_net": 6.14
+  },
+  {
+   "kat": "2",
+   "zon": "211",
+   "daire": "D8",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 22.31,
+   "alan_poligon": 21.02,
+   "alan_net": 20.82,
+   "L_m": 122.53,
+   "devre": [
+    60.72,
+    61.81
+   ],
+   "m_m2_mimari": 5.49,
+   "m_m2_poligon": 5.83,
+   "m_m2_net": 5.88
+  },
+  {
+   "kat": "2",
+   "zon": "212",
+   "daire": "D8",
+   "ad": "oda",
+   "tur": "oda",
+   "alan_mimari": 7.75,
+   "alan_poligon": 7.44,
+   "alan_net": 7.28,
+   "L_m": 46.02,
+   "devre": [
+    46.02
+   ],
+   "m_m2_mimari": 5.94,
+   "m_m2_poligon": 6.19,
+   "m_m2_net": 6.32
+  },
+  {
+   "kat": "2",
+   "zon": "213",
+   "daire": "D8",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 11.0,
+   "alan_poligon": 10.73,
+   "alan_net": 10.51,
+   "L_m": 57.31,
+   "devre": [
+    57.31
+   ],
+   "m_m2_mimari": 5.21,
+   "m_m2_poligon": 5.34,
+   "m_m2_net": 5.45
+  },
+  {
+   "kat": "2",
+   "zon": "216",
+   "daire": "D9",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 14.25,
+   "alan_poligon": 13.75,
+   "alan_net": 13.58,
+   "L_m": 81.84,
+   "devre": [
+    42.8,
+    39.04
+   ],
+   "m_m2_mimari": 5.74,
+   "m_m2_poligon": 5.95,
+   "m_m2_net": 6.03
+  },
+  {
+   "kat": "2",
+   "zon": "217",
+   "daire": "D9",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.89,
+   "alan_net": 8.77,
+   "L_m": 52.8,
+   "devre": [
+    52.8
+   ],
+   "m_m2_mimari": 5.67,
+   "m_m2_poligon": 5.94,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "2",
+   "zon": "218",
+   "daire": "D9",
+   "ad": "yatak od.",
+   "tur": "oda",
+   "alan_mimari": 9.31,
+   "alan_poligon": 8.98,
+   "alan_net": 8.85,
+   "L_m": 53.28,
+   "devre": [
+    53.28
+   ],
+   "m_m2_mimari": 5.72,
+   "m_m2_poligon": 5.93,
+   "m_m2_net": 6.02
+  },
+  {
+   "kat": "2",
+   "zon": "219",
+   "daire": "D9",
+   "ad": "salon",
+   "tur": "oda",
+   "alan_mimari": 21.18,
+   "alan_poligon": 20.25,
+   "alan_net": 19.98,
+   "L_m": 119.9,
+   "devre": [
+    58.1,
+    61.8
+   ],
+   "m_m2_mimari": 5.66,
+   "m_m2_poligon": 5.92,
+   "m_m2_net": 6.0
+  },
+  {
+   "kat": "2",
+   "zon": "220",
+   "daire": "D9",
+   "ad": "antre-kor.",
+   "tur": "hol",
+   "alan_mimari": 7.77,
+   "alan_poligon": 8.26,
+   "alan_net": 8.07,
+   "L_m": 44.15,
+   "devre": [
+    44.15
+   ],
+   "m_m2_mimari": 5.68,
+   "m_m2_poligon": 5.35,
+   "m_m2_net": 5.47
+  }
+ ],
+ "devre_3m_alti": [],
+ "etiket_mahal_disi": [],
+ "mahal_etiketi_mahal_disi": [],
+ "mahal_etiketi_vitrifiye_ustu": []
 }

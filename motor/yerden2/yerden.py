@@ -371,9 +371,12 @@ def _oda_etiket_yerleri(o, yasak, mim, sira):
         cc = g.envelope.centroid
         anc = ((ux + 2 * cc.x) / 3, (uy + 2 * cc.y) / 3)
         # tam boy (yatay, sonra 90°), sığmazsa küçük ıslak hacimde 0,85 / 0,75 ölçek (yazı 8,5 / 7,5)
-        for k in (1.0, 0.85, 0.75, 0.7, 0.65):
+        # sıra: yatay tam boy -> yatay 0,85 / 0,75 -> 90° (hol boyunca) -> en küçük ölçekler
+        sira = [(1.0, 0), (0.85, 0), (0.75, 0), (1.0, 90), (0.85, 90), (0.75, 90), (0.7, 0), (0.7, 90),
+                (0.65, 0), (0.65, 90)]
+        for k, dn in sira:
             w, h = S.ETIKET_W * k, S.ETIKET_H * k
-            for boy in ([(w, h, 0)], [(h, w, 90)]):
+            for boy in ([(w, h, 0)] if dn == 0 else [(h, w, 90)],):
                 q, rot = yer_bul(boy, anc, [(Hn.buffer(1), True), (Hn.buffer(1), False),
                                             (P.buffer(-1, join_style=2), False)], yasak, mim, kendi=g, adim=5.0 if k < 1 else 10.0)
                 if q is not None:
