@@ -91,3 +91,16 @@ python3 pdfp.py  /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_ONI
 
 ## AutoCAD içi araçlar
 `araclar/autocad_lisp/BENIOKU.md`: `BPDF` (tüm paftaları `ROTAS_PAFTA` bloğuyla toplu PDF), `TOTLEN`, `TAGDEVICES`, `SPRINKLERLAYOUT`. Motor DWG'lerinde MTY blokları gerçek blok + öznitelik olarak gelir.
+
+## Deneme modülleri (14.10.2026, `motor/deneme/`)
+Araştırma raporları `kutuphane/arastirma/01-09`, ortak kurallar `DENEME_KURALLARI.md`. Her modülde `BENIOKU.md` var; çıktılar `proje/denemeler/`.
+| Modül | Ne üretir |
+|---|---|
+| `semboller` | 134 sembollük birleşik kütüphane (62 MTY bloğu) + `otomatik_lejant(doc)` (kullanılan semboller + adet tablosu) |
+| `kazan_dairesi` | JSON → kaskad kazan dairesi prensip şeması + cihaz listesi |
+| `pompa_grubu` | Yangın pompa grubu, hidrofor, pis su çukuru kesitleri (JSON) |
+| `sprinkler` | Mahal → TS EN 12845 başlık yerleşimi, ortogonal boru ağacı, DN etiketleri, Hazen-Williams hidrolik |
+| `kanal` | Menfez/debi → kanal güzergâhı, boyutlandırma, çift çizgi plan, basınç kaybı ve sac metrajı; otopark jet fan |
+| `dogalgaz` | İzometrik kolon şeması + çap/basınç kaybı hesabı (Excel formüllü); AKSAGAZ ile teyit bekliyor |
+| `radyator` | Radyatör planı, kalorifer kolon şeması, kritik devre çap tablosu |
+| `uctan_uca` | new_block.dxf mimarisinden sıhhi deneme + kullanıcı çizimiyle karşılaştırma (`KARSILASTIRMA.md`) |
