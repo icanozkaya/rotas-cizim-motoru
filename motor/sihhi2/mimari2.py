@@ -253,7 +253,7 @@ class Kat:
             if f['kind'] == 'KOMBI':
                 if r is None:
                     r = min(self.rooms, key=lambda q: q['poly'].distance(p))
-            out.append(dict(kind=f['kind'], c=tuple(f['c']), bb=f.get('bb'), oda=r, ek=False))
+            out.append(dict(kind=f['kind'], c=tuple(f['c']), bb=f.get('bb'), oda=r, ek=False, eksen=f.get('axis')))
         # aynı mahalde aynı türden çift tanıma (örn. iki LV gideri 10 cm içinde) -> tek
         tek = []
         for f in out:
