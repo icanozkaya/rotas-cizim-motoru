@@ -316,7 +316,38 @@ class Kat:
             kisa, uzun = min(a_, b_), max(a_, b_)
             if 50 <= uzun <= 130 and kisa <= 50 and q.area > 0.35 * rr.area:
                 self.kapilar.append(q)
-        self.kapi_u = unary_union(self.kapilar) if self.kapilar else Polygon()
+        # mahal sınırındaki açıklıklar: sınırdan dışa 40 cm ışın duvar katısına değmiyorsa (kapı / boşluk)
+        acik = []
+        for r in self.rooms:
+            ring = r['poly'].exterior
+            L = ring.length
+            n = int(L / 4)
+            for i in range(n):
+                p = ring.interpolate(i * 4.0)
+                a = ring.interpolate(max(0.0, i * 4.0 - 2))
+                b = ring.interpolate(min(L, i * 4.0 + 2))
+                dx, dy = b.x - a.x, b.y - a.y
+                l = math.hypot(dx, dy)
+                if l < 1e-6:
+                    continue
+                nx_, ny_ = dy / l, -dx / l
+                if r['poly'].contains(Point(p.x + nx_ * 3, p.y + ny_ * 3)):
+                    nx_, ny_ = -nx_, -ny_
+                ray = LineString([(p.x + nx_ * 1, p.y + ny_ * 1), (p.x + nx_ * 40, p.y + ny_ * 40)])
+                if ray.intersection(self.S).length < 3:
+                    hedef = Point(p.x + nx_ * 40, p.y + ny_ * 40)
+                    if any(q['poly'].contains(hedef) for q in self.rooms if q is not r):
+                        acik.append(Point(p.x, p.y).buffer(5))
+        A_ = unary_union(acik) if acik else Polygon()
+        ek = []
+        for q in (A_.geoms if hasattr(A_, 'geoms') else ([A_] if not A_.is_empty else [])):
+            rr = q.minimum_rotated_rectangle
+            cs = list(rr.exterior.coords)
+            uzun = max(math.hypot(cs[1][0] - cs[0][0], cs[1][1] - cs[0][1]), math.hypot(cs[2][0] - cs[1][0], cs[2][1] - cs[1][1]))
+            if 45 <= uzun <= 180:
+                ek.append(q)
+        self.acikliklar = ek
+        self.kapi_u = unary_union(self.kapilar + ek) if (self.kapilar or ek) else Polygon()
 
     def _daire_kapidan(self):
         """daire ataması kapı komşuluğuyla: daire no yazısına en yakın (ortak olmayan) mahal girişi; kapılardan BFS,

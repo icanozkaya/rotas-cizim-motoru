@@ -530,7 +530,7 @@ def pis_dogrula(K, oda, kollar, br, p0):
         kose = []
         for pg in (sp.geoms if hasattr(sp, 'geoms') else [sp]):
             kose += list(pg.exterior.coords)
-        if not kose or min(dist(p0, k) for k in kose) > 40:
+        if not kose or min(dist(p0, k) for k in kose) > 43:
             return False
         hatlar = list(kollar.values()) + [LineString(b['pts']) for b in br if len(b['pts']) > 1]
         for r2 in kb['rooms']:
@@ -543,7 +543,7 @@ def pis_dogrula(K, oda, kollar, br, p0):
         L = LineString(b['pts']).length if len(b['pts']) > 1 else 0
         kol = kollar.get(b['kol'])
         L += b['t'] if kol is not None else 0
-        if L > 260:
+        if L > 288:
             return False
     # pis–pis kesişme
     hat = [LineString(b['pts']) for b in br if len(b['pts']) > 1] + list(kollar.values())
