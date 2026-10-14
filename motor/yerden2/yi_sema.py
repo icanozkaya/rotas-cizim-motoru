@@ -38,7 +38,13 @@ def _pl(msp, pts, katman, renk=256, kapali=False):
 
 
 def daire_genislik(n):
-    return max(1900.0, PANEL0 + PANEL_ADIM * (n - 1) + 129.0 + 160.0)
+    """daire bloğu genişliği: kullanıcının şemasında 9 devreli daire 2144 cm (290 + 8·200 + 254)"""
+    return PANEL0 + PANEL_ADIM * (n - 1) + 254.0
+
+
+def son_daire_genislik(n):
+    """bandın sağındaki son daire: son panel + 129 (panel) + 15 (kullanıcı: bant iç 6490 = 146 + 2·2144 + 2056)"""
+    return PANEL0 + PANEL_ADIM * (n - 1) + 166.0
 
 
 def panel(msp, Px, Y0, d):
@@ -74,33 +80,110 @@ def panel(msp, Px, Y0, d):
     _t(msp, 'PEX BORU, 16 x 2.0', (Px + 4, Y0 - 13), 7, 2, DET)
 
 
-def kombi_kollektor(msp, Kx, Y0, n, toplamW, kombi_kw):
-    # kombi (sarı dikdörtgen + alt şerit + 4 bağlantı)
-    _pl(msp, [(Kx - 92, Y0 + 118), (Kx - 41, Y0 + 118), (Kx - 41, Y0 + 220), (Kx - 92, Y0 + 220)],
-        'ROTAS-ISITMA-CIHAZ', 2, True)
-    msp.add_line((Kx - 92, Y0 + 128), (Kx - 41, Y0 + 128), dxfattribs={'layer': 'ROTAS-ISITMA-CIHAZ', 'color': 2})
-    for i in range(4):
-        msp.add_circle((Kx - 85 + 12 * i, Y0 + 123), 2.5, dxfattribs={'layer': 'ROTAS-ISITMA-CIHAZ', 'color': 2})
-    _t(msp, 'H. KOMBİ %dKW' % kombi_kw, (Kx + 33, Y0 + 195), 20, 4, 'ROTAS-ISITMA-CIHAZ')
-    # kollektör dolabı
-    xl = min(Kx - 23, Kx + 85 - 10 * (n - 1) - 14)
+def _r(msp, x0, y0, x1, y1, katman, renk):
+    _pl(msp, [(x0, y0), (x1, y0), (x1, y1), (x0, y1)], katman, renk, True)
+
+
+def kollektor(msp, Kx, Y0, n):
+    """Gerçek manifold çizimi (saf geometri, kullanıcının *U127 bloğundaki kollektörün ölçüleri, 1:1 cm):
+    dolap (dış/iç çerçeve + kaide), gidiş (üst) ve dönüş (alt) barı, ağız başına gidişte ayar vanası + rekor,
+    dönüşte debimetre başlığı + rekor, iki uçta taşıyıcı braket, sol uçlarda kelebek kollu küresel vana + rakor,
+    hava pürjörleri. Ağız adımı 10, gidiş–dönüş ağız kayıklığı 5; gidiş ağızları Kx+85-10i, dönüş Kx+80-10i."""
     KL = 'ROTAS-ISITMA-KOLLEKTOR'
-    _pl(msp, [(xl, Y0 + 10), (Kx + 100, Y0 + 10), (Kx + 100, Y0 + 70), (xl, Y0 + 70)], KL, 1, True)
-    _pl(msp, [(xl + 6, Y0 + 50), (Kx + 94, Y0 + 50), (Kx + 94, Y0 + 56), (xl + 6, Y0 + 56)], KL, 10, True)
-    _pl(msp, [(xl + 6, Y0 + 27), (Kx + 94, Y0 + 27), (Kx + 94, Y0 + 33), (xl + 6, Y0 + 33)], KL, 30, True)
+    D = 7          # detay rengi (kullanıcı bloğunda beyaz/siyah)
+    xs = Kx + 85 - 10 * (n - 1) - 12.4      # barların sol ucu (n = 9 -> Kx - 7.4, referansla aynı)
+    xe = Kx + 92.4
+    X = lambda v: Kx + v                   # noqa: E731
+    # dolap (renk 15) + kaide
+    _r(msp, xs - 17.3, Y0, X(100.3), Y0 + 70.5, KL, 15)
+    msp.add_line((xs - 17.3, Y0 + 10.9), (X(100.3), Y0 + 10.9), dxfattribs={'layer': KL, 'color': 15})
+    _r(msp, xs - 15.6, Y0 + 12.6, X(98.6), Y0 + 68.8, KL, 15)
+    for x in (xs - 12.3, X(95.3)):
+        msp.add_line((x, Y0), (x, Y0 + 10.9), dxfattribs={'layer': KL, 'color': 15})
+    # barlar (gidiş üst 54,3–58,6 / dönüş alt 21,7–26,0), çift çizgi
+    for y0, y1 in ((54.3, 58.6), (21.7, 26.0)):
+        for y in (y0, y0 + 0.5, y1 - 0.5, y1):
+            msp.add_line((xs, Y0 + y), (xe, Y0 + y), dxfattribs={'layer': KL, 'color': D})
+    # uç braketleri
+    for bx0, bx1 in ((xs - 2.8, xs), (xe, xe + 2.8)):
+        _r(msp, bx0, Y0 + 16.5, bx1, Y0 + 63.7, KL, D)
+        _r(msp, bx0 + 0.6, Y0 + 49.5, bx1 - 0.6, Y0 + 61.3, KL, D)
+        _r(msp, bx0 + 0.6, Y0 + 17.8, bx1 - 0.6, Y0 + 29.5, KL, D)
+        for yv in (59.8, 27.2):
+            msp.add_circle(((bx0 + bx1) / 2, Y0 + yv), 0.9, dxfattribs={'layer': KL, 'color': D})
+    # sağ uç kapakları
+    for yc in (56.45, 23.85):
+        _r(msp, xe + 2.8, Y0 + yc - 1.6, xe + 4.0, Y0 + yc + 1.6, KL, D)
+    t = math.tan(math.radians(22.5))
     for i in range(n):
-        xg, xd = Kx + 85 - 10 * i, Kx + 80 - 10 * i
-        msp.add_line((xg, Y0 + 50), (xg, Y0 + 20), dxfattribs={'layer': KL, 'color': 10})
-        msp.add_line((xd, Y0 + 27), (xd, Y0 + 20), dxfattribs={'layer': KL, 'color': 30})
-        msp.add_circle((xg, Y0 + 40), 1.8, dxfattribs={'layer': KL, 'color': 10})
-    # kombi -> kollektör (gidiş kırmızı sürekli, dönüş turuncu çizgi-nokta), üzerinde küresel vana
-    _pl(msp, [(Kx - 55, Y0 + 118), (Kx - 55, Y0 + 53), (xl, Y0 + 53)], G)
-    _pl(msp, [(Kx - 80, Y0 + 118), (Kx - 80, Y0 + 30), (xl, Y0 + 30)], DN)
-    for x, y in ((Kx - 55, Y0 + 95), (Kx - 80, Y0 + 95)):
-        _pl(msp, [(x - 3, y - 5), (x + 3, y + 5), (x - 3, y + 5), (x + 3, y - 5)], KL, 1, True)
-    # kollektör toplamı
-    _t(msp, '%.1fW-%%%%C32' % toplamW, (xl, Y0 + 76), 10, 41, CAP)
-    msp.add_line((xl, Y0 + 74), (xl + 8, Y0 + 70), dxfattribs={'layer': CAP, 'color': 41})
+        xg, xd = X(85 - 10 * i), X(80 - 10 * i)
+        # gidiş: ayar vanası (gövde + trapez kol) üstte, rekor altta
+        _r(msp, xg - 1.5, Y0 + 58.6, xg + 1.5, Y0 + 60.4, KL, D)
+        _pl(msp, [(xg - 1.7, Y0 + 60.4), (xg + 1.7, Y0 + 60.4), (xg + 1.9, Y0 + 63.3), (xg - 1.9, Y0 + 63.3)], KL, D, True)
+        _pl(msp, [(xg - 0.9, Y0 + 60.4), (xg, Y0 + 62.6), (xg + 0.9, Y0 + 60.4)], KL, D)
+        msp.add_line((xg - 0.4, Y0 + 62.6), (xg - 0.4, Y0 + 63.3), dxfattribs={'layer': KL, 'color': D})
+        msp.add_line((xg + 0.4, Y0 + 62.6), (xg + 0.4, Y0 + 63.3), dxfattribs={'layer': KL, 'color': D})
+        _r(msp, xg - 1.6, Y0 + 53.0, xg + 1.6, Y0 + 54.3, KL, D)
+        _r(msp, xg - 1.2, Y0 + 52.2, xg + 1.2, Y0 + 53.0, KL, D)
+        # dönüş: debimetre başlığı (üstü yuvarlatılmış) + taban, rekor altta
+        msp.add_lwpolyline([(xd - 1.5, Y0 + 27.0, 0), (xd + 1.5, Y0 + 27.0, 0), (xd + 1.5, Y0 + 30.0, t * 0.5),
+                            (xd + 1.1, Y0 + 30.4, 0), (xd - 1.1, Y0 + 30.4, t * 0.5), (xd - 1.5, Y0 + 30.0, 0)],
+                           format='xyb', close=True, dxfattribs={'layer': KL, 'color': D})
+        _r(msp, xd - 1.2, Y0 + 26.0, xd + 1.2, Y0 + 27.0, KL, D)
+        _r(msp, xd - 1.6, Y0 + 20.4, xd + 1.6, Y0 + 21.7, KL, D)
+        _r(msp, xd - 1.2, Y0 + 19.6, xd + 1.2, Y0 + 20.4, KL, D)
+        # gidiş ağzından inen boru (dönüş barının arkasından geçer)
+        msp.add_line((xg, Y0 + 52.2), (xg, Y0 + 30.8), dxfattribs={'layer': G})
+    # sol uç: küresel vana (kelebek kollu) + rakor, gidiş (56,45) ve dönüş (23,85)
+    for yc in (56.45, 23.85):
+        x = xs - 2.8
+        _r(msp, x - 1.5, Y0 + yc - 2.2, x, Y0 + yc + 2.2, KL, D)                 # rakor somunu
+        _r(msp, x - 3.4, Y0 + yc - 1.9, x - 1.5, Y0 + yc + 1.9, KL, D)
+        _r(msp, x - 3.9, Y0 + yc - 1.6, x - 3.4, Y0 + yc + 1.6, KL, D)
+        _r(msp, x - 8.0, Y0 + yc - 2.1, x - 3.9, Y0 + yc + 2.1, KL, D)           # vana gövdesi
+        _r(msp, x - 9.5, Y0 + yc - 1.6, x - 8.0, Y0 + yc + 1.6, KL, D)           # giriş ucu
+        _pl(msp, [(x - 6.9, Y0 + yc + 2.1), (x - 6.9, Y0 + yc + 3.6), (x - 5.6, Y0 + yc + 4.4),
+                  (x - 4.6, Y0 + yc + 4.4), (x - 4.6, Y0 + yc + 2.1)], KL, D)    # kol göbeği
+        _pl(msp, [(x - 9.5, Y0 + yc + 5.6), (x - 6.3, Y0 + yc + 4.8), (x - 4.2, Y0 + yc + 4.8),
+                  (x - 1.0, Y0 + yc + 5.6), (x - 1.0, Y0 + yc + 3.6), (x - 4.2, Y0 + yc + 4.4),
+                  (x - 6.3, Y0 + yc + 4.4), (x - 9.5, Y0 + yc + 3.6)], KL, D, True)  # kelebek kol
+        _r(msp, x - 5.8, Y0 + yc + 5.6, x - 5.0, Y0 + yc + 6.2, KL, D)
+    # hava pürjörleri: gidiş sol üst, dönüş sağ alt
+    for px, py in ((xs + 2.4, 52.0), (X(90.0), 19.4)):
+        msp.add_circle((px, Y0 + py), 1.7, dxfattribs={'layer': KL, 'color': D})
+        _pl(msp, [(px - 0.5, Y0 + py), (px, Y0 + py + 0.5), (px + 0.5, Y0 + py), (px, Y0 + py - 0.5)], KL, D, True)
+        _r(msp, px - 0.35, Y0 + py - 3.0, px + 0.35, Y0 + py - 1.7, KL, D)
+    for px, py in ((xs + 3.9, 58.6), (X(88.5), 26.0)):
+        _r(msp, px - 1.2, Y0 + py, px + 1.2, Y0 + py + 0.6, KL, D)
+        _pl(msp, [(px - 0.8, Y0 + py + 0.6), (px - 0.4, Y0 + py + 1.4), (px + 0.4, Y0 + py + 1.4),
+                  (px + 0.8, Y0 + py + 0.6)], KL, D)
+    return xs - 2.8 - 9.5                  # vana giriş ucu x (kombi hatları buraya bağlanır)
+
+
+def kombi_kollektor(msp, Kx, Y0, n, toplamW, kombi_kw):
+    """Kombi + kollektör + bağlantılar (kullanıcının *U127 düzeni): kombi (−84,4…−34,4; 120…220), gidiş kombinin
+    sağ bağlantısından (−44,4) iner ve üst bara girer; dönüş sol bağlantıdan (−74,4) iner, alt bara girer ve
+    kombi altından doldurma/boşaltma küresel vanasına (y 10) devam eder — vana yalnız dönüşte."""
+    C = 'ROTAS-ISITMA-CIHAZ'
+    _r(msp, Kx - 84.4, Y0 + 120, Kx - 34.4, Y0 + 220, C, 2)
+    _r(msp, Kx - 82.4, Y0 + 125, Kx - 36.4, Y0 + 135, C, 2)
+    for x, r in ((-80.0, 1.8), (-65.0, 1.8), (-60.0, 1.8), (-55.0, 1.8), (-44.0, 2.6)):
+        msp.add_circle((Kx + x, Y0 + 130), r, dxfattribs={'layer': C, 'color': 2})
+    for dy in (-1.4, 0.0, 1.4):
+        msp.add_circle((Kx - 76.4, Y0 + 130 + dy), 0.5, dxfattribs={'layer': C, 'color': 2})
+    _t(msp, 'H. KOMBİ %dKW' % kombi_kw, (Kx + 33, Y0 + 195), 20, 4, C)
+    x_giris = kollektor(msp, Kx, Y0, n)
+    _pl(msp, [(Kx - 44.4, Y0 + 120), (Kx - 44.4, Y0 + 56.45), (x_giris, Y0 + 56.45)], G)
+    _pl(msp, [(Kx - 74.4, Y0 + 120), (Kx - 74.4, Y0 + 23.85), (x_giris, Y0 + 23.85)], DN)
+    _pl(msp, [(Kx - 74.4, Y0 + 23.85), (Kx - 74.4, Y0 + 15.0)], DN)
+    # dönüşte küresel vana (dikey, 90°): iki üçgen + kol
+    x, y = Kx - 74.4, Y0 + 10.0
+    _pl(msp, [(x - 2.5, y + 5), (x + 2.5, y + 5), (x - 2.5, y - 5), (x + 2.5, y - 5)], 'ROTAS-ISITMA-CIHAZ', 1, True)
+    _pl(msp, [(x, y), (x + 3.2, y), (x + 3.2, y + 4.0)], 'ROTAS-ISITMA-CIHAZ', 1)
+    # kollektör toplamı (kullanıcı: dolabın sol üstünde, kısa kılavuzla)
+    xl = Kx + 85 - 10 * (n - 1) - 12.4 - 17.3
+    _t(msp, '%.1fW-%%%%C32' % toplamW, (xl + 35, Y0 + 75), 10, 41, CAP)
+    _pl(msp, [(xl + 25, Y0 + 70.5), (xl + 25, Y0 + 79), (xl + 32, Y0 + 79)], CAP, 41)
 
 
 def daire_balonu(msp, x, y, ad):
@@ -115,8 +198,9 @@ def ciz(doc, msp, model):
     gen = []
     for kat in katlar:
         ds = sorted(kat['daireler'].values(), key=lambda d: -int(d['no'][1:]))
-        gen.append(sum(daire_genislik(sum(len(m['devreler']) for m in d['mahaller'])) for d in ds))
-    ic_w = max(gen) + K_OFS + 60
+        ns = [sum(len(m['devreler']) for m in d['mahaller']) for d in ds]
+        gen.append(sum(daire_genislik(k) for k in ns[:-1]) + son_daire_genislik(ns[-1]))
+    ic_w = max(gen) + K_OFS
     xb = X0 + SOL
     x_sag = xb + ic_w
     X1 = x_sag + 88.0
@@ -144,16 +228,18 @@ def ciz(doc, msp, model):
                 Px = Kx + PANEL0 + PANEL_ADIM * i
                 panel(msp, Px, Y0, c)
                 yg, yd = Y0 - 20 - 10 * i, Y0 - 25 - 10 * i
-                _pl(msp, [(Px - 5, Y0 + 50), (Px - 5, yg), (Kx + 85 - 10 * i, yg), (Kx + 85 - 10 * i, Y0 + 20)], G)
-                _pl(msp, [(Px, Y0 + 25), (Px, yd), (Kx + 80 - 10 * i, yd), (Kx + 80 - 10 * i, Y0 + 20)], DN)
+                _pl(msp, [(Px - 5, Y0 + 50), (Px - 5, yg), (Kx + 85 - 10 * i, yg), (Kx + 85 - 10 * i, Y0 + 19.6)], G)
+                _pl(msp, [(Px, Y0 + 25), (Px, yd), (Kx + 80 - 10 * i, yd), (Kx + 80 - 10 * i, Y0 + 19.6)], DN)
                 _t(msp, '%.1fW-%%%%C20' % c['W'], (Px - 15, yg + 1.5), 10, 41, CAP, TA.BOTTOM_RIGHT)
                 msp.add_line((Px - 13, yg + 1), (Px - 8, yg + 6), dxfattribs={'layer': CAP, 'color': 41})
                 toplam_sema.append((kat['kat'], dd['no'], c['no'], c['W'], c['L_m']))
             Kx += daire_genislik(n)
     # başlık, lejant, notlar
-    _t(msp, 'YERDEN ISITMA KOLON ŞEMASI', ((X0 + X1) / 2, BANT0 - 330), 40, 7, 'ROTAS-PAFTA-BASLIK', TA.MIDDLE_CENTER, gen=0.8)
-    lejant(msp, X0 + 200, BANT0 + 3 * BANT_H + 600)
-    notlar(msp, X0 + 1500, BANT0 + 3 * BANT_H + 600, model)
+    # kullanıcının şema paftasında bantların üstü boş: başlık, lejant ve notlar bantların ALTINDAKİ şeritte
+    # (döşeme altı hatların en altı ≈ BANT0 − 120)
+    _t(msp, 'YERDEN ISITMA KOLON ŞEMASI', (X1 - 900, PY0 + 120), 40, 7, 'ROTAS-PAFTA-BASLIK', TA.MIDDLE_CENTER, gen=0.8)
+    lejant(msp, X0 + 200, BANT0 - 260)
+    notlar(msp, X0 + 2300, BANT0 - 260, model)
     return toplam_sema
 
 
@@ -185,9 +271,10 @@ def notlar(msp, x, y, model):
     s = [
         '1- Yerden ısıtma borusu PEX 16 x 2,0 (oksijen bariyerli), boru aralığı 15 cm, kenar mesafesi 7,5 cm.',
         '2- Her devre tek parça boru (ek yok), devre boyu en çok 80 m; 14 m² ve üstü mahaller 2 devre.',
-        '3- Oda / salon / mutfak 20°C, antre-koridor 15°C, banyo 24°C. Balkon, yüklük, 2 m² altı wc-lavabo ve duş,',
-        '   merdiven, asansör ve ortak alanlar ısıtılmaz; mutfak tezgâhı, buzdolabı, klozet ve lavabo altına boru döşenmez.',
-        '4- Devre ısıl gücü etiketlerde 35 W/m × hat uzunluğu olarak verilmiştir; hesap tablosu ayrıdır.',
+        '3- Oda / salon / mutfak 20°C, antre-koridor 15°C, banyo 24°C. Balkon, yüklük, wc-lavabo, duş ve 2,7 m²',
+        '   altındaki wc-duş, merdiven, asansör ve ortak alanlar ısıtılmaz; mutfak tezgâhı, buzdolabı, klozet, lavabo ve',
+        '   duş teknesi altına boru döşenmez.',
+        '4- Devre ısıl gücü = 35 W/m × hat uzunluğu (plan etiketi, kolon şeması ve hesap tablosunda aynı esas).',
         '5- Kollektör ve kombi bağlantıları kolon şemasında gösterilmiştir; kollektör yeri uygulamada daire holünde seçilir.',
     ]
     yy = y - 45
