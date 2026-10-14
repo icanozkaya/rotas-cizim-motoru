@@ -1,0 +1,1676 @@
+{
+ "kolon": [
+  [
+   "P1",
+   "MUTFAK",
+   1,
+   [
+    253588,
+    -443431
+   ],
+   70,
+   {
+    "Z": 10.0,
+    "1": 10.0,
+    "2": 10.0
+   }
+  ],
+  [
+   "P2",
+   "WC",
+   1,
+   [
+    253749,
+    -442739
+   ],
+   100,
+   {
+    "Z": 14.0,
+    "2": 14.0
+   }
+  ],
+  [
+   "P3",
+   "BANYO",
+   1,
+   [
+    253732,
+    -442703
+   ],
+   100,
+   {
+    "Z": 25.0,
+    "1": 25.0,
+    "2": 25.0
+   }
+  ],
+  [
+   "P4",
+   "MUTFAK",
+   2,
+   [
+    253542,
+    -443431
+   ],
+   70,
+   {
+    "Z": 10.0,
+    "1": 10.0,
+    "2": 10.0
+   }
+  ],
+  [
+   "P5",
+   "WC",
+   2,
+   [
+    253381,
+    -442739
+   ],
+   100,
+   {
+    "Z": 14.0,
+    "1": 14.0,
+    "2": 14.0
+   }
+  ],
+  [
+   "P6",
+   "BANYO",
+   2,
+   [
+    253400,
+    -442703
+   ],
+   100,
+   {
+    "Z": 25.0,
+    "1": 25.0,
+    "2": 25.0
+   }
+  ],
+  [
+   "P7",
+   "MUTFAK",
+   3,
+   [
+    253752,
+    -441547
+   ],
+   70,
+   {
+    "Z": 10.0,
+    "1": 10.0,
+    "2": 10.0
+   }
+  ],
+  [
+   "P8",
+   "BANYO",
+   3,
+   [
+    253048,
+    -442214
+   ],
+   100,
+   {
+    "Z": 25.0,
+    "1": 25.0,
+    "2": 25.0
+   }
+  ],
+  [
+   "P9",
+   "DUŞ",
+   3,
+   [
+    252765,
+    -441978
+   ],
+   100,
+   {
+    "Z": 11.0,
+    "1": 11.0,
+    "2": 11.0
+   }
+  ],
+  [
+   "P10",
+   "DUŞ",
+   1,
+   [
+    253713,
+    -442418
+   ],
+   100,
+   {
+    "1": 21.0
+   }
+  ]
+ ],
+ "depo": {
+  "karar": "cati",
+  "neden": "mimaride bodrum / depo yeri yok (Z+2, temel) -> çatı deposu kurgusu, hidroforsuz"
+ },
+ "adk": {
+  "ADK-1": {
+   "p": [
+    253563,
+    -442991
+   ],
+   "daire": [
+    1,
+    2
+   ]
+  },
+  "ADK-2": {
+   "p": [
+    253600,
+    -442068
+   ],
+   "daire": [
+    3
+   ]
+  }
+ },
+ "ek_makine": {
+  "Z": [
+   [
+    "CM",
+    3
+   ],
+   [
+    "BM",
+    3
+   ]
+  ],
+  "1": [
+   [
+    "CM",
+    5
+   ],
+   [
+    "BM",
+    5
+   ]
+  ],
+  "2": [
+   [
+    "CM",
+    8
+   ],
+   [
+    "BM",
+    8
+   ]
+  ]
+ },
+ "temel_kolon_kesen": [],
+ "rogar": {
+  "R1": {
+   "p": [
+    254518,
+    -441762
+   ],
+   "kols": [
+    "P7",
+    "P9"
+   ]
+  },
+  "R2": {
+   "p": [
+    254518,
+    -442316
+   ],
+   "kols": [
+    "P8",
+    "P10"
+   ]
+  },
+  "R3": {
+   "p": [
+    254518,
+    -442721
+   ],
+   "kols": [
+    "P3",
+    "P6",
+    "P2",
+    "P5"
+   ]
+  },
+  "R4": {
+   "p": [
+    254518,
+    -443431
+   ],
+   "kols": [
+    "P1",
+    "P4"
+   ]
+  },
+  "PB": {
+   "p": [
+    254738,
+    -443431
+   ],
+   "kols": []
+  }
+ },
+ "kat": {
+  "Z": {
+   "kolon": {
+    "P6": 25.0,
+    "P5": 14.0,
+    "P8": 25.0,
+    "P3": 25.0,
+    "P9": 11.0,
+    "P7": 10.0,
+    "P1": 10.0,
+    "P4": 10.0,
+    "P2": 14.0
+   },
+   "temiz": {
+    "1": {
+     "sicak_armatur": 4,
+     "soguk_branş": 5,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 5.5
+    },
+    "2": {
+     "sicak_armatur": 4,
+     "soguk_branş": 5,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 5.5
+    },
+    "3": {
+     "sicak_armatur": 5,
+     "soguk_branş": 4,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 6.0
+    }
+   },
+   "suzgec": 9,
+   "balkon_suzgec": 5,
+   "havalandirma": 5,
+   "kolon_etiket": [
+    [
+     "P1",
+     0.0,
+     41
+    ],
+    [
+     "P2",
+     59.4,
+     55
+    ],
+    [
+     "P3",
+     0.0,
+     75
+    ],
+    [
+     "P4",
+     0.0,
+     41
+    ],
+    [
+     "P5",
+     0.0,
+     55
+    ],
+    [
+     "P6",
+     53.0,
+     75
+    ],
+    [
+     "P7",
+     0,
+     55
+    ],
+    [
+     "P8",
+     0.0,
+     55
+    ],
+    [
+     "P9",
+     0,
+     55
+    ],
+    [
+     "P10",
+     0.0,
+     55
+    ]
+   ]
+  },
+  "1": {
+   "kolon": {
+    "P6": 25.0,
+    "P8": 25.0,
+    "P7": 10.0,
+    "P10": 21.0,
+    "P3": 25.0,
+    "P1": 10.0,
+    "P9": 11.0,
+    "P4": 10.0,
+    "P5": 14.0
+   },
+   "temiz": {
+    "4": {
+     "sicak_armatur": 4,
+     "soguk_branş": 5,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 5.5
+    },
+    "5": {
+     "sicak_armatur": 5,
+     "soguk_branş": 4,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 6.0
+    },
+    "6": {
+     "sicak_armatur": 5,
+     "soguk_branş": 5,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 6.5
+    }
+   },
+   "suzgec": 9,
+   "balkon_suzgec": 5,
+   "havalandirma": 5,
+   "kolon_etiket": [
+    [
+     "P1",
+     0.0,
+     41
+    ],
+    [
+     "P2",
+     22.5,
+     75
+    ],
+    [
+     "P3",
+     0.0,
+     75
+    ],
+    [
+     "P4",
+     0.0,
+     41
+    ],
+    [
+     "P5",
+     16.8,
+     55
+    ],
+    [
+     "P6",
+     53.0,
+     75
+    ],
+    [
+     "P7",
+     0,
+     55
+    ],
+    [
+     "P8",
+     0.0,
+     55
+    ],
+    [
+     "P9",
+     0,
+     55
+    ],
+    [
+     "P10",
+     0.0,
+     55
+    ]
+   ]
+  },
+  "2": {
+   "kolon": {
+    "P6": 25.0,
+    "P8": 25.0,
+    "P3": 25.0,
+    "P9": 11.0,
+    "P7": 10.0,
+    "P1": 10.0,
+    "P4": 10.0,
+    "P5": 14.0,
+    "P2": 14.0
+   },
+   "temiz": {
+    "7": {
+     "sicak_armatur": 4,
+     "soguk_branş": 5,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 5.5
+    },
+    "8": {
+     "sicak_armatur": 5,
+     "soguk_branş": 4,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 6.0
+    },
+    "9": {
+     "sicak_armatur": 4,
+     "soguk_branş": 5,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 5.5
+    }
+   },
+   "suzgec": 9,
+   "balkon_suzgec": 5,
+   "havalandirma": 5,
+   "kolon_etiket": [
+    [
+     "P1",
+     0.0,
+     41
+    ],
+    [
+     "P2",
+     63.4,
+     55
+    ],
+    [
+     "P3",
+     0.0,
+     75
+    ],
+    [
+     "P4",
+     0.0,
+     41
+    ],
+    [
+     "P5",
+     16.8,
+     55
+    ],
+    [
+     "P6",
+     53.0,
+     75
+    ],
+    [
+     "P7",
+     0,
+     55
+    ],
+    [
+     "P8",
+     0.0,
+     55
+    ],
+    [
+     "P9",
+     0,
+     55
+    ],
+    [
+     "P10",
+     0.0,
+     55
+    ]
+   ]
+  }
+ },
+ "yasak": [],
+ "bina_alani": 367.6976,
+ "balkon": [
+  [
+   "Z",
+   [
+    253308,
+    -443641
+   ]
+  ],
+  [
+   "Z",
+   [
+    252735,
+    -442566
+   ]
+  ],
+  [
+   "Z",
+   [
+    252732,
+    -441901
+   ]
+  ],
+  [
+   "Z",
+   [
+    254235,
+    -441531
+   ]
+  ],
+  [
+   "Z",
+   [
+    253822,
+    -443641
+   ]
+  ],
+  [
+   "1",
+   [
+    255342,
+    -443641
+   ]
+  ],
+  [
+   "1",
+   [
+    254769,
+    -442566
+   ]
+  ],
+  [
+   "1",
+   [
+    254766,
+    -441901
+   ]
+  ],
+  [
+   "1",
+   [
+    256269,
+    -441531
+   ]
+  ],
+  [
+   "1",
+   [
+    255856,
+    -443641
+   ]
+  ],
+  [
+   "2",
+   [
+    256818,
+    -442566
+   ]
+  ],
+  [
+   "2",
+   [
+    256815,
+    -441901
+   ]
+  ],
+  [
+   "2",
+   [
+    258318,
+    -441531
+   ]
+  ],
+  [
+   "2",
+   [
+    257905,
+    -443641
+   ]
+  ],
+  [
+   "2",
+   [
+    257391,
+    -443641
+   ]
+  ]
+ ],
+ "sema": {
+  "sema_w": 11190.0,
+  "groups": [
+   [
+    {
+     "Z": [
+      "D1",
+      "daire"
+     ],
+     "1": [
+      "D6",
+      "daire"
+     ],
+     "2": [
+      "D9",
+      "daire"
+     ]
+    },
+    [
+     "P3",
+     "P10",
+     "P2",
+     "P1"
+    ]
+   ],
+   [
+    {
+     "Z": [
+      "D2",
+      "daire"
+     ],
+     "1": [
+      "D4",
+      "daire"
+     ],
+     "2": [
+      "D7",
+      "daire"
+     ]
+    },
+    [
+     "P6",
+     "P5",
+     "P4"
+    ]
+   ],
+   [
+    {
+     "Z": [
+      "D3",
+      "daire"
+     ],
+     "1": [
+      "D5",
+      "daire"
+     ],
+     "2": [
+      "D8",
+      "daire"
+     ]
+    },
+    [
+     "P8",
+     "P9",
+     "P7"
+    ]
+   ]
+  ],
+  "units": [
+   [
+    "D1",
+    "Z",
+    0,
+    5.5
+   ],
+   [
+    "D6",
+    "1",
+    0,
+    6.5
+   ],
+   [
+    "D9",
+    "2",
+    0,
+    5.5
+   ],
+   [
+    "D2",
+    "Z",
+    1,
+    5.5
+   ],
+   [
+    "D4",
+    "1",
+    1,
+    5.5
+   ],
+   [
+    "D7",
+    "2",
+    1,
+    5.5
+   ],
+   [
+    "D3",
+    "Z",
+    2,
+    6.0
+   ],
+   [
+    "D5",
+    "1",
+    2,
+    6.0
+   ],
+   [
+    "D8",
+    "2",
+    2,
+    6.0
+   ]
+  ],
+  "ybt": 52.0,
+  "yagmur": {
+   "D": 6.560409940189205,
+   "f": 9,
+   "P": 404.47
+  },
+  "frames": [
+   "ANTET, NOTLAR VE LEJANT",
+   "YERLEŞİM PLANI",
+   "TEMEL PLANI",
+   "ZEMİN KAT SIHHİ TESİSAT PLANI",
+   "1. KAT SIHHİ TESİSAT PLANI",
+   "2. KAT SIHHİ TESİSAT PLANI",
+   "SIHHİ TESİSAT AÇILIMLI KOLON ŞEMASI + RÖGAR ŞEMASI + WC/BANYO HAVALANDIRMA KOLONLARI",
+   "YAĞMUR SUYU ŞEMASI VE HESABI",
+   "SIHHİ DETAYLAR"
+  ]
+ },
+ "metraj": {
+  "BALKON SÜZGEÇ HATTI (PVC) Ø50": 27.2,
+  "PİS SU (PVC) Ø100": 22.5,
+  "PİS SU (PVC) Ø50": 79.5,
+  "PİS SU (PVC) Ø70": 2.1,
+  "PİS SU KOLONU (PVC) Ø100": 66.5,
+  "PİS SU KOLONU (PVC) Ø70": 28.5,
+  "PİS SU RÖGAR ARASI (PVC) Ø150": 16.1,
+  "PİS SU ZEMİN ALTI (PVC) Ø100": 114.8,
+  "TEMİZ SU ADK KOLONU (PPRC) Ø32": 20.0,
+  "TEMİZ SU ANA HAT (PPRC) Ø25": 9.4,
+  "TEMİZ SU DBK KOLONU (PPRC) Ø32": 10.0,
+  "TEMİZ SU SICAK (PPRC, izoleli)": 171.8,
+  "TEMİZ SU SOĞUK (PPRC)": 226.0,
+  "TEMİZ SU ŞEBEKE / DBK (PPRC) Ø32": 8.8
+ },
+ "adet": {
+  "WC": 15,
+  "LV": 18,
+  "DUS": 13,
+  "BM": 9,
+  "KOMBI": 9,
+  "EV": 9,
+  "YS": 27,
+  "CM": 9,
+  "BALKON_SUZGEC": 15,
+  "ASPIRATOR": 15
+ },
+ "kontrol3": {
+  "kesisim_tur": {
+   "PIS-SC": 75,
+   "PIS-SO": 101
+  },
+  "temiz_su_kesisim": 0,
+  "pis_su_kesisim": 0,
+  "kesisim_ornek": [],
+  "suzgec": [
+   [
+    "Z",
+    "banyo",
+    2,
+    1
+   ],
+   [
+    "Z",
+    "wc-lvb.",
+    2,
+    1
+   ],
+   [
+    "Z",
+    "wc+banyo",
+    3,
+    1
+   ],
+   [
+    "Z",
+    "banyo",
+    1,
+    1
+   ],
+   [
+    "Z",
+    "duş",
+    3,
+    1
+   ],
+   [
+    "Z",
+    "mutfak",
+    3,
+    1
+   ],
+   [
+    "Z",
+    "mutfak",
+    1,
+    1
+   ],
+   [
+    "Z",
+    "mutfak",
+    2,
+    1
+   ],
+   [
+    "Z",
+    "wc-lvb.",
+    1,
+    1
+   ],
+   [
+    "1",
+    "banyo",
+    4,
+    1
+   ],
+   [
+    "1",
+    "wc-banyo",
+    5,
+    1
+   ],
+   [
+    "1",
+    "mutfak",
+    5,
+    1
+   ],
+   [
+    "1",
+    "wc-duş",
+    6,
+    1
+   ],
+   [
+    "1",
+    "banyo",
+    6,
+    1
+   ],
+   [
+    "1",
+    "mutfak",
+    6,
+    1
+   ],
+   [
+    "1",
+    "wc-duş",
+    5,
+    1
+   ],
+   [
+    "1",
+    "mutfak",
+    4,
+    1
+   ],
+   [
+    "1",
+    "wc-lvb.",
+    4,
+    1
+   ],
+   [
+    "2",
+    "banyo",
+    7,
+    1
+   ],
+   [
+    "2",
+    "wc-banyo",
+    8,
+    1
+   ],
+   [
+    "2",
+    "banyo",
+    9,
+    1
+   ],
+   [
+    "2",
+    "duş",
+    8,
+    1
+   ],
+   [
+    "2",
+    "mutfak",
+    8,
+    1
+   ],
+   [
+    "2",
+    "mutfak",
+    9,
+    1
+   ],
+   [
+    "2",
+    "mutfak",
+    7,
+    1
+   ],
+   [
+    "2",
+    "wc-lvb.",
+    7,
+    1
+   ],
+   [
+    "2",
+    "wc-lvb.",
+    9,
+    1
+   ]
+  ],
+  "suzgec_hatali": [],
+  "pis_45_disi_parca": 0,
+  "kolon_saft": [],
+  "balkon_pis_temas": 0
+ },
+ "rapor3": {
+  "temiz": {
+   "Z": {
+    "1": {
+     "sicak_armatur": 4,
+     "soguk_branş": 5,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 5.5
+    },
+    "2": {
+     "sicak_armatur": 4,
+     "soguk_branş": 5,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 5.5
+    },
+    "3": {
+     "sicak_armatur": 5,
+     "soguk_branş": 4,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 6.0
+    }
+   },
+   "1": {
+    "4": {
+     "sicak_armatur": 4,
+     "soguk_branş": 5,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 5.5
+    },
+    "5": {
+     "sicak_armatur": 5,
+     "soguk_branş": 4,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 6.0
+    },
+    "6": {
+     "sicak_armatur": 5,
+     "soguk_branş": 5,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 6.5
+    }
+   },
+   "2": {
+    "7": {
+     "sicak_armatur": 4,
+     "soguk_branş": 5,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 5.5
+    },
+    "8": {
+     "sicak_armatur": 5,
+     "soguk_branş": 4,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 6.0
+    },
+    "9": {
+     "sicak_armatur": 4,
+     "soguk_branş": 5,
+     "basarisiz": [],
+     "cift_hatta_alinan_soguk": [],
+     "yb": 5.5
+    }
+   }
+  },
+  "pis": {
+   "Z": [
+    [
+     "banyo",
+     2,
+     5,
+     0
+    ],
+    [
+     "wc-lvb.",
+     2,
+     3,
+     1
+    ],
+    [
+     "wc+banyo",
+     3,
+     5,
+     1
+    ],
+    [
+     "banyo",
+     1,
+     5,
+     0
+    ],
+    [
+     "duş",
+     3,
+     3,
+     2
+    ],
+    [
+     "mutfak",
+     3,
+     3,
+     0
+    ],
+    [
+     "mutfak",
+     1,
+     3,
+     0
+    ],
+    [
+     "mutfak",
+     2,
+     3,
+     0
+    ],
+    [
+     "wc-lvb.",
+     1,
+     3,
+     1
+    ]
+   ],
+   "1": [
+    [
+     "banyo",
+     4,
+     5,
+     0
+    ],
+    [
+     "wc-banyo",
+     5,
+     5,
+     1
+    ],
+    [
+     "mutfak",
+     5,
+     3,
+     0
+    ],
+    [
+     "wc-duş",
+     6,
+     4,
+     0
+    ],
+    [
+     "banyo",
+     6,
+     5,
+     0
+    ],
+    [
+     "mutfak",
+     6,
+     3,
+     0
+    ],
+    [
+     "wc-duş",
+     5,
+     3,
+     2
+    ],
+    [
+     "mutfak",
+     4,
+     3,
+     0
+    ],
+    [
+     "wc-lvb.",
+     4,
+     3,
+     1
+    ]
+   ],
+   "2": [
+    [
+     "banyo",
+     7,
+     5,
+     0
+    ],
+    [
+     "wc-banyo",
+     8,
+     5,
+     1
+    ],
+    [
+     "banyo",
+     9,
+     5,
+     0
+    ],
+    [
+     "duş",
+     8,
+     3,
+     2
+    ],
+    [
+     "mutfak",
+     8,
+     3,
+     0
+    ],
+    [
+     "mutfak",
+     9,
+     3,
+     0
+    ],
+    [
+     "mutfak",
+     7,
+     3,
+     0
+    ],
+    [
+     "wc-lvb.",
+     7,
+     3,
+     1
+    ],
+    [
+     "wc-lvb.",
+     9,
+     3,
+     2
+    ]
+   ]
+  },
+  "suzgec": {
+   "Z": [
+    [
+     "wc-lvb.",
+     2,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "mutfak",
+     3,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "mutfak",
+     1,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "mutfak",
+     2,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "wc-lvb.",
+     1,
+     "EK süzgeç eklendi"
+    ]
+   ],
+   "1": [
+    [
+     "wc-banyo",
+     5,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "mutfak",
+     5,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "wc-duş",
+     6,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "mutfak",
+     6,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "mutfak",
+     4,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "wc-lvb.",
+     4,
+     "EK süzgeç eklendi"
+    ]
+   ],
+   "2": [
+    [
+     "wc-banyo",
+     8,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "mutfak",
+     8,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "mutfak",
+     9,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "mutfak",
+     7,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "wc-lvb.",
+     7,
+     "EK süzgeç eklendi"
+    ],
+    [
+     "wc-lvb.",
+     9,
+     "EK süzgeç eklendi"
+    ]
+   ]
+  },
+  "saft_kolon": [],
+  "kolon_kaydirma": [
+   [
+    "P2",
+    [
+     253731,
+     -442739
+    ],
+    [
+     253749,
+     -442739
+    ],
+    18
+   ],
+   [
+    "P5",
+    [
+     253399,
+     -442739
+    ],
+    [
+     253381,
+     -442739
+    ],
+    18
+   ],
+   [
+    "P8",
+    [
+     253048,
+     -442246
+    ],
+    [
+     253048,
+     -442214
+    ],
+    32
+   ]
+  ],
+  "havalandirma": [
+   [
+    "Z",
+    "Ş1",
+    "wc+banyo",
+    "D3",
+    80
+   ],
+   [
+    "Z",
+    "Ş3",
+    "banyo",
+    "D2",
+    80
+   ],
+   [
+    "Z",
+    "Ş3",
+    "wc-lvb.",
+    "D2",
+    80
+   ],
+   [
+    "Z",
+    "Ş4",
+    "banyo",
+    "D1",
+    80
+   ],
+   [
+    "Z",
+    "Ş4",
+    "wc-lvb.",
+    "D1",
+    80
+   ],
+   [
+    "1",
+    "Ş1",
+    "wc-banyo",
+    "D5",
+    80
+   ],
+   [
+    "1",
+    "Ş2",
+    "wc-duş",
+    "D5",
+    80
+   ],
+   [
+    "1",
+    "Ş3",
+    "banyo",
+    "D4",
+    80
+   ],
+   [
+    "1",
+    "Ş3",
+    "wc-lvb.",
+    "D4",
+    80
+   ],
+   [
+    "1",
+    "Ş4",
+    "banyo",
+    "D6",
+    80
+   ],
+   [
+    "2",
+    "Ş1",
+    "wc-banyo",
+    "D8",
+    80
+   ],
+   [
+    "2",
+    "Ş3",
+    "banyo",
+    "D7",
+    80
+   ],
+   [
+    "2",
+    "Ş3",
+    "wc-lvb.",
+    "D7",
+    80
+   ],
+   [
+    "2",
+    "Ş4",
+    "banyo",
+    "D9",
+    80
+   ],
+   [
+    "2",
+    "Ş4",
+    "wc-lvb.",
+    "D9",
+    80
+   ]
+  ],
+  "uyari": [
+   "2 kat: çift ıslak hacim etiketi wc-lvb. D9 birleştirildi"
+  ],
+  "seb_aday": [
+   {
+    "temiz": [],
+    "yasak": [],
+    "oda": [
+     387
+    ]
+   },
+   {
+    "temiz": [],
+    "yasak": [],
+    "oda": [
+     15
+    ]
+   }
+  ],
+  "seb": {
+   "ceza": 156.8,
+   "nokta": 5
+  }
+ },
+ "sembol": {
+  "semboller2": {},
+  "kendi": [
+   "ROTAS-ASPIRATOR",
+   "ROTAS-BULASIK-MAKINESI",
+   "ROTAS-BULASIK-MAKINESI-SEMA",
+   "ROTAS-CAMASIR-MAKINESI",
+   "ROTAS-CAMASIR-MAKINESI-SEMA",
+   "ROTAS-CATI-FANI",
+   "ROTAS-CEKVALF-VANA",
+   "ROTAS-DUS-TEKNESI",
+   "ROTAS-DUS-TEKNESI-SEMA",
+   "ROTAS-EVIYE",
+   "ROTAS-EVIYE-SEMA",
+   "ROTAS-KLOZET",
+   "ROTAS-KLOZET-SEMA",
+   "ROTAS-KOLON-HAVALIK-SAPKASI",
+   "ROTAS-KOLON-NO-PIS-SU",
+   "ROTAS-KOLON-NO-YAGMUR",
+   "ROTAS-KOMBI",
+   "ROTAS-KOMBI-SEMA",
+   "ROTAS-KURESEL-VANA",
+   "ROTAS-LAVABO",
+   "ROTAS-LAVABO-SEMA",
+   "ROTAS-PIS-SU-CAP-SB",
+   "ROTAS-PIS-SU-KOLON",
+   "ROTAS-PIS-SU-KOLON-NO",
+   "ROTAS-PISLIK-TUTUCU",
+   "ROTAS-PVC-CATAL-SAG",
+   "ROTAS-PVC-DIRSEK",
+   "ROTAS-PVC-ROGAR",
+   "ROTAS-SU-SAYACI",
+   "ROTAS-SUZGEC",
+   "ROTAS-TEMIZ-SU-CAP-MB",
+   "ROTAS-TEMIZLEME-KAPAGI-KOLON",
+   "ROTAS-YER-SUZGECI-DN50",
+   "ROTAS-YER-SUZGECI-DN50-SEMA",
+   "ROTAS-YER-SUZGECI-PLAN"
+  ],
+  "bilinmeyen": []
+ },
+ "kontrol": {
+  "kolon_cakisma": [],
+  "bosta_uc": 0,
+  "kopru_atlatma_cizilen": 0,
+  "yazi_maskesi": 152,
+  "dedupe": 13,
+  "mty": {
+   "blok": [],
+   "katman": [],
+   "cizgi_tipi": [],
+   "insert": [],
+   "varlik_katmani": [],
+   "blok_ici_katman": [],
+   "yazi": [],
+   "toplam": 0
+  }
+ },
+ "lejant": {
+  "sembol_adet": {
+   "ROTAS-PIS-SU-KOLON": 41,
+   "ROTAS-KOLON-NO-PIS-SU": 50,
+   "ROTAS-PIS-SU-CAP-SB": 252,
+   "ROTAS-YER-SUZGECI-PLAN": 27,
+   "ROTAS-KURESEL-VANA": 145,
+   "ROTAS-TEMIZ-SU-CAP-MB": 181,
+   "ROTAS-SUZGEC": 15,
+   "ROTAS-KOLON-NO-YAGMUR": 36,
+   "ROTAS-PISLIK-TUTUCU": 3,
+   "ROTAS-SU-SAYACI": 12,
+   "ROTAS-CEKVALF-VANA": 12,
+   "ROTAS-ASPIRATOR": 30,
+   "ROTAS-KLOZET-SEMA": 18,
+   "ROTAS-PVC-CATAL-SAG": 111,
+   "ROTAS-LAVABO-SEMA": 21,
+   "ROTAS-DUS-TEKNESI-SEMA": 15,
+   "ROTAS-CAMASIR-MAKINESI-SEMA": 9,
+   "ROTAS-YER-SUZGECI-DN50-SEMA": 30,
+   "ROTAS-EVIYE-SEMA": 9,
+   "ROTAS-BULASIK-MAKINESI-SEMA": 9,
+   "ROTAS-KOMBI-SEMA": 9,
+   "ROTAS-KOLON-HAVALIK-SAPKASI": 10,
+   "ROTAS-PIS-SU-KOLON-NO": 10,
+   "ROTAS-TEMIZLEME-KAPAGI-KOLON": 10,
+   "ROTAS-PVC-DIRSEK": 10,
+   "ROTAS-CATI-FANI": 4,
+   "ROTAS-PVC-ROGAR": 4,
+   "ROTAS-KLOZET": 1,
+   "ROTAS-LAVABO": 1,
+   "ROTAS-DUS-TEKNESI": 1,
+   "ROTAS-EVIYE": 1,
+   "ROTAS-CAMASIR-MAKINESI": 1,
+   "ROTAS-BULASIK-MAKINESI": 1,
+   "ROTAS-YER-SUZGECI-DN50": 1,
+   "ROTAS-KOMBI": 1
+  },
+  "x": [
+   30002,
+   31822
+  ]
+ },
+ "dxf": {
+  "yol": "/home/claude/rotas-cizim-motoru/proje/denemeler/uctan_uca/NB_SIHHI_DENEME_R3.dxf",
+  "surum": "AC1032",
+  "varlik": 18319,
+  "katmanlar": [
+   "0",
+   "ROTAS-BINA-HATTI",
+   "ROTAS-CIHAZ",
+   "ROTAS-HAVALANDIRMA",
+   "ROTAS-HAVALANDIRMA-YAZI",
+   "ROTAS-HESAP",
+   "ROTAS-ISIKAYBIMAHAL",
+   "ROTAS-ISITMA-DONUS-BORU",
+   "ROTAS-ISITMA-GIDIS-BORU",
+   "ROTAS-KAT-ADI",
+   "ROTAS-KOLLETOR",
+   "ROTAS-LEJANT",
+   "ROTAS-METRAJ",
+   "ROTAS-MIMARI",
+   "ROTAS-MIMARI-KOLON",
+   "ROTAS-MIMARI-YAZI",
+   "ROTAS-PAFTA",
+   "ROTAS-PEX-BORU",
+   "ROTAS-PIS-SU-BORUSU",
+   "ROTAS-PISSU-BORU-TAVANDAN",
+   "ROTAS-PISSU-CAP",
+   "ROTAS-PISSU-KOLONNO",
+   "ROTAS-PVC",
+   "ROTAS-RAST-TEM-SU-DEPOSU",
+   "ROTAS-ROGAR",
+   "ROTAS-SEMA",
+   "ROTAS-SICAKSU-BORU",
+   "ROTAS-SOGUKSU-BORU",
+   "ROTAS-TEFRIS",
+   "ROTAS-TEMIZSU-CAP",
+   "ROTAS-VANA",
+   "ROTAS-YAGMUR-BORUSU",
+   "ROTAS-YAGMUR-BORUSU-CAP",
+   "ROTAS-YAZI"
+  ],
+  "insert": 1126,
+  "bloklar": [
+   "ROTAS-ASPIRATOR",
+   "ROTAS-BULASIK-MAKINESI",
+   "ROTAS-BULASIK-MAKINESI-SEMA",
+   "ROTAS-CAMASIR-MAKINESI",
+   "ROTAS-CAMASIR-MAKINESI-SEMA",
+   "ROTAS-CATI-FANI",
+   "ROTAS-CEKVALF-VANA",
+   "ROTAS-DUS-TEKNESI",
+   "ROTAS-DUS-TEKNESI-SEMA",
+   "ROTAS-EVIYE",
+   "ROTAS-EVIYE-SEMA",
+   "ROTAS-KLOZET",
+   "ROTAS-KLOZET-SEMA",
+   "ROTAS-KOLON-HAVALIK-SAPKASI",
+   "ROTAS-KOLON-NO-PIS-SU",
+   "ROTAS-KOLON-NO-YAGMUR",
+   "ROTAS-KOMBI",
+   "ROTAS-KOMBI-SEMA",
+   "ROTAS-KURESEL-VANA",
+   "ROTAS-LAVABO",
+   "ROTAS-LAVABO-SEMA",
+   "ROTAS-PIS-SU-CAP-SB",
+   "ROTAS-PIS-SU-KOLON",
+   "ROTAS-PIS-SU-KOLON-NO",
+   "ROTAS-PISLIK-TUTUCU",
+   "ROTAS-PVC-CATAL-SAG",
+   "ROTAS-PVC-DIRSEK",
+   "ROTAS-PVC-ROGAR",
+   "ROTAS-SU-SAYACI",
+   "ROTAS-SUZGEC",
+   "ROTAS-TEMIZ-SU-CAP-MB",
+   "ROTAS-TEMIZLEME-KAPAGI-KOLON",
+   "ROTAS-YER-SUZGECI-DN50",
+   "ROTAS-YER-SUZGECI-DN50-SEMA",
+   "ROTAS-YER-SUZGECI-PLAN"
+  ]
+ }
+}

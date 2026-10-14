@@ -1,4 +1,28 @@
-# uctan_uca — new_block.dxf üzerinde uçtan uca sıhhi tesisat denemesi (14.10.2026, R2)
+# uctan_uca — new_block.dxf üzerinde uçtan uca sıhhi tesisat denemesi (14.10.2026, R3)
+
+## R3 — 14.10.2026 (B) revizyon talimatı (`nb3.py`, `r3.py`, `semb3.py`, `sema3.py`, `cikti3.py`)
+Çıktı: `proje/denemeler/uctan_uca/NB_SIHHI_DENEME_R3.dxf` (R1/R2 korunur). Karşılaştırma: `KARSILASTIRMA.md` "R3" bölümü; özet `ozet_r3.json`.
+```bash
+cd /tmp/claude-0/uu && python3 /home/claude/rotas-cizim-motoru/motor/deneme/uctan_uca/nb3.py   # ~4 dk
+```
+- `nb3.py`: R2 tanıma / kolon / rögar altyapısını (`nb.py`, `r2.py`) import eder, değişen adımları kendisi yapar: çift ıslak hacim etiketi birleştirme,
+  "mek. havl." şaft poligonu, kolonu şafttan kendi mahalline öteleme, ıslak hacim başına tam 1 yer süzgeci (fazlası çıkar, yoksa EK),
+  balık sırtı pis su, kesişmesiz temiz su, kat planında aspiratör + Ø150 + şaft, kontroller (`kontroller()`), `reg.pkl` (kesişme girdisi).
+- `semb3.py`: `mtyblk.insert` / `mtyblk.find` yaması — motorun her MTY sembol çağrısı `ROTAS-` saf geometri bloğuna gider (iç katman 0).
+  Geometri öncelikle `motor/deneme/semboller2/sembol2.py` (ortak MTY'siz kütüphane) bloklarından, eski yerleşim kutusuna oranla sığdırılarak;
+  karşılığı olmayan (çap etiketleri: yalnız öznitelik, PVC dirsek) kendi çizimimiz. Eski bloktan yalnız sınır kutusu ve öznitelik yuvası okunur.
+- `r3.py`: maliyet alanı `Alan` (koridor / mahal ortası tercihi, yatak odasında duvar dibi bandı, duvar delme cezası, yasak + şaft engel,
+  kapılardan yürüme mesafesiyle daire etiketi, bina dışı kapalı), `otele` (miter öteleme), `duzelt` (Z-kırık temizliği), `agacta_kes`,
+  `balik_sirti` (45° omurga + 45° tekil branşman), `kesisimler` (aynı ağ T-birleşimi serbest, diğer her temas kesişme).
+- Temiz su kurgusu: sıcak su kombiden TEK hat, sıcak alan armatürleri sırayla; soğuk su ona 10 cm paralel; soğuk-alan armatürler ve daire girişi
+  soğuk taraftan branşman (sıcak hat ızgarada engel). Kapalı kalan soğuk-alan armatür olursa çift hat oraya da uğrar. Paralel çift hattın T ile
+  dallanması düzlemde kesişmesiz olamayacağından sıcak hat dallandırılmaz.
+- `sema3.py`: `sema.py` kopyası; kolon şemasının sağına havalandırma kolonları (katlarda aspiratör, çatıda çatı tipi fan), SIHHİ DETAYLAR saf
+  geometri tablolar (MTY detay bloğu yok), antet "DENEME R3", R3 notları.
+- `cikti3.py`: köprü (xcheck.hops) YOK; ROTAS- katman öneki, blok içleri katman 0, MTY temizliği + `mty_kontrol` (sonuç 0 olmalı),
+  kullanılan ROTAS sembolleri lejantı (örnek + adet) + armatür adet tablosu + boru metrajı.
+R3 sonuç: kesişme/atlatma 0, MTY 0, yasak bölge 0, kolon-şaft 0, ıslak hacim başına süzgeç 27/27 = 1, boşta uç 0.
+Sınırlar: `KARSILASTIRMA.md` R3 bölümü (sıcak hat dallanmaz, pis su - temiz su plan üst üste görünmesi sayılır ama kural değil, yazı yoğunluğu).
 
 ## R2 — 14.10.2026 kullanıcı standart talimatı revizyonu (`r2.py` + `nb.py`)
 Çıktı: `proje/denemeler/uctan_uca/NB_SIHHI_DENEME_R2.dxf` (R1 `NB_SIHHI_DENEME.dxf` önce/sonra için korunur). Karşılaştırma: `KARSILASTIRMA.md` §0.

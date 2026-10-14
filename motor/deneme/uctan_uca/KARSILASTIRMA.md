@@ -1,8 +1,40 @@
-# Uçtan uca sıhhi tesisat denemesi — karşılaştırma (new_block.dxf) — R1 (önce) / R2 (sonra)
+# Uçtan uca sıhhi tesisat denemesi — karşılaştırma (new_block.dxf) — R1 / R2 / R3
 
 Tarih: 14.10.2026. R1: `proje/denemeler/uctan_uca/NB_SIHHI_DENEME.dxf`; **R2 (14.10.2026 kullanıcı kuralları):** `proje/denemeler/uctan_uca/NB_SIHHI_DENEME_R2.dxf` (`motor/deneme/uctan_uca/nb.py` + `r2.py`).
 Referans: kullanıcının aynı dosyadaki MTY çizimi (MTY-* katmanları). Kullanıcı çizimi tanımaya **girmedi**; yalnız burada okundu.
 Koordinatlar zemin kat mimari kaynak koordinatıdır (cm). Kullanıcının kolon konumu = "MTY-KOLON NO" bloğunun yerleştirme noktası (P1, P3, P4, P6, P8, P9 için kullanıcının pis su borusunun ucuyla 8 cm içinde çakışıyor; yani gerçek kolon yeri).
+
+## R3 — 14.10.2026 (B) revizyon talimatı (`nb3.py` + `r3.py` + `semb3.py` + `sema3.py` + `cikti3.py`)
+
+Çıktı: `proje/denemeler/uctan_uca/NB_SIHHI_DENEME_R3.dxf` (AC1032; R1 / R2 dosyaları önce/sonra karşılaştırması için korunur). Özet: `ozet_r3.json`.
+
+| Kural (14.10 B) | R2 (önce) | R3 (sonra) |
+|---|---|---|
+| MTY bloğu kullanılmaz; semboller saf geometri | MTY adı geçen: 21 blok tanımı, 35 katman, 666 INSERT, 109 blok içi katman, 3 yazı (toplam 834); `MTY-SIHHİ DETAYLAR` bloğu içe aktarılıyordu | **0** (blok / katman / çizgi tipi / INSERT / blok içi katman / yazı; `cikti3.mty_kontrol`). 35 `ROTAS-` blok, hepsi saf geometri (LINE / CIRCLE / LWPOLYLINE / HATCH), iç katman 0. Geometri: 32 sembol `semboller2/sembol2.py` kütüphanesinden (eski yerleşim kutusuna oranla sığdırılır), 3 sembol (pis su / temiz su çap etiketi yalnız öznitelik, PVC dirsek) `semb3.py`. SIHHİ DETAYLAR saf geometri tablolarla (SB/YB değerleri, pis su ve temiz su çap tabloları, yer süzgeci ve havalık kesiti) |
+| Boru atlatma (köprü/jumper) yok; sıcak-soğuk kesişmez | xcheck köprüsü 36, çakışık 22 | çizilen köprü **0** (`xcheck.hops` çağrılmaz); temiz su kesişmesi (soğuk-soğuk, soğuk-sıcak, sıcak-sıcak, ana hat, şebeke) **0**; pis su-pis su **0** (`r3.kesisimler`, 3 kat) |
+| Koridorda hat koridor ORTASINDAN; ıslak hacimde mahal ortasından | A* duvar dibini tercih ediyordu | maliyet alanı (`r3.Alan`): duvardan uzaklaştıkça ucuz (1 + 2,2·e^(-d/18)), duvar delme +20, yatak odası/salon pahalı ve orada duvar dibi bandı (14-40 cm) ucuz (ebeveyn banyosu geçişi), betonarme / asansör / enerji odası / havalandırma şaftı yasak; başka dairenin hacimleri +6 (kapılardan yürüme mesafesiyle daire etiketi, bina dışı kapalı) |
+| Sıcak-soğuk paralel | sıcak = soğuk ağacının 7 cm ötelemesi (dallanmalarda kesişme) | sıcak su kombiden **tek hat** (dallanmasız), sıcak su alan armatürleri sırayla dolaşır; soğuk su bu hattın tamamı boyunca **10 cm paralel** (eksenin ±5 cm iki yanı). Klozet / ÇM / BM ve daire girişi soğuk hatta soğuk taraftan tek branşmanla (sıcak hat ızgarada engel). Not: paralel çift hattın T ile dallanması düzlemde kesişmesiz çizilemez (topolojik zorunluluk), bu yüzden sıcak hat dallanmaz |
+| Pis su: kolona en kısa yoldan, 45° dirsek; dallı (balık sırtı), seri yok; birbirini kesmez | en yakın ağaç, eğik doğrudan hatlar (armatürden armatüre zincir oluşabiliyordu) | her ıslak hacimde kolondan en uzak armatüre 45° kırıklı omurga; diğer armatürler omurgaya 45° **tekil** branşmanla (73 branşmanın 15'i doğrudan kolona, omurgaya 45° bağlanamayan konumda). 45°/90° dışı açılı parça **0**; pis su kesişmesi **0** |
+| Kolon mekanik havalandırma şaftı içinde değil | P2, P5, P8 şaft ("mek. havl.") içinde | şaft poligonu mimariden (yazı yanındaki Ø kanal dairesi → ortogonal duvarlarla kapalı dikdörtgen); P2 +18 cm, P5 −18 cm, P8 +32 cm kendi mahalline doğru ötelendi → kolon-şaft **0** (3 kat) |
+| Her ıslak hacimde tam 1 yer süzgeci | mimarideki süzgeçler (mutfak / bazı wc'lerde yok) | 27 ıslak hacmin hepsinde **1** (17 EK süzgeç: 9 mutfak, 5 wc-lvb., 2 wc-banyo, 1 wc-duş; fazla süzgeç yok). Süzgeç pis su ağına 45° branşmanla bağlı |
+| Balkon süzgeci ayrı hat | 15, yağmur inişine | aynı (15, Ø50 → yağmur inişi); balkon hattı-pis su teması **0** |
+| ÇM mimarideki konumda | mimari ÇM konumu / EK | aynı: mimaride gösterilen ÇM'nin bağlantısı kendi konumunda; mimaride yoksa R2 "EK" kuralı (D3/D5/D8 wc+banyo ÇM, D3/D5/D8 mutfak BM) |
+| WC/banyo havalandırması kat planında + kolon şemasının sonunda | yok (yalnız ayrı izometri modülü) | kat planlarında 15 aspiratör (ROTAS-ASPIRATOR) + şafta Ø150 bağlantı + "WC ASPİRATÖRÜ 80 m³/h - 50 Pa / Ø150 → Ş4 (D1-6-9)" + şaft çerçevesi "Ş1..Ş4 MEK. HAVL. ŞAFTI"; kolon şemasının sağında (aynı pafta) 4 havalandırma kolonu, katlarda aspiratör branşmanları, çatıda çatı tipi fan (Ş1 240 m³/h 13 Pa, Ş2 80 m³/h 2 Pa, Ş3 480 m³/h 50 Pa, Ş4 400 m³/h 35 Pa, ÇF-200). Hesap `wc_havalandirma` (algila + hesap, hacim başına aspiratör) |
+| Elektrik kalemi yok | yok | yok |
+| Yasak bölge (betonarme / asansör / enerji odası) | 0 | **0**; boşta uç 0; kolon çakışması 0 |
+
+Kontrol özeti (R3): kesişme/atlatma 0 · MTY 0 · yasak bölge 0 · kolon-şaft 0 · ıslak hacim başına süzgeç = 1 (27/27).
+Bilgi: planda pis su hatları ile temiz su hatları 176 noktada üst üste görünür (pis su tavan/döşeme altı, temiz su şap içi: farklı
+düzlem; köprü çizilmedi). İstenirse bu sayı da kural haline getirilip güzergâh buna göre aranabilir.
+
+R3 sınırları / sorulacaklar:
+- Sıcak su dallanmadığı için sıcak hat bazı dairelerde ıslak hacimden çıkıp bir sonrakine gider (D1/D2'de kombi balkonda: balkon → mutfak →
+  hol → wc → banyo). Kullanıcının alıştığı "sıcak + soğuk birlikte dallanan" çizim kesişmesiz olamaz; bu kurgu onaylanmalı.
+- Soğuk-alan armatür branşmanları (klozet, ÇM) bazı ıslak hacimlerde çift hattan ayrı bir güzergâhla gelir (sıcak tarafından kesmeden dolaşır).
+- Daire etiketi kapılardan yürüme mesafesiyle; kombi balkonda olan dairelerde balkon komşu daireye etiketlenebiliyor (yumuşak ceza ile çözüldü).
+- Şebeke hattı (bina girişi → DBK) giriş holü ile salon arasındaki duvar boyunca; aday güzergâhlardan en az ceza seçilir.
+- Havalandırma: hacim başına aspiratör (80 m³/h); R2 izometrisindeki "banyo + wc tek aspiratör 160" kabulü için `oda_basina_aspirator` False yapılabilir.
+- Yazı yoğunluğu: dar ıslak hacimlerde çap etiketleri ve aspiratör yazısı mahal adına binebiliyor (maske var, konum ayarı yapılmadı).
 
 ## 0. 14.10.2026 kuralları — önce / sonra
 
