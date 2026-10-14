@@ -124,7 +124,7 @@ def rogar_plani(m, mim):
             rx = r['x'] if r.get('x') and abs(r['x'] - xr) < 300 else xr
             h = _hat_y(K, rx, engel, diger)
             secim = h[0] if h else sorted(k['y'] for k in K)[len(K) // 2]
-            ry = r['y'] if r.get('y') is not None and abs(r['y'] - secim) <= 40 else secim
+            ry = r['y'] if r.get('y') is not None else secim     # kullanıcının rögar yeri
             rog.append(dict(no=r['no'], x=rx, y=ry, hat_y=secim,
                             kolonlar=[k['no'] for k in sorted(K, key=lambda q: O.kno(q['no']))], _K=K,
                             cap_giris='Ø125', cap_cikis=r.get('cap', 'Ø150'), egim=r.get('egim', '%1'),
@@ -222,14 +222,15 @@ def temel_uret(m, cikis):
                 hat([(k['x'], k['y']), (k['x'], y)])
                 bag.append(k['x'])
         xs = sorted(set(bag)) + [r['x'] - 45]
-        if abs(y - r['y']) > 1:      # hat rögar ekseninden kaçık: son parçada 45° pahla rögara gir
+        jog = abs(y - r['y']) > 25   # hat rögar kutusunun dışında: son parçada 45° ile rögara gir
+        if jog:
             xs[-1] = r['x'] - 45 - abs(y - r['y'])
         for a, b in zip(xs[:-1], xs[1:]):
             hat([(a, y), (b, y)])
             if b - a >= 150:
                 for e in egim_et((a, y), (b, y), 'Ø125'):
                     alanlar.append(_kutu(e))
-        if abs(y - r['y']) > 1:
+        if jog:
             hat([(xs[-1], y), (r['x'] - 45, r['y'])])
     # rögarlar ve aralarındaki Ø150
     for i, r in enumerate(rog):

@@ -10,8 +10,8 @@ python3 motor/sihhi2/sema.py [--model YOL] [--cikis KLASOR] [--ad NB_SIHHI] [--k
 python3 motor/sihhi2/sema_kontrol.py [--png-yok]      # T07/T08/T11 ölçümü + referansla yan yana PNG
 ```
 Çıktılar (`proje/denemeler/sihhi2/`):
-- `NB_SIHHI_SEMA.dxf`: kolon şeması, altında rögar şeması, sağında yağmur şeması, hesap kutusu ve lejant
-  bulunur. Pafta x 260714'ten başlar. Bu, new_block'taki şema paftasının yeridir.
+- `NB_SIHHI_SEMA.dxf`: kolon şeması, altında rögar şeması, sağında yağmur şeması ve hesap kutusu bulunur.
+  Kullanıcının şema paftasında olduğu gibi başlık ve lejant YOKTUR (lejant detay paftasındadır). Pafta x 260714'ten başlar. Bu, new_block'taki şema paftasının yeridir.
 - `NB_SIHHI_TEMEL.dxf`: temel planı. Pafta 250042…252513 aralığındadır. Zemin kat koordinatı + `temel_ofset` (−2629).
 - `NB_SIHHI_sema_ozet.json`: yığınlar, kolon x'leri, kat SB değerleri, daire MB/çap değerleri, rögar ataması ve
   çatı alanı (`pafta.py` bu dosyayı okuyabilir).
@@ -27,6 +27,19 @@ python3 motor/sihhi2/sema_kontrol.py [--png-yok]      # T07/T08/T11 ölçümü +
 | `sema_kontrol.py` | Kontrolörün T07, T08 ve T11 testlerini şema ve temel paftasında çalıştırır, yan yana PNG üretir. |
 
 ## Yerleşim kuralları (birim cm; X0 = 260820 bant iç solu, Y0 = −443249 zemin döşemesi)
+- **Kullanıcı yerleşimi (15.10.2026 tur 2):** modelin kolonları kullanıcınınkiyle aynıysa (P1…P9, yığın sırası
+  D3-D2-D1) kolon x'leri ve daire dikmeleri `REF_KOLON_X` / `REF_DIKME` tablosundan alınır: bant 260820…267449
+  (**6629**), şema paftası 260714…268132 (**7418**), detay paftası 268132'de başlar. Bir grup kullanıcınınkinden
+  uzunsa (ek armatür) yalnız sağındaki kolonlar gerektiği kadar kayar. Kolonlar farklıysa formül yerleşimi kullanılır.
+- Kolon ve rögar sayısı MODELDEN okunur, şema ek kolon/rögar üretmez. Rögar ataması modelin `rogarlar[].kolonlar`
+  listesindendir (yoksa temel planında kümeleme). Kullanıcı: R1←P7,P9; R2←P8; R3←P2,P3,P5,P6; R4←P1,P4; PB.
+- **Armatür sırası (kolondan dışa, kullanıcının x ölçüleri):** banyo lavabo – klozet – süzgeç – duş – ÇM;
+  wc-lvb klozet – lavabo (D1: P2 266548 → klozet 266702 → lavabo 266832); mutfak BM – eviye – kombi.
+  `sema_ortak.arm_sirala`. Tek hatlı armatürün (klozet, ÇM, BM) Ø/MB etiketi armatürün solundadır.
+- Kat bant çizgileri yağmur şeması bölmesinin sağ ucuna kadar sürer (x1 + 621).
+- Kolon pis su çizgisi balonun altına kadar çıkar (üst bant + 45,5); havalık şapkası +28, balon +73 (çift daire).
+- Renk: siyah ekranda kaybolan renk (ACI 250…) yoktur; sembol dolguları ve balon iç daireleri ACI 8, hesap
+  yazıları 7, rögar yazıları 9.
 - Kat bandı 400 cm'dir. Her iki uçta 50 cm'lik kat yazısı sütunu vardır (h 25, 90°, kırmızı). Üst bant çizgisi çatıdır.
 - **Yığın:** aynı plan konumundaki daireler bir yığındır (kombi konumu < 80 cm; örnek D3/D5/D8). Yığınlar soldan sağa
   kolon x ortalamasına göre artan sırada dizilir (D3, D2, D1). Yığın içinde ıslak hacim kolonları kuzeyden güneye
@@ -44,7 +57,8 @@ python3 motor/sihhi2/sema_kontrol.py [--png-yok]      # T07/T08/T11 ölçümü +
   yalnız bir hat varsa 2 satırdır. Her hat parçasında tek etiket bulunur. Üst hat etiketi her iki iniş arasındaki
   parçaya konur.
 - **Pis su:** iniş döşemeden −35'e iner, 45° çatalla toplayıcıya bağlanır. Toplayıcı −50 kotundadır ve kolona 45°
-  ile girer. Borular PVC görünümündedir: çift dış hat (43) ve muf halkaları. İniş etiketi `Ø50 / 2 SB`, inişin sağındadır.
+  ile girer. Borular PVC görünümündedir: çift dış hat (43) ve her parça başında muf (dış hattan 2 cm geniş, 8 cm).
+  İniş etiketi `Ø50 / 2 SB` h 15 (blok ölçeği 1,5), inişin sağındadır; kolon etiketi de h 15.
   Toplayıcı etiketi armatürün 80 cm solundadır, kümülatif değeri gösterir ve kancası hatta iner.
 - **Kolon:** kat bağlantısının altında, kolonun solunda kolon etiketi vardır (o kattan aşağı kümülatif SB; zemin
   etiketi kolon toplamıdır). T.K. zemin +24'tedir. Dipte −88'de 45° dirsek, ok ve "R" bulunur. Üstte havalık
@@ -55,9 +69,10 @@ python3 motor/sihhi2/sema_kontrol.py [--png-yok]      # T07/T08/T11 ölçümü +
   dikmesi arasında by-pass çek valf vardır. Dağıtım dikmesi X0+158'dedir. Kollektörler X0+173 ve +161'er aralıktadır.
   Her kollektörde 5 sıra bulunur, sıra aralığı 20'dir. Bir sıranın dizilimi: vana(27) – pislik tutucu(52) – sayaç(74) –
   çek valf(96) – vana(121), uç tırnağı 148'de. **Kat bantlarında ve dairelerde sayaç yoktur.**
-- **Depo:** çatıdadır, X0+285, 200×200, 30 cm taralı kaide üzerinde. Havalık, taşma 2", boşaltma (vanalı, huni),
-  seviye göstergesi ve şamandıralı dolum (vana) bulunur. Çıkışta vana ve pislik tutucu vardır. Dikmelerde her
-  katta akış oku konur.
+- **Depo:** çatıdadır, X0+285, 200×200, 30 cm taralı kaide üzerinde. Havalık (kaz boynu) + taşma 2" depo yan
+  duvarına flanşla girer; boşaltma depo TABANINDAN flanşla çıkar, kaide içinden vana → taşma birleşimi → huni;
+  dolum üstten flanşla girer, içeride şamandıralı (flatörlü) vana; seviye göstergesi iki flanşlı ağız. Çıkışta vana ve pislik tutucu vardır. Şebeke girişinde → ve dikmelerde her
+  katta akış oku (dolum ↑, dağıtım ↓) konur.
 - **Yağmur şeması:** x1+86+60·i konumunda, −20 ile üst+10 arasında uzanır. Balon üst+37,5'tedir. Her katta +170'te
   Ø70 işareti ve dipte deşarj oku vardır. Altında "YAĞMUR SUYU KANALINA GİDER" kutusu ve 500×280 hesap kutusu bulunur.
   Hesap: bina alanı / iniş sayısı × 0,03 l/s·m². Kapasite TS EN 12056-3 Wyly-Eaton denklemiyle bulunur
@@ -74,6 +89,9 @@ python3 motor/sihhi2/sema_kontrol.py [--png-yok]      # T07/T08/T11 ölçümü +
   ile rögar başına 350 cezanın toplamıdır; bir kümenin yayılımı en çok 520 cm olabilir. Ortak yatay hattı ya da
   inişi betonarmeye veya başka kümenin kolonuna değen küme olanaksız sayılır. Hat y'si medyana en yakın serbest
   y'dir (±300).
+- Rögar ataması ve yerleri modelin `rogarlar` listesinden (kullanıcının R1–R4 + PB'si); hat rögar kutusunun
+  dışında kalırsa son parça 45° ile rögara girer.
+- Eğim yazıları kullanıcının *U67 biçimi: `%1 EĞİM` / `Ø125`, h 20, hattın 29 cm yanında.
 - Kolondan gelen hat Ø125 %1'dir. Batıdaki ilk kolonun L köşesinde 5 cm 45° pah vardır. Diğer kolonlar T ile
   bağlanır. Her 150 cm'den uzun parçaya `%1 EĞİM / Ø125` etiketi ve ok konur. Rögarlar arası Ø150 %1'dir (etiket 90°).
   PB son rögarın 506 cm doğusundadır.
