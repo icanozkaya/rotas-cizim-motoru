@@ -117,14 +117,18 @@ def cizgi(pts, n=6):
 
 # ---------------------------------------------------------------- satır / devre kurma (kanonik)
 def _satir_secimi(R_satir, y, sol_min):
-    """y satırında, sol_min'den sonra en uzun kullanılabilir aralık -> (L, r) | None"""
+    """y satırında kullanılacak aralık -> (L, r, l) | None. Önce sol_min'i (dönüş ayağı x'i) içeren aralık;
+    yoksa (etiket cebi satırı) sol_min'in sağındaki en uzun aralık."""
+    ar = araliklar(R_satir, y)
+    for l, r in ar:
+        if l - 0.5 <= sol_min <= r and r - sol_min >= MIN_SATIR:
+            return (max(l, sol_min), r, l)
     best = None
-    for l, r in araliklar(R_satir, y):
-        L = max(l, sol_min)
-        if r - L < MIN_SATIR:
+    for l, r in ar:
+        if l < sol_min or r - l < MIN_SATIR:
             continue
-        if best is None or (r - L) > (best[1] - best[0]):
-            best = (L, r, l)
+        if best is None or (r - l) > (best[1] - best[0]):
+            best = (l, r, l)
     return best
 
 
@@ -203,15 +207,20 @@ def kur(R, n, R_satir=None, bolme=None, cepler=None, y_u_ofset=None):
     ys_all = satirlar(R, y_u_ofset)
     if not ys_all:
         return None
-    y_u = ys_all[0]
-    # besleme x'i: kullanılan satırların sol uçlarının en büyüğü (besleme dikeyi R içinde kalsın)
-    # geçerli satırlar: alttan kesintisiz
+    # geçerli satırlar: alttan kesintisiz; baştaki kısa (çıkıntı) satırlar atlanır
     ok = []
     for y in ys_all:
         a = araliklar(R, y)
+        if not ok and (not a or max(r - l for l, r in a) < 4 * ADIM):
+            continue
         if not a:
             break
         ok.append((y, a))
+    if len(ok) % 2:
+        ok = ok[:-1]
+    if not ok:
+        return None
+    y_u = ok[0][0]
     if len(ok) < 2:
         return None
     # besleme x'i adayları: satırların sol uçları; her aday için alttan kesintisiz kapsanan satırlar ve

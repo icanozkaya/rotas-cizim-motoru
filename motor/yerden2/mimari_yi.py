@@ -260,11 +260,15 @@ def bolge(r, eng):
         parca = max(_parcalar(parca), key=lambda q: q.area) if _parcalar(parca) else Polygon()
     H = parca
     R = H.buffer(-(KENAR - 1.0), join_style=2)
-    R = R.buffer(-6, join_style=2).buffer(6, join_style=2)     # 12 cm'den dar dilleri at
+    R = R.buffer(-12, join_style=2).buffer(12, join_style=2)     # 24 cm'den dar dilleri at
     pr = _parcalar(R)
     if not pr:
         return H, Polygon()
     R = max(pr, key=lambda q: q.area)
-    # dik açılı hale getir (raster merdivenleri yok): 0,5 cm tolerans sadeleştirme
-    R = R.simplify(0.5)
+    # duvar yüzündeki küçük girintileri (kolon/pencere sıvası, ≤ 10 cm) kapat; duvardan ≥ 4 cm kalsın
+    R = R.buffer(5, join_style=2).buffer(-5, join_style=2).intersection(H.buffer(-4, join_style=2))
+    pr = _parcalar(R.buffer(0))
+    if not pr:
+        return H, Polygon()
+    R = max(pr, key=lambda q: q.area).simplify(0.5)
     return H, R
