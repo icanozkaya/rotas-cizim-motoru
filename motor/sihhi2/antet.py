@@ -354,13 +354,24 @@ def vaziyet_altlik(doc, kaynak_dxf, bolge, hedef, olcek=1.0, katman='ROTAS-MIMAR
         if not bb.has_data:
             continue
         cx, cy = (bb.extmin.x + bb.extmax.x) / 2, (bb.extmin.y + bb.extmax.y) / 2
+        if e.dxftype() in ('TEXT', 'MTEXT'):          # yazı: ekleme noktası (MTEXT genişliği yanıltır)
+            cx, cy = e.dxf.insert.x, e.dxf.insert.y
         if not (x1 <= cx <= x2 and y1 <= cy <= y2):
             continue
         if any(hx1 <= cx <= hx2 and hy1 <= cy <= hy2 for hx1, hy1, hx2, hy2 in haric):
             continue
         if e.dxftype() in ('WIPEOUT', 'IMAGE', 'VIEWPORT', 'OLE2FRAME'):
             continue
-        secilen.extend(_patlat(e))
+        for v in _patlat(e):
+            if v is not e and haric:          # patlatılan parçalar kendi merkezleriyle yeniden süzülür
+                try:
+                    vb = _bbox.extents([v], fast=True)
+                    vx, vy = (vb.extmin.x + vb.extmax.x) / 2, (vb.extmin.y + vb.extmax.y) / 2
+                except Exception:
+                    continue
+                if any(hx1 <= vx <= hx2 and hy1 <= vy <= hy2 for hx1, hy1, hx2, hy2 in haric):
+                    continue
+            secilen.append(v)
     if not secilen:
         return 0
     msp = doc.modelspace()
@@ -383,6 +394,17 @@ def vaziyet_altlik(doc, kaynak_dxf, bolge, hedef, olcek=1.0, katman='ROTAS-MIMAR
         e.dxf.layer = katman
         if e.dxftype() in ('TEXT', 'MTEXT'):
             e.dxf.style = STIL
+        if e.dxftype() == 'MTEXT' and e.dxf.get('width', 0):
+            # tek satırlık yazıda aşırı geniş sütun (mimarın 700+ cm MTEXT kutusu) → genişlik 0 (görünüm aynı,
+            # yazı kutusu gerçek boyunda; aksi hâlde çakışma denetimi bütün sütunu yazı sayar)
+            try:
+                tx = e.plain_text()
+                if '\n' not in tx and yazi_genislik(tx, e.dxf.char_height, 1.0) < e.dxf.width:
+                    e.dxf.width = 0
+                    if e.has_columns:                 # tek sütunlu sütun tanımı da kaldırılır
+                        e._columns = None
+            except Exception:
+                pass
         try:
             e.dxf.color = 256
         except Exception:
@@ -434,24 +456,25 @@ def yerlesim_ciz(msp, x0, y0, w=1682.0, h=SERIT_H, bilgi=None, vaziyet=None, bil
         sat = [('İLİ', b['il']), ('İLÇESİ', b['ilce']), ('BELEDİYESİ', b['belediye']), ('MAHALLESİ', b['mahalle']),
                ('PAFTA NO', b['pafta']), ('ADA NO', b['ada']), ('PARSEL NO', b['parsel']), ('EMSAL', b['emsal'])]
         yk = h - 1120
-        H1 = _kutu_satirlari(c, 100, yk, 560, sat)
+        KX0, KW = 106.0, 424.0
+        H1 = _kutu_satirlari(c, KX0, yk, KW, sat, etiket_w=170.0)   # referans kutu 106…530
         sat2 = [('ARSA ALANI', b['arsa_alani']), ('YAPI CİNSİ', b['yapi_cinsi']), ('YAPI SINIFI', b['yapi_sinifi_kisa']),
                 ('KAT ADEDİ', b['kat_adedi'])]
         yk2 = yk - H1 - 25
-        H2 = _kutu_satirlari(c, 100, yk2, 560, sat2)
+        H2 = _kutu_satirlari(c, KX0, yk2, KW, sat2, etiket_w=170.0)
         # alan hesabı tablosu
         yt = yk2 - H2 - 25
         rows = list(b['alan_hesabi']) + [('TOPLAM', b['alan_toplam'])]
         RH = 36.0
-        c.rect(100, yt - 30 - RH * len(rows), 660, yt)
-        c.text('YAPI İNŞAAT ALANI HESABI', 380, yt - 15, 12.5, 'MC')
-        c.line(100, yt - 30, 660, yt - 30)
-        c.line(300, yt - 30, 300, yt - 30 - RH * len(rows))
+        c.rect(KX0, yt - 30 - RH * len(rows), KX0 + KW, yt)
+        c.text('YAPI İNŞAAT ALANI HESABI', KX0 + KW / 2, yt - 15, 12.5, 'MC')
+        c.line(KX0, yt - 30, KX0 + KW, yt - 30)
+        c.line(KX0 + 138, yt - 30, KX0 + 138, yt - 30 - RH * len(rows))
         y = yt - 30
         for ad, hes in rows:
-            c.line(100, y - RH, 660, y - RH)
-            c.text(ad, 200, y - RH / 2, 12.5, 'MC')
-            c.text(hes, 480, y - RH / 2, 12.5, 'MC')
+            c.line(KX0, y - RH, KX0 + KW, y - RH)
+            c.text(ad, KX0 + 69, y - RH / 2, 12.5, 'MC')
+            c.text(hes, KX0 + 138 + (KW - 138) / 2, y - RH / 2, 12.5, 'MC')
             y -= RH
         alt_sinir = y - 60
     else:
