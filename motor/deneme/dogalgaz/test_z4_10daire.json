@@ -1,0 +1,151 @@
+{
+  "proje": "Z+4 KONUT - DOĞALGAZ İÇ TESİSATI",
+  "deneme": true,
+  "aciklama": "DENEME: Z+4 kat, katta 2 daire, her dairede 24 kW kombi + ocak, sayaçlar zemin girişte toplu. Ölçüler ve cihaz değerleri örnek değerdir.",
+  "sistem_basinci_mbar": 21,
+  "dagitim_sirketi": "AKSAGAZ (AKSA Sakarya Doğal Gaz)",
+  "gaz": {
+    "Hu_kcal_m3": 8250,
+    "verim": 0.9,
+    "bagil_yogunluk": 0.6
+  },
+  "sinirlar": {
+    "servis_sayac": 1.0,
+    "sayac_cihaz": 0.8,
+    "toplam": 1.8,
+    "hiz": 6.0
+  },
+  "eszamanlilik": {
+    "_not": "Eşzamanlılık katsayısı AKSAGAZ tablosundan teyit edilecek. Tablo boşken f=varsayilan (1,0 = emniyetli taraf).",
+    "varsayilan": 1.0,
+    "tablo": {},
+    "bb_min_debi": 3.5,
+    "f_100_ustu": 0.397
+  },
+  "kat_yuksekligi": 3.0,
+  "katlar": [
+    "ZEMİN KAT",
+    "1. KAT",
+    "2. KAT",
+    "3. KAT",
+    "4. KAT"
+  ],
+  "daire_tipi": {
+    "cihazlar": [
+      {
+        "ad": "KOMBİ",
+        "tip": "C",
+        "kW": 24
+      },
+      {
+        "ad": "OCAK",
+        "tip": "A",
+        "debi": 1.6
+      }
+    ],
+    "mutfak_hacmi_m3": 25.0
+  },
+  "daireler": [
+    {
+      "no": "D1",
+      "kat": 0,
+      "taraf": "sol"
+    },
+    {
+      "no": "D2",
+      "kat": 0,
+      "taraf": "sag"
+    },
+    {
+      "no": "D3",
+      "kat": 1,
+      "taraf": "sol"
+    },
+    {
+      "no": "D4",
+      "kat": 1,
+      "taraf": "sag"
+    },
+    {
+      "no": "D5",
+      "kat": 2,
+      "taraf": "sol"
+    },
+    {
+      "no": "D6",
+      "kat": 2,
+      "taraf": "sag"
+    },
+    {
+      "no": "D7",
+      "kat": 3,
+      "taraf": "sol"
+    },
+    {
+      "no": "D8",
+      "kat": 3,
+      "taraf": "sag"
+    },
+    {
+      "no": "D9",
+      "kat": 4,
+      "taraf": "sol"
+    },
+    {
+      "no": "D10",
+      "kat": 4,
+      "taraf": "sag"
+    }
+  ],
+  "geometri": {
+    "_not": "L_ ve h_ değerleri gerçek (m); sema_ değerleri ölçeksiz şema koordinatı (cm).",
+    "L_baglanti": 6.0,
+    "h_baglanti": 1.4,
+    "xi_baglanti": 1.7,
+    "L_ana": 3.0,
+    "h_ana": -0.8,
+    "xi_ana": 1.2,
+    "L_kollektor": 0.4,
+    "xi_kollektor": 0.0,
+    "L_sayac_baglanti": 0.9,
+    "h_sayac_baglanti": 0.7,
+    "xi_sayac_baglanti": 2.6,
+    "h_sayac_cikis": 1.9,
+    "h_daire_giris": 2.4,
+    "L_daire_yatay": 4.0,
+    "xi_daire": 2.1,
+    "cihaz": {
+      "KOMBİ": {
+        "L": 3.0,
+        "dus": 0.8,
+        "xi": 2.2,
+        "dn_min": "DN20",
+        "yon": "devam",
+        "sema_L": 190,
+        "sema_dus": 70
+      },
+      "OCAK": {
+        "L": 3.5,
+        "dus": 1.45,
+        "xi": 2.6,
+        "dn_min": "DN20",
+        "yon": "asagi",
+        "sema_L": 0,
+        "sema_dus": 75
+      }
+    },
+    "sema_aralik": 150,
+    "sema_kollektor_z": 100,
+    "sema_sayac_z": 135,
+    "sema_sayac_h": 40,
+    "sema_sayac_w": 40,
+    "sema_tap_dx": 45,
+    "sema_sk_x": 560,
+    "sema_akv_x": 300,
+    "sema_sk_z": 60,
+    "sema_ana_z": 200,
+    "sema_kat": 380,
+    "sema_daire_z": 280,
+    "sema_dal": 250
+  }
+}
