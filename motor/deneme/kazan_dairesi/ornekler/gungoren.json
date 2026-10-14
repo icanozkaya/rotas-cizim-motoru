@@ -1,20 +1,120 @@
 {
   "proje": "GÜNGÖREN B1-B2-B3 BLOK - MERKEZİ ISITMA KAZAN DAİRESİ",
   "deneme": true,
-  "rejim": {"gidis": 90, "donus": 70},
-  "kazan": {"adet": 5, "kapasite_kw": 110, "tip": "Duvar tipi yoğuşmalı, doğalgaz yakıtlı",
-            "pompa": {"ad": "IP-1", "debi": 5.0, "basma": 5.0}},
-  "denge_kabi": {"cap": "Ø300"},
-  "genlesme": {"hacim_l": 1000, "maks_bar": 6.0},
-  "emniyet": {"ventil_bar": 6.0, "ventil_cap": "DN25"},
+  "rejim": {
+    "gidis": 90,
+    "donus": 70
+  },
+  "kazan": {
+    "adet": 5,
+    "kapasite_kw": 110,
+    "tip": "Duvar tipi yoğuşmalı, doğalgaz yakıtlı",
+    "pompa": {
+      "ad": "IP-1",
+      "debi": 5.0,
+      "basma": 5.0
+    }
+  },
+  "denge_kabi": {
+    "cap": "Ø300"
+  },
+  "genlesme": {
+    "hacim_l": 1000,
+    "maks_bar": 6.0
+  },
+  "emniyet": {
+    "ventil_bar": 6.0,
+    "ventil_cap": "DN25"
+  },
   "zonlar": [
-    {"ad": "IP-2", "aciklama": "RADYATÖR DEVRESİ", "debi": 20.0, "basma": 10.0, "yedek": true, "adet": 1}
+    {
+      "ad": "IP-2",
+      "aciklama": "RADYATÖR DEVRESİ",
+      "debi": 20.0,
+      "basma": 10.0,
+      "yedek": true,
+      "adet": 1
+    }
   ],
   "boyler": null,
   "sirkulasyon": null,
   "notralizasyon": false,
-  "baca": {"cap": "Ø300", "tip": "Paslanmaz çelik çift cidarlı"},
-  "dogalgaz": {"vana": true, "filtre": true, "selenoid": true, "alarm": true,
-               "regulator": {"giris": "300 mbar", "cikis": "21 mbar"}},
-  "doldurma": true
+  "baca": {
+    "cap": "Ø300",
+    "tip": "Paslanmaz çelik çift cidarlı"
+  },
+  "dogalgaz": {
+    "vana": true,
+    "filtre": true,
+    "selenoid": true,
+    "alarm": true,
+    "regulator": {
+      "giris": "300 mbar",
+      "cikis": "21 mbar"
+    }
+  },
+  "doldurma": true,
+  "plan": {
+    "temsili": true,
+    "oda": [
+      [
+        0,
+        0
+      ],
+      [
+        1100,
+        0
+      ],
+      [
+        1100,
+        650
+      ],
+      [
+        0,
+        650
+      ]
+    ],
+    "duvar": 25,
+    "doseme": 30,
+    "ic_yukseklik": 350,
+    "kazan_olcu": {
+      "g": 60,
+      "d": 55,
+      "h": 100,
+      "ara": 40,
+      "alt_kot": 185,
+      "baca_cap": 16
+    },
+    "baca": [
+      40,
+      620.5
+    ],
+    "kapilar": [
+      {
+        "duvar": "alt",
+        "konum": 400,
+        "genislik": 100
+      },
+      {
+        "duvar": "alt",
+        "konum": 760,
+        "genislik": 100
+      }
+    ],
+    "menfez": {
+      "alt": {
+        "duvar": "alt",
+        "konum": 570,
+        "alt_kot": 15
+      },
+      "ust": {
+        "duvar": "ust",
+        "konum": 1000,
+        "tavandan": 10
+      }
+    },
+    "menfez_F": 1.0,
+    "menfez_a": 1.2,
+    "ust_menfez_orani": 0.6
+  }
 }

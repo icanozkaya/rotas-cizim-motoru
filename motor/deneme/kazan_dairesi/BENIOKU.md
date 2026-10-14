@@ -40,3 +40,45 @@ dogalgaz{vana,filtre,selenoid,alarm,regulator{giris,cikis}|null, kazan_cap,kolle
 - Baca kollektörü kazan gidiş kollektörünü, gaz/dönüş dişleri yoğuşma ve gaz kollektörlerini köprüyle keser
   (tek sıra kaskadda kaçınılmaz).
 - Hesap (genleşme hacmi, denge kabı çapı, baca) yapılmaz; değerler JSON'dan gelir.
+
+---
+
+# PLAN + KESİT A-A + GÖRÜNÜŞ B (`plan_kesit.py`, 14.10.2026)
+
+Kural: "tüm projelerde gerekli kesit ve görünüşler". Aynı JSON'a `plan` bloğu eklenir; tek DXF'te:
+1. **KAZAN DAİRESİ PLANI 1/50** — EI 120 taramalı duvarlar (oda poligonu + `duvar` kalınlığı), duvar tipi kaskad
+   kazanlar kazan duvarında (üst kenar), gaz / yoğuşma / dönüş / gidiş başlıkları (kazan önünden 12 / 24 / 40 / 100 cm),
+   kazan bağlantıları köprülü, kazan pompası + vanası, hava ayırıcı, tortu ayırıcı, denge kabı, genleşme tankı
+   (kilitlenebilir vana), sekonder gidiş/dönüş kollektörü, zon pompaları (asıl + yedek), boyler, nötralizasyon,
+   yer süzgeci, baca + tavandaki baca kollektörü, gaz girişi (ana vana + selenoid DIŞARIDA, filtre/regülatör/manometre/
+   kollektör vanası içeride), gaz alarm, alt/üst menfez (açıklık + ızgara + ölçü/kot etiketi), kapılar (dışa açılır,
+   EI2 90-C; ΣQ > 350 kW veya A > 100 m² ise 2. kapı yoksa otomatik eklenir + uyarı), bakım alanı (≥1,00 m), ölçü
+   zincirleri, A-A kesit ve B görünüş işaretleri, ±0,00 kotu.
+2. **KESİT A-A** (1. kazan ekseninden): döşeme/tavan/duvar kesiti, kazan yan görünüşü, başlık kesitleri (daire) ve
+   kotları, baca kollektörü kesiti, menfez açıklıkları (kesite izdüşürülmüş) ve kotları, düşey ölçüler, kazan önü serbest
+   mesafe kontrolü.
+3. **GÖRÜNÜŞ B (kazan duvarı)**: kazan ön görünüşleri, her kazanın gidişinde EV, HP, TM, M, pompa, çek valf, vana;
+   dönüş vanası, gaz vanası + esnek bağlantı, yoğuşma; başlıklar köprülü; baca kollektörü (çift çizgi) + baca (tavandan
+   çatıya), gaz alarm (tavanda, üst menfezden yüksek), kot kolonu.
+4. **Lejant + kontrol kutusu** (menfez hesabı §5.4, kapı sayısı, bakım mesafesi, EI 120) + **cihaz listesi** + notlar.
+
+**Numara senkronu:** `numara_haritasi()` prensip şemasını (`kazan_dairesi.ciz`) bellekte üretip numaraları rollerine
+göre alır; cihaz listesi şemanınkiyle birebir aynıdır (K-, P-, V-, DK-, HA-, TA-, GT-, KL-, GF-, GR-, SV-, GA-, B-, BY-,
+NU-, EV-, M-, TM-, HP-). Şema çıktısı bu çalışmayla değişmedi.
+
+Menfez: ΣQ < 1000 kW `S_A = F·a·2,25·(ΣQ+70)` cm², ≥ 1000 kW `ΣQ/3600` m²; üst `S_Ü = max(180 cm²; oran·S_A)`
+(`ust_menfez_orani`, varsayılan 0,6 — İGDAŞ >1000 kW oranı; <1000 kW için yerel dağıtım şirketiyle TEYİT). Ölçü 5 cm
+modüllü, kenar oranı ≤ 1,5 (F = 1).
+
+```
+python3 plan_kesit.py ornekler/gungoren.json proje/denemeler/kazan_dairesi/GUNGOREN_KAZAN_DAIRESI_PLAN_KESIT.dxf
+python3 kontrol.py proje/denemeler/kazan_dairesi/GUNGOREN_KAZAN_DAIRESI_PLAN_KESIT.dxf
+```
+`plan` alanları: `temsili` (true → "DENEME – temsili oda"), `oda` [[x,y]...] (cm, dik açılı), `duvar`, `doseme`,
+`ic_yukseklik`, `kazan_olcu`{g,d,h,ara,alt_kot,baca_cap}, `baca` [x,y] (y kazan baca eksenine çekilir),
+`kapilar` [{duvar: alt|ust|sol|sag, konum, genislik}], `menfez`{alt{duvar,konum,alt_kot}, ust{duvar,konum,tavandan}},
+`menfez_F`, `menfez_a`, `ust_menfez_orani`, `kazan_baslangic` (ops.).
+
+Sınırlar: kazan duvarı odanın üst (max y) kenarı olmalı (oda poligonu buna göre döndürülerek verilir); görünüş kısmi
+(denge kabı / genleşme tankı planda); sistem doldurma ve kullanım suyu bağlantıları yalnız şemada; görünüşte kazan
+araları 40 cm iken etiketler sık; ölçüler kendi bloklarıyla (AutoCAD DIMENSION değil).

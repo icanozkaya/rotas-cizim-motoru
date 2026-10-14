@@ -1,20 +1,126 @@
 {
   "proje": "ÖRNEK 2 × 110 kW KAZAN DAİRESİ",
   "deneme": true,
-  "rejim": {"gidis": 90, "donus": 70},
-  "kazan": {"adet": 2, "kapasite_kw": 110, "tip": "Duvar tipi yoğuşmalı, doğalgaz yakıtlı",
-            "pompa": {"ad": "IP-1", "debi": 5.0, "basma": 5.0}},
-  "denge_kabi": {"cap": "Ø200"},
-  "genlesme": {"hacim_l": 300, "on_basinc": 1.5, "maks_bar": 3.0},
-  "emniyet": {"ventil_bar": 3.0, "ventil_cap": "DN25"},
+  "rejim": {
+    "gidis": 90,
+    "donus": 70
+  },
+  "kazan": {
+    "adet": 2,
+    "kapasite_kw": 110,
+    "tip": "Duvar tipi yoğuşmalı, doğalgaz yakıtlı",
+    "pompa": {
+      "ad": "IP-1",
+      "debi": 5.0,
+      "basma": 5.0
+    }
+  },
+  "denge_kabi": {
+    "cap": "Ø200"
+  },
+  "genlesme": {
+    "hacim_l": 300,
+    "on_basinc": 1.5,
+    "maks_bar": 3.0
+  },
+  "emniyet": {
+    "ventil_bar": 3.0,
+    "ventil_cap": "DN25"
+  },
   "zonlar": [
-    {"ad": "IP-2", "aciklama": "RADYATÖR DEVRESİ", "debi": 9.5, "basma": 6.0, "yedek": true, "adet": 1}
+    {
+      "ad": "IP-2",
+      "aciklama": "RADYATÖR DEVRESİ",
+      "debi": 9.5,
+      "basma": 6.0,
+      "yedek": true,
+      "adet": 1
+    }
   ],
-  "boyler": {"hacim_l": 500, "tip": "Serpantinli, emaye kaplamalı", "cap": "DN32", "ev_bar": 6.0,
-             "sarj_pompa": {"debi": 3.0, "basma": 4.0}},
-  "sirkulasyon": {"debi": 1.0, "basma": 3.0, "cap": "DN25"},
+  "boyler": {
+    "hacim_l": 500,
+    "tip": "Serpantinli, emaye kaplamalı",
+    "cap": "DN32",
+    "ev_bar": 6.0,
+    "sarj_pompa": {
+      "debi": 3.0,
+      "basma": 4.0
+    }
+  },
+  "sirkulasyon": {
+    "debi": 1.0,
+    "basma": 3.0,
+    "cap": "DN25"
+  },
   "notralizasyon": true,
-  "baca": {"cap": "Ø200", "tip": "Paslanmaz çelik çift cidarlı"},
-  "dogalgaz": {"vana": true, "filtre": true, "selenoid": true, "alarm": true, "regulator": null},
-  "doldurma": true
+  "baca": {
+    "cap": "Ø200",
+    "tip": "Paslanmaz çelik çift cidarlı"
+  },
+  "dogalgaz": {
+    "vana": true,
+    "filtre": true,
+    "selenoid": true,
+    "alarm": true,
+    "regulator": null
+  },
+  "doldurma": true,
+  "plan": {
+    "temsili": true,
+    "oda": [
+      [
+        0,
+        0
+      ],
+      [
+        950,
+        0
+      ],
+      [
+        950,
+        600
+      ],
+      [
+        0,
+        600
+      ]
+    ],
+    "duvar": 25,
+    "doseme": 30,
+    "ic_yukseklik": 350,
+    "kazan_olcu": {
+      "g": 60,
+      "d": 55,
+      "h": 100,
+      "ara": 40,
+      "alt_kot": 185,
+      "baca_cap": 16
+    },
+    "baca": [
+      40,
+      570.5
+    ],
+    "kapilar": [
+      {
+        "duvar": "alt",
+        "konum": 420,
+        "genislik": 100
+      }
+    ],
+    "menfez": {
+      "alt": {
+        "duvar": "alt",
+        "konum": 600,
+        "alt_kot": 15
+      },
+      "ust": {
+        "duvar": "ust",
+        "konum": 860,
+        "tavandan": 10
+      }
+    },
+    "menfez_F": 1.0,
+    "menfez_a": 1.2,
+    "ust_menfez_orani": 0.6
+  }
 }
