@@ -53,19 +53,21 @@ def mimari_zemin():
     return out
 
 
-def _hat_y(K, xr, engel, diger):
+def _hat_y(K, xr, engel, diger, merkez=None):
     """kümenin ortak yatay hattı için y: betonarme kolon/perdeye ve başka kümelerin kolonlarına değmeyen,
     medyana en yakın y. Dönüş (y, iniş toplamı) veya None."""
     ys = sorted(k['y'] for k in K)
-    med = ys[len(ys) // 2]
+    med = ys[len(ys) // 2] if merkez is None else merkez     # merkez: kullanıcının rögar y'si (hat rögara düz girer)
+    pay = 120 if merkez is None else 200
     xw = min(k['x'] for k in K)
     for d in sorted(set([0] + [s * t for t in range(5, 305, 5) for s in (1, -1)]), key=abs):
         y = med + d
-        if y > max(ys) + 120 or y < min(ys) - 120:
+        if y > max(ys) + pay or y < min(ys) - pay:
             continue
         gs = [LineString([(xw, y), (xr - 45, y)])] + [LineString([(k['x'], k['y']), (k['x'], y)]) for k in K
                                                        if abs(k['y'] - y) > 1]
-        if engel is not None and any(g.intersects(engel) for g in gs):
+        # kullanıcı rögar yerinde (merkez) kolon inişleri perde yüzü boyunca gidebilir: yalnız yatay hat denetlenir
+        if engel is not None and any(g.intersects(engel) for g in (gs[:1] if merkez is not None else gs)):
             continue
         if any(gs[0].distance(Point(q['x'], q['y'])) < 25 for q in diger):
             continue
@@ -122,7 +124,7 @@ def rogar_plani(m, mim):
                 continue
             diger = [k for k in kol if k not in K]
             rx = r['x'] if r.get('x') and abs(r['x'] - xr) < 300 else xr
-            h = _hat_y(K, rx, engel, diger)
+            h = _hat_y(K, rx, engel, diger, merkez=r.get('y'))
             secim = h[0] if h else sorted(k['y'] for k in K)[len(K) // 2]
             ry = r['y'] if r.get('y') is not None else secim     # kullanıcının rögar yeri
             rog.append(dict(no=r['no'], x=rx, y=ry, hat_y=secim,
@@ -222,7 +224,7 @@ def temel_uret(m, cikis):
                 hat([(k['x'], k['y']), (k['x'], y)])
                 bag.append(k['x'])
         xs = sorted(set(bag)) + [r['x'] - 45]
-        jog = abs(y - r['y']) > 25   # hat rögar kutusunun dışında: son parçada 45° ile rögara gir
+        jog = abs(y - r['y']) > 30   # hat rögar kutusunun (±31) dışında: son parçada 45° ile rögara gir
         if jog:
             xs[-1] = r['x'] - 45 - abs(y - r['y'])
         for a, b in zip(xs[:-1], xs[1:]):

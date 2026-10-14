@@ -97,7 +97,7 @@ def olc(cikis=O.CIKIS, ad='NB_SIHHI'):
     for tur in ('SEMA', 'TEMEL'):
         cz = CZ.Cizim(os.path.join(cikis, '%s_%s.dxf' % (ad, tur)))
         w = cz.cerceveler[0] if cz.cerceveler else None
-        b = TS.t07_etiketler(cz, tur, {'pencere': w})
+        b = TS.t07_etiketler(cz, tur, {'pencere': w, 'rooms': [], 'fx': [], 'taramalar': []})
         if tur == 'SEMA':
             b += TS.t08_sema_sayac(cz)
         b += TS.t11_denetle(os.path.join(cikis, '%s_%s.dxf' % (ad, tur)))
