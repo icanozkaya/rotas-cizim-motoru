@@ -18,10 +18,50 @@ from shapely import STRtree
 
 KOK = __file__.rsplit('/motor/', 1)[0]
 VARSAYILAN = KOK + '/proje/denemeler/sihhi2/NB_SIHHI_KAT_PLANLARI.dxf'
-KOYU = set(range(250, 256)) | {8, 9, 18, 19, 248, 249}
+KOYU = set(range(250, 256)) | {8, 18, 248, 249}
+
+
+def mtext_kutusu(e):
+    """MTEXT: ezdxf mtext_size (yazı tipi ölçüsü) + bağlama noktası + döndürme"""
+    import math
+    from ezdxf.fonts import fonts
+    from shapely.affinity import rotate
+    hh = e.dxf.get('char_height', 2.5) or 2.5
+    font_ad = 'arial.ttf'
+    try:
+        st = e.doc.styles.get(e.dxf.get('style', 'Standard'))
+        if st is not None and st.dxf.get('font'):
+            font_ad = st.dxf.font
+    except Exception:
+        pass
+    try:
+        f = fonts.make_font(font_ad, hh)
+    except Exception:
+        f = fonts.make_font('arial.ttf', hh)
+    satir = [x for x in e.plain_text().split('\n')]
+    if not any(x.strip() for x in satir):
+        return None
+    w = max(f.text_width(x) for x in satir)
+    h = hh * (1.0 + 1.667 * (e.dxf.get('line_spacing_factor', 1.0) or 1.0) * (len(satir) - 1))
+    if w <= 0:
+        return None
+    ap = e.dxf.get('attachment_point', 1)
+    col, row = (ap - 1) % 3, (ap - 1) // 3
+    x0 = -(0, 0.5, 1.0)[col] * w
+    y1 = (0, 0.5, 1.0)[row] * h
+    p = e.dxf.insert
+    rot = math.degrees(math.atan2(e.dxf.text_direction[1], e.dxf.text_direction[0])) \
+        if e.dxf.hasattr('text_direction') else (e.dxf.get('rotation', 0) or 0)
+    b = box(p[0] + x0, p[1] + y1 - h, p[0] + x0 + w, p[1] + y1)
+    return rotate(b, rot, origin=(p[0], p[1])) if rot else b
 
 
 def glif_kutusu(e):
+    if e.dxftype() == 'MTEXT':
+        try:
+            return mtext_kutusu(e)
+        except Exception:
+            return None
     try:
         ps = text2path.make_paths_from_entity(e)
         v = [(p.x, p.y) for pa in ps for p in pa.flattening(0.5)]
