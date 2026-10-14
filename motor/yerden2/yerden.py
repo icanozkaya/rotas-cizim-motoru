@@ -272,6 +272,15 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek):
     return dict(kat=k, K=K, odalar=odalar, isitmasiz=isitmasiz, yasak=yasak, yazi=yaz)
 
 
+def mimari_cizgi(K):
+    gs = []
+    for a in K.R:
+        g = MY._geom(a)
+        if g is not None and not g.is_empty:
+            gs.append(g)
+    return unary_union(gs)
+
+
 def mimari_m2(K, r):
     """mimarın m² yazısı (mahal adının altındaki '15.44m²'): mahal içinde, ada en yakın"""
     import re
@@ -290,27 +299,39 @@ def mimari_m2(K, r):
 
 
 # ====================================================================== etiket yerleşimi
-def yerlestir(w, h, anchor, oda_geom, yasak, borular):
-    """w×h dikdörtgen: (1) oda içinde anchor'a en yakın, yasak dışı; (2) yoksa 600 cm içinde yasak ve boru dışı.
-    -> (dikdörtgen, 'ic' | 'dis') | (None, None)"""
+def yerlestir(w, h, anchor, oda_geom, yasak, borular, mimari=None, maske_izin=True, disari=True):
+    """w×h dikdörtgen yeri:
+      (0) oda içinde, boru üstüne gelmeyen (maske gerekmez)          -> 'bos'
+      (1) oda içinde, borunun üstünde (altı WIPEOUT maskeli)          -> 'ic'
+      (2) oda dışında 800 cm içinde: yazı, etiket, boru ve mimari çizgi olmayan boş yer (kılavuz çizgili) -> 'dis'
+    -> (dikdörtgen, tür) | (None, None)"""
     from shapely.prepared import prep
     py = prep(yasak) if not yasak.is_empty else None
+    pb = prep(borular) if borular is not None and not borular.is_empty else None
     ax, ay = anchor
     if oda_geom is not None and not oda_geom.is_empty:
         pi = prep(oda_geom)
         bx = oda_geom.bounds
         aday = [(x, y) for x in _aralik(bx[0] + w / 2, bx[2] - w / 2, 10) for y in _aralik(bx[1] + h / 2, bx[3] - h / 2, 10)]
         aday.sort(key=lambda p: math.hypot(p[0] - ax, p[1] - ay))
+        uygun = []
         for cx, cy in aday:
             q = box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2)
             if pi.contains(q) and (py is None or not py.intersects(q)):
-                return q, 'ic'
-    pb = prep(borular) if borular is not None and not borular.is_empty else None
-    aday = [(ax + dx, ay + dy) for dx in range(-600, 601, 15) for dy in range(-600, 601, 15)]
+                if pb is None or not pb.intersects(q):
+                    return q, 'bos'
+                uygun.append(q)
+        if uygun and maske_izin:
+            return uygun[0], 'ic'
+    if not disari:
+        return None, None
+    pm = prep(mimari) if mimari is not None and not mimari.is_empty else None
+    aday = [(ax + dx, ay + dy) for dx in range(-800, 801, 15) for dy in range(-800, 801, 15)]
     aday.sort(key=lambda p: math.hypot(p[0] - ax, p[1] - ay))
     for cx, cy in aday:
         q = box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2)
-        if (py is None or not py.intersects(q)) and (pb is None or not pb.intersects(q)):
+        if (py is None or not py.intersects(q)) and (pb is None or not pb.intersects(q)) and \
+                (pm is None or not pm.intersects(q)):
             return q, 'dis'
     return None, None
 
@@ -327,19 +348,19 @@ def _aralik(a, b, s):
 def etiketle(msp, KT, tum_borular):
     """devre etiketleri (cep / oda içinde maskeli / oda dışında kılavuzlu) + mahal etiketleri"""
     yasak = KT['yasak']
-    say = dict(cep=0, maskeli=0, disari=0, mahal=0, mahal_disari=0, yok=0)
+    say = dict(cep=0, bos=0, maskeli=0, disari=0, mahal=0, mahal_maskeli=0, mahal_disari=0, yok=0)
     for o in KT['odalar']:
         for c in o['tasarim']['devreler']:
             q = c['cep']
             yer = 'cep'
             if q is None:
                 ux, uy = c['pts'][0][0], c['pts'][0][1]
-                q, yer = yerlestir(S.ETIKET_W, S.ETIKET_H, (ux, uy), o['H'].buffer(1), yasak, tum_borular)
+                q, yer = yerlestir(S.ETIKET_W, S.ETIKET_H, (ux, uy), o['H'].buffer(1), yasak, tum_borular, KT['mimari'])
                 if q is None:
                     say['yok'] += 1
                     log('UYARI: etiket yeri yok: devre %d %s' % (c['no'], o['zon']))
                     continue
-                say['maskeli' if yer == 'ic' else 'disari'] += 1
+                say[{'ic': 'maskeli', 'dis': 'disari', 'bos': 'bos'}[yer]] += 1
             else:
                 say['cep'] += 1
             x0, y0, x1, y1 = q.bounds
@@ -362,7 +383,15 @@ def etiketle(msp, KT, tum_borular):
     # mahal etiketleri: mahal adının üstünde (yoksa oda içinde en yakın boş yer), maskeli
     for o in KT['odalar']:
         x, y = o['xy']
-        q, yer = yerlestir(74, 54, (x, y + 110), o['poly'].buffer(-4), yasak, tum_borular)
+        # önce mahal adının üstünde (referans: üst yarı), boru üstündeyse maskeli
+        q, yer = yerlestir(74, 54, (x, y + 110), o['poly'].buffer(-4), yasak, tum_borular, KT['mimari'],
+                           maske_izin=False, disari=False)
+        if q is None or q.centroid.distance(Point(x, y + 110)) > 160:
+            q, yer = yerlestir(74, 54, (x, y + 110), o['poly'].buffer(-4), yasak, None, KT['mimari'])
+        if q is not None and yer == 'bos' and q.intersects(tum_borular):
+            yer = 'ic'
+        if yer == 'ic':
+            say['mahal_maskeli'] += 1
         if q is None:
             log('UYARI: mahal etiketi yeri yok: %s' % o['zon'])
             continue
@@ -370,7 +399,7 @@ def etiketle(msp, KT, tum_borular):
         x0, y0, x1, y1 = q.bounds
         if yer == 'ic':
             msp.add_wipeout([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], dxfattribs={'layer': L_MASK})
-        else:
+        elif yer == 'dis':
             say['mahal_disari'] += 1
             from shapely.ops import nearest_points
             p = nearest_points(q.exterior, Point(x, y))[0]
@@ -452,6 +481,7 @@ def main(argv=None):
         borulari_ciz(msp, KT)
     tum = unary_union([S.cizgi(c['pts']).buffer(3) for KT in KTS for o in KT['odalar'] for c in o['tasarim']['devreler']])
     for KT in KTS:
+        KT['mimari'] = mimari_cizgi(KT['K'])
         KT['etiket_sayim'] = etiketle(msp, KT, tum)
         baslik(msp, KT['kat'])
         log('kat %s etiket: %s' % (KT['kat'], KT['etiket_sayim']))
