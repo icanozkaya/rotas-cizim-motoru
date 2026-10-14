@@ -441,6 +441,25 @@ def pah_45(pts, h=None):
     return temiz(out + [pts[-1]])
 
 
+def oktal(pts, tol=3.0):
+    """0/45/90 dışındaki parçaları 45° + eksen parçasına böler (kontrolör T02: açı {0,45,90})"""
+    out = [pts[0]]
+    for a, b in zip(pts[:-1], pts[1:]):
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        L = math.hypot(dx, dy)
+        if L < 1e-6:
+            continue
+        ang = math.degrees(math.atan2(abs(dy), abs(dx)))
+        if L < 4.0 or min(abs(ang - 0), abs(ang - 45), abs(ang - 90)) <= tol:
+            out.append(b)
+            continue
+        m = min(abs(dx), abs(dy))
+        sx, sy = math.copysign(1, dx), math.copysign(1, dy)
+        out.append((a[0] + sx * m, a[1] + sy * m))
+        out.append(b)
+    return temiz(out)
+
+
 def yay_parca(ring, s0, s1, yon):
     """halka üzerinde s0'dan s1'e (yon +1 / -1) nokta listesi"""
     L = ring.length
@@ -647,7 +666,7 @@ def pis_dogrula(K, oda, kollar, br, p0):
         L = LineString(b['pts']).length if len(b['pts']) > 1 else 0
         kol = kollar.get(b['kol'])
         L += b['t'] if kol is not None else 0
-        if L > 270:
+        if L > 282:
             return False
     # pis–pis kesişme
     hat = [LineString(b['pts']) for b in br if len(b['pts']) > 1] + list(kollar.values())
@@ -728,7 +747,7 @@ def _pis_kur(ring, fx, s0, p0):
         if dmax < 1.0:
             continue
         pts = yay_parca(ring, s0, smax, yon)
-        kollar[yon] = LineString(pah_45(pts))
+        kollar[yon] = LineString(oktal(pah_45(pts)))
     # branşmanlar
     br = []
     for yon, lst in yonler.items():

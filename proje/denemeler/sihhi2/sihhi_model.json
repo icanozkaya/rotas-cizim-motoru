@@ -19,7 +19,7 @@
   },
   "hidrofor": false,
   "kaynak": "motor/sihhi2/plan.py",
-  "tarih": "15.10.2026 01:11"
+  "tarih": "15.10.2026 01:16"
  },
  "yuk_tablosu": {
   "LV": 0.75,
@@ -8484,7 +8484,7 @@
   },
   {
    "no": "P11",
-   "x": 253782.0,
+   "x": 253738.0,
    "y": -442448.0,
    "katlar": [
     1
@@ -8502,10 +8502,10 @@
    },
    "armatur_sirasi_sema": [
     "LV",
-    "CM",
     "WC",
     "DUS",
-    "YS"
+    "YS",
+    "CM"
    ]
   }
  ],
@@ -8657,6 +8657,7 @@
   "kat 1 pis su etiketi yerleşmedi: Ø50 4 SB @ (255646, -443179)",
   "kat 1 pis su etiketi yerleşmedi: Ø50 4 SB @ (254870, -441972)",
   "kat 1 pis su etiketi yerleşmedi: Ø100 10 SB @ (255231, -442126)",
+  "kat 1 pis su etiketi yerleşmedi: Ø50 4 SB @ (255776, -442460)",
   "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255685, -443292)",
   "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255725, -441682)",
   "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255780, -442419)",
