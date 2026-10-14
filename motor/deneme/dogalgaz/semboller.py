@@ -1,51 +1,80 @@
-"""Doğalgaz sembolleri.
+"""Doğalgaz sembolleri — R2 (14.10.2026 B): MTY BLOĞU YOK.
 
-Öncelik kullanıcının MTY blok kütüphanesi (/tmp/claude-0/blk): MTY-KURESEL VANA, MTY-ESNEK BAGLANTI, MTY-KOMBİ
-gerçek blok olarak (patlatılmadan, iç katmanlarıyla) aktarılır.
-MTY kütüphanesinde karşılığı olmayanlar kutuphane/arastirma/03_SEMBOLLER.md §7 geometrisiyle blok olarak tanımlanır:
-  ROTAS-DG-SAYAC      körüklü gaz sayacı (dikdörtgen gövde, üstten giriş/çıkış saplaması, içinde tip "G4")
-  ROTAS-DG-REGULATOR  basınç düşürücü (içi dolu papyon + diyafram kubbesi + çıkışa kesikli algılama hattı + "R")
-  ROTAS-DG-OCAK       4 gözlü ocak (gövde + 4 bek + düğmeler)
+Bütün semboller saf geometri (LINE / CIRCLE / ARC / LWPOLYLINE / HATCH) ROTAS- bloklarıdır; blok içi katman 0, BYLAYER.
+Öznitelik yalnız CAP (görünmez; çap boru etiketinde) ve sayaçta TIP.
+  ROTAS-DG-KURESEL-VANA  gaz küresel vanası (papyon + küre + kol), 20 x 13, taban orta (eski MTY-KURESEL VANA yerine)
+  ROTAS-DG-ESNEK         esnek bağlantı (iki rakor + oluklu gövde), 21,5 x 13,4 (eski MTY-ESNEK BAGLANTI yerine)
+  ROTAS-DG-KOMBI         kombi (C tipi, hermetik) gövde 48 x 30 + baca, gaz bağlantısı (23,9; 30) (eski MTY-KOMBİ yerine)
+  ROTAS-DG-SAYAC         körüklü gaz sayacı (izometrik ön yüz, tip "G4")
+  ROTAS-DG-REGULATOR     basınç düşürücü (içi dolu papyon + diyafram kubbesi + kesikli algılama hattı)
+  ROTAS-DG-OCAK          4 gözlü ocak (gövde + 4 bek + düğmeler)
 """
-import glob
 import math
-import os
 
-from ezdxf import recover
-from ezdxf.addons import Importer
-
-BLKDIR = '/tmp/claude-0/blk'
 C30, S30 = math.cos(math.radians(30)), 0.5
 
-MTY = {
-    'MTY-KURESEL VANA': 'SIHHI TESISAT__VANALAR__MTY-KURESEL VANA.dxf',
-    'MTY-ESNEK BAGLANTI': 'RADYATOR TESISATI__VANALAR__MTY-ESNEK BAGLANTI.dxf',
-    'MTY-KOMBİ': 'RADYATOR TESISATI__VANALAR__MTY-KOMBİ.dxf',
+LEJANT_AD = {
+    'ROTAS-DG-KURESEL-VANA': 'Küresel vana (TS EN 331) - AKV / sayaç / daire / cihaz vanası',
+    'ROTAS-DG-REGULATOR': 'Basınç düşürücü regülatör (servis kutusu)',
+    'ROTAS-DG-SAYAC': 'Gaz sayacı G4 (körüklü)',
+    'ROTAS-DG-ESNEK': 'Esnek bağlantı (kombi ≤60 cm, ocak ≤150 cm)',
+    'ROTAS-DG-KOMBI': 'Kombi (C tipi, hermetik)',
+    'ROTAS-DG-OCAK': 'Ocak (A tipi, bacasız)',
 }
 
-MTY_KUTUPHANE_TAR = '/home/claude/rotas-cizim-motoru/kutuphane/ROTAS_2_MTY_BLOKLARI_2026-10-11.tar.xz'
+
+def _cap_attdef(b, pos):
+    a = b.add_attdef('CAP', insert=pos, height=3, dxfattribs={'style': 'ROTAS'})
+    a.dxf.text = ''
+    a.is_invisible = True
 
 
-def _kutuphane_hazir():
-    if not glob.glob(os.path.join(BLKDIR, '*MTY-KURESEL VANA.dxf')):
-        os.system(f'tar -xJf "{MTY_KUTUPHANE_TAR}" -C / 2>/dev/null')
-
-
-def mty_aktar(doc):
-    """WBLOCK biçimindeki MTY blok dosyalarını hedef çizime aynı adla blok tanımı olarak aktarır."""
-    _kutuphane_hazir()
-    for ad, fn in MTY.items():
-        if ad in doc.blocks:
-            continue
-        src, _ = recover.readfile(os.path.join(BLKDIR, fn))
-        blk = doc.blocks.new(ad)
-        im = Importer(src, doc)
-        im.import_entities(list(src.modelspace()), blk)
-        im.finalize()
+def _ortak(doc):
+    if 'ROTAS-DG-KURESEL-VANA' not in doc.blocks:
+        b = doc.blocks.new('ROTAS-DG-KURESEL-VANA', base_point=(0, 0))
+        b.add_lwpolyline([(-10, 5), (-10, -5), (0, 0)], close=True)
+        b.add_lwpolyline([(10, 5), (10, -5), (0, 0)], close=True)
+        b.add_circle((0, 0), 2.2)
+        b.add_line((0, 2.2), (0, 8))
+        b.add_line((0, 8), (8, 8))
+        _cap_attdef(b, (-4, -1.5))
+    if 'ROTAS-DG-ESNEK' not in doc.blocks:
+        b = doc.blocks.new('ROTAS-DG-ESNEK', base_point=(0, 0))
+        for sx in (-1, 1):
+            b.add_lwpolyline([(sx * 10.75, 6.7), (sx * 8.1, 6.7), (sx * 8.1, -6.7), (sx * 10.75, -6.7)], close=True)
+        for sy in (-1, 1):
+            pts = [(-8.1, sy * 3.1)]
+            x, k = -8.1, 0
+            while x < 8.1 - 1e-6:
+                x = min(8.1, x + 2.025)
+                k += 1
+                pts.append((x, sy * (6.7 if k % 2 else 3.1)))
+            b.add_lwpolyline(pts)
+        _cap_attdef(b, (-4, -1.5))
+    if 'ROTAS-DG-KOMBI' not in doc.blocks:
+        # gövde (0,0)-(47,8;30); gaz bağlantısı üst orta (23,9; 30); sağda eş eksenli baca (dış atmosfere)
+        b = doc.blocks.new('ROTAS-DG-KOMBI', base_point=(0, 0))
+        b.add_lwpolyline([(0, 0), (47.8, 0), (47.8, 30), (0, 30)], close=True)
+        b.add_lwpolyline([(3.4, 3.4), (44.4, 3.4), (44.4, 26.6), (3.4, 26.6)], close=True)
+        b.add_circle((23.9, 15), 6)                       # brülör / yanma odası
+        # alev (iki yay) - çizgi harf yok
+        b.add_arc((21.4, 15), 3.0, 300, 60)
+        b.add_arc((26.4, 15), 3.0, 120, 240)
+        b.add_lwpolyline([(8, 22), (16, 22), (16, 24.5), (8, 24.5)], close=True)   # gösterge
+        # eş eksenli baca: dış boru + iç boru, uçta rüzgâr başlığı
+        b.add_line((47.8, 20), (78, 20))
+        b.add_line((47.8, 10), (78, 10))
+        b.add_line((47.8, 17), (82, 17))
+        b.add_line((47.8, 13), (82, 13))
+        b.add_line((78, 20), (78, 10))
+        b.add_lwpolyline([(82, 21), (90, 21), (90, 9), (82, 9)], close=True)
+        for y in (12.5, 15, 17.5):
+            b.add_line((90, y), (95, y))
 
 
 def tanimla(doc, lay_sem):
     """ROTAS-DG-* bloklarını tanımla (blok içi katman 0 / BYLAYER; ekleme katmanı lay_sem)."""
+    _ortak(doc)
     if 'ROTAS-DG-SAYAC' not in doc.blocks:
         # İzometride ön yüz (xz düzlemi) - gövde 40 x 40, x ekseni 30° eğik; taban noktası alt orta
         b = doc.blocks.new('ROTAS-DG-SAYAC', base_point=(0, 0))

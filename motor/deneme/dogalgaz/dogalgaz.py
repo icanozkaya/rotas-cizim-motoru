@@ -38,7 +38,7 @@ def calistir(json_yol, cikti, onizleme=True):
     ok = ag.cap_sec()
     ad = os.path.splitext(os.path.basename(json_yol))[0]
     os.makedirs(cikti, exist_ok=True)
-    dxf_yol = os.path.join(cikti, f'{ad}_izometrik_kolon_semasi.dxf')
+    dxf_yol = os.path.join(cikti, f'{ad}_izometrik_kolon_semasi_R2.dxf')
     xls_yol = os.path.join(cikti, f'{ad}_hesap.xlsx')
 
     C = Cizim(ag, P)
@@ -55,9 +55,9 @@ def calistir(json_yol, cikti, onizleme=True):
     W3, H3 = C.ekipman_tablosu(tx + W2 + 120, ty - H1 - 90)
     alt = ty - H1 - 90 - max(H2, H3) - 90
     Hl = C.lejant(tx, alt)
-    Hn = C.notlar(tx + 900, alt, NOTLAR)
+    Hn = C.notlar(tx + 980, alt, NOTLAR)
     # başlık / çerçeve
-    x0, x1 = sx0 - 80, max(tx + W1, tx + W2 + 120 + 740, tx + 900 + 1500) + 80
+    x0, x1 = sx0 - 80, max(tx + W1, tx + W2 + 120 + 740, tx + 980 + 1500) + 80
     y1 = sy1 + 160
     y0 = min(sy0, alt - Hl, alt - Hn) - 260
     C.msp.add_lwpolyline([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], close=True,
@@ -71,10 +71,28 @@ def calistir(json_yol, cikti, onizleme=True):
            '0264 272 00 49', (tx, y0 + 60), 14, YAZ)
     hatalar = C.kontrol()
     C.doc.saveas(dxf_yol)
+    hatalar += [f'MTY: {m}' for m in mty_kontrol(dxf_yol)]
     satir = excel.yaz(ag, P, xls_yol)
     if onizleme:
         onizle(dxf_yol, os.path.join(os.environ.get('ONIZLEME_DIR', '/tmp'), f'{ad}_onizleme.png'))
     return dict(ok=ok, hiz=ag.hiz_ok(), dxf=dxf_yol, xlsx=xls_yol, hatalar=hatalar, ag=ag)
+
+
+def mty_kontrol(dxf):
+    """MTY geçen blok / katman / yazı stili / yazı / öznitelik listesi (boş = temiz)."""
+    import ezdxf
+    d = ezdxf.readfile(dxf)
+    out = [f'blok {b.name}' for b in d.blocks if 'MTY' in b.name.upper()]
+    out += [f'katman {l.dxf.name}' for l in d.layers if 'MTY' in l.dxf.name.upper()]
+    out += [f'stil {s.dxf.name}' for s in d.styles if 'MTY' in s.dxf.name.upper()]
+    for lay in [d.modelspace()] + list(d.blocks):
+        for e in lay:
+            t = e.text if e.dxftype() == 'MTEXT' else (e.dxf.get('text', '') if e.dxftype() in ('TEXT', 'ATTDEF') else '')
+            if 'MTY' in str(t).upper():
+                out.append(f'yazı {t[:40]}')
+            if e.dxftype() == 'INSERT':
+                out += [f'öznitelik {a.dxf.text}' for a in e.attribs if 'MTY' in a.dxf.text.upper()]
+    return out
 
 
 def onizle(dxf, png, dpi=200):
@@ -101,6 +119,7 @@ if __name__ == '__main__':
     print('Çap seçimi sınırları sağlıyor:', r['ok'], '| hız uygun:', r['hiz'])
     print('DXF :', r['dxf'])
     print('XLSX:', r['xlsx'])
+    print('MTY kontrolü:', 'TEMİZ (0 blok/katman/yazı)' if not any(h.startswith('MTY') for h in r['hatalar']) else 'MTY VAR')
     print('Geometri kontrolü:', 'TEMİZ' if not r['hatalar'] else f'{len(r["hatalar"])} sorun')
     for h in r['hatalar'][:40]:
         print('  -', h)

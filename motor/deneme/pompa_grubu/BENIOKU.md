@@ -16,7 +16,7 @@ python3 calistir.py girdi/hidrofor_test.json
 python3 calistir.py girdi/pissu_test.json
 python3 onizle.py <dxf> <png> [dpi] [x0 y0 x1 y1]   # yalnız kontrol amaçlı PNG (depoya konmaz)
 ```
-Ön koşul: MTY blok kütüphanesi `/tmp/claude-0/blk/*.dxf` açılmış olmalı (`bash kurulum.sh`).
+Ön koşul: `motor/deneme/sprinkler/rotas_sembol.py` (ROTAS-SMB saf geometri blokları); MTY kütüphanesi gerekmez (R2).
 
 ## Ne çizer
 - **Yangın**: betonarme depo kesiti (kısaltılmış; maks./min. su, girdap önleyicili çan ağızlı emiş, su tutucu flanşlı duvar geçişi,
@@ -60,3 +60,4 @@ python3 onizle.py <dxf> <png> [dpi] [x0 y0 x1 y1]   # yalnız kontrol amaçlı P
 - **İtfaiye bağlantısı (girdi `itfaiye: true`)**: cepheden 2 x DN65 storz -> düşey DN100 itfaiye kollektörü (altında otomatik boşaltma DN25) -> çek valf -> izlenebilir kelebek -> tesisat çıkış hattı (pompa çek valflerinden sonra). Yön testi `calistir.py` içinde `itfaiye_test.kontrol` ile yapılır.
 - Çıktılar `*_R2.dxf`: `YANGIN_POMPA_GRUBU_KESITI_OFIS_R2.dxf` / `_OTOPARK_R2.dxf` (girdiler `girdi/yangin_<ad>_R2.json`, sprinkler `dolap_calistir.py` seçilen pompa değerleriyle yazar), `HIDROFOR_GRUBU_KESITI_R2.dxf`, `PIS_SU_POMPA_CUKURU_KESITI_R2.dxf`.
 - Pompa gövde ölçüleri (A, B, Hm) temel test girdisinden kalır; seçilen Q/H için katalogla teyit edilmelidir.
+- 14.10.2026 kontrol: `*_R2.dxf` çıktılarında MTY geçen blok/katman/stil/yazı 0, elektrik katmanı yok, köprü yok; R3 gerekmedi. Her paftada numaralı balon + ADET'li cihaz listesi lejant görevini görür (yalnız ROTAS-SMB-* ve modül çizimleri).

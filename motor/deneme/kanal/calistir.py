@@ -254,18 +254,20 @@ def ofis(J, cikti):
     yy = metraj_tablosu(cz, tx, yy, rows, ek)
     yy -= 60
     lx = tx + 760
+    km = lambda ag: ("m", sum(e.L for e in ag.kenar) / 100)
     lejant(cz, lx, y1 + 40, [
-        ("ÜFLEME KANALI", ornek_kanal("ROTAS-UFLEME-KANALI")),
-        ("EMİŞ (DÖNÜŞ) KANALI", ornek_kanal("ROTAS-EMIS-KANALI", True)),
-        ("TAZE HAVA KANALI", ornek_kanal("ROTAS-TAZE-HAVA-KANALI")),
-        ("ATIK HAVA KANALI", ornek_kanal("ROTAS-ATIK-HAVA-KANALI")),
-        ("FLEX BAĞLANTI KANALI (İZOLELİ)", ornek_flex),
-        ("ÜFLEME MENFEZİ (ÇİFT SIRA KANATLI)", ornek_menfez("ufleme")),
-        ("EMİŞ MENFEZİ", ornek_menfez("emis")),
-        ("VD AYAR (VOLÜM) DAMPERİ", ornek_vd),
-        ("FD YANGIN DAMPERİ", ornek_fd),
-        ("TAZE HAVA ALIŞ PANJURU", ornek_panjur("taze")),
-        ("ATIK HAVA ATIŞ PANJURU", ornek_panjur("atik")),
+        ("ÜFLEME KANALI", ornek_kanal("ROTAS-UFLEME-KANALI"), km(ag_uf)),
+        ("EMİŞ (DÖNÜŞ) KANALI", ornek_kanal("ROTAS-EMIS-KANALI", True), km(ag_em)),
+        ("TAZE HAVA KANALI", ornek_kanal("ROTAS-TAZE-HAVA-KANALI"), km(hat[0])),
+        ("ATIK HAVA KANALI", ornek_kanal("ROTAS-ATIK-HAVA-KANALI"), km(hat[1])),
+        ("FLEX BAĞLANTI KANALI (İZOLELİ)", ornek_flex, "flex"),
+        ("ÜFLEME MENFEZİ (ÇİFT SIRA KANATLI)", ornek_menfez("ufleme"), "menfez_ufleme"),
+        ("EMİŞ MENFEZİ", ornek_menfez("emis"), "menfez_emis"),
+        ("VD AYAR (VOLÜM) DAMPERİ", ornek_vd, "vd"),
+        ("FD YANGIN DAMPERİ", ornek_fd, "fd"),
+        ("TAZE HAVA ALIŞ PANJURU", ornek_panjur("taze"), "panjur_taze"),
+        ("ATIK HAVA ATIŞ PANJURU", ornek_panjur("atik"), "panjur_atik"),
+        ("ISI GERİ KAZANIMLI HAVALANDIRMA CİHAZI (IGK)", lambda cz, p: igk_ciz(cz, p, 90, 44, (1, 0)), "igk"),
     ])
     notlar_ciz(cz, lx, y1 - 680, [
         "Kanallar galvaniz sactan, TS EN 1505'e uygun flanşlı imal edilecektir.",
@@ -407,12 +409,12 @@ def otopark(J, cikti):
                                             f"BDD geri akış damperi {nf} ad., jet fan {len(jf)} ad."])
     lx = tx + 780
     lejant(cz, lx, y1 + 40, [
-        ("DUMAN EGZOZ KANALI", ornek_kanal("ROTAS-DUMAN-EGZOZ", True)),
-        ("EGZOZ MENFEZİ (KANAL YANAĞINDA)", ornek_menfez_yan("duman")),
-        ("JET FAN (ATIŞ YÖNÜ OKLU)", lambda cz, p: jetfan_ciz(cz, (p[0] - 40, p[1]), (1, 0), 80, 25)),
-        ("AKSİYEL EGZOZ FANI", lambda cz, p: fan_aksiyel(cz, p, (1, 0), 14)),
-        ("BDD GERİ AKIŞ DAMPERİ", ornek_bdd),
-        ("TAZE HAVA GİRİŞ YÖNÜ", lambda cz, p: ok_acik(cz, (p[0] - 60, p[1]), (p[0] + 60, p[1]), "ROTAS-TAZE-HAVA-KANALI", 14)),
+        ("DUMAN EGZOZ KANALI", ornek_kanal("ROTAS-DUMAN-EGZOZ", True), ("m", sum(e.L for e in ag_eg.kenar) / 100)),
+        ("EGZOZ MENFEZİ (KANAL YANAĞINDA)", ornek_menfez_yan("duman"), "menfez_yan_duman"),
+        ("JET FAN (ATIŞ YÖNÜ OKLU)", lambda cz, p: jetfan_ciz(cz, (p[0] - 40, p[1]), (1, 0), 80, 25), "jetfan"),
+        ("AKSİYEL EGZOZ FANI", lambda cz, p: fan_aksiyel(cz, p, (1, 0), 14), "fan_aksiyel"),
+        ("BDD GERİ AKIŞ DAMPERİ", ornek_bdd, "bdd"),
+        ("TAZE HAVA GİRİŞ YÖNÜ", lambda cz, p: ok_acik(cz, (p[0] - 60, p[1]), (p[0] + 60, p[1]), "ROTAS-TAZE-HAVA-KANALI", 14), None),
     ])
     notlar_ciz(cz, lx, y1 - 400, [
         "Normal işletmede egzoz fanları düşük devirde (4 hava değişimi), yangın sinyalinde tam devirde (10 hava değişimi) çalışacaktır.",
@@ -430,8 +432,27 @@ def otopark(J, cikti):
     return cz, dict(aglar=[ag_eg], Qn=Qn, Qd=Qd, jf=jf, esp=esp, metraj=rows, sonuc={"DUMAN EGZOZ": (gr, yol)})
 
 
+def mty_kontrol(dxf):
+    """MTY geçen blok / katman / yazı stili / yazı / öznitelik listesi (boş = temiz)."""
+    d = ezdxf.readfile(dxf)
+    out = [f"blok {b.name}" for b in d.blocks if "MTY" in b.name.upper()]
+    out += [f"katman {l.dxf.name}" for l in d.layers if "MTY" in l.dxf.name.upper()]
+    out += [f"stil {s.dxf.name}" for s in d.styles if "MTY" in s.dxf.name.upper()]
+    for lay in [d.modelspace()] + list(d.blocks):
+        for e in lay:
+            t = e.text if e.dxftype() == "MTEXT" else (e.dxf.get("text", "") if e.dxftype() in ("TEXT", "ATTDEF") else "")
+            if "MTY" in str(t).upper():
+                out.append(f"yazı {t[:40]}")
+            if e.dxftype() == "INSERT":
+                out += [f"öznitelik {a.dxf.text}" for a in e.attribs if "MTY" in a.dxf.text.upper()]
+    return out
+
+
 if __name__ == "__main__":
     J = json.load(open(sys.argv[1], encoding="utf-8"))
     f = {"ofis": ofis, "otopark": otopark}[J["senaryo"]]
     cz, r = f(J, sys.argv[2])
     print("yazıldı:", sys.argv[2])
+    print("lejant adetleri:", cz.say)
+    m = mty_kontrol(sys.argv[2])
+    print("MTY kontrolü:", "TEMİZ (0 blok/katman/yazı)" if not m else m)

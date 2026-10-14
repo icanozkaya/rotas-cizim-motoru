@@ -33,8 +33,8 @@ Menfez noktaları ve debileri ile fan/cihaz ağzından:
 ## Çalıştırma
 ```
 cd motor/deneme/kanal
-python3 calistir.py ornek_ofis.json    ../../../proje/denemeler/kanal/ofis_kanal.dxf     # ~35 s
-python3 calistir.py ornek_otopark.json ../../../proje/denemeler/kanal/otopark_jetfan.dxf # ~2 s
+python3 calistir.py ornek_ofis.json    ../../../proje/denemeler/kanal/ofis_kanal_R2.dxf     # ~30 s
+python3 calistir.py ornek_otopark.json ../../../proje/denemeler/kanal/otopark_jetfan_R2.dxf # ~2 s
 python3 onizle.py <dxf> <png> [x0 y0 x1 y1]     # kontrol önizlemesi (PNG depoya konmaz)
 ```
 Çıktı yalnız DXF'tir (R2018/AC1032, ezdxf). Birim cm, ölçek 1/50. Tüm katmanlar `ROTAS-` önekli. Tasarım değerleri JSON'dadır; `"deneme": true` olduğunda pafta üstüne DENEME başlığı yazılır.
@@ -58,5 +58,12 @@ python3 onizle.py <dxf> <png> [x0 y0 x1 y1]     # kontrol önizlemesi (PNG depoy
 - Yerel kayıp katsayıları (ζ) sabit tablodan alınır: T branş 1,0, düz geçiş 0,3, dirsek 0,3, VD/FD 0,2, cihaz ağzı 0,5. Menfez 25–30 Pa, flex 5 Pa, panjur 25 Pa, şaft/jetcap 60 Pa varsayımdır.
 - Redüksiyonlar eş eksenlidir. Eksantrik (tek yanı düz) redüksiyon seçeneği yoktur. Kanal yüksekliği ağ boyunca sabit tutulmaz, her parça kendi en ekonomik ölçüsünü alır.
 - Jet fan sayısı kapsama kuralıyla bulunur; itki/hız doğrulaması yapılmaz, çizimde de "CFD ile doğrulanacaktır" notu vardır. CO dedektörleri çizilmez, notta belirtilir.
-- MTY kütüphanesinde havalandırma bloğu (menfez, damper, jet fan) yoktur. Semboller araştırma notu geometrisiyle çizilmiştir. `MTY-ÇATI TİPİ FAN` bu iki senaryoda kullanılmadı.
+- MTY bloğu kullanılmaz (14.10 B); semboller araştırma notu geometrisiyle saf çizgidir.
 - Antet ve pafta çerçevesi yoktur; yalnız plan, başlık, tablolar, lejant ve notlar çizilir.
+
+## R2 revizyonu (14.10.2026 (B) talimatı)
+- Otomatik lejant + adet: sembol çizicileri (`menfez_tavan/yan`, `flex_ciz`, `vd/fd/bdd_ciz`, `panjur_ciz`, `fan_aksiyel`,
+  `jetfan_ciz`, `igk_ciz`) `Cizim.adet()` ile sayar; `lejant()` adedi 0 olan satırı atlar, kanal satırlarına metraj (m) yazar.
+  Lejant örnekleri `lejant_modu` ile sayılmaz. Ofis lejantına IGK cihazı eklendi.
+- Kanal kesişmesi/köprü yok (kesişen aday elenir), elektrik kalemi yok; `calistir.py` sonunda `mty_kontrol()` (MTY 0).
+- Çıktılar: `ofis_kanal_R2.dxf`, `otopark_jetfan_R2.dxf`; KONTROL temiz.

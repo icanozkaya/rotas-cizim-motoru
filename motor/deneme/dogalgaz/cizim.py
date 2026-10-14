@@ -1,7 +1,8 @@
 """Doğalgaz izometrik kolon şeması (30° izometri) + hesap tablosu + lejant + notlar -> DXF (R2018).
 
 Şema ölçeksizdir: düşey/yatay boylar okunaklılık için seçilir, gerçek uzunluk ve kot farkı etiket ve
-hesap tablosundadır. Bütün katmanlar ROTAS- önekli; MTY blokları kendi iç katmanlarıyla eklenir.
+hesap tablosundadır. Bütün katmanlar ROTAS- önekli. R2 (14.10.2026 B): MTY bloğu yok, semboller saf geometri
+ROTAS-DG-* bloklarıdır; paftanın sonunda otomatik lejant + adet tablosu (yalnız kullanılan semboller).
 """
 import math
 
@@ -20,8 +21,9 @@ LAY = {
     'ROTAS-DOGALGAZ-CIHAZ': 6, 'ROTAS-DOGALGAZ-NO': 30, 'ROTAS-DOGALGAZ-YAZI': 7,
     'ROTAS-DOGALGAZ-KAT': 8, 'ROTAS-DOGALGAZ-TABLO': 7, 'ROTAS-DOGALGAZ-MASKE': 7,
     'ROTAS-DOGALGAZ-PAFTA': 7, 'ROTAS-DOGALGAZ-NOT': 1, 'ROTAS-DOGALGAZ-SERVIS-KUTUSU': 2,
-    'ROTAS-DOGALGAZ-UYARI': 1,
+    'ROTAS-DOGALGAZ-UYARI': 1, 'ROTAS-DOGALGAZ-LEJANT': 7,
 }
+LEJ = 'ROTAS-DOGALGAZ-LEJANT'
 BORU, CAP, VANA, SAY, REG, CIH, NO, YAZ, KAT, TAB, MSK, PAF, NOT, SKL, UYA = (
     'ROTAS-DOGALGAZ-BORU', 'ROTAS-DOGALGAZ-CAP', 'ROTAS-DOGALGAZ-VANA', 'ROTAS-DOGALGAZ-SAYAC',
     'ROTAS-DOGALGAZ-REGULATOR', 'ROTAS-DOGALGAZ-CIHAZ', 'ROTAS-DOGALGAZ-NO', 'ROTAS-DOGALGAZ-YAZI',
@@ -59,7 +61,6 @@ class Cizim:
             doc.layers.add(n, color=c)
         doc.layers.get(MSK).dxf.plot = 1
         self.doc, self.msp = doc, doc.modelspace()
-        SB.mty_aktar(doc)
         SB.tanimla(doc, SAY)
         self.boru_geo = []      # (hat_no veya etiket, LineString)
         self.engel = []         # shapely geometrileri (yazı yerleşiminde kaçınılacak)
@@ -227,8 +228,8 @@ class Cizim:
         self.boru_geo.append((h.no if h else 'x', LineString(pts)))
 
     def vana_ekle(self, pos, aci, dn, hat_no, ad, aciklama, gaz=True):
-        """MTY-KURESEL VANA (patlatılmadan, CAP özniteliği = DN)."""
-        ins = self.msp.add_blockref('MTY-KURESEL VANA', pos, dxfattribs={'layer': VANA, 'rotation': aci})
+        """ROTAS-DG-KURESEL-VANA (saf geometri; CAP özniteliği = DN, görünmez)."""
+        ins = self.msp.add_blockref('ROTAS-DG-KURESEL-VANA', pos, dxfattribs={'layer': VANA, 'rotation': aci})
         ins.add_auto_attribs({'CAP': dn})
         self._sembol_kutu(ins, ad, hat_no)
         no = self.vana_no(ad, aciklama)
@@ -280,7 +281,7 @@ class Cizim:
         for q in self._kes(pts, [(sv - 10, sv + 10), (sr - 12, sr + 12)]):
             msp.add_lwpolyline(q, dxfattribs={'layer': BORU, 'const_width': BORU_W})
         self.boru_geo.append(('sebeke', LineString(pts)))
-        ins = msp.add_blockref('MTY-KURESEL VANA', vpos, dxfattribs={'layer': VANA, 'rotation': 30})
+        ins = msp.add_blockref('ROTAS-DG-KURESEL-VANA', vpos, dxfattribs={'layer': VANA, 'rotation': 30})
         ins.add_auto_attribs({'CAP': 'DN25'})
         self._sembol_kutu(ins, 'SKV', 'sebeke')
         no_sk = self.vana_no('Servis kutusu giriş vanası', 'Servis kutusu içinde, dağıtım şirketine ait')
@@ -303,7 +304,7 @@ class Cizim:
             for (s0, s1, tur) in h._gap:
                 pos, aci = self._yol_noktasi(h._pts, (s0 + s1) / 2)
                 if tur == 'ESNEK':
-                    ins = msp.add_blockref('MTY-ESNEK BAGLANTI', pos, dxfattribs={'layer': VANA, 'rotation': aci})
+                    ins = msp.add_blockref('ROTAS-DG-ESNEK', pos, dxfattribs={'layer': VANA, 'rotation': aci})
                     ins.add_auto_attribs({'CAP': ''})
                     self._sembol_kutu(ins, 'ESNEK', h.no)
                     continue
@@ -335,7 +336,7 @@ class Cizim:
                     s = 1.2
                     sag = d['taraf'] == 'sag'
                     xs = -s if sag else s
-                    ins = msp.add_blockref('MTY-KOMBİ', (E[0] - 23.9 * xs, E[1] - 30 * s),
+                    ins = msp.add_blockref('ROTAS-DG-KOMBI', (E[0] - 23.9 * xs, E[1] - 30 * s),
                                            dxfattribs={'layer': CIH, 'xscale': xs, 'yscale': s})
                     cno = f'K-{n:02d}'
                     self.ekipman.append((cno, f'Kombi {tr(c["kWg"], 0)} kW (C tipi, hermetik)', f'{d["no"]}, {tr(c["Q"])} m³/h'))
@@ -482,41 +483,63 @@ class Cizim:
         return self.tablo(x0, y0, 'EKİPMAN LİSTESİ', [('No', ''), ('Ekipman', ''), ('Açıklama', '')], rows,
                           [60, 260, 420], rh=17)
 
+    def kullanim_say(self):
+        """modeldeki ROTAS-DG-* INSERT adetleri (lejant katmanı hariç)."""
+        say = {}
+        for e in self.msp.query('INSERT'):
+            if e.dxf.layer == LEJ:
+                continue
+            say[e.dxf.name] = say.get(e.dxf.name, 0) + 1
+        return say
+
     def lejant(self, x0, y0):
+        """Otomatik lejant + adet tablosu: yalnız çizimde kullanılan kendi sembollerimiz (ROTAS-DG-*)."""
         msp = self.msp
-        self.yazi('LEJANT', (x0, y0 + 14), 12, TAB, align='BOTTOM_LEFT')
-        satir = [
-            ('boru', 'Doğalgaz borusu (çelik, TS EN 10255) - izometrik'),
-            ('MTY-KURESEL VANA', 'Küresel vana (TS EN 331) - AKV / sayaç / daire / cihaz vanası'),
-            ('ROTAS-DG-REGULATOR', 'Basınç düşürücü regülatör (servis kutusu)'),
-            ('ROTAS-DG-SAYAC', 'Gaz sayacı G4 (körüklü)'),
-            ('MTY-ESNEK BAGLANTI', 'Esnek bağlantı (kombi ≤60 cm, ocak ≤150 cm)'),
-            ('MTY-KOMBİ', 'Kombi (C tipi, hermetik)'),
-            ('ROTAS-DG-OCAK', 'Ocak (A tipi, bacasız)'),
-            ('kutu', 'Servis kutusu'),
-        ]
-        y = y0 - 30
-        for ad, ack in satir:
+        say = self.kullanim_say()
+        boru_m = sum(h.L for h in self.ag.hatlar)
+        satir = [('boru', 'Doğalgaz borusu (çelik, TS EN 10255) - izometrik', f'{tr(boru_m, 1)} m')]
+        for ad, ack in SB.LEJANT_AD.items():
+            if say.get(ad):
+                satir.append((ad, ack, f'{say[ad]} ad.'))
+        satir.append(('kutu', 'Servis kutusu', '1 ad.'))
+        diger = sorted(k for k in say if k not in SB.LEJANT_AD)
+        assert not diger, f'lejantta tanımsız sembol: {diger}'
+        W = [200, 560, 110]
+        self.yazi('LEJANT VE ADET TABLOSU (otomatik)', (x0, y0 + 14), 12, LEJ, align='BOTTOM_LEFT')
+        rh = 60
+        y = y0
+        msp.add_lwpolyline([(x0, y), (x0 + sum(W), y), (x0 + sum(W), y - 26), (x0, y - 26)], close=True,
+                           dxfattribs={'layer': LEJ})
+        for k, (bs, g0) in enumerate(zip(('SEMBOL', 'AÇIKLAMA', 'ADET'), (0, W[0], W[0] + W[1]))):
+            self.yazi(bs, (x0 + g0 + W[k] / 2, y - 13), 9, LEJ, align='MIDDLE_CENTER')
+        y -= 26
+        for ad, ack, adet in satir:
+            yc = y - rh / 2
             if ad == 'boru':
-                msp.add_lwpolyline([(x0 + 10, y), (x0 + 80, y)], dxfattribs={'layer': BORU, 'const_width': BORU_W})
+                msp.add_lwpolyline([(x0 + 30, yc), (x0 + 170, yc)], dxfattribs={'layer': LEJ, 'const_width': BORU_W})
             elif ad == 'kutu':
-                msp.add_lwpolyline([(x0 + 15, y - 14), (x0 + 75, y - 14), (x0 + 75, y + 14), (x0 + 15, y + 14)],
-                                   close=True, dxfattribs={'layer': SKL, 'linetype': 'DASHED', 'ltscale': 0.6})
-            elif ad == 'MTY-KOMBİ':
-                ins = msp.add_blockref(ad, (x0 + 10, y - 15), dxfattribs={'layer': CIH})
+                msp.add_lwpolyline([(x0 + 70, yc - 14), (x0 + 130, yc - 14), (x0 + 130, yc + 14), (x0 + 70, yc + 14)],
+                                   close=True, dxfattribs={'layer': LEJ, 'linetype': 'DASHED', 'ltscale': 0.6})
+            elif ad == 'ROTAS-DG-KOMBI':
+                msp.add_blockref(ad, (x0 + 52, yc - 15), dxfattribs={'layer': LEJ})
             elif ad == 'ROTAS-DG-OCAK':
-                msp.add_blockref(ad, (x0 + 45, y + 22), dxfattribs={'layer': CIH})
+                msp.add_blockref(ad, (x0 + 100, yc + 22), dxfattribs={'layer': LEJ})
             elif ad == 'ROTAS-DG-SAYAC':
-                ins = msp.add_blockref(ad, (x0 + 45, y - 18), dxfattribs={'layer': SAY})
+                ins = msp.add_blockref(ad, (x0 + 100, yc - 18), dxfattribs={'layer': LEJ})
                 ins.add_auto_attribs({'TIP': 'G4'})
             else:
-                msp.add_lwpolyline([(x0 + 10, y), (x0 + 30, y)], dxfattribs={'layer': BORU, 'const_width': BORU_W})
-                msp.add_lwpolyline([(x0 + 60, y), (x0 + 80, y)], dxfattribs={'layer': BORU, 'const_width': BORU_W})
-                ins = msp.add_blockref(ad, (x0 + 45, y), dxfattribs={'layer': VANA if 'MTY' in ad else REG})
-                if ad.startswith('MTY'):
-                    ins.add_auto_attribs({'CAP': 'DN25' if 'VANA' in ad else ''})
-            self.yazi(ack, (x0 + 160, y), 10, TAB)
-            y -= 60
+                msp.add_lwpolyline([(x0 + 40, yc), (x0 + 85, yc)], dxfattribs={'layer': LEJ, 'const_width': BORU_W})
+                msp.add_lwpolyline([(x0 + 115, yc), (x0 + 160, yc)], dxfattribs={'layer': LEJ, 'const_width': BORU_W})
+                ins = msp.add_blockref(ad, (x0 + 100, yc), dxfattribs={'layer': LEJ})
+                if ad in ('ROTAS-DG-KURESEL-VANA', 'ROTAS-DG-ESNEK'):
+                    ins.add_auto_attribs({'CAP': ''})
+            self.yazi(ack, (x0 + W[0] + 10, yc), 10, LEJ)
+            self.yazi(adet, (x0 + W[0] + W[1] + W[2] / 2, yc), 10, LEJ, align='MIDDLE_CENTER')
+            y -= rh
+            msp.add_line((x0, y), (x0 + sum(W), y), dxfattribs={'layer': LEJ})
+        for gx in (0, W[0], W[0] + W[1], sum(W)):
+            msp.add_line((x0 + gx, y0), (x0 + gx, y), dxfattribs={'layer': LEJ})
+        self.lejant_say = {a: c for a, _, c in satir}
         return y0 - y
 
     def notlar(self, x0, y0, satirlar, baslik='NOTLAR', h=10.0, lay=NOT):

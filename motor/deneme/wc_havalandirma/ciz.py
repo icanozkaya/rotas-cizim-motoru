@@ -4,7 +4,8 @@ Tarz: kullanıcının new_block.dxf son paftasındaki izometri (ORNEK_DUZEN.md):
   düşey galvaniz şaft (3 kenar çizgisi), her katta Ø150 branşman + geri akış klapesi + flex + küp aspiratör,
   aspiratör yazısı "Wc Aspiratörü / 80 m3/h-50 pa / Ø150 mm", şaft üzerinde "150x150 / 240 m³/h" (döndürülmüş),
   şaft başında çatı tipi fan + "D3-5-8 / Çatı Tipi Fan / MEKANİK HAVALANDIRMA / 240 m³/h".
-Katmanlar ROTAS- önekli; MTY-ÇATI TİPİ FAN bloğu (plan sembolü) lejantta kendi iç katmanlarıyla eklenir.
+Katmanlar ROTAS- önekli. R2 (14.10.2026 B): MTY bloğu / mtylib / radyator importu YOK; bütün öğeler saf geometri.
+Lejant otomatiktir: yalnız izometride çizilen öğeler, çizim sırasında sayılan ADET sütunuyla.
 """
 import math, os, sys
 import ezdxf
@@ -14,7 +15,7 @@ from ezdxf.math import ConstructionArc
 from shapely.geometry import LineString, Polygon, MultiPoint, box
 from shapely.ops import unary_union
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'radyator'))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from hesap import tr, DIN, ZETA, FLEX_K, FLEX_L, V_SAFT, EMNIYET   # noqa: E402
 
 C30 = math.cos(math.radians(30))
@@ -55,6 +56,10 @@ class Cizim:
         self.geo = []          # yazıların kaçınacağı çizgiler
         self.yazi = []         # (p, s, h, lay, al, rot, maske_kontrol)
         self.kutular = []      # yerleşmiş yazı kutuları (çakışma raporu)
+        self.say = {}          # lejant adetleri: çizilen öğe -> adet
+
+    def adet(self, k, n=1):
+        self.say[k] = self.say.get(k, 0) + n
 
     # ---------------------------------------------------------------- temel
     def line(self, a, b, lay, engel=True):
@@ -251,6 +256,7 @@ def izometri(cz, g, r, X0=0.0, Y0=0.0):
             zb[a['ki']] = k['kot'] * 100.0 + yuk
         z_alt = min(zb.values()) - 25.0
         xr_off, xl_off = saft_ciz(cz, o, w, d, z_alt, fan_z)
+        cz.adet('saft')
         # çatı döşemesi parçası (şaft geçişi)
         for dy in (0.0, -15.0):
             cz.line((xc - 70, Y0 + cati + dy), (xc + xl_off, Y0 + cati + dy), DS)
@@ -264,6 +270,8 @@ def izometri(cz, g, r, X0=0.0, Y0=0.0):
             yb = Y0 + zb[a['ki']] - 70.0 * (n // 2)
             xs = xc + (xr_off if sag else xl_off)
             E, F, bb = brans_ciz(cz, xs, yb, sag, rr)
+            for k_ in ('brans', 'klape', 'flex', 'aspirator'):
+                cz.adet(k_)
             mah = ' + '.join(m['ad'] for m in a['mahaller'])
             sat = ['Wc Aspiratörü', f"{a['kademe']} m3/h-{g['kabul']['asp_basinc']} pa", f"Ø{g['kabul']['baglanti_cap']} mm",
                    f"{a['daire']} · {mah}"]
@@ -284,6 +292,7 @@ def izometri(cz, g, r, X0=0.0, Y0=0.0):
             cz.text((xt + H * 1.9, ym), f"{b['q']} m³/h", H, YZ, 'MC', 90)
         # çatı fanı
         ytop = fan_ciz(cz, xc, Y0 + fan_z)
+        cz.adet('fan')
         f = s['fan']
         sat = [s['daireler'], f"Çatı Tipi Fan ÇF-{j + 1} ({f['ad']} sınıfı)", 'MEKANİK HAVALANDIRMA',
                f"{s['Q']} m³/h - {tr(s['p_fan'], 0)} Pa"]
@@ -398,34 +407,38 @@ def tablolar(cz, g, r, x0, y0, wmax):
 
 
 def lejant(cz, x0, y0):
-    """sembol listesi: izometri öğeleri + MTY-ÇATI TİPİ FAN (plan sembolü, blok)"""
-    from mtylib import ic_blok
+    """Otomatik lejant + adet tablosu: yalnız izometride çizilen kendi öğelerimiz (saf geometri), adet çizimden sayılır."""
     L, Hs = 'ROTAS-HESAP', 'ROTAS-HESAP-YAZI'
-    sat = ['Egzoz şaftı — galvaniz kanal (ör. 150x150)', 'Ø150 bağlantı kanalı (spiro)', 'Geri akış klapesi',
-           'İzoleli flex bağlantı', 'Wc aspiratörü 80/160 m³/h - 50 Pa - Ø150 mm', 'Çatı tipi fan (izometri)',
-           'Çatı tipi fan (plan — MTY-ÇATI TİPİ FAN)', 'Kat döşemesi / kat bandı']
-    rh, sw, tw = 70.0, 140.0, 520.0
-    W, Ht = sw + tw, 40 + rh * len(sat)
+    TUM = [('saft', 'Egzoz şaftı — galvaniz kanal (ör. 150x150)'), ('brans', 'Ø150 bağlantı kanalı (spiro)'),
+           ('klape', 'Geri akış klapesi'), ('flex', 'İzoleli flex bağlantı'),
+           ('aspirator', 'Wc aspiratörü 80/160 m³/h - 50 Pa - Ø150 mm'), ('fan', 'Çatı tipi fan (izometri)'),
+           ('kat', 'Kat döşemesi / kat bandı')]
+    sat = [(k, a) for k, a in TUM if k == 'kat' or cz.say.get(k)]
+    rh, sw, tw, aw = 70.0, 140.0, 520.0, 90.0
+    W, Ht = sw + tw + aw, 40 + rh * len(sat)
     cz.pl([(x0, y0), (x0 + W, y0), (x0 + W, y0 - Ht), (x0, y0 - Ht)], L, kapali=True, engel=False)
-    cz.text((x0 + W / 2, y0 - 20), 'WC HAVALANDIRMA LEJANTI', 14, Hs, 'MC', maske=False)
+    cz.text((x0 + (sw + tw) / 2, y0 - 20), 'WC HAVALANDIRMA LEJANTI (otomatik)', 14, Hs, 'MC', maske=False)
+    cz.text((x0 + sw + tw + aw / 2, y0 - 20), 'ADET', 14, Hs, 'MC', maske=False)
     cz.line((x0, y0 - 40), (x0 + W, y0 - 40), L, engel=False)
     cz.line((x0 + sw, y0 - 40), (x0 + sw, y0 - Ht), L, engel=False)
-    for i, s in enumerate(sat):
+    cz.line((x0 + sw + tw, y0), (x0 + sw + tw, y0 - Ht), L, engel=False)
+    for i, (key, s) in enumerate(sat):
         yc = y0 - 40 - rh * (i + 0.5)
         cz.text((x0 + sw + 12, yc), s, 12, Hs, 'ML', maske=False)
+        cz.text((x0 + sw + tw + aw / 2, yc), f"{cz.say[key]} ad." if key in cz.say else '-', 12, Hs, 'MC', maske=False)
         if i < len(sat) - 1:
             cz.line((x0, yc - rh / 2), (x0 + W, yc - rh / 2), L, engel=False)
         xc = x0 + sw / 2
-        if i == 0:
+        if key == 'saft':
             saft_ciz(cz, (xc, yc - 30), 15, 15, 0, 55)
-        elif i == 1:
+        elif key == 'brans':
             u = (C30, 0.5)
             a = (xc - 40, yc - 18)
             b = (a[0] + u[0] * 90, a[1] + u[1] * 90)
             ax = LineString([a, b])
             for s_ in (7.5, -7.5):
                 cz.geom(ax.offset_curve(s_), KN, engel=False)
-        elif i == 2:
+        elif key == 'klape':
             u, nu = (C30, 0.5), (-0.5, C30)
             c0 = (xc - 30, yc - 12)
             for t in (0, 16):
@@ -437,7 +450,7 @@ def lejant(cz, x0, y0):
                 cz.line(a, b, KN, engel=False)
             cz.line((c0[0] + u[0] * 2 - nu[0] * 6.5, c0[1] + u[1] * 2 - nu[1] * 6.5),
                     (c0[0] + u[0] * 14 + nu[0] * 6.5, c0[1] + u[1] * 14 + nu[1] * 6.5), KN, engel=False)
-        elif i == 3:
+        elif key == 'flex':
             f, n = (C30, -0.5), (0.5, C30)
             a = (xc - 40, yc + 14)
             for s_ in (7.5, -7.5):
@@ -448,20 +461,17 @@ def lejant(cz, x0, y0):
                 c = (a[0] + f[0] * t, a[1] + f[1] * t)
                 cz.line((c[0] - n[0] * 7.5, c[1] - n[1] * 7.5), (c[0] + n[0] * 7.5, c[1] + n[1] * 7.5), FX, engel=False)
                 t += 6.0
-        elif i == 4:
+        elif key == 'aspirator':
             hull, ic = kup((xc, yc), (0, 0, 0), 30)
             cz.pl(list(hull.exterior.coords)[:-1], CH, kapali=True, engel=False)
             for a, b in ic:
                 cz.line(a, b, CH, engel=False)
-        elif i == 5:
+        elif key == 'fan':
             # küçük fan: aynı fonksiyon; yazı engeli listesinden çıkarılır (lejant hücresi)
             n0 = len(cz.geo)
             fan_ciz(cz, xc, yc - 14, 0.6)
             del cz.geo[n0:]
-        elif i == 6:
-            ad = ic_blok(cz.doc, 'MTY-ÇATI TİPİ FAN', 'MTY-ÇATI TİPİ FAN')     # iç blok, patlatılmadan
-            cz.msp.add_blockref(ad, (xc - 17 * 0.5, yc), dxfattribs={'layer': CH, 'xscale': 0.5, 'yscale': 0.5})
-        elif i == 7:
+        elif key == 'kat':
             cz.line((xc - 55, yc), (xc + 55, yc), KT, engel=False)
     return W, Ht
 

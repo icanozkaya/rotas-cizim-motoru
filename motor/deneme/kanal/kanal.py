@@ -599,6 +599,12 @@ class Cizim:
         self.yazi = []           # yerleşmiş yazı kutuları
         self.maske = []          # (köşeler, katman) – en son eklenir
         self.metin = []          # bekleyen yazılar (maskenin üstünde kalsın diye en son)
+        self.say = {}            # otomatik lejant adetleri (sembol anahtarı -> adet)
+        self.lejant_modu = False # lejant örnekleri sayılmaz
+
+    def adet(self, k, n=1):
+        if not self.lejant_modu:
+            self.say[k] = self.say.get(k, 0) + n
 
     # temel
     def L(self, a, b, lay):
@@ -721,6 +727,7 @@ def ok_acik(cz, a, b, lay, bas=4.0):
 
 def menfez_tavan(cz, u, tur):
     """çift sıra kanatlı tavan menfezi: çerçeve + iç çerçeve + orta çizgi + kanatlar + hava yönü okları"""
+    cz.adet(f"menfez_{tur}")
     t = u["t"]; P = t["p"]; d = u["d"]; nrm = (-d[1], d[0])
     ml, mk = t["mw"] / 10, t["mh"] / 10
     cz.geom(u["menfez"], "ROTAS-MENFEZ")
@@ -744,6 +751,7 @@ def menfez_tavan(cz, u, tur):
 
 def flex_ciz(cz, u):
     """flex bağlantı: çift çizgi + akordeon çizgileri (5 cm aralık)"""
+    cz.adet("flex")
     S, E, D = u["S"], u["E"], u["t"]["flex"] / 10
     d = u["d"]; n = (-d[1], d[0])
     L = math.dist(S, E)
@@ -758,6 +766,7 @@ def flex_ciz(cz, u):
 
 def menfez_yan(cz, u, tur):
     """kanal yanağı menfezi: 3 kenar (4. kenar kanal yanağı) + eğik kanatlar + oklar"""
+    cz.adet(f"menfez_yan_{tur}")
     c0, d, nrm, ml = u["c0"], u["d"], u["nrm"], u["ml"]
     a = _add(c0, d, -ml / 2); b = _add(c0, d, ml / 2)
     a2 = _add(a, nrm, 10); b2 = _add(b, nrm, 10)
@@ -779,6 +788,7 @@ def menfez_yan(cz, u, tur):
 
 def vd_ciz(cz, p, d, w):
     """ayar (volüm) damperi: eğik kanat + pivot + dışarı kol + VD"""
+    cz.adet("vd")
     n = (-d[1], d[0])
     t = math.tan(math.radians(30))
     a = _add(_add(p, n, w / 2 - 0.5), d, (w / 2) * t * 0.5)
@@ -794,6 +804,7 @@ def vd_ciz(cz, p, d, w):
 
 def fd_ciz(cz, p, d, w):
     """yangın damperi: kanala dik dar dikdörtgen (yan kenarları kanal yanağı) + X"""
+    cz.adet("fd")
     n = (-d[1], d[0])
     t = max(8.0, 0.1 * w)
     a1, a2 = _add(_add(p, d, -t / 2), n, w / 2), _add(_add(p, d, -t / 2), n, -w / 2)
@@ -804,6 +815,7 @@ def fd_ciz(cz, p, d, w):
 
 def bdd_ciz(cz, p, d, w):
     """geri basınç (geri akış) damperi: kanal içinde 3 paralel eğik kanat"""
+    cz.adet("bdd")
     n = (-d[1], d[0])
     for k in (-w / 3, 0, w / 3):
         c = _add(p, n, k)
@@ -813,6 +825,7 @@ def bdd_ciz(cz, p, d, w):
 def panjur_ciz(cz, a, b, ic_yon, dis_kal, tur):
     """duvar boşluğunda panjur: a-b duvar iç yüzü üzerinde, ic_yon binaya doğru; dis_kal duvar kalınlığı.
     çerçeve + 45° kanatlar + hava yönü oku"""
+    cz.adet(f"panjur_{tur}")
     d = (b[0] - a[0], b[1] - a[1]); L = math.hypot(*d); d = (d[0] / L, d[1] / L)
     o = (-ic_yon[0], -ic_yon[1])
     a2, b2 = _add(a, o, dis_kal), _add(b, o, dis_kal)
@@ -833,6 +846,7 @@ def panjur_ciz(cz, a, b, ic_yon, dis_kal, tur):
 
 def fan_aksiyel(cz, p, d, R, lay="ROTAS-HAVALANDIRMA-CIHAZ"):
     """aksiyel fan: kısa kanal gövdesi + daire + papyon kanat (ISO 14617-9)"""
+    cz.adet("fan_aksiyel")
     n = (-d[1], d[0])
     g = _rect(_add(p, d, -R * 1.2), _add(p, d, R * 1.2), 2 * R + 6)
     cz.geom(g, lay)
@@ -845,6 +859,7 @@ def fan_aksiyel(cz, p, d, R, lay="ROTAS-HAVALANDIRMA-CIHAZ"):
 
 def jetfan_ciz(cz, p, d, L, D, lay="ROTAS-JETFAN"):
     """jet fan: gövde (susturucu-fan-susturucu bölmeli) + fan dairesi + atış yönü oku"""
+    cz.adet("jetfan")
     n = (-d[1], d[0])
     g = _rect(_add(p, d, -L / 2), _add(p, d, L / 2), D)
     cz.geom(g, lay)
@@ -865,6 +880,7 @@ def jetfan_ciz(cz, p, d, L, D, lay="ROTAS-JETFAN"):
 def igk_ciz(cz, c, Wx, Wy, rot_d):
     """tavan tipi ısı geri kazanım cihazı (plakalı): gövde, çapraz plaka eşanjör, 2 fan, 2 filtre.
     rot_d: (dx,dy) oda tarafı yönü (ÜF/EM ağızları bu yüzde). dönen: gövde poligonu + ağız noktaları"""
+    cz.adet("igk")
     d = rot_d; n = (-d[1], d[0])
     lay = "ROTAS-HAVALANDIRMA-CIHAZ"
     hx, hy = Wx / 2, Wy / 2
@@ -1068,15 +1084,39 @@ def metraj_tablosu(cz, x, y, rows, ekler=()):
 
 
 def lejant(cz, x, y, ogeler):
-    """ogeler: [(ad, cizici(cz, p))] satır satır. Sembolün aynısı çizilir"""
-    cz.T((x, y + 14), "HAVALANDIRMA TESİSATI SEMBOLLERİ", 13, "ROTAS-TABLO", TA.BOTTOM_LEFT)
-    cz.L((x, y + 8), (x + 520, y + 8), "ROTAS-TABLO")
+    """Otomatik lejant + adet tablosu. ogeler: [(ad, cizici(cz, p), anahtar)].
+    anahtar str ise çizimde sayılan sembol adedi (cz.say) yazılır ve adedi 0 olan satır lejanta GİRMEZ (yalnız kullanılan
+    semboller); ('m', uzunluk_m) ise kanal metrajı yazılır; None ise adet sütunu '-'. Sembolün aynısı çizilir (sayılmaz)."""
+    sat = []
+    for ad, f, k in ogeler:
+        if isinstance(k, str):
+            if not cz.say.get(k):
+                continue
+            a = f"{cz.say[k]} ad."
+        elif isinstance(k, tuple):
+            if k[1] <= 0:
+                continue
+            a = f"{tr(k[1], 1)} m"
+        else:
+            a = "-"
+        sat.append((ad, f, a))
+    W, rh = 560, 55
+    cz.T((x, y + 14), "HAVALANDIRMA TESİSATI SEMBOLLERİ (otomatik lejant + adet)", 13, "ROTAS-TABLO", TA.BOTTOM_LEFT)
+    cz.L((x, y + 8), (x + W, y + 8), "ROTAS-TABLO")
+    cz.T((x + 70, y - 4), "SEMBOL", 8, "ROTAS-TABLO")
+    cz.T((x + 170, y - 4), "AÇIKLAMA", 8, "ROTAS-TABLO", TA.MIDDLE_LEFT)
+    cz.T((x + W - 45, y - 4), "ADET", 8, "ROTAS-TABLO")
+    cz.lejant_modu = True
     yy = y - 30
-    for ad, f in ogeler:
+    for ad, f, a in sat:
         f(cz, (x + 70, yy))
         cz.T((x + 170, yy), ad, 9, "ROTAS-TABLO", TA.MIDDLE_LEFT)
-        yy -= 55
-    cz.engel.append(box(x, yy, x + 520, y + 30))
+        cz.T((x + W - 45, yy), a, 9, "ROTAS-TABLO")
+        yy -= rh
+    cz.lejant_modu = False
+    cz.L((x, yy + rh / 2), (x + W, yy + rh / 2), "ROTAS-TABLO")
+    cz.L((x + W - 90, y + 8), (x + W - 90, yy + rh / 2), "ROTAS-TABLO")
+    cz.engel.append(box(x, yy, x + W, y + 30))
     return yy
 
 

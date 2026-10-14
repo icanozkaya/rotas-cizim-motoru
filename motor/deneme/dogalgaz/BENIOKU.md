@@ -8,7 +8,7 @@ Bu modül konut doğalgaz iç tesisatının hesabını yapar ve izometrik kolon 
 ```
 python3 motor/deneme/dogalgaz/dogalgaz.py motor/deneme/dogalgaz/test_z4_10daire.json proje/denemeler/dogalgaz [--onizleme]
 ```
-- Çıktı: `<ad>_izometrik_kolon_semasi.dxf` (R2018/AC1032) ve `<ad>_hesap.xlsx` (formüllü).
+- Çıktı: `<ad>_izometrik_kolon_semasi_R2.dxf` (R2018/AC1032) ve `<ad>_hesap.xlsx` (formüllü).
 - `--onizleme` verilirse PNG önizleme de üretilir. PNG `$ONIZLEME_DIR` klasörüne yazılır (varsayılan `/tmp`) ve depoya konmaz.
 - Konsolda iki kontrolün sonucu yazar:
   - çap seçiminin sınırları sağlayıp sağlamadığı;
@@ -32,8 +32,8 @@ python3 motor/deneme/dogalgaz/dogalgaz.py motor/deneme/dogalgaz/test_z4_10daire.
   - Vanalar V-01…, sayaçlar S-xx, kombiler K-xx, ocaklar O-xx, regülatör R-01 olarak numaralanır ve ekipman listesine girer.
   - DXF'te ayrıca hesap tablosu, kritik devre kontrol tablosu, lejant ve "...yapılacaktır." biçiminde notlar bulunur.
 - `semboller.py` — sembolleri hazırlar.
-  - MTY blokları patlatılmadan, iç katmanlarıyla gerçek blok olarak aktarılır: `MTY-KURESEL VANA` (CAP özniteliği = DN), `MTY-ESNEK BAGLANTI`, `MTY-KOMBİ`.
-  - MTY kütüphanesinde karşılığı olmayanlar `03_SEMBOLLER.md` §7 geometrisiyle çizilir:
+  - R2: MTY bloğu yok. Gaz vanası `ROTAS-DG-KURESEL-VANA` (papyon + küre + kol, CAP özniteliği görünmez), `ROTAS-DG-ESNEK`, `ROTAS-DG-KOMBI` (gövde + eş eksenli baca) saf geometridir.
+  - Diğerleri `03_SEMBOLLER.md` §7 geometrisiyle çizilir:
     - `ROTAS-DG-SAYAC`: izometrik ön yüzlü G4 sayaç
     - `ROTAS-DG-REGULATOR`: içi dolu papyon, diyafram kubbesi ve kesikli algılama hattı
     - `ROTAS-DG-OCAK`: 4 gözlü ocak
@@ -57,6 +57,13 @@ python3 motor/deneme/dogalgaz/dogalgaz.py motor/deneme/dogalgaz/test_z4_10daire.
 - Yalnız konut tipi akış desteklenir: toplu sayaç ve her daireye ayrı hat. Kat sayaçlı ortak kolon ve merkezi kazan dairesi yoktur.
 - Kat planı (mimari üzerinde hat) çizilmez; yalnız izometrik kolon şeması, tablolar ve Excel üretilir.
 - Eşzamanlılık tablosu, gaz vanası sembolü ve cihaz debileri AKSAGAZ ile teyit edilmelidir.
-  - Gaz vanası olarak MTY küresel vanası kullanıldı; bazı şartnamelerde gaz vanası içi dolu papyonla gösterilir.
+  - Gaz vanası açık papyon + küre ile çizildi; bazı şartnamelerde gaz vanası içi dolu papyonla gösterilir (regülatör içi dolu papyondur).
 - Sayaçta oluşan basınç kaybı hesaba katılmaz (şartname "sayaç hariç" der). Test nipeli ve kolon havalandırması çizilmez.
 - Eşzamanlılık f = 1,0 alındığı için ana hat debisi 43,8 m³/h çıkar ve DN50–DN65 seçilir. AKSAGAZ tablosu girildiğinde çaplar küçülür.
+
+## R2 revizyonu (14.10.2026 (B) talimatı)
+- MTY bloğu / katmanı / yazı stili (`MTY-VANA`, `MTY-TEFRIS`, `MTYCAPLT`) tamamen kaldırıldı; `/tmp/claude-0/blk` gerekmez.
+- Lejant otomatik: `Cizim.lejant()` modeldeki INSERT'leri sayar (lejant katmanı `ROTAS-DOGALGAZ-LEJANT` hariç), yalnız kullanılan
+  ROTAS-DG-* sembollerini ADET sütunuyla, boruyu toplam metreyle yazar; tanımsız blok varsa hata verir.
+- `dogalgaz.py` kaydettikten sonra `mty_kontrol()` çalıştırır (blok/katman/stil/yazı/öznitelik); sonuç konsolda.
+- Test çıktısı: boru kesişmesi 0, yazı çakışması 0, bütün boru etiketleri yerleşti, MTY 0. Excel değişmedi.

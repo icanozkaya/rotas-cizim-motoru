@@ -20,7 +20,7 @@ Girdi JSON (katlar, şaftlar, penceresiz WC/banyo listesi) → hesap → tek paf
    - Şaft bölüm etiketi döndürülmüş "150x150 / 240 m³/h" biçimindedir.
    - Şaft başında izometrik çatı tipi fan, üstünde "Ş1 / D3-5-8 / Çatı Tipi Fan ÇF-1 / MEKANİK HAVALANDIRMA / 240 m³/h - 13 Pa".
    - Hesap tabloları: debi (DIN ve kabul, hava değişimi), şaft basınç kaybı, branş kontrolü ve fan seçimi, ayrıca havalandırmaya alınmayan hacimler.
-   - Lejant: `MTY-ÇATI TİPİ FAN` bloğu plan sembolü olarak, patlatılmadan eklenir. Notlar.
+   - Lejant (R2): otomatik; yalnız izometride çizilen öğeler + çizim sırasında sayılan ADET. Notlar.
    - Yazı bir çizgiye değerse altına WIPEOUT konur. Yazı-yazı çakışması sayılır (iki çıktıda da 0).
 6. **Mimariden algılama** (`algila.py`, new_block.dxf):
    - `uctan_uca/mimari.py` ile MKDU0 okunur, `rooms.detect` ile mahal poligonları çıkarılır.
@@ -38,7 +38,6 @@ python3 hesap.py <girdi.json>        # yalnız hesap dökümü
 ```
 Gerekenler:
 - ezdxf, shapely, opencv, scipy
-- `/tmp/claude-0/blk` (MTY blokları; `kurulum.sh` açar)
 - `--nb` için `uctan_uca` önbelleği (`/tmp/claude-0/uu`, yoksa `mimari.py` new_block.dxf.xz'yi açar)
 
 ## Girdi JSON
@@ -74,3 +73,9 @@ Gerekenler:
 - Aynı şaft ve katta ikiden fazla aspiratör olursa üçüncüsü 70 cm aşağıya kaydırılır. Bu durum denenmedi.
 - ζ değerleri, flex boyu ve fan eğrileri varsayımdır; yangın damperi yalnız notta yer alır, çizilmez.
 - Kat planlarına "mek. havl." yazısı ve aspiratör etiketi eklenmez. Yalnız izometri paftası üretilir (DWG, PDF ve Excel yok; deneme kuralı).
+
+## R2 revizyonu (14.10.2026 (B) talimatı)
+- `mtylib` / `radyator` importu ve `MTY-ÇATI TİPİ FAN` bloğu kaldırıldı; pafta tamamen saf geometri.
+- Lejant otomatik: `Cizim.adet()` izometri çizilirken şaft, Ø150 branş, geri akış klapesi, flex, aspiratör ve çatı fanını sayar;
+  lejant yalnız sayılan öğeleri ADET sütunuyla gösterir (planda kullanılmayan plan-fan sembolü artık lejantta yok).
+- `calistir.py` sonunda `mty_kontrol()`; çıktılar `*_R2.dxf` (ORNEK_Z2_9DAIRE ve NB). Yazı çakışması 0, MTY 0. Elektrik kalemi çizilmez.

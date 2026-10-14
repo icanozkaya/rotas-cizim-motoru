@@ -25,6 +25,25 @@ def main(a):
     for u in r['uyari']:
         print('UYARI:', u)
     print('maske:', k['maske'], 'yazı çakışması:', k['yazi_cakisma'], '->', out)
+    m = mty_kontrol(out)
+    print('MTY kontrolü:', 'TEMİZ (0 blok/katman/yazı)' if not m else m)
+
+
+def mty_kontrol(dxf):
+    """MTY geçen blok / katman / yazı stili / yazı / öznitelik listesi (boş = temiz)."""
+    import ezdxf
+    d = ezdxf.readfile(dxf)
+    out = [f'blok {b.name}' for b in d.blocks if 'MTY' in b.name.upper()]
+    out += [f'katman {l.dxf.name}' for l in d.layers if 'MTY' in l.dxf.name.upper()]
+    out += [f'stil {s.dxf.name}' for s in d.styles if 'MTY' in s.dxf.name.upper()]
+    for lay in [d.modelspace()] + list(d.blocks):
+        for e in lay:
+            t = e.text if e.dxftype() == 'MTEXT' else (e.dxf.get('text', '') if e.dxftype() in ('TEXT', 'ATTDEF') else '')
+            if 'MTY' in str(t).upper():
+                out.append(f'yazı {t[:40]}')
+            if e.dxftype() == 'INSERT':
+                out += [f'öznitelik {a.dxf.text}' for a in e.attribs if 'MTY' in a.dxf.text.upper()]
+    return out
 
 
 if __name__ == '__main__':
