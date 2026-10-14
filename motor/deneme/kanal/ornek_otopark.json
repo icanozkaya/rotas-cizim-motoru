@@ -1,0 +1,27 @@
+{
+  "senaryo": "otopark",
+  "baslik": "KAPALI OTOPARK JET FAN VE EGZOZ PLANI",
+  "deneme": true,
+  "mimari": {
+    "dis_kontur": [[-25, -25], [3025, -25], [3025, 2025], [-25, 2025]],
+    "dis_duvar": 25,
+    "mahaller": [
+      {"ad": "KAPALI OTOPARK", "alt": ["600 m² - h=3,00 m"], "poly": [[0, 0], [2600, 0], [2600, 440], [3000, 440], [3000, 2000], [0, 2000]], "yazi": [1120, 1000]},
+      {"ad": "EGZOZ ŞAFTI", "poly": [[2620, 0], [2760, 0], [2760, 420], [2620, 420]]},
+      {"ad": "FAN ODASI", "poly": [[2780, 0], [3000, 0], [3000, 420], [2780, 420]]}
+    ],
+    "bosluklar": [[-25, 700, 0, 1300]],
+    "kolonlar": [[725, 675, 50, 50], [1475, 675, 50, 50], [2225, 675, 50, 50], [725, 1325, 50, 50], [1475, 1325, 50, 50], [2225, 1325, 50, 50]]
+  },
+  "otopark": {"alan": 600, "yukseklik": 3.0, "hd_normal": 4, "hd_duman": 10},
+  "egzoz": {
+    "port": [2900, 420], "port_yon": [0, 1],
+    "menfez_hatti": [[2900, 560], [2900, 1960]], "menfez_yon": 1, "menfez_qmax": 2000,
+    "fan_odasi": [2780, 0, 3000, 420], "saft": [2620, 0, 2760, 420],
+    "yontem": "hiz", "v_ana": 10.0, "v_brans": 10.0, "hmax": 600, "hmin": 450,
+    "menfez_v": 3.0, "menfez_serbest": 0.7, "menfez_hler": [200, 250, 300, 400], "menfez_dp": 30
+  },
+  "fan": {"adet": 2, "R": 32, "saft_dp": 60},
+  "jetfan": {"alan": [150, 0, 2500, 2000], "yanal": 1000, "atis": 1500, "boy": 200, "cap": 60, "itki": 50, "yon": [1, 0]},
+  "rampa": {"bosluk": [-25, 700, 0, 1300], "genislik": 6.0, "yukseklik": 2.5}
+}
