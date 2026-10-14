@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """KAZAN DAİRESİ PLANI (1/50) + KESİT A-A + GÖRÜNÜŞ B (kazan duvarı) + lejant + cihaz listesi (deneme: kazan_dairesi).
 
-Kullanım:  python3 plan_kesit.py girdi.json cikti_PLAN_KESIT.dxf [onizleme.png]
+Kullanım:  python3 plan_kesit.py girdi.json cikti_PLAN_KESIT.dxf [onizleme.png] [--numara R1|R2]
+API (her projede):  onayli_kazan_dairesi(doc_veya_msp, girdi_json_veya_dict, x0, y0) -> kapsam kutusu
 
 Girdi: prensip şeması JSON'u (kazan_dairesi.py ile aynı) + "plan" bloğu (BENIOKU.md). Numaralar (K-, P-, V-, DK-, GT-,
 KL-, HA-, TA-, GF-, GR-, SV-, GA-, B-, BY-, NU-, EV-, M-, TM-, HP-) prensip şeması önce bellekte üretilerek oradan alınır;
@@ -15,6 +16,8 @@ Birim cm; plan, kesit ve görünüş 1/50 (model uzayında gerçek ölçü).
 """
 # ONAYLI (14.10.2026 16:39, kullanıcı): "BU KAZAN DAIRESI DOĞRU OLANDI ... HER YERDE BUNU KULLANACAKSIN".
 # Merkezi sistem kazan dairesi plan / kesit / kısmi görünüşü HER YERDE bu üretici ile çizilir; görünüşü değiştirilmez.
+import copy
+import importlib
 import json
 import math
 import os
@@ -30,8 +33,8 @@ from shapely.geometry.polygon import orient
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import bloklar as BL            # noqa: E402
 import geometri as GM           # noqa: E402
-import kazan_dairesi as KD      # noqa: E402
-from kazan_dairesi import (GID, DON, GAZ, BACA, YOG, VANA, CIHAZ, POMPA, GAZS, KOL, YAZ, BAS, tr, dn_su, dn_gaz,  # noqa
+import kazan_dairesi_r1 as KD   # noqa: E402  (onaylı çizimin dondurulmuş tabanı — görünüş buradan)
+from kazan_dairesi_r1 import (GID, DON, GAZ, BACA, YOG, VANA, CIHAZ, POMPA, GAZS, KOL, YAZ, BAS, tr, dn_su, dn_gaz,  # noqa
                            dn_no)
 
 # ----------------------------------------------------------------------------- ek katmanlar
@@ -47,12 +50,18 @@ KOLLEKTOR_YARI = 9.0
 
 
 # ============================================================================ şemadan numara haritası
-def numara_haritasi(P):
-    """Prensip şemasını geçici dosyaya üretir; cihaz rollerine göre şema numaralarını döndürür."""
+def sema_modulu(kaynak):
+    """numara kaynağı: 'R1' = onay anındaki şema (kazan_dairesi_r1), 'R2' = teslimdeki şema (kazan_dairesi.py)"""
+    return KD if str(kaynak).upper() == 'R1' else importlib.import_module('kazan_dairesi')
+
+
+def numara_haritasi(P, kaynak='R1'):
+    """Prensip şemasını geçici dosyaya üretir; cihaz rollerine göre şema numaralarını döndürür.
+    kaynak='R2': numaralar teslimdeki R2 prensip şemasıyla (radyatör kolon şemasına gömülü olan dahil) aynı olur."""
     fd, yol = tempfile.mkstemp(suffix='.dxf')
     os.close(fd)
     try:
-        S0 = KD.ciz(P, yol)
+        S0 = sema_modulu(kaynak).ciz(P, yol)
     finally:
         os.remove(yol)
     satir = S0.numarala()                    # aynı numaraları yeniden üretir (deterministik)
@@ -316,8 +325,9 @@ def cap_cm(s, vars=30.0):
 
 
 # ============================================================================ ana kurgu
-def uret(P, cikti):
-    M, satir = numara_haritasi(P)
+def uret(P, cikti, numara='R1'):
+    """cikti=None: dosyaya yazmaz (API için); S.doc, S.kapsam, S.cerceve, S.satir, S.harita döner."""
+    M, satir = numara_haritasi(P, numara)
     PL = P['plan']
     S = Pafta(P)
     doc, msp = S.doc, S.msp
@@ -876,9 +886,12 @@ def uret(P, cikti):
     from ezdxf import bbox as zb_
     bb = zb_.extents(msp, fast=True)
     x0f, y0f, x1f, y1f = bb.extmin.x - 60, bb.extmin.y - 60, bb.extmax.x + 60, bb.extmax.y + 60
-    msp.add_lwpolyline([(x0f, y0f), (x1f, y0f), (x1f, y1f), (x0f, y1f)], close=True,
-                       dxfattribs={'layer': KD.PAFTA, 'const_width': 3})
-    doc.saveas(cikti)
+    S.cerceve = msp.add_lwpolyline([(x0f, y0f), (x1f, y0f), (x1f, y1f), (x0f, y1f)], close=True,
+                                   dxfattribs={'layer': KD.PAFTA, 'const_width': 3})
+    S.kapsam = (x0f, y0f, x1f, y1f)
+    S.satir, S.harita = satir, M
+    if cikti:
+        doc.saveas(cikti)
     return S
 
 
@@ -968,11 +981,207 @@ def hesap_kutusu(S, x0, y0, QT, alan, gerek, var, formul, S_A, S_U, oran, ba, ha
     return yb
 
 
+# ============================================================================ DIŞ API (her projede bu kullanılır)
+class KapsamKutusu(tuple):
+    """(x0, y0, x1, y1) — ek bilgiler: .uyarilar, .satir (cihaz listesi), .harita (rol → numara),
+    .yeniden_ad {'katman': {}, 'blok': {}, 'stil': {}}, .girdi (kullanılan JSON, plan dahil), .numara ('R1'/'R2')"""
+    pass
+
+
+def girdi_oku(girdi):
+    """dict | JSON dosya yolu | JSON metni → dict (kopya)"""
+    if isinstance(girdi, dict):
+        return copy.deepcopy(girdi)
+    s = str(girdi)
+    if s.lstrip().startswith('{'):
+        return json.loads(s)
+    with open(s, encoding='utf-8') as f:
+        return json.load(f)
+
+
+def varsayilan_plan(P, genislik=None, derinlik=600.0):
+    """JSON'da 'plan' yoksa temsili oda: kazan duvarı üst kenar, örneklerdeki (ornekler/*.json) oranlarla kapı / menfez /
+    baca yerleşimi. Genişlik sekonder kollektörün sığacağı kadar büyütülür (onayli_kazan_dairesi içinde)."""
+    n = int(P['kazan']['adet'])
+    W = float(genislik or max(800.0, 450.0 + 100.0 * n + (300.0 if P.get('boyler') else 0.0)))
+    W = math.ceil(W / 50.0) * 50.0
+    D = float(derinlik)
+    ko = {'g': 60, 'd': 55, 'h': 100, 'ara': 40, 'alt_kot': 185, 'baca_cap': 16}
+    QT = n * float(P['kazan']['kapasite_kw'])
+    x_kapi = round(W * 0.40 / 5) * 5
+    x_men = min(x_kapi + 200.0, W - 120.0)            # kapı ve menfez yazıları (≈ 125 cm) birbirine binmesin
+    kap = [{'duvar': 'alt', 'konum': x_kapi, 'genislik': 100}]
+    if QT > 350:
+        kap.append({'duvar': 'alt', 'konum': min(x_men + 200.0, W - 80.0), 'genislik': 100})
+    return {'temsili': True, 'oda': [[0, 0], [W, 0], [W, D], [0, D]], 'duvar': 25, 'doseme': 30, 'ic_yukseklik': 350,
+            'kazan_olcu': ko, 'baca': [40, D - ko['d'] - 2 + ko['d'] / 2], 'kapilar': kap,
+            'menfez': {'alt': {'duvar': 'alt', 'konum': x_men, 'alt_kot': 15},
+                       'ust': {'duvar': 'ust', 'konum': W - 90, 'tavandan': 10}},
+            'menfez_F': 1.0, 'menfez_a': 1.2, 'ust_menfez_orani': 0.6}
+
+
+def _plan_hazirla(P):
+    """plan yoksa varsayılanı kurar; oda dar gelirse (sekonder kollektör sığmazsa) bir kez genişletir."""
+    if P.get('plan'):
+        return P, None
+    P['plan'] = varsayilan_plan(P)
+    return P, 'otomatik'
+
+
+def _blok_imza(doc, ad):
+    """blok içerik imzası: nesne tipi + tüm DXF öznitelikleri (tutamaç hariç) + polyline köşeleri"""
+    def yuv(v):
+        if isinstance(v, float):
+            return round(v, 3)
+        if hasattr(v, 'x'):
+            return tuple(round(x, 3) for x in v)
+        return v
+    out = []
+    for e in doc.blocks.get(ad):
+        a = tuple(sorted(((k, yuv(v)) for k, v in e.dxfattribs().items() if k not in ('handle', 'owner')), key=str))
+        ek = ()
+        if e.dxftype() == 'LWPOLYLINE':
+            ek = tuple(tuple(round(x, 3) for x in q) for q in e.get_points())
+        elif e.dxftype() == 'HATCH':
+            ek = (len(e.paths), e.dxf.pattern_name)
+        out.append((e.dxftype(), a, ek))
+    return tuple(out)
+
+
+def _bos_ad(var, ad, ek):
+    yeni, k = ad + ek, 2
+    while yeni in var:
+        yeni, k = f'{ad}{ek}{k}', k + 1
+    return yeni
+
+
+def _insertler(doc):
+    yield from doc.modelspace().query('INSERT')
+    for b in doc.blocks:
+        yield from b.query('INSERT')
+
+
+def onayli_kazan_dairesi(hedef, girdi, x0=0.0, y0=0.0, numara='R2', cerceve=True, ek='-KD'):
+    """ONAYLI kazan dairesi (plan 1/50 + kesit A-A + kısmi görünüş B + lejant + kontrol kutusu + cihaz listesi + notlar)
+    paftasını hedef çizime, sol alt köşesi (x0, y0) olacak şekilde yerleştirir. Görünüş plan_kesit.uret ile birebir aynıdır.
+
+    hedef  : ezdxf Drawing veya bir layout (modelspace / blok)
+    girdi  : prensip şeması JSON'u (dict / dosya yolu / JSON metni). 'plan' yoksa temsili oda kurulur (varsayilan_plan).
+    numara : 'R2' (varsayılan) → numaralar teslimdeki R2 prensip şemasıyla aynı; 'R1' → onay anındaki numaralar.
+    cerceve: False ise dış ROTAS-PAFTA çerçevesi aktarılmaz.
+    Çakışma yönetimi: hedefte aynı adlı katman farklı renk / çizgi tipindeyse kaynak katman '<ad>-KD' olur; aynı adlı blok
+    farklı içerikteyse '<ad>-KD' adıyla aktarılır (aynıysa hedefteki kullanılır); ROTAS yazı stili fontu farklıysa
+    'ROTAS-KD'. Çizgi tipi ölçeği (kaynak $LTSCALE 8) hedefin $LTSCALE değerine göre nesne bazında korunur.
+    Dönüş: KapsamKutusu (x0, y0, x1, y1) hedef koordinatında."""
+    from ezdxf import xref
+    from ezdxf.layouts import BaseLayout
+    if isinstance(hedef, BaseLayout):
+        tdoc, tlay = hedef.doc, hedef
+    else:
+        tdoc, tlay = hedef, hedef.modelspace()
+    P, plan_kaynak = _plan_hazirla(girdi_oku(girdi))
+    S = uret(P, None, numara)
+    if plan_kaynak and any('oda genişliği yetersiz' in u for u in S.uyarilar):
+        gerek = max(float(u.split(':')[1].split('>')[0].strip().replace('.', '').replace(',', '.'))
+                    for u in S.uyarilar if 'oda genişliği yetersiz' in u)
+        P['plan'] = varsayilan_plan(P, genislik=gerek + 60.0)
+        S = uret(P, None, numara)
+    src = S.doc
+    smsp = src.modelspace()
+    if not cerceve:
+        smsp.delete_entity(S.cerceve)
+    kx0, ky0, kx1, ky1 = S.kapsam
+    dx, dy = x0 - kx0, y0 - ky0
+    for e in smsp:
+        e.translate(dx, dy, 0)
+    yeni = {'katman': {}, 'blok': {}, 'stil': {}}
+    # ---- katmanlar
+    for lay in list(src.layers):
+        ad = lay.dxf.name
+        if ad in ('0', 'Defpoints') or ad not in tdoc.layers:
+            continue
+        t = tdoc.layers.get(ad)
+        if (t.color, t.dxf.linetype.upper(), t.dxf.get('true_color')) != \
+                (lay.color, lay.dxf.linetype.upper(), lay.dxf.get('true_color')):
+            yad = _bos_ad(set(tdoc.layers.entries.keys()) | set(src.layers.entries.keys()), ad, ek)
+            lay.rename(yad)
+            yeni['katman'][ad] = yad
+    # ---- yazı stilleri
+    for st in list(src.styles):
+        ad = st.dxf.name
+        if ad in tdoc.styles and tdoc.styles.get(ad).dxf.font.lower() != st.dxf.font.lower():
+            yad = _bos_ad(set(tdoc.styles.entries.keys()) | set(src.styles.entries.keys()), ad, ek)
+            src.styles.new(yad, dxfattribs={'font': st.dxf.font, 'width': st.dxf.get('width', 1.0)})
+            yeni['stil'][ad] = yad
+    if yeni['stil']:
+        for lay_ in [smsp] + [b for b in src.blocks]:
+            for e in lay_:
+                if e.dxftype() in ('TEXT', 'MTEXT', 'ATTDEF') and e.dxf.get('style') in yeni['stil']:
+                    e.dxf.style = yeni['stil'][e.dxf.style]
+                if e.dxftype() == 'INSERT':
+                    for a in e.attribs:
+                        if a.dxf.get('style') in yeni['stil']:
+                            a.dxf.style = yeni['stil'][a.dxf.style]
+    # ---- bloklar (içerik farklıysa yeniden adlandır; iç içe başvuru varsa üst blok da)
+    adlar = [b.name for b in src.blocks if not b.name.startswith('*')]
+    farkli = {a for a in adlar if a in tdoc.blocks and _blok_imza(src, a) != _blok_imza(tdoc, a)}
+    degisti = True
+    while degisti:
+        degisti = False
+        for a in adlar:
+            if a in tdoc.blocks and a not in farkli and \
+                    any(i.dxf.name in farkli for i in src.blocks.get(a).query('INSERT')):
+                farkli.add(a)
+                degisti = True
+    tum = set(tdoc.blocks.block_names()) | set(adlar)
+    for a in sorted(farkli):
+        yad = _bos_ad(tum, a, ek)
+        tum.add(yad)
+        yeni['blok'][a] = yad
+    if yeni['blok']:
+        for e in list(_insertler(src)):
+            if e.dxf.name in yeni['blok']:
+                e.dxf.name = yeni['blok'][e.dxf.name]
+        for a, yad in yeni['blok'].items():
+            src.blocks.rename_block(a, yad)
+    # ---- çizgi tipi ölçeği (kaynak $LTSCALE → hedef)
+    oran = float(src.header.get('$LTSCALE', 1.0)) / float(tdoc.header.get('$LTSCALE', 1.0) or 1.0)
+    yeni_bloklar = [b for b in src.blocks if not b.name.startswith('*') and b.name not in tdoc.blocks]
+    if abs(oran - 1.0) > 1e-9:
+        for lay_ in [smsp] + yeni_bloklar:
+            for e in lay_:
+                e.dxf.ltscale = e.dxf.get('ltscale', 1.0) * oran
+    if 'ROTAS' not in tdoc.appids:
+        tdoc.appids.new('ROTAS')
+    once = {e.dxf.handle for e in tlay}
+    ld = xref.Loader(src, tdoc, conflict_policy=xref.ConflictPolicy.KEEP)
+    ld.load_modelspace(target_layout=tlay)
+    ld.execute()
+    gelen = sum(1 for e in tlay if e.dxf.handle not in once)
+    for e in tlay:                     # işaret: denetimler onaylı paftayı (MTY/atlatma kurallarından muaf) tanır
+        if e.dxf.handle not in once and e.dxftype() == 'LWPOLYLINE' and e.dxf.layer.startswith(KD.PAFTA) \
+                and e.dxf.get('const_width', 0) == 3 and len(e) == 4:
+            e.set_xdata('ROTAS', [(1000, 'ONAYLI_KAZAN_DAIRESI')])
+    beklenen = len(smsp)
+    uy = list(S.uyarilar)
+    if gelen != beklenen:
+        uy.append(f'aktarım: {gelen} / {beklenen} nesne')
+    k = KapsamKutusu((x0, y0, x0 + (kx1 - kx0), y0 + (ky1 - ky0)))
+    k.uyarilar, k.satir, k.harita, k.yeniden_ad, k.girdi, k.numara, k.nesne = uy, S.satir, S.harita, yeni, P, numara, gelen
+    return k
+
+
 if __name__ == '__main__':
-    P = json.load(open(sys.argv[1], encoding='utf-8'))
-    S = uret(P, sys.argv[2])
+    arg = list(sys.argv[1:])
+    num = 'R1'
+    if '--numara' in arg:
+        i = arg.index('--numara')
+        num = arg[i + 1]
+        del arg[i:i + 2]
+    P = json.load(open(arg[0], encoding='utf-8'))
+    S = uret(P, arg[1], num)
     for u in S.uyarilar:
         print('UYARI:', u)
-    if len(sys.argv) > 3:
+    if len(arg) > 2:
         import onizleme
-        onizleme.png(sys.argv[2], sys.argv[3])
+        onizleme.png(arg[1], arg[2])

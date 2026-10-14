@@ -1,4 +1,19 @@
-# Deneme modülü: radyator (radyatörlü ısıtma) — R3 (14.10.2026 (B) talimatı)
+# Deneme modülü: radyator (radyatörlü ısıtma) — R4 (merkezi) / R3 (kombi)
+
+## R4 (14.10.2026, kullanıcı onayı: kazan dairesi "her yerde bunu kullanacaksın")
+- Merkezi sistem çıktısı `proje/denemeler/radyator/radyator_merkezi_R4.dxf`: R3'ün tamamı + tüm çizimin sağında
+  **ONAYLI KAZAN DAİRESİ paftası** (plan 1/50 + kesit A-A + kısmi görünüş B + lejant + kontroller + cihaz listesi)
+  `kazan_dairesi/plan_kesit.onayli_kazan_dairesi()` ile (`sema.kazan_dairesi_paftasi`). Kolon şemasının bodrumundaki
+  prensip bağlantısı (R2 şema, gömülü) kalır.
+- Kazan adedi / kapasitesi ve pompa debi / basma radyatör hesabından gelen AYNI JSON ile verilir (bu veride 2 × 85 kW,
+  zon pompası P-01 asıl+yedek 6,6 m³/h – 1,7 mSS); kullanılan JSON `radyator_merkezi_R4_kazan_dairesi.json` olarak
+  yazılır (mimari yok → `plan` temsili oda 8,00 × 6,00 m). Numaralar `numara='R2'` ile gömülü şemayla aynı; çalıştırmada
+  cihaz listesi satır satır karşılaştırılır ("numara senkron: True").
+- `kontrol.py` onaylı paftayı (çerçeve XDATA `ONAYLI_KAZAN_DAIRESI`) ana denetimden ayırır (MTY/atlatma kuralı ona
+  uygulanmaz) — ana denetim R3 ile aynı: MTY 0, köprü 0, kesişme 0, etiket 68/68, elektrik 0.
+- Kombi sistem değişmedi (`radyator_kombi_R3.dxf`).
+
+# R3 (14.10.2026 (B) talimatı)
 
 ## R3 değişiklikleri (R2'nin üzerine)
 - **MTY bloğu yok:** radyatör (plan + şema), termostatik vana, dönüş rakoru, havlupan, kolektör dolabı, kalorimetre,
@@ -14,7 +29,7 @@
   kuruldu (köprü kodu çağrılmaz). Plan PEX devreleri R2'de de kesişmesizdi (ag.py denetimi), korunuyor.
 - **Elektrik kalemi yok:** kalorimetre sinyal (M-Bus) hattı planda, şemada ve detayda kaldırıldı (`ROTAS-ISITMA-SINYAL`
   katmanı yok); not: "okuma bağlantısı elektrik projesindedir".
-- **Kazan bölgesinde `plan_kesit.py` kullanılmaz:** bodrumda yalnız prensip bağlantısı (kazan dairesi prensip şeması R2 +
+- (R4'te değişti: plan/kesit/görünüş paftası eklendi) bodrumda prensip bağlantısı (kazan dairesi prensip şeması R2 +
   cihaz listesi). Kazan dairesi cihaz numaraları XDATA ile aktarılır, etiket–sembol eşleşmesi %100.
 - Radyatör bilgisi (tip/boy/kapasite, mahal/no/sıcaklık, (kritik no) devre / yük / çap) şema radyatör gövdesinin içinde.
 

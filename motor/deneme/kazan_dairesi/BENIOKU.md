@@ -1,10 +1,46 @@
-> **ONAYLI (14.10.2026):** Kullanıcı `plan_kesit.py` çıktısını (plan + kesit + kısmi görünüş) doğru kazan dairesi olarak onayladı; kazan dairesi gereken her yerde bu kullanılır. Bu dosyada bundan sonra geçen "teslimde kullanılmaz / arşiv" ifadeleri İPTALDİR.
+> **ONAYLI (14.10.2026 16:39):** Kullanıcı `plan_kesit.py` çıktısını (plan + kesit A-A + kısmi görünüş B) DOĞRU kazan
+> dairesi olarak onayladı: "her yerde bunu kullanacaksın". Aşağıdaki eski "teslimde kullanılmaz / arşiv" ifadeleri İPTALDİR.
 
-# kazan_dairesi — parametrik KAZAN DAİRESİ PRENSİP ŞEMASI — R2 (14.10.2026 (B) talimatı)
+# KAZAN DAİRESİ GEREKEN HER PROJEDE `onayli_kazan_dairesi()` KULLANILIR
 
-> **`plan_kesit.py` TESLİMDE KULLANILMAZ.** Merkezi sistem kesiti ve kazan dairesi yerleşimi için yalnız kullanıcının
-> daha önce gönderdiği / onayladığı kesit ve yerleşim planı kullanılır. `plan_kesit.py` arşivdir; içe aktarılırsa hata
-> verir (yalnız `ROTAS_PLAN_KESIT_ARSIV=1` ile elle çalışır). Radyatör modülü dahil hiçbir modül onu çağırmaz.
+```python
+sys.path.insert(0, 'motor/deneme/kazan_dairesi')
+import plan_kesit as PK
+k = PK.onayli_kazan_dairesi(doc_veya_msp, girdi, x0, y0)   # girdi: dict | JSON yolu | JSON metni
+# k = (x0, y0, x1, y1) hedef koordinatında kapsam; k.satir (cihaz listesi), k.harita (rol→numara), k.uyarilar,
+# k.yeniden_ad {'katman','blok','stil'}, k.girdi (plan dahil kullanılan JSON), k.numara
+```
+- Plan 1/50 + KESİT A-A + KISMİ GÖRÜNÜŞ B + lejant + kontrol kutusu (menfez/kapı/bakım) + cihaz listesi + notlar tek
+  paftada, sol alt köşe (x0, y0). **Görünüş / tarz değiştirilmez**: semboller (MTY blokları dahil), köprülü atlatmalar,
+  renkler onaylı çizimdeki gibidir; MTY / atlatma kuralları ve `kontrol.py` etiket kuralı bu paftaya uygulanmaz.
+- Görünüşün tabanı `kazan_dairesi_r1.py`dir (onay anındaki şema modülü, git dc2bb3e, DONDURULMUŞ — değiştirmeyin).
+  `kazan_dairesi.py` R2'ye geçince `plan_kesit.py` kırılmıştı (Sema API değişti); R1 taban ile onaylı çıktılar birebir
+  yeniden üretilir (`GUNGOREN_/KUCUK_2x110_KAZAN_DAIRESI_PLAN_KESIT.dxf`: 943/804 nesne, tüm öznitelikler aynı).
+- `numara='R2'` (API varsayılanı): K-, P-, V- ... numaraları teslimdeki R2 prensip şemasından (`kazan_dairesi.py`,
+  radyatör kolon şemasına gömülen dahil) rol eşlemesiyle alınır → şema ile senkron. `numara='R1'`: onay anındaki numaralar
+  (CLI varsayılanı; mevcut PLAN_KESIT dosyaları bununla aynı kalır).
+- JSON'da `plan` yoksa `varsayilan_plan()` temsili oda kurar (genişlik kazan adedine göre, sekonder kollektör sığmazsa
+  bir kez genişletilir; kapı / alt menfez yazıları binmesin diye 200 cm aralık; ΣQ > 350 kW ise 2. kapı).
+- Çakışma yönetimi: hedefte aynı adlı katman farklı renk/çizgi tipindeyse `<ad>-KD`; aynı adlı blok farklı içerikteyse
+  `<ad>-KD` (içerik aynıysa hedefteki kullanılır; iç içe başvurular da izlenir); ROTAS yazı stili fontu farklıysa
+  `ROTAS-KD`. Kaynak `$LTSCALE` (8) hedefinkine nesne bazında taşınır. Çerçeveye XDATA `ROTAS: ONAYLI_KAZAN_DAIRESI`
+  yazılır (denetimler bu bölgeyi tanır). `cerceve=False` dış çerçeveyi aktarmaz.
+- Kullanan modüller: `radyator` (merkezi sistem, `radyator_merkezi_R4.dxf`). Yeni modüller de bunu çağırır; başka kazan
+  dairesi plan / kesit / görünüşü çizilmez.
+
+```
+python3 plan_kesit.py ornekler/gungoren.json ../../../proje/denemeler/kazan_dairesi/GUNGOREN_KAZAN_DAIRESI_PLAN_KESIT.dxf [png] [--numara R1|R2]
+```
+
+## Prensip şeması R2 ↔ onaylı plan_kesit numara eşleşmesi (14.10.2026 denetimi)
+Rol bazında (kazan, pompa, gidiş/dönüş vanası, zon vanası, gaz vanası ...) iki numaralandırma karşılaştırıldı:
+cihaz adı/özelliği tutarsızlığı **0**; K-, P-, DK-, HA-, TA-, GT-, KL-, B-, BY-, NU-, EV-, M-, TM-, HP-, GF-, GR-, SV-,
+GA- numaraları **aynı**. **V- numaraları FARKLI** (Güngören 40 rol, Küçük 2×110 35 rol): R2'de gaz hatları ayrı bölgeye
+alındığı için gaz cihaz vanaları / esnek bağlantılar V- sırasının sonuna geçti (R1: V-21.. gaz, R2: V-21.. kelebek
+vanalar; ör. Güngören V_PG1 V-31 → V-21, gaz cihaz vanası V-21 → V-39). Ayrıca SV-01 / GA-01 özellik metni R2'de
+elektrik kalemi olmadan yazılır. Sonuç: depodaki `*_PLAN_KESIT.dxf` (R1 numara) ile `*_SEMA_R2.dxf` V- numaraları
+uyuşmaz; şemayla birlikte teslimde `--numara R2` / API varsayılanı kullanılmalı (dosyalar kullanıcı sorulmadan
+yeniden yazılmadı).
 
 ## R2 kuralları (kazan_dairesi.py)
 - **MTY bloğu yok.** Tüm semboller saf geometri `ROTAS-` blokları: `bloklar_r2.py` (küresel / kelebek vana, çek valf,
@@ -41,7 +77,7 @@ denge_kabi{cap}, genlesme{hacim_l,on_basinc,maks_bar}, emniyet{ventil_bar,ventil
 zonlar[{ad,aciklama,debi,basma,yedek,adet}], boyler{hacim_l,tip,cap,ev_bar,sarj_pompa{debi,basma}}|null,
 sirkulasyon{debi,basma,cap}|null, notralizasyon bool, baca{cap,tip},
 dogalgaz{vana,filtre,selenoid,alarm,regulator{giris,cikis}|null, kazan_cap,kollektor_cap,giris_cap}, doldurma, notlar[].
-(`plan` bloğu yalnız arşivdeki plan_kesit.py içindir; şema onu kullanmaz.)
+(`plan` bloğu plan_kesit.py içindir; şema onu kullanmaz.)
 
 ## Sınırlar / sorulacaklar
 - Baca, gaz ve yoğuşma ayrı bölgede (kazan numarasıyla eşlenmiş) gösterildi; kullanıcı bunları ana şemada görmek isterse
@@ -49,11 +85,11 @@ dogalgaz{vana,filtre,selenoid,alarm,regulator{giris,cikis}|null, kazan_cap,kolle
 - Gaz alarm cihazı (dedektör) çizildi, kablosu çizilmedi — tamamen kaldırılması istenirse `dogalgaz.alarm=false`.
 - Yerden ısıtma karışım (3 yollu) vanalı zon, eşanjör, akümülasyon tankı, yumuşatma yok; kazan bloğu duvar tipi.
 - Hesap (genleşme hacmi, denge kabı çapı, baca) yapılmaz; değerler JSON'dan gelir.
-- R1 çıktıları (`*_SEMA.dxf`, `*_PLAN_KESIT.dxf`) depoda duruyor; **teslimde R2 şema kullanılır, PLAN_KESIT kullanılmaz.**
+- Teslimde prensip şeması R2 + ONAYLI plan/kesit/kısmi görünüş paftası (`onayli_kazan_dairesi`, numara R2).
 
 ---
 
-# (ARŞİV — TESLİMDE KULLANILMAZ) PLAN + KESİT A-A + GÖRÜNÜŞ B (`plan_kesit.py`, 14.10.2026)
+# ONAYLI PLAN + KESİT A-A + GÖRÜNÜŞ B (`plan_kesit.py`, 14.10.2026)
 
 Kural: "tüm projelerde gerekli kesit ve görünüşler". Aynı JSON'a `plan` bloğu eklenir; tek DXF'te:
 1. **KAZAN DAİRESİ PLANI 1/50** — EI 120 taramalı duvarlar (oda poligonu + `duvar` kalınlığı), duvar tipi kaskad

@@ -193,7 +193,9 @@ class Sema:
                        '(debi ölçer dönüşte + gidiş/dönüş sıcaklık sensörü), 4 balans vanası, 5 küresel vana. Okuma (M-Bus) bağlantısı '
                        'elektrik projesindedir; bu paftada elektrik kalemi çizilmez.',
                        'Gidiş kolonları (K1, K2) ortada, dönüş kolonları dışta; bodrumda gidiş dağıtımı üstte, dönüş toplama altta, '
-                       'kazan dairesi prensip şeması ikisinin arasındadır. Kolonlar ve kazan dairesi siyah çelik (TS EN 10255).']
+                       'kazan dairesi prensip şeması ikisinin arasındadır. Kolonlar ve kazan dairesi siyah çelik (TS EN 10255).',
+                       'Kazan dairesi PLAN 1/50, KESİT A-A ve KISMİ GÖRÜNÜŞ B ayrı paftadadır (KAZAN DAİRESİ paftası); '
+                       'cihaz numaraları (K-, P-, V- ...) bu şemadaki numaralarla aynıdır.']
         for i, s_ in enumerate(notlar):
             cz.yazi((x0 + 20, y0 - 60 - i * 22), s_, 12, 'ROTAS-YAZI', al='BL')
         y_alt = y0 - 60 - len(notlar) * 22 - 40
@@ -335,7 +337,22 @@ def kazan_semasi_hazirla(P, pomp):
     b = bbox.extents(src.modelspace(), fast=True)
     return dict(yol=yol, gidis=S.baglanti['gidis'], donus=S.baglanti['donus'], xmin=b.extmin.x, xmax=b.extmax.x,
                 ymin=b.extmin.y, ymax=b.extmax.y, kw=kw, adet=adet, uyari=S.uyarilar, kesisim=len(S.kesisim),
-                satir=S.satir, notlar=S.notlar)
+                satir=S.satir, notlar=S.notlar, J=J)
+
+
+def kazan_dairesi_paftasi(cz, kd, x0, y0):
+    """ONAYLI kazan dairesi paftası (plan + kesit A-A + kısmi görünüş + lejant + cihaz listesi) — plan_kesit.py
+    onayli_kazan_dairesi() ile, kolon şemasına gömülü prensip şemasıyla AYNI JSON (kazan adedi/kapasitesi, pompa
+    debi/basma radyatör hesabından) ve AYNI numaralarla (numara='R2'). Dönüş: KapsamKutusu (.satir, .girdi ...)."""
+    sys.path.insert(0, os.path.join(_KOK, '..', 'kazan_dairesi'))
+    import plan_kesit as PK
+    k = PK.onayli_kazan_dairesi(cz.doc, kd['J'], x0, y0, numara='R2')
+    sema_no = [(r[0], r[1]) for r in kd['satir']]
+    pafta_no = [(r[0], r[1]) for r in k.satir]
+    k.senkron = sema_no == pafta_no
+    if not k.senkron:
+        k.uyarilar.append('UYARI: kazan dairesi paftası numaraları kolon şemasındakiyle aynı değil')
+    return k
 
 
 def kazan_semasi_aktar(cz, kd, ox, oy):

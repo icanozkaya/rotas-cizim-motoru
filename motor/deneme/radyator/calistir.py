@@ -84,14 +84,28 @@ def main():
     os.makedirs(CIKTI, exist_ok=True)
     cz = C.Cizim()
     genislik = kat_planlari(cz, P, M, A, pf, 0.0)
-    sema.ciz(cz, P, M, A, pf, pomp, x0=2000.0, y0=-4200.0)
+    sm = sema.ciz(cz, P, M, A, pf, pomp, x0=2000.0, y0=-4200.0)
     MZ = hesap.malzeme(A, P, M, pf)
     tx, ty = tablo.ciz(cz, P, M, A, pomp, x0=0.0, y0=-9000.0 - (1900.0 if P['sistem'] == 'merkezi' else 0.0), pf=pf, MZ=MZ)
     # pafta sonu: kullanılan sembollerin lejantı + adet tablosu (semboller modülü otomatik_lejant)
     ly = -9000.0 - (1900.0 if P['sistem'] == 'merkezi' else 0.0) + 280.0
     cz.yazi((tx + 300.0, ly + 60.0), 'LEJANT VE SEMBOL ADET TABLOSU (çizimdeki bloklardan otomatik)', 30, 'ROTAS-BASLIK', maske=False)
     semb.lejant(cz.doc, tx + 200.0, ly)
-    yol = os.path.join(CIKTI, f'radyator_{P["sistem"]}_R3.dxf')
+    rev = 'R3'
+    if P['sistem'] == 'merkezi':
+        # ONAYLI kazan dairesi paftası (plan + kesit + kısmi görünüş) — tüm çizimin sağına, kolon şeması tabanı hizasında
+        rev = 'R4'
+        from ezdxf import bbox
+        bb = bbox.extents(cz.msp, fast=True)
+        kd = sm.kdh
+        k = sema.kazan_dairesi_paftasi(cz, kd, bb.extmax.x + 500.0, -4260.0)
+        with open(os.path.join(CIKTI, f'radyator_merkezi_{rev}_kazan_dairesi.json'), 'w', encoding='utf-8') as f:
+            json.dump(k.girdi, f, ensure_ascii=False, indent=1)
+        print('kazan dairesi paftası:', [round(v) for v in k], 'numara senkron:', k.senkron,
+              f"{kd['adet']}×{kd['kw']:.0f} kW", 'yeniden ad:', k.yeniden_ad)
+        for u in k.uyarilar:
+            print('  kazan dairesi:', u)
+    yol = os.path.join(CIKTI, f'radyator_{P["sistem"]}_{rev}.dxf')
     if os.path.exists(yol):
         os.remove(yol)
     cz.doc.saveas(yol)
