@@ -1,0 +1,76 @@
+{
+ "devre_sayisi": 82,
+ "etiketli_devre": 82,
+ "etiket_cepte": 42,
+ "etiket_maskeli_veya_disarida": 40,
+ "L_max_m": 59.5,
+ "L_gt_80": [],
+ "uc_aralik_15_degil": [],
+ "bulge_90_degil": [],
+ "kendini_kesen": [],
+ "devre_devre_kesisme": [],
+ "devre_devre_10cm_alti": [],
+ "tefris_kesisme": [
+  [
+   "Z",
+   19,
+   "Z15"
+  ],
+  [
+   "2",
+   1,
+   "201"
+  ],
+  [
+   "2",
+   11,
+   "209"
+  ]
+ ],
+ "isitilmayan_kesisme": [],
+ "mahal_disina_tasma": [
+  [
+   "Z",
+   19,
+   "Z15",
+   16.0
+  ]
+ ],
+ "etiket_etiket_cakisma": [],
+ "etiket_mimari_yazi_cakisma": [],
+ "cepli_etiket_boru_cakisma": [],
+ "diger": [],
+ "denetle": {
+  "dosya": "/home/claude/rotas-cizim-motoru/proje/denemeler/yerden2/NB_YERDEN_ISITMA.dxf",
+  "hata": null,
+  "kapak": false,
+  "onayli": "",
+  "mty": 0,
+  "mty_ayrinti": {},
+  "mty_ornek": {},
+  "lejant": true,
+  "yetersiz": [],
+  "onek": 0,
+  "onek_ornek": [],
+  "elektrik": 0,
+  "elektrik_ornek": [],
+  "elektrik_katman_n": 0,
+  "kablo_ornek": [],
+  "boru_katman": 3,
+  "kopru": 0,
+  "kopru_bilgi": 0,
+  "kopru_ornek": [],
+  "kesisme": 0,
+  "kesisme_bilgi": 0,
+  "kesisme_ornek": [],
+  "duzlem": 0,
+  "duzlem_ornek": [],
+  "yazi": 0,
+  "yazi_mimari": 111,
+  "yazi_ornek": [],
+  "audit": 0,
+  "audit_duzeltme": 0,
+  "audit_ornek": [],
+  "gecti": true
+ }
+}

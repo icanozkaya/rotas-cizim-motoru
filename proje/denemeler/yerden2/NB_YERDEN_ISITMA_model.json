@@ -1,0 +1,1358 @@
+{
+ "proje": {
+  "ad": "METRA MİMARLIK — TEKELER 4739/4 (new_block)",
+  "birim": "cm",
+  "W_m": 35.0,
+  "boru": "PEX 16 x 2.0",
+  "aralik_cm": 15.0
+ },
+ "katlar": [
+  {
+   "kat": "Z",
+   "ad": "ZEMİN KAT",
+   "daireler": {
+    "1": {
+     "no": "D1",
+     "mahaller": [
+      {
+       "zon": "Z01",
+       "ad": "mutfak",
+       "tur": "mutfak",
+       "sic": 20,
+       "alan_m2": 8.99,
+       "alan_mimari_m2": 11.07,
+       "isitma_alani_m2": 7.8,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 1,
+         "L_m": 45.84,
+         "W": 1604.4,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "Z02",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 13.76,
+       "alan_mimari_m2": 14.25,
+       "isitma_alani_m2": 13.57,
+       "kose": "SW",
+       "devreler": [
+        {
+         "no": 2,
+         "L_m": 33.74,
+         "W": 1180.9,
+         "etiket": "cep"
+        },
+        {
+         "no": 3,
+         "L_m": 39.17,
+         "W": 1371.0,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "Z03",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.9,
+       "alan_mimari_m2": 9.31,
+       "isitma_alani_m2": 8.74,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 4,
+         "L_m": 39.01,
+         "W": 1365.3,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "Z04",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.97,
+       "alan_mimari_m2": 9.31,
+       "isitma_alani_m2": 8.84,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 5,
+         "L_m": 44.12,
+         "W": 1544.2,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "Z05",
+       "ad": "salon",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 20.36,
+       "alan_mimari_m2": 21.18,
+       "isitma_alani_m2": 20.1,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 6,
+         "L_m": 49.99,
+         "W": 1749.7,
+         "etiket": "cep"
+        },
+        {
+         "no": 7,
+         "L_m": 52.88,
+         "W": 1850.8,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "Z06",
+       "ad": "antre-kor.",
+       "tur": "hol",
+       "sic": 15,
+       "alan_m2": 7.76,
+       "alan_mimari_m2": 7.77,
+       "isitma_alani_m2": 7.61,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 8,
+         "L_m": 43.41,
+         "W": 1519.3,
+         "etiket": "disari"
+        }
+       ]
+      },
+      {
+       "zon": "Z07",
+       "ad": "banyo",
+       "tur": "banyo",
+       "sic": 24,
+       "alan_m2": 4.85,
+       "alan_mimari_m2": 5.36,
+       "isitma_alani_m2": 3.34,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 9,
+         "L_m": 11.19,
+         "W": 391.6,
+         "etiket": "disari"
+        }
+       ]
+      }
+     ]
+    },
+    "2": {
+     "no": "D2",
+     "mahaller": [
+      {
+       "zon": "Z08",
+       "ad": "mutfak",
+       "tur": "mutfak",
+       "sic": 20,
+       "alan_m2": 9.05,
+       "alan_mimari_m2": 11.07,
+       "isitma_alani_m2": 7.87,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 10,
+         "L_m": 48.4,
+         "W": 1694.0,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "Z09",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 14.1,
+       "alan_mimari_m2": 14.25,
+       "isitma_alani_m2": 13.47,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 11,
+         "L_m": 42.3,
+         "W": 1480.5,
+         "etiket": "maskeli"
+        },
+        {
+         "no": 12,
+         "L_m": 39.37,
+         "W": 1377.9,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "Z10",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.89,
+       "alan_mimari_m2": 9.31,
+       "isitma_alani_m2": 8.73,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 13,
+         "L_m": 39.01,
+         "W": 1365.3,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "Z11",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.95,
+       "alan_mimari_m2": 9.31,
+       "isitma_alani_m2": 8.8,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 14,
+         "L_m": 42.34,
+         "W": 1481.9,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "Z12",
+       "ad": "salon",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 20.41,
+       "alan_mimari_m2": 21.18,
+       "isitma_alani_m2": 20.17,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 15,
+         "L_m": 59.5,
+         "W": 2082.5,
+         "etiket": "maskeli"
+        },
+        {
+         "no": 16,
+         "L_m": 52.88,
+         "W": 1850.8,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "Z13",
+       "ad": "antre-kor.",
+       "tur": "hol",
+       "sic": 15,
+       "alan_m2": 7.83,
+       "alan_mimari_m2": 7.77,
+       "isitma_alani_m2": 7.63,
+       "kose": "SW",
+       "devreler": [
+        {
+         "no": 17,
+         "L_m": 43.48,
+         "W": 1521.8,
+         "etiket": "disari"
+        }
+       ]
+      },
+      {
+       "zon": "Z14",
+       "ad": "banyo",
+       "tur": "banyo",
+       "sic": 24,
+       "alan_m2": 4.8,
+       "alan_mimari_m2": 5.36,
+       "isitma_alani_m2": 3.29,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 18,
+         "L_m": 11.02,
+         "W": 385.7,
+         "etiket": "disari"
+        }
+       ]
+      }
+     ]
+    },
+    "3": {
+     "no": "D3",
+     "mahaller": [
+      {
+       "zon": "Z15",
+       "ad": "mutfak",
+       "tur": "mutfak",
+       "sic": 20,
+       "alan_m2": 7.79,
+       "alan_mimari_m2": 10.11,
+       "isitma_alani_m2": 6.79,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 19,
+         "L_m": 38.13,
+         "W": 1334.6,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "Z16",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 14.48,
+       "alan_mimari_m2": 15.44,
+       "isitma_alani_m2": 14.26,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 20,
+         "L_m": 27.13,
+         "W": 949.5,
+         "etiket": "cep"
+        },
+        {
+         "no": 21,
+         "L_m": 30.33,
+         "W": 1061.5,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "Z17",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.77,
+       "alan_mimari_m2": 9.05,
+       "isitma_alani_m2": 8.62,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 22,
+         "L_m": 42.99,
+         "W": 1504.7,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "Z18",
+       "ad": "salon",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 21.15,
+       "alan_mimari_m2": 22.31,
+       "isitma_alani_m2": 20.77,
+       "kose": "SW",
+       "devreler": [
+        {
+         "no": 23,
+         "L_m": 51.67,
+         "W": 1808.5,
+         "etiket": "cep"
+        },
+        {
+         "no": 24,
+         "L_m": 45.67,
+         "W": 1598.5,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "Z19",
+       "ad": "oda",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 7.47,
+       "alan_mimari_m2": 7.75,
+       "isitma_alani_m2": 7.14,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 25,
+         "L_m": 35.84,
+         "W": 1254.4,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "Z20",
+       "ad": "antre-kor.",
+       "tur": "hol",
+       "sic": 15,
+       "alan_m2": 10.47,
+       "alan_mimari_m2": 11.0,
+       "isitma_alani_m2": 10.0,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 26,
+         "L_m": 45.08,
+         "W": 1577.8,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "Z21",
+       "ad": "wc+banyo",
+       "tur": "banyo",
+       "sic": 24,
+       "alan_m2": 3.47,
+       "alan_mimari_m2": 4.37,
+       "isitma_alani_m2": 1.93,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 27,
+         "L_m": 7.13,
+         "W": 249.5,
+         "etiket": "disari"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "isitilmayan": [
+    "asansör  boşluğu (ortak)",
+    "balkon (balkon)",
+    "duş (wc)",
+    "merdiven (ortak)",
+    "wc-lvb. (wc)",
+    "yüklük (yukluk)"
+   ]
+  },
+  {
+   "kat": "1",
+   "ad": "1. KAT",
+   "daireler": {
+    "4": {
+     "no": "D4",
+     "mahaller": [
+      {
+       "zon": "101",
+       "ad": "mutfak",
+       "tur": "mutfak",
+       "sic": 20,
+       "alan_m2": 9.05,
+       "alan_mimari_m2": 11.07,
+       "isitma_alani_m2": 7.87,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 1,
+         "L_m": 48.44,
+         "W": 1695.4,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "102",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 15.45,
+       "alan_mimari_m2": 14.25,
+       "isitma_alani_m2": 13.48,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 2,
+         "L_m": 42.3,
+         "W": 1480.5,
+         "etiket": "maskeli"
+        },
+        {
+         "no": 3,
+         "L_m": 30.22,
+         "W": 1057.7,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "103",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.9,
+       "alan_mimari_m2": 9.31,
+       "isitma_alani_m2": 8.74,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 4,
+         "L_m": 39.01,
+         "W": 1365.3,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "104",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.95,
+       "alan_mimari_m2": 9.31,
+       "isitma_alani_m2": 8.79,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 5,
+         "L_m": 42.34,
+         "W": 1481.9,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "105",
+       "ad": "salon",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 20.37,
+       "alan_mimari_m2": 21.18,
+       "isitma_alani_m2": 20.13,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 6,
+         "L_m": 59.1,
+         "W": 2068.5,
+         "etiket": "maskeli"
+        },
+        {
+         "no": 7,
+         "L_m": 52.88,
+         "W": 1850.8,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "106",
+       "ad": "antre-kor.",
+       "tur": "hol",
+       "sic": 15,
+       "alan_m2": 7.81,
+       "alan_mimari_m2": 7.77,
+       "isitma_alani_m2": 7.61,
+       "kose": "SW",
+       "devreler": [
+        {
+         "no": 8,
+         "L_m": 43.48,
+         "W": 1521.8,
+         "etiket": "disari"
+        }
+       ]
+      },
+      {
+       "zon": "107",
+       "ad": "banyo",
+       "tur": "banyo",
+       "sic": 24,
+       "alan_m2": 4.8,
+       "alan_mimari_m2": 5.04,
+       "isitma_alani_m2": 3.28,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 9,
+         "L_m": 11.0,
+         "W": 385.0,
+         "etiket": "disari"
+        }
+       ]
+      }
+     ]
+    },
+    "5": {
+     "no": "D5",
+     "mahaller": [
+      {
+       "zon": "108",
+       "ad": "mutfak",
+       "tur": "mutfak",
+       "sic": 20,
+       "alan_m2": 7.67,
+       "alan_mimari_m2": 10.11,
+       "isitma_alani_m2": 6.43,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 10,
+         "L_m": 33.62,
+         "W": 1176.7,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "109",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 14.47,
+       "alan_mimari_m2": 15.44,
+       "isitma_alani_m2": 14.09,
+       "kose": "SW",
+       "devreler": [
+        {
+         "no": 11,
+         "L_m": 28.05,
+         "W": 981.8,
+         "etiket": "cep"
+        },
+        {
+         "no": 12,
+         "L_m": 32.3,
+         "W": 1130.5,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "110",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.77,
+       "alan_mimari_m2": 9.05,
+       "isitma_alani_m2": 8.62,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 13,
+         "L_m": 42.99,
+         "W": 1504.7,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "111",
+       "ad": "salon",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 21.12,
+       "alan_mimari_m2": 22.31,
+       "isitma_alani_m2": 20.75,
+       "kose": "SW",
+       "devreler": [
+        {
+         "no": 14,
+         "L_m": 48.8,
+         "W": 1708.0,
+         "etiket": "cep"
+        },
+        {
+         "no": 15,
+         "L_m": 43.38,
+         "W": 1518.3,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "112",
+       "ad": "oda",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 7.45,
+       "alan_mimari_m2": 7.75,
+       "isitma_alani_m2": 7.29,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 16,
+         "L_m": 31.05,
+         "W": 1086.8,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "113",
+       "ad": "antre-kor.",
+       "tur": "hol",
+       "sic": 15,
+       "alan_m2": 10.74,
+       "alan_mimari_m2": 11.0,
+       "isitma_alani_m2": 10.21,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 17,
+         "L_m": 45.07,
+         "W": 1577.5,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "114",
+       "ad": "wc-banyo",
+       "tur": "banyo",
+       "sic": 24,
+       "alan_m2": 3.47,
+       "alan_mimari_m2": 4.37,
+       "isitma_alani_m2": 1.93,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 18,
+         "L_m": 7.14,
+         "W": 249.9,
+         "etiket": "disari"
+        }
+       ]
+      }
+     ]
+    },
+    "6": {
+     "no": "D6",
+     "mahaller": [
+      {
+       "zon": "115",
+       "ad": "mutfak",
+       "tur": "mutfak",
+       "sic": 20,
+       "alan_m2": 9.01,
+       "alan_mimari_m2": 11.07,
+       "isitma_alani_m2": 7.83,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 19,
+         "L_m": 48.24,
+         "W": 1688.4,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "116",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 13.79,
+       "alan_mimari_m2": 14.25,
+       "isitma_alani_m2": 13.62,
+       "kose": "SW",
+       "devreler": [
+        {
+         "no": 20,
+         "L_m": 33.86,
+         "W": 1185.1,
+         "etiket": "cep"
+        },
+        {
+         "no": 21,
+         "L_m": 39.21,
+         "W": 1372.4,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "117",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.92,
+       "alan_mimari_m2": 9.31,
+       "isitma_alani_m2": 8.8,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 22,
+         "L_m": 40.61,
+         "W": 1421.3,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "118",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 9.01,
+       "alan_mimari_m2": 9.31,
+       "isitma_alani_m2": 8.84,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 23,
+         "L_m": 42.84,
+         "W": 1499.4,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "119",
+       "ad": "salon",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 20.4,
+       "alan_mimari_m2": 21.18,
+       "isitma_alani_m2": 20.14,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 24,
+         "L_m": 50.07,
+         "W": 1752.5,
+         "etiket": "cep"
+        },
+        {
+         "no": 25,
+         "L_m": 52.96,
+         "W": 1853.6,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "120",
+       "ad": "antre-kor.",
+       "tur": "hol",
+       "sic": 15,
+       "alan_m2": 7.76,
+       "alan_mimari_m2": 7.77,
+       "isitma_alani_m2": 7.61,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 26,
+         "L_m": 43.41,
+         "W": 1519.3,
+         "etiket": "disari"
+        }
+       ]
+      },
+      {
+       "zon": "121",
+       "ad": "wc-duş",
+       "tur": "banyo",
+       "sic": 24,
+       "alan_m2": 2.13,
+       "alan_mimari_m2": 2.65,
+       "isitma_alani_m2": 1.18,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 27,
+         "L_m": 1.66,
+         "W": 58.1,
+         "etiket": "disari"
+        }
+       ]
+      },
+      {
+       "zon": "122",
+       "ad": "banyo",
+       "tur": "banyo",
+       "sic": 24,
+       "alan_m2": 4.11,
+       "alan_mimari_m2": 4.37,
+       "isitma_alani_m2": 2.58,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 28,
+         "L_m": 7.13,
+         "W": 249.5,
+         "etiket": "disari"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "isitilmayan": [
+    "asansör  boşluğu (ortak)",
+    "balkon (balkon)",
+    "merdiven (ortak)",
+    "wc-duş (wc)",
+    "wc-lvb. (wc)",
+    "yüklük (yukluk)"
+   ]
+  },
+  {
+   "kat": "2",
+   "ad": "2. KAT",
+   "daireler": {
+    "7": {
+     "no": "D7",
+     "mahaller": [
+      {
+       "zon": "201",
+       "ad": "mutfak",
+       "tur": "mutfak",
+       "sic": 20,
+       "alan_m2": 8.98,
+       "alan_mimari_m2": 11.07,
+       "isitma_alani_m2": 7.57,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 1,
+         "L_m": 45.56,
+         "W": 1594.6,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "202",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 15.45,
+       "alan_mimari_m2": 14.25,
+       "isitma_alani_m2": 13.44,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 2,
+         "L_m": 42.23,
+         "W": 1478.0,
+         "etiket": "maskeli"
+        },
+        {
+         "no": 3,
+         "L_m": 39.14,
+         "W": 1369.9,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "203",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.88,
+       "alan_mimari_m2": 9.31,
+       "isitma_alani_m2": 8.73,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 4,
+         "L_m": 38.89,
+         "W": 1361.2,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "204",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.96,
+       "alan_mimari_m2": 9.31,
+       "isitma_alani_m2": 8.8,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 5,
+         "L_m": 42.58,
+         "W": 1490.3,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "205",
+       "ad": "salon",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 20.3,
+       "alan_mimari_m2": 21.18,
+       "isitma_alani_m2": 20.03,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 6,
+         "L_m": 49.43,
+         "W": 1730.0,
+         "etiket": "cep"
+        },
+        {
+         "no": 7,
+         "L_m": 52.76,
+         "W": 1846.6,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "206",
+       "ad": "antre-kor.",
+       "tur": "hol",
+       "sic": 15,
+       "alan_m2": 7.8,
+       "alan_mimari_m2": 7.77,
+       "isitma_alani_m2": 7.57,
+       "kose": "SW",
+       "devreler": [
+        {
+         "no": 8,
+         "L_m": 43.01,
+         "W": 1505.3,
+         "etiket": "disari"
+        }
+       ]
+      },
+      {
+       "zon": "207",
+       "ad": "banyo",
+       "tur": "banyo",
+       "sic": 24,
+       "alan_m2": 4.79,
+       "alan_mimari_m2": 5.04,
+       "isitma_alani_m2": 3.33,
+       "kose": "SW",
+       "devreler": [
+        {
+         "no": 9,
+         "L_m": 11.12,
+         "W": 389.2,
+         "etiket": "disari"
+        }
+       ]
+      }
+     ]
+    },
+    "8": {
+     "no": "D8",
+     "mahaller": [
+      {
+       "zon": "208",
+       "ad": "mutfak",
+       "tur": "mutfak",
+       "sic": 20,
+       "alan_m2": 7.47,
+       "alan_mimari_m2": 10.11,
+       "isitma_alani_m2": 6.92,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 10,
+         "L_m": 33.98,
+         "W": 1189.3,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "209",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 14.46,
+       "alan_mimari_m2": 15.44,
+       "isitma_alani_m2": 14.02,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 11,
+         "L_m": 40.85,
+         "W": 1429.8,
+         "etiket": "maskeli"
+        },
+        {
+         "no": 12,
+         "L_m": 34.93,
+         "W": 1222.5,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "210",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.78,
+       "alan_mimari_m2": 9.05,
+       "isitma_alani_m2": 8.66,
+       "kose": "SW",
+       "devreler": [
+        {
+         "no": 13,
+         "L_m": 43.97,
+         "W": 1539.0,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "211",
+       "ad": "salon",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 21.02,
+       "alan_mimari_m2": 22.31,
+       "isitma_alani_m2": 20.65,
+       "kose": "SW",
+       "devreler": [
+        {
+         "no": 14,
+         "L_m": 44.89,
+         "W": 1571.2,
+         "etiket": "cep"
+        },
+        {
+         "no": 15,
+         "L_m": 40.41,
+         "W": 1414.3,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "212",
+       "ad": "oda",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 7.44,
+       "alan_mimari_m2": 7.75,
+       "isitma_alani_m2": 7.11,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 16,
+         "L_m": 35.56,
+         "W": 1244.6,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "213",
+       "ad": "antre-kor.",
+       "tur": "hol",
+       "sic": 15,
+       "alan_m2": 10.73,
+       "alan_mimari_m2": 11.0,
+       "isitma_alani_m2": 10.43,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 17,
+         "L_m": 45.02,
+         "W": 1575.7,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "214",
+       "ad": "wc-banyo",
+       "tur": "banyo",
+       "sic": 24,
+       "alan_m2": 3.44,
+       "alan_mimari_m2": 4.37,
+       "isitma_alani_m2": 1.91,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 18,
+         "L_m": 7.07,
+         "W": 247.5,
+         "etiket": "disari"
+        }
+       ]
+      }
+     ]
+    },
+    "9": {
+     "no": "D9",
+     "mahaller": [
+      {
+       "zon": "215",
+       "ad": "mutfak",
+       "tur": "mutfak",
+       "sic": 20,
+       "alan_m2": 8.98,
+       "alan_mimari_m2": 11.07,
+       "isitma_alani_m2": 7.8,
+       "kose": "NE",
+       "devreler": [
+        {
+         "no": 19,
+         "L_m": 47.94,
+         "W": 1677.9,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "216",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 13.75,
+       "alan_mimari_m2": 14.25,
+       "isitma_alani_m2": 13.58,
+       "kose": "SW",
+       "devreler": [
+        {
+         "no": 20,
+         "L_m": 33.65,
+         "W": 1177.8,
+         "etiket": "cep"
+        },
+        {
+         "no": 21,
+         "L_m": 39.04,
+         "W": 1366.4,
+         "etiket": "maskeli"
+        }
+       ]
+      },
+      {
+       "zon": "217",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.89,
+       "alan_mimari_m2": 9.31,
+       "isitma_alani_m2": 8.74,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 22,
+         "L_m": 39.21,
+         "W": 1372.4,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "218",
+       "ad": "yatak od.",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 8.98,
+       "alan_mimari_m2": 9.31,
+       "isitma_alani_m2": 8.85,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 23,
+         "L_m": 44.08,
+         "W": 1542.8,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "219",
+       "ad": "salon",
+       "tur": "oda",
+       "sic": 20,
+       "alan_m2": 20.25,
+       "alan_mimari_m2": 21.18,
+       "isitma_alani_m2": 19.98,
+       "kose": "NW",
+       "devreler": [
+        {
+         "no": 24,
+         "L_m": 48.95,
+         "W": 1713.2,
+         "etiket": "cep"
+        },
+        {
+         "no": 25,
+         "L_m": 52.76,
+         "W": 1846.6,
+         "etiket": "cep"
+        }
+       ]
+      },
+      {
+       "zon": "220",
+       "ad": "antre-kor.",
+       "tur": "hol",
+       "sic": 15,
+       "alan_m2": 8.26,
+       "alan_mimari_m2": 7.77,
+       "isitma_alani_m2": 7.54,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 26,
+         "L_m": 43.02,
+         "W": 1505.7,
+         "etiket": "disari"
+        }
+       ]
+      },
+      {
+       "zon": "221",
+       "ad": "banyo",
+       "tur": "banyo",
+       "sic": 24,
+       "alan_m2": 4.82,
+       "alan_mimari_m2": 5.04,
+       "isitma_alani_m2": 3.35,
+       "kose": "SE",
+       "devreler": [
+        {
+         "no": 27,
+         "L_m": 10.36,
+         "W": 362.6,
+         "etiket": "disari"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "isitilmayan": [
+    "asansör  boşluğu (ortak)",
+    "balkon (balkon)",
+    "duş (wc)",
+    "merdiven (ortak)",
+    "wc-lvb. (wc)",
+    "yüklük (yukluk)"
+   ]
+  }
+ ]
+}

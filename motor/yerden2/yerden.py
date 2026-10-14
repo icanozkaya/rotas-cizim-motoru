@@ -35,6 +35,8 @@ sys.path.insert(0, KOK + '/motor/deneme/denetim')
 import denetle as D  # noqa: E402
 
 M = MY.M2.M
+if sys.path[0] != BURASI:
+    sys.path.insert(0, BURASI)
 CIKIS = KOK + '/proje/denemeler/yerden2'
 CIKIS_DXF = CIKIS + '/NB_YERDEN_ISITMA.dxf'
 CIKIS_JSON = CIKIS + '/NB_YERDEN_ISITMA_model.json'
@@ -288,81 +290,91 @@ def mimari_m2(K, r):
 
 
 # ====================================================================== etiket yerleşimi
-def _serbest_dikd(merkezler, w, h, icinde, yasak, borular=None):
-    for cx, cy in merkezler:
+def yerlestir(w, h, anchor, oda_geom, yasak, borular):
+    """w×h dikdörtgen: (1) oda içinde anchor'a en yakın, yasak dışı; (2) yoksa 600 cm içinde yasak ve boru dışı.
+    -> (dikdörtgen, 'ic' | 'dis') | (None, None)"""
+    from shapely.prepared import prep
+    py = prep(yasak) if not yasak.is_empty else None
+    ax, ay = anchor
+    if oda_geom is not None and not oda_geom.is_empty:
+        pi = prep(oda_geom)
+        bx = oda_geom.bounds
+        aday = [(x, y) for x in _aralik(bx[0] + w / 2, bx[2] - w / 2, 10) for y in _aralik(bx[1] + h / 2, bx[3] - h / 2, 10)]
+        aday.sort(key=lambda p: math.hypot(p[0] - ax, p[1] - ay))
+        for cx, cy in aday:
+            q = box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2)
+            if pi.contains(q) and (py is None or not py.intersects(q)):
+                return q, 'ic'
+    pb = prep(borular) if borular is not None and not borular.is_empty else None
+    aday = [(ax + dx, ay + dy) for dx in range(-600, 601, 15) for dy in range(-600, 601, 15)]
+    aday.sort(key=lambda p: math.hypot(p[0] - ax, p[1] - ay))
+    for cx, cy in aday:
         q = box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2)
-        if icinde is not None and not icinde.contains(q):
-            continue
-        if q.intersects(yasak):
-            continue
-        if borular is not None and q.intersects(borular):
-            continue
-        return q
-    return None
+        if (py is None or not py.intersects(q)) and (pb is None or not pb.intersects(q)):
+            return q, 'dis'
+    return None, None
+
+
+def _aralik(a, b, s):
+    out = []
+    x = a
+    while x <= b + 1e-6:
+        out.append(x)
+        x += s
+    return out or [(a + b) / 2]
 
 
 def etiketle(msp, KT, tum_borular):
-    """devre etiketleri (cep / maskeli) + mahal etiketleri"""
+    """devre etiketleri (cep / oda içinde maskeli / oda dışında kılavuzlu) + mahal etiketleri"""
     yasak = KT['yasak']
-    say = dict(cep=0, maskeli=0, disari=0, mahal=0, mahal_maskeli=0, yok=0)
+    say = dict(cep=0, maskeli=0, disari=0, mahal=0, mahal_disari=0, yok=0)
     for o in KT['odalar']:
         for c in o['tasarim']['devreler']:
             q = c['cep']
-            mask = False
+            yer = 'cep'
             if q is None:
-                # maskeli: oda içinde, uç köşesine en yakın boş yer
                 ux, uy = c['pts'][0][0], c['pts'][0][1]
-                aday = []
-                for dx in range(-300, 301, 15):
-                    for dy in range(-300, 301, 15):
-                        aday.append((ux + dx, uy + dy))
-                aday.sort(key=lambda p: math.hypot(p[0] - ux, p[1] - uy))
-                q = _serbest_dikd(aday, S.ETIKET_W, S.ETIKET_H, o['H'].buffer(1), yasak)
-                mask = True
-                if q is None:
-                    # oda dışında, boru ve yazı olmayan boş yer
-                    q = _serbest_dikd(aday, S.ETIKET_W, S.ETIKET_H, None, yasak, tum_borular)
-                    if q is not None:
-                        say['disari'] += 1
-                        mask = False
+                q, yer = yerlestir(S.ETIKET_W, S.ETIKET_H, (ux, uy), o['H'].buffer(1), yasak, tum_borular)
                 if q is None:
                     say['yok'] += 1
                     log('UYARI: etiket yeri yok: devre %d %s' % (c['no'], o['zon']))
                     continue
-                if mask:
-                    say['maskeli'] += 1
+                say['maskeli' if yer == 'ic' else 'disari'] += 1
             else:
                 say['cep'] += 1
             x0, y0, x1, y1 = q.bounds
-            if mask:
+            if yer == 'ic':
                 msp.add_wipeout([(x0 - 2, y0 - 2), (x1 + 2, y0 - 2), (x1 + 2, y1 + 2), (x0 - 2, y1 + 2)],
                                 dxfattribs={'layer': L_MASK})
+            if yer == 'dis':
+                ux, uy = c['pts'][0][0], c['pts'][0][1]
+                from shapely.ops import nearest_points
+                p = nearest_points(q.exterior, Point(ux, uy))[0]
+                msp.add_line((p.x, p.y), (ux, uy), dxfattribs={'layer': L_ET, 'color': 2})
             ekle(msp, 'ROTAS-YI-ETIKET', (x0, y1), L_ET,
                  {'UZ': '%.2f m' % c['L_m'], 'AR': '15.0', 'YER': '%.1f W' % c['W'], 'NO1': str(c['no']),
                   'MAHAL': o['ad'], 'NO': o['zon'], 'DERECE': '%d%%%%DC' % o['sic'], 'ALAN': '%.2f' % o['alan'],
                   'BORU': 'PEX BORU, 16 x 2.0'})
             c['etiket'] = q
-            c['etiket_maskeli'] = mask
+            c['etiket_yer'] = yer
+            c['etiket_maskeli'] = yer == 'ic'
             yasak = yasak.union(q.buffer(4))
-    # mahal etiketleri
+    # mahal etiketleri: mahal adının üstünde (yoksa oda içinde en yakın boş yer), maskeli
     for o in KT['odalar']:
         x, y = o['xy']
-        aday = []
-        for dy in (75, 105, 135, 165, 195, -85, -115, -145, 225, 255):
-            for dx in (0, 30, -30, 60, -60, 90, -90, 120, -120):
-                aday.append((x + dx, y + dy))
-        ic = o['poly'].buffer(-4)
-        q = _serbest_dikd(aday, 74, 54, ic, yasak)
-        if q is None:
-            bx = o['poly'].bounds
-            aday = [(bx[0] + 40 + i * 15, bx[3] - 30 - j * 15) for j in range(60) for i in range(60)]
-            q = _serbest_dikd(aday, 74, 54, ic, yasak)
+        q, yer = yerlestir(74, 54, (x, y + 110), o['poly'].buffer(-4), yasak, tum_borular)
         if q is None:
             log('UYARI: mahal etiketi yeri yok: %s' % o['zon'])
             continue
         cx, cy = q.centroid.x, q.centroid.y
         x0, y0, x1, y1 = q.bounds
-        msp.add_wipeout([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], dxfattribs={'layer': L_MASK})
+        if yer == 'ic':
+            msp.add_wipeout([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], dxfattribs={'layer': L_MASK})
+        else:
+            say['mahal_disari'] += 1
+            from shapely.ops import nearest_points
+            p = nearest_points(q.exterior, Point(x, y))[0]
+            msp.add_line((p.x, p.y), (x, y + 25), dxfattribs={'layer': L_MAH, 'color': 2})
         ekle(msp, 'ROTAS-YI-MAHAL', (cx, cy), L_MAH, {'DERECE': '%d%%%%DC' % o['sic'], 'NO': o['zon'],
                                                        'MAHAL': o['ad'], 'ALAN': '%.2f' % o['alan']})
         o['etiket'] = q
@@ -444,17 +456,17 @@ def main(argv=None):
         baslik(msp, KT['kat'])
         log('kat %s etiket: %s' % (KT['kat'], KT['etiket_sayim']))
     model = model_yaz(KTS)
-    import sema
-    sema.ciz(doc, msp, model)
+    import yi_sema
+    yi_sema.ciz(doc, msp, model)
     doc.saveas(CIKIS_DXF)
     log('DXF: %s (%.1f s)' % (CIKIS_DXF, time.time() - t0))
     import excel_yi
     excel_yi.yaz(model)
-    import kontrol
-    sonuc = kontrol.calistir(KTS, CIKIS_DXF)
+    import yi_kontrol
+    sonuc = yi_kontrol.calistir(KTS, CIKIS_DXF)
     if a.png:
-        import onizleme
-        onizleme.ciz(CIKIS_DXF, KTS)
+        import yi_onizleme
+        yi_onizleme.ciz(CIKIS_DXF, KTS)
     log('bitti (%.1f s)' % (time.time() - t0))
     return sonuc
 
