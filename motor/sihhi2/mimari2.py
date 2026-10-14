@@ -277,12 +277,23 @@ class Kat:
         self.saftlar = []
         mek = [p for p, s, h, rot, c in self.yazilar if s.strip().lower().startswith('mek')]
         for p in mek:
-            cs = [(a[1][0], a[2]) for a in self.R if a[0] == 'C' and 8 <= a[2] <= 25
+            cs = [(a[1][0], a[2]) for a in self.R if a[0] == 'C' and 6 <= a[2] <= 25
                   and math.hypot(a[1][0][0] - p[0], a[1][0][1] - p[1]) < 70]
             if not cs:
                 continue
             c, r = min(cs, key=lambda q: math.hypot(q[0][0] - p[0], q[0][1] - p[1]))
-            kare = Point(c).buffer(r + 9, cap_style=3)
+            kare = None
+            for a in self.R:
+                if a[0] not in 'PL':
+                    continue
+            # şaftı çevreleyen kare: çevresindeki çizgilerden ışın (en yakın duvar çizgileri), yoksa r + 12
+            W = M.Walls(self.R)
+            e_, w_ = W.ray(c, (1, 0), 60), W.ray(c, (-1, 0), 60)
+            n_, s_ = W.ray(c, (0, 1), 60), W.ray(c, (0, -1), 60)
+            if max(e_, w_, n_, s_) < 45:
+                kare = box(c[0] - w_, c[1] - s_, c[0] + e_, c[1] + n_)
+            else:
+                kare = Point(c).buffer(r + 12, cap_style=3)
             self.saftlar.append(dict(c=tuple(c), r=r, poly=kare, yazi=p))
 
     def _kapilar(self):
