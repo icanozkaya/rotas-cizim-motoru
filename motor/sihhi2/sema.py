@@ -580,8 +580,13 @@ def main(argv=None):
     ap.add_argument('--cikis', default=O.CIKIS)
     ap.add_argument('--ad', default='NB_SIHHI')
     ap.add_argument('--png', action='store_true')
+    ap.add_argument('--kolon-birlestir', action='store_true',
+                    help='planda aynı düşeyde (≤30 cm), katları ayrık kolonları tek kolon say (plan numaralandırma hatası)')
     a = ap.parse_args(argv)
     m = O.model_oku(a.model)
+    if a.kolon_birlestir:
+        m, es = O.kolon_birlestir(m)
+        print('birleşen kolonlar:', es)
     import sema_temel as T
     rog, ek = T.temel_uret(m, os.path.join(a.cikis, a.ad + '_TEMEL.dxf'))
     doc, ozet, L = sema_uret(m, rog, ek, os.path.join(a.cikis, a.ad + '_SEMA.dxf'))

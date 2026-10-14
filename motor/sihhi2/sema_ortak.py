@@ -158,3 +158,38 @@ def kat_sayisi(m):
 
 def kolon_katlari(Y, p):
     return sorted(k for (k, q) in Y.gruplar if q == p)
+
+
+def kolon_birlestir(m, tol=30.0):
+    """planda aynı düşey hatta (≤ tol cm) duran, katları çakışmayan kolonları tek kolonda birleştirir (küçük numara
+    kalır). Plan üreticisi bir ıslak hacim yığınının kolonunu katlarda farklı numaralandırdığında kullanılır.
+    Dönüş: (yeni model, {eski: yeni})"""
+    import copy
+    m = copy.deepcopy(m)
+    ks = sorted(m.get('kolonlar', []), key=lambda k: kno(k['no']))
+    es = {}
+    tut = []
+    for k in ks:
+        hedef = None
+        for t in tut:
+            if math.hypot(t['x'] - k['x'], t['y'] - k['y']) <= tol and not (set(t['katlar']) & set(k['katlar'])):
+                hedef = t
+                break
+        if hedef is None:
+            tut.append(k)
+            continue
+        es[k['no']] = hedef['no']
+        hedef['katlar'] = sorted(set(hedef['katlar']) | set(k['katlar']))
+        n = max(len(hedef.get('sb_kat', [])), len(k.get('sb_kat', [])))
+        a = (hedef.get('sb_kat', []) + [0] * n)[:n]
+        b = (k.get('sb_kat', []) + [0] * n)[:n]
+        hedef['sb_kat'] = [x + y for x, y in zip(a, b)]
+        hedef['sb_toplam'] = sum(hedef['sb_kat'])
+        hedef.setdefault('mahal', {}).update(k.get('mahal', {}))
+    m['kolonlar'] = tut
+    for d in m['daireler']:
+        for h in d.get('islak_hacimler', []):
+            if h.get('kolon') in es:
+                h['kolon'] = es[h['kolon']]
+    m['_birlesen'] = es
+    return m, es
