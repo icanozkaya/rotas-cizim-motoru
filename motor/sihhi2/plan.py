@@ -364,7 +364,44 @@ def mimari_kopyala(doc, eng):
 
 
 # ====================================================================== PİS SU
+def duzgun(poly):
+    """armatür çıkıntıları / nişler (< 36 cm) temizlenmiş, dik açılı mahal poligonu"""
+    g = poly.buffer(18, join_style=2, mitre_limit=3.0).buffer(-18, join_style=2, mitre_limit=3.0)
+    g = g.buffer(-10, join_style=2, mitre_limit=3.0).buffer(10, join_style=2, mitre_limit=3.0)
+    if g.is_empty:
+        return poly
+    if g.geom_type == 'MultiPolygon':
+        g = max(g.geoms, key=lambda q: q.area)
+    return orto(Polygon(g.exterior).simplify(2.0))
+
+
+def orto(pg, tol=7.0):
+    """eksene ±tol° yakın kenarları tam yatay/düşey yapar (raster kontur eğikliği)"""
+    cs = [list(c) for c in pg.exterior.coords][:-1]
+    n = len(cs)
+    if n < 4:
+        return pg
+    for _ in range(2):
+        for i in range(n):
+            a, b = cs[i], cs[(i + 1) % n]
+            dx, dy = b[0] - a[0], b[1] - a[1]
+            if abs(dx) < 1e-9 and abs(dy) < 1e-9:
+                continue
+            ang = abs(math.degrees(math.atan2(dy, dx))) % 180
+            if min(ang, 180 - ang) <= tol:
+                m = (a[1] + b[1]) / 2
+                a[1] = b[1] = m
+            elif abs(ang - 90) <= tol:
+                m = (a[0] + b[0]) / 2
+                a[0] = b[0] = m
+    q = Polygon(cs).buffer(0)
+    if q.is_empty or q.geom_type != 'Polygon' or abs(q.area - pg.area) > 0.05 * pg.area:
+        return pg
+    return q
+
+
 def halka(poly, d=D_DUVAR):
+    poly = duzgun(poly)
     g = poly.buffer(-d, join_style=2, mitre_limit=3.0)
     if g.is_empty:
         g = poly.buffer(-d / 2, join_style=2, mitre_limit=3.0)
@@ -476,7 +513,7 @@ def pis_su_oda(K, oda, fx, kolon_onceki, yasak):
     for s, t in adaylar:
         p = tuple(ring.interpolate(s).coords[0])
         pt = Point(p)
-        if any(c.distance(pt) < 12 for c in K.cols):
+        if any(c.distance(pt) < 3 for c in K.cols):
             continue
         if any(sf['poly'].buffer(6).contains(pt) for sf in K.saftlar):
             continue
@@ -543,7 +580,7 @@ def pis_dogrula(K, oda, kollar, br, p0):
         L = LineString(b['pts']).length if len(b['pts']) > 1 else 0
         kol = kollar.get(b['kol'])
         L += b['t'] if kol is not None else 0
-        if L > 288:
+        if L > 270:
             return False
     # pis–pis kesişme
     hat = [LineString(b['pts']) for b in br if len(b['pts']) > 1] + list(kollar.values())
@@ -568,16 +605,45 @@ def dik_ayak(kol, c):
                 F = (a[0] + u[0] * tt, a[1] + u[1] * tt)
                 h = dist(c, F)
                 if best is None or h < best[2]:
-                    best = (acc + tt, F, h)
+                    best = (acc + tt, F, h, True)
         acc += L
     if best is not None and best[2] <= kol.distance(Point(c)) + 25:
         return best
     t = kol.project(Point(c))
     F = tuple(kol.interpolate(t).coords[0])
-    return t, F, dist(c, F)
+    return t, F, dist(c, F), dist(c, F) < 6.0
+
+
+def izgara_noktasi(kol, t):
+    """kol üzerinde t'deki nokta; köşeye < 3 cm ise köşe, eksen paralel parçada 2 cm ızgaraya oturtulmuş
+    (kontrolörün 2 cm düğüm yuvarlamasında birleşimin kopmaması için)"""
+    cs = list(kol.coords)
+    acc = 0.0
+    for a, b in zip(cs[:-1], cs[1:]):
+        L = dist(a, b)
+        if acc - 1e-6 <= t <= acc + L + 1e-6:
+            tt = t - acc
+            if tt < 3.0:
+                return a
+            if L - tt < 3.0:
+                return b
+            u = birim(a, b)
+            p = (a[0] + u[0] * tt, a[1] + u[1] * tt)
+            if abs(u[1]) < 1e-6:
+                x = round(p[0] / 2.0) * 2.0
+                x = min(max(x, min(a[0], b[0]) + 1), max(a[0], b[0]) - 1)
+                return (x, a[1])
+            if abs(u[0]) < 1e-6:
+                y = round(p[1] / 2.0) * 2.0
+                y = min(max(y, min(a[1], b[1]) + 1), max(a[1], b[1]) - 1)
+                return (a[0], y)
+            return p
+        acc += L
+    return cs[-1]
 
 
 def _pis_kur(ring, fx, s0, p0):
+    oda_poly_ic = lambda q: Polygon(ring.coords).buffer(6).contains(Point(q))
     # kollar
     yonler = {1: [], -1: []}
     for f in fx:
@@ -605,15 +671,25 @@ def _pis_kur(ring, fx, s0, p0):
             if kol is None:                          # armatür kolonun dibinde
                 br.append(dict(f=f, pts=temiz([c, p0]), t=0.0, kol=None))
                 continue
-            t, F, h = dik_ayak(kol, c)
-            if h < 6.0 or t < 6.0:
-                pts = [c, F]
-                tq = t
+            t, F, h, dik = dik_ayak(kol, c)
+            if not dik:                                   # dik ayak yok: dik açılı L ile kol noktasına
+                Fq = izgara_noktasi(kol, t)
+                tq = kol.project(Point(Fq))
+                k1, k2 = (c[0], Fq[1]), (Fq[0], c[1])
+                kk = k1 if oda_poly_ic(k1) else k2
+                pts = [c, kk, Fq]
+            elif h < 6.0 or t < 6.0:
+                Fq = izgara_noktasi(kol, t)
+                tq = kol.project(Point(Fq))
+                pts = [c, Fq]
             else:
                 nrm = birim(F, c)
-                Pp = (F[0] + nrm[0] * 5.0, F[1] + nrm[1] * 5.0)
                 tq = max(0.0, t - 5.0)
-                Q = tuple(kol.interpolate(tq).coords[0])
+                Q = izgara_noktasi(kol, tq)
+                tq = kol.project(Point(Q))
+                u = birim(Q, F) if dist(Q, F) > 0.5 else (0.0, 0.0)
+                F2 = (Q[0] + u[0] * 5.0, Q[1] + u[1] * 5.0)
+                Pp = (F2[0] + nrm[0] * 5.0, F2[1] + nrm[1] * 5.0)
                 pts = [c, Pp, Q]
             br.append(dict(f=f, pts=temiz(pts), t=tq, kol=yon))
     # kol, en uzak birleşim noktasında biter
