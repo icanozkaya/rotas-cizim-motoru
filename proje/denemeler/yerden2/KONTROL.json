@@ -1,8 +1,8 @@
 {
  "devre_sayisi": 82,
  "etiketli_devre": 82,
- "etiket_cepte": 42,
- "etiket_maskeli_veya_disarida": 40,
+ "etiket_cepte": 47,
+ "etiket_maskeli_veya_disarida": 35,
  "L_max_m": 59.5,
  "L_gt_80": [],
  "uc_aralik_15_degil": [],
@@ -10,32 +10,9 @@
  "kendini_kesen": [],
  "devre_devre_kesisme": [],
  "devre_devre_10cm_alti": [],
- "tefris_kesisme": [
-  [
-   "Z",
-   19,
-   "Z15"
-  ],
-  [
-   "2",
-   1,
-   "201"
-  ],
-  [
-   "2",
-   11,
-   "209"
-  ]
- ],
+ "tefris_kesisme": [],
  "isitilmayan_kesisme": [],
- "mahal_disina_tasma": [
-  [
-   "Z",
-   19,
-   "Z15",
-   16.0
-  ]
- ],
+ "mahal_disina_tasma": [],
  "etiket_etiket_cakisma": [],
  "etiket_mimari_yazi_cakisma": [],
  "cepli_etiket_boru_cakisma": [],

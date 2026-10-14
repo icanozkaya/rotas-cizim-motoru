@@ -183,19 +183,19 @@
        "alan_m2": 14.1,
        "alan_mimari_m2": 14.25,
        "isitma_alani_m2": 13.47,
-       "kose": "SE",
+       "kose": "NW",
        "devreler": [
         {
          "no": 11,
-         "L_m": 42.3,
-         "W": 1480.5,
-         "etiket": "maskeli"
+         "L_m": 31.18,
+         "W": 1091.3,
+         "etiket": "cep"
         },
         {
          "no": 12,
-         "L_m": 39.37,
-         "W": 1377.9,
-         "etiket": "maskeli"
+         "L_m": 29.54,
+         "W": 1033.9,
+         "etiket": "cep"
         }
        ]
       },
@@ -308,12 +308,12 @@
        "alan_m2": 7.79,
        "alan_mimari_m2": 10.11,
        "isitma_alani_m2": 6.79,
-       "kose": "SE",
+       "kose": "SW",
        "devreler": [
         {
          "no": 19,
-         "L_m": 38.13,
-         "W": 1334.6,
+         "L_m": 28.76,
+         "W": 1006.6,
          "etiket": "maskeli"
         }
        ]
@@ -926,12 +926,12 @@
        "alan_m2": 8.98,
        "alan_mimari_m2": 11.07,
        "isitma_alani_m2": 7.57,
-       "kose": "NW",
+       "kose": "SW",
        "devreler": [
         {
          "no": 1,
-         "L_m": 45.56,
-         "W": 1594.6,
+         "L_m": 45.34,
+         "W": 1586.9,
          "etiket": "maskeli"
         }
        ]
@@ -944,18 +944,18 @@
        "alan_m2": 15.45,
        "alan_mimari_m2": 14.25,
        "isitma_alani_m2": 13.44,
-       "kose": "SE",
+       "kose": "SW",
        "devreler": [
         {
          "no": 2,
-         "L_m": 42.23,
-         "W": 1478.0,
-         "etiket": "maskeli"
+         "L_m": 31.43,
+         "W": 1100.0,
+         "etiket": "cep"
         },
         {
          "no": 3,
-         "L_m": 39.14,
-         "W": 1369.9,
+         "L_m": 38.39,
+         "W": 1343.7,
          "etiket": "maskeli"
         }
        ]
@@ -1087,19 +1087,19 @@
        "alan_m2": 14.46,
        "alan_mimari_m2": 15.44,
        "isitma_alani_m2": 14.02,
-       "kose": "SE",
+       "kose": "NE",
        "devreler": [
         {
          "no": 11,
-         "L_m": 40.85,
-         "W": 1429.8,
-         "etiket": "maskeli"
+         "L_m": 16.66,
+         "W": 583.1,
+         "etiket": "cep"
         },
         {
          "no": 12,
-         "L_m": 34.93,
-         "W": 1222.5,
-         "etiket": "maskeli"
+         "L_m": 17.92,
+         "W": 627.2,
+         "etiket": "cep"
         }
        ]
       },

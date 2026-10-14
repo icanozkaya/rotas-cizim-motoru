@@ -72,11 +72,13 @@ def calistir(KTS, dxf_yol):
             for c in o['tasarim']['devreler']:
                 g = S.cizgi(c['pts'], 8)
                 if not o['eng'].is_empty and g.intersects(o['eng'].buffer(-1)):
-                    tefris.append((KT['kat'], c['no'], o['zon']))
+                    p = g.intersection(o['eng'].buffer(-1)).centroid
+                    tefris.append((KT['kat'], c['no'], o['zon'], round(p.x), round(p.y)))
                 if isz is not None and g.intersects(isz):
                     isitmasiz.append((KT['kat'], c['no'], o['zon']))
                 if not o['poly'].buffer(-3).covers(g):
-                    tasma.append((KT['kat'], c['no'], o['zon'], round(g.difference(o['poly'].buffer(-3)).length, 1)))
+                    dd = g.difference(o['poly'].buffer(-3))
+                    tasma.append((KT['kat'], c['no'], o['zon'], round(dd.length, 1), round(dd.centroid.x), round(dd.centroid.y)))
     # etiketler
     et = []
     for KT in KTS:

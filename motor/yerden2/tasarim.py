@@ -25,12 +25,14 @@ def _en_iyi_bolme(Rc, n, R_satir=None):
     if r0 is None:
         return None, float('inf')
     if n == 1:
+        if not _icinde(None, Rc, r0):
+            return None, float('inf')
         return r0, S.uzunluk(r0['devreler'][0])
     N = len(r0['ys'])
     best, bL = None, float('inf')
     for b in S.bolmeler(N, n):
         r = S.kur(Rc, n, R_satir=R_satir, bolme=b)
-        if r is None:
+        if r is None or not _icinde(None, Rc, r):
             continue
         L = max(S.uzunluk(p) for p in r['devreler'])
         if L < bL - 1e-6:
