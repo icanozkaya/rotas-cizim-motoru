@@ -39,6 +39,17 @@ python3 emitp.py /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_SIH
 python3 pdfp.py  /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_ONIZLEME.pdf
 ```
 
+## Kalıcı kurallar — 14.10.2026 (C) SIHHİ RED ve SIFIRDAN BAŞLANGIÇ (kullanıcı 18:33; görüntüler `kutuphane/arastirma/geri_bildirim/RED_sihhi_*.png`)
+Kullanıcı `uctan_uca` sıhhi denemelerinin tamamını (R1–R4) REDDETTİ. Sıhhi tesisat SIFIRDAN yeniden kurulur (`motor/sihhi2/`); eski uctan_uca çıktıları arşivdir, tarz olarak örnek alınmaz.
+- TEK REFERANS: kullanıcının KENDİ çizimi `ornekler/new_block.dxf` (aynı dosyadaki MTY katmanlı sıhhi + yerden ısıtma çizimi) + `ornekler/ORNEK_DUZEN.md`. Motorun çıktısı bu çizimle yan yana konduğunda aynı tarzda görünmeli (etiket biçimi/boyu, hat güzergâhı, kolon yeri, şema düzeni). İnternetten/başka siteden alınmış şema tarzı KULLANILMAZ.
+- BALKON SÜZGECİ: yalnız balkondaki YAĞMUR İNİŞİNE, kısa hatla (süzgeç balkon içinde, inişin yanında). Asla banyo/WC/pis su kolonuna değil. Süzgeç–iniş mesafesi birkaç metreyi geçmez.
+- PİS SU: armatürden kolona KISA ve DÜZ branşman (duvar dibinden, armatür arkasından), kolona 45° ile bağlanır; oda içinden çapraz uzun hat YOK; kolon ıslak hacmin köşesinde (şaft/ortak duvar tercihli); dallı bağlantı; hiçbir hat birbirini kesmez/atlatmaz.
+- SICAK SU: daire İÇİNDEN, kombiden/termosifondan başlar, soğuk suya paralel; daire dışından (merdiven holü/koridor) sıcak su beslemesi YOK. Sıcak-soğuk hat çifti daire içinde kesişmez; sıcak hat tek hat dolaşım kurgusu (R3) İPTAL.
+- ETİKETLER: her hat çifti için TEK etiket, hat doğrultusunda, kullanıcı boyunda (çap 10); etiket etiket üstüne, mimari yazı (mahal adı, m², kapı/pencere ölçüsü) üstüne, hat üstüne BİNMEZ. Dar ıslak hacimde etiket mahal dışına kılavuzla alınır.
+- KOLON ŞEMASI: kullanıcının new_block şemasının aynısı: SU SAYAÇLARI ZEMİN BANDINDA AŞAĞIDA, şebeke girişi + sayaç grubu zemin bandının solunda (kapı önünde/kat bandında sayaç YOK); depo en üst solda; kolon etiketleri en üstte daire içinde; her daire bloğu yan yana D1..Dn; armatür sembolleri kullanıcının KOLON blok görünümünde; rögar şeması altta, yağmur şeması sağda; yazılar birbirine ve çizgilere binmez.
+- TESLİM ONAYI: hiçbir sıhhi/ısıtma dosyası kullanıcıya KONTROLÖR AJAN onayı olmadan gönderilmez. Kontrolör, üreten ajandan bağımsızdır; dosyayı kırpılmış PNG'lerle inceler, bu kural bloğu + RED görüntüleri + new_block referansıyla karşılaştırır, geçmezse üreten ajana geri gönderir.
+- YERDEN ISITMA: bu turdan itibaren çalışılır (`motor/yerden2/`); referans new_block yerden ısıtma sırası (meander, hol dahil, MTY-ETIKET/MAHAL biçimi) + README yerden ısıtma kuralları; çizgiler üst üste binmez, devre tek polyline, kollektör/kombi bağlantıları kesişmez.
+
 ## Kalıcı kurallar — 14.10.2026 (B) revizyon talimatı (tam metin: `kutuphane/arastirma/KULLANICI_REVIZYON_TALIMATI_2026-10-14_B.md`)
 EN ÜST ÖNCELİK. Aşağıdaki tüm eski kurallarla (ör. "MTY blokları kullanılır", "kesişmede köprü", "hatlar duvar boyu") çelişirse BU LİSTE geçerlidir.
 - Kapsam yalnız mekanik + sıhhi; elektrik kalemi (kablo, sinyal hattı, elektrik tesisatı) çizilmez.

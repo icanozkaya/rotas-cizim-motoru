@@ -10,10 +10,11 @@ Her deneme ajanı bunlara uyar:
 7. Tasarım değerleri (kapasite, adet) parametre/JSON ile verilir; örnek değer kullanılırsa çıktıda "DENEME" başlığı yazılır.
 8. Bitince: `motor/deneme/<modul>/BENIOKU.md` (ne yapar, nasıl çalışır, sınırlar), sonra yalnız kendi dosyalarını commit et: `git add <kendi yolların>; git commit; git pull --rebase; git push` (çakışmada tekrar dene). Commit mesajı sonuna:
    ```
-   Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+   Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
    Claude-Session: https://claude.ai/code/session_01RwXcqZmf9VPBpDgb8LPkn3
    ```
 9. Rapor: ne çalıştı, ne çalışmadı, üretilen DXF yolları, kullanıcıya sorulması gereken kararlar.
 
 10. 14.10.2026 kullanıcı standart talimatı (README en üst kural bloğu) her modülde geçerlidir.
 11. 14.10.2026 (B) revizyon talimatı (README en üst blok) EN ÜST önceliklidir: MTY bloğu yok, boru atlatma yok, elektrik kalemi yok.
+12. 14.10.2026 (C) SIHHİ RED bloğu (README) geçerli: sıhhi sıfırdan `motor/sihhi2/`, referans yalnız new_block; teslim öncesi KONTROLÖR AJAN onayı zorunlu.
