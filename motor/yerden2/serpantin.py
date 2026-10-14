@@ -307,3 +307,125 @@ def bolmeler(N, n):
         for rest in bolmeler(N - a, n - 1):
             out.append([a] + rest)
     return out
+
+
+# ---------------------------------------------------------------- basamaklı besleme (tek devre)
+def kur_merdiven(R, faz=None, ust_kirp=0, pay=0.0):
+    """Tek devre, besleme hattı BASAMAKLI: dikey besleme her satır grubunda o grubun sol sınırına yaslanır,
+    gruplar arasında (sağdan bağlı satır çiftinin arasında, satırlardan 7,5 cm) yatay kısa bir basamakla kayar.
+    Klozet/lavabo gibi duvara yaslı engellerin iki yanında ve L biçimli mahallerde besleme hattının mahalin
+    ortasında kalıp bir şeridi boş bırakmasını önler (R2, R10). Kanonik çerçeve: uçlar sol-altta.
+    Dönüş: kur() ile aynı biçim (devreler=[pts]) | None"""
+    if R.is_empty:
+        return None
+    ys_all = _satirlar_faz(R, faz)
+    rows = []
+    for y in ys_all:
+        a = [(l, r) for l, r in araliklar(R, y) if r - l >= 2 * ADIM]
+        if not a:
+            if rows:
+                break
+            continue
+        rows.append((y, max(a, key=lambda t: t[1] - t[0])))
+    if ust_kirp:
+        rows = rows[:-ust_kirp]
+    if len(rows) % 2:
+        rows = rows[:-1]
+    if len(rows) < 2:
+        return None
+    # kanonik: rows aşağıdan yukarı; devre yukarıdan aşağı gider
+    top = rows[::-1]
+    N = len(top)
+    # gruplar: {0}, {1,2}, {3,4}, ..., {N-1}
+    gruplar = [[0]] + [[k, k + 1] for k in range(1, N - 1, 2)] + [[N - 1]]
+    F = []
+    for g in gruplar:
+        F.append(max(top[k][1][0] for k in g) + pay)
+    # küçük basamakları (< 15 cm, sıva/kolon girintisi) yok et: komşu gruplar büyük olana eşitlenir
+    degisti = True
+    while degisti:
+        degisti = False
+        for i in range(len(F) - 1):
+            if 0.05 < abs(F[i] - F[i + 1]) < ADIM:
+                F[i] = F[i + 1] = max(F[i], F[i + 1])
+                degisti = True
+    # komşu satırlarla ardışık bağlantı: bir satırın aralığı bir sonrakinin F'sini kapsamıyorsa geçersiz
+    gk = {}
+    for gi, g in enumerate(gruplar):
+        for k in g:
+            gk[k] = gi
+    ret = []
+    for k in range(N):
+        gi = gk[k]
+        f = F[gi]
+        # basamak komşusu satır: basamağın uç noktası + 15 cm sağında başlar
+        if k % 2 == 0 and k + 1 < N and gk[k + 1] != gi:
+            f = max(f, F[gk[k + 1]])
+        if k % 2 == 1 and k - 1 >= 0 and gk[k - 1] != gi:
+            f = max(f, F[gk[k - 1]])
+        ret.append(f + ADIM)
+    T = BULGE
+    y_u = top[-1][0]
+    # besleme: (F_son, y_u) -> yukarı, basamaklar, -> (F_0, y0 - R) -> satır 0
+    pts = [(F[-1], y_u, 0.0)]
+    for gi in range(len(gruplar) - 1, 0, -1):
+        # grup gi'nin üstündeki basamak: grup gi'nin ilk satırı ile grup gi-1'in son satırı arasında
+        k_alt = gruplar[gi][0]
+        y_b = top[k_alt][0] + ADIM / 2.0
+        if abs(F[gi] - F[gi - 1]) > 0.05:
+            pts += [(F[gi], y_b, 0.0), (F[gi - 1], y_b, 0.0)]
+    y0 = top[0][0]
+    pts += [(F[0], y0 - R_DON, -T), (F[0] + R_DON, y0, 0.0)]
+    sag = True
+    for k in range(N):
+        y = top[k][0]
+        if k == N - 1:
+            pts.append((ret[k], y, 0.0))
+            break
+        y2 = top[k + 1][0]
+        if sag:
+            xr = min(top[k][1][1], top[k + 1][1][1])
+            if xr - R_DON < pts[-1][0] + 0.5:
+                return None
+            pts += [(xr - R_DON, y, -T), (xr, y - R_DON, 0.0), (xr, y2 + R_DON, -T), (xr - R_DON, y2, 0.0)]
+        else:
+            xl = max(ret[k], ret[k + 1])
+            if xl + R_DON > pts[-1][0] - 0.5:
+                return None
+            pts += [(xl + R_DON, y, T), (xl, y - R_DON, 0.0), (xl, y2 + R_DON, T), (xl + R_DON, y2, 0.0)]
+        sag = not sag
+    # son satır sola, ret'e kadar gidiyor; ret son satırın aralığında olmalı
+    if ret[-1] + 0.5 < top[-1][1][0] or ret[-1] > top[-1][1][1] - MIN_SATIR:
+        return None
+    # ilk satır: F_0 aralıkta
+    for gi, g in enumerate(gruplar):
+        for k in g:
+            if F[gi] < top[k][1][0] - 0.5 or F[gi] > top[k][1][1] - MIN_SATIR:
+                return None
+    temiz = [pts[0]]
+    for p in pts[1:]:
+        if math.hypot(p[0] - temiz[-1][0], p[1] - temiz[-1][1]) < 1e-6:
+            temiz[-1] = (temiz[-1][0], temiz[-1][1], p[2])
+            continue
+        temiz.append(p)
+    g = cizgi(temiz)
+    if not g.is_simple or not R.buffer(0.6).covers(g):
+        return None
+    ys = [t[0] for t in rows]
+    return dict(devreler=[temiz], ys=ys, x_f=F[-1], bolme=[N], y_u=y_u, atla=0, faz=faz, merdiven=True)
+
+
+def en_iyi_merdiven(R):
+    best = None
+    for faz in [None] + [2.5 * i for i in range(6)]:
+        for uk in (0, 1, 2):
+            for pay in (0.0, 2.5, 5.0):
+                r = kur_merdiven(R, faz, uk, pay)
+                if r is not None:
+                    break
+            if r is None:
+                continue
+            L = uzunluk(r['devreler'][0])
+            if best is None or L > best[0]:
+                best = (L, r)
+    return best[1] if best else None

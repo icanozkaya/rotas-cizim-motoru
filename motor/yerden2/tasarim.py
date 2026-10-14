@@ -28,8 +28,11 @@ def _en_iyi_bolme(Rc, n, R_satir=None):
         if r0 is None:
             continue
         if n == 1:
-            if _icinde(None, Rc, r0):
-                return r0, S.uzunluk(r0['devreler'][0])
+            rm = S.en_iyi_merdiven(Rc)
+            ad = [r for r in (r0, rm) if r is not None and _icinde(None, Rc, r)]
+            if ad:
+                r = max(ad, key=lambda r: S.uzunluk(r['devreler'][0]))
+                return r, S.uzunluk(r['devreler'][0])
             continue
         N = len(r0['ys'])
         best, bL = None, float('inf')

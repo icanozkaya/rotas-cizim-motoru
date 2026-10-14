@@ -346,68 +346,113 @@ def yer_bul(boyutlar, anchor, kademeler, yasak, mimari=None, kendi=None, adim=10
     return None, None
 
 
+def _oda_etiket_yerleri(o, yasak, mim, sira):
+    """bir mahalin mahal + devre etiketi yerleri (çizmeden). sira: 'mahal_once' | 'devre_once'.
+    -> (mahal_q | None, [(c, q, rot) ...], yasak, eksik_sayisi)"""
+    P = o['poly']
+    Hn = o['H']                                   # mahal - vitrifiye/tefriş
+    x, y = o['xy']
+    mq = None
+    dv = []
+    eksik = 0
+
+    def mahal(yasak):
+        for k in (1.0, 0.8):
+            q, _ = yer_bul([(74 * k, 54 * k, 0)], (x, y + 100),
+                           [(Hn.buffer(-4, join_style=2), True), (Hn.buffer(-2, join_style=2), False)], yasak, mim,
+                           adim=10.0 if k == 1 else 4.0)
+            if q is not None:
+                return q, k
+        return None, 1.0
+
+    def devre(c, yasak):
+        g = S.cizgi(c['pts'])
+        ux, uy = c['pts'][0][0], c['pts'][0][1]
+        cc = g.envelope.centroid
+        anc = ((ux + 2 * cc.x) / 3, (uy + 2 * cc.y) / 3)
+        # tam boy (yatay, sonra 90°), sığmazsa küçük ıslak hacimde 0,85 / 0,75 ölçek (yazı 8,5 / 7,5)
+        for k in (1.0, 0.85, 0.75, 0.7, 0.65):
+            w, h = S.ETIKET_W * k, S.ETIKET_H * k
+            for boy in ([(w, h, 0)], [(h, w, 90)]):
+                q, rot = yer_bul(boy, anc, [(Hn.buffer(1), True), (Hn.buffer(1), False),
+                                            (P.buffer(-1, join_style=2), False)], yasak, mim, kendi=g, adim=5.0 if k < 1 else 10.0)
+                if q is not None:
+                    return q, (rot, k)
+        return None, None
+    adim = ['m'] + ['d%d' % i for i in range(len(o['tasarim']['devreler']))]
+    if sira == 'devre_once':
+        adim = adim[1:] + adim[:1]
+    for ad in adim:
+        if ad == 'm':
+            mq, mk = mahal(yasak)
+            if mq is None:
+                eksik += 1
+            else:
+                yasak = yasak.union(mq.buffer(4))
+        else:
+            c = o['tasarim']['devreler'][int(ad[1:])]
+            q, rot = devre(c, yasak)
+            if q is None:
+                eksik += 1
+                continue
+            dv.append((c, q, rot))
+            yasak = yasak.union(q.buffer(4))
+    return (mq, mk if mq is not None else 1.0), dv, yasak, eksik
+
+
 def etiketle(msp, KT, tum_borular):
-    """Mahal etiketi + devre etiketleri, hepsi kendi mahalinin içinde; boru üstündekilerin altı WIPEOUT maskeli.
-    Kullanıcının çizimi: devre tablosu serpantinin üstüne biner (cep yok), mahal etiketi serbest zeminde
-    (vitrifiye, duş teknesi, küvet ve duvar üstüne binmez — R5)."""
+    """Mahal etiketi + devre etiketleri, hepsi kendi mahalinin içinde (kılavuz yok); boru üstündekilerin altı
+    WIPEOUT maskeli. Kullanıcının çizimi: devre tablosu serpantinin üstüne biner (cep yok), mahal etiketi serbest
+    zeminde (vitrifiye, duş teknesi, küvet ve duvar üstüne binmez — R5). Küçük ıslak hacimde önce mahal, sığmazsa
+    önce devre etiketi denenir; 150 × 80 hiç sığmazsa tablo 90° döndürülür (dar hol)."""
     yasak = KT['yasak']
-    say = dict(cep=0, maskeli=0, bos=0, dondurulmus=0, mahal=0, mahal_maskeli=0, yok=0, mahal_yok=0)
+    say = dict(maskeli=0, bos=0, dondurulmus=0, mahal=0, mahal_maskeli=0, yok=0, mahal_yok=0)
     mim = KT['mimari']
     for o in KT['odalar']:
-        P = o['poly']
-        Hn = o['H']                                   # mahal - vitrifiye/tefriş
-        x, y = o['xy']
-        # ---- mahal etiketi (74 × 54): mahal adının üstünde, vitrifiye/duvar/yazı üstüne binmeden
-        q, _ = yer_bul([(74, 54, 0)], (x, y + 100),
-                       [(Hn.buffer(-4, join_style=2), True), (Hn.buffer(-2, join_style=2), False),
-                        (P.buffer(-3, join_style=2), False)], yasak, mim)
-        if q is None:
+        en_iyi = None
+        for sira in ('mahal_once', 'devre_once'):
+            r = _oda_etiket_yerleri(o, yasak, mim, sira)
+            if en_iyi is None or r[3] < en_iyi[3]:
+                en_iyi = r
+            if r[3] == 0:
+                break
+        (mq, mk), dv, yasak, eksik = en_iyi
+        if mq is None:
             say['mahal_yok'] += 1
             log('UYARI: mahal etiketi yeri yok: %s' % o['zon'])
         else:
-            x0, y0, x1, y1 = q.bounds
-            if q.intersects(tum_borular):
+            x0, y0, x1, y1 = mq.bounds
+            if mq.intersects(tum_borular):
                 msp.add_wipeout([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], dxfattribs={'layer': L_MASK})
                 say['mahal_maskeli'] += 1
-            ekle(msp, 'ROTAS-YI-MAHAL', (q.centroid.x, q.centroid.y), L_MAH,
-                 {'DERECE': '%d%%%%DC' % o['sic'], 'NO': o['zon'], 'MAHAL': o['ad'], 'ALAN': '%.2f' % o['alan']})
-            o['etiket'] = q
+            ekle(msp, 'ROTAS-YI-MAHAL', (mq.centroid.x, mq.centroid.y), L_MAH,
+                 {'DERECE': '%d%%%%DC' % o['sic'], 'NO': o['zon'], 'MAHAL': o['ad'], 'ALAN': '%.2f' % o['alan']},
+                 olcek=mk)
+            o['etiket'] = mq
             say['mahal'] += 1
-            yasak = yasak.union(q.buffer(4))
-        # ---- devre etiketleri (150 × 80; dar mahalde 90° döndürülmüş)
+        yerli = {id(c) for c, q, rot in dv}
         for c in o['tasarim']['devreler']:
-            q, rot = c['cep'], 0
-            yer = 'cep'
-            if q is None:
-                g = S.cizgi(c['pts'])
-                ux, uy = c['pts'][0][0], c['pts'][0][1]
-                cc = g.envelope.centroid
-                anc = ((ux + 2 * cc.x) / 3, (uy + 2 * cc.y) / 3)
-                boy = [(S.ETIKET_W, S.ETIKET_H, 0), (S.ETIKET_H, S.ETIKET_W, 90)]
-                q, rot = yer_bul(boy, anc, [(Hn.buffer(1), True), (Hn.buffer(1), False),
-                                            (P.buffer(-2, join_style=2), False)], yasak, mim, kendi=g)
-                if q is None:
-                    say['yok'] += 1
-                    log('UYARI: etiket yeri yok: devre %d %s' % (c['no'], o['zon']))
-                    continue
-                yer = 'ic' if q.intersects(tum_borular) else 'bos'
-                say['maskeli' if yer == 'ic' else 'bos'] += 1
-                if rot:
-                    say['dondurulmus'] += 1
-            else:
-                say['cep'] += 1
+            if id(c) not in yerli:
+                say['yok'] += 1
+                log('UYARI: etiket yeri yok: devre %d %s' % (c['no'], o['zon']))
+        for c, q, (rot, olc) in dv:
+            yer = 'ic' if q.intersects(tum_borular) else 'bos'
+            say['maskeli' if yer == 'ic' else 'bos'] += 1
+            if rot:
+                say['dondurulmus'] += 1
+            if olc < 1:
+                say['kucuk'] = say.get('kucuk', 0) + 1
             x0, y0, x1, y1 = q.bounds
             if yer == 'ic':
                 msp.add_wipeout([(x0 - 2, y0 - 2), (x1 + 2, y0 - 2), (x1 + 2, y1 + 2), (x0 - 2, y1 + 2)],
                                 dxfattribs={'layer': L_MASK})
-            e = ekle(msp, 'ROTAS-YI-ETIKET', (x0, y1) if rot == 0 else (x0, y0), L_ET,
-                     {'UZ': '%.2f m' % c['L_m'], 'AR': '15.0', 'YER': '%.1f W' % c['W'], 'NO1': str(c['no']),
-                      'MAHAL': o['ad'], 'NO': o['zon'], 'DERECE': '%d%%%%DC' % o['sic'], 'ALAN': '%.2f' % o['alan'],
-                      'BORU': 'PEX BORU, 16 x 2.0'}, dondur=rot)
+            ekle(msp, 'ROTAS-YI-ETIKET', (x0, y1) if rot == 0 else (x0, y0), L_ET,
+                 {'UZ': '%.2f m' % c['L_m'], 'AR': '15.0', 'YER': '%.1f W' % c['W'], 'NO1': str(c['no']),
+                  'MAHAL': o['ad'], 'NO': o['zon'], 'DERECE': '%d%%%%DC' % o['sic'], 'ALAN': '%.2f' % o['alan'],
+                  'BORU': 'PEX BORU, 16 x 2.0'}, dondur=rot, olcek=olc)
             c['etiket'] = q
             c['etiket_yer'] = yer
             c['etiket_maskeli'] = yer == 'ic'
-            yasak = yasak.union(q.buffer(4))
     KT['yasak'] = yasak
     return say
 
