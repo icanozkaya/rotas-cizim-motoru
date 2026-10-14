@@ -1,3 +1,5 @@
+> **REDDEDİLDİ (14.10.2026 18:16):** Prensip şeması (`kazan_dairesi.py` → *_SEMA_*.dxf) teslimde ve başka paftaların içinde KULLANILMAZ. Yalnız onaylı plan/kesit/kısmi görünüş (`plan_kesit.onayli_kazan_dairesi`). `kazan_dairesi.py` yalnız iç numaralandırma kaynağı olarak kalır.
+
 > **ONAYLI (14.10.2026 16:39):** Kullanıcı `plan_kesit.py` çıktısını (plan + kesit A-A + kısmi görünüş B) DOĞRU kazan
 > dairesi olarak onayladı: "her yerde bunu kullanacaksın". Aşağıdaki eski "teslimde kullanılmaz / arşiv" ifadeleri İPTALDİR.
 
