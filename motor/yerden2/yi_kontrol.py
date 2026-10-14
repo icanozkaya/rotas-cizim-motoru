@@ -129,6 +129,12 @@ def calistir(KTS, dxf_yol):
         'denetle': ozet,
     }
     sonuc['yogunluk'] = yogunluk(KTS)
+    try:
+        import excel_yi
+        sonuc['mmo_yuzey'] = list(excel_yi.YUZEY)
+        sonuc['mmo_yuzey_asim'] = [y for y in excel_yi.YUZEY if y['Ty'] > y['sinir']]
+    except Exception:
+        pass
     sonuc['yogunluk_6_alti'] = [y for y in sonuc['yogunluk'] if y['tur'] in ('oda', 'hol') and y['m_m2_mimari'] < 6.0]
     sonuc['devre_3m_alti'] = [(k, c['no'], c['L_m']) for k, o, c, g in tum if c['L_m'] < 3.0]
     sonuc['etiket_mahal_disi'] = [(KT['kat'], o['zon'], c['no']) for KT in KTS for o in KT['odalar']
@@ -140,7 +146,7 @@ def calistir(KTS, dxf_yol):
                                              if o.get('etiket') is not None and not o['eng'].is_empty
                                              and o['etiket'].intersection(o['eng']).area > 1]
     json.dump(sonuc, open(RAPOR, 'w'), ensure_ascii=False, indent=1, default=str)
-    kisa = {k: (len(v) if isinstance(v, list) else v) for k, v in sonuc.items() if k not in ('denetle', 'yogunluk')}
+    kisa = {k: (len(v) if isinstance(v, list) else v) for k, v in sonuc.items() if k not in ('denetle', 'yogunluk', 'mmo_yuzey')}
     print('[kontrol]', json.dumps(kisa, ensure_ascii=False))
     print('[denetle]', json.dumps(ozet, ensure_ascii=False, default=str)[:1500])
     return sonuc
