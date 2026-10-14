@@ -16,7 +16,7 @@
         --excel XLSX        (yerden) hesap Excel'i: plan W ↔ Excel W tutarlılığı
 
 denetle.py kontrollerine (MTY, ROTAS- öneki, köprü, kesişme, elektrik, yazı, lejant, audit) EK olarak kullanıcı
-kurallarını ÖLÇEN testler (T01–T10, `testler.py`). Her bulgu: PASS/FAIL + koordinat + kırpılmış PNG (rapor klasörü
+kurallarını ÖLÇEN testler (T01–T10 `testler.py`, T12–T17 `testler2.py`; yerden ısıtma `--tur yerden`: `yerden.py`). Her bulgu: PASS/FAIL + koordinat + kırpılmış PNG (rapor klasörü
 `<rapor>_png/`), FAIL kırpımları referans (kullanıcının new_block çizimi) ile yan yana. Sonuç: ONAY veya RED + madde listesi.
 Protokol: `onay_protokolu.md`.
 """
@@ -363,23 +363,41 @@ def rapor_yaz(o, cz, katlar, bulgular, log, png_klasor, sure):
         if cz.sema_paftasi:
             md.append('- ŞEMA: ![](%s/GENEL_SEMA.png)' % rel)
         md.append('')
-    md += ['## Eşikler', '',
-           '- T01 balkon süzgeci–iniş hat boyu ≤ %.0f cm; süzgecin bağlı olduğu ağda pis su katmanı/kolonu varsa FAIL.' % T.BALKON_SUZGEC_MAX,
-           '- T02 armatür→kolon branşman yolu ≤ %.0f cm; parça açıları {0,45,90} ± %.0f°; yol armatür mahalli + kolon mahalli '
-           '(duvar payı %.0f cm) dışına > 40 cm çıkarsa FAIL; WC/LV/DUŞ/EVİYE %.0f cm içinde hat yoksa FAIL.' % (
-               T.BRANSMAN_MAX, T.ACI_TOL, T.DUVAR_DIBI, T.ARMATUR_BAG_TOL),
-           '- T03 mahal poligonunun %.0f cm içeri çekilmiş bölgesinde ≥ %.0f cm pis su hattı → FAIL.' % (T.DUVAR_DIBI, T.CAPRAZ_MIN),
-           '- T04 sıcak su bağlı ağı en çok örtüştüğü daire poligonu (mahaller + 20 cm duvar payı) dışında > %.0f cm → FAIL; '
-           'kombiye 80 cm içinde başlamıyorsa FAIL.' % T.DAIRE_DISI_MIN,
-           '- T05 sıcak parçası (≥ 60 cm) boyunca soğuğa mesafe %.0f–%.0f cm olan örnek oranı ≥ %%%.0f; ofset std ≤ %.1f cm; '
-           'sıcak–soğuk kesişme (uçtan 15 cm dışı) FAIL.' % (T.PARALEL_ARALIK[0], T.PARALEL_ARALIK[1], 100 * T.PARALEL_ORAN, T.OFSET_STD),
-           '- T06 koridor (antre-kor. / merdiven / hol) içindeki temiz su parçası: duvara mesafe / koridor genişliği < %.2f → FAIL.' % T.KORIDOR_ORTA_ORAN,
-           '- T07 yazı kutuları ezdxf yazı tipi ölçüsüyle; herhangi örtüşme (> 0,2 cm²) FAIL; hat yazı kutusundan ≥ 3 cm geçiyorsa FAIL; '
-           'çap etiketi yüksekliği ortanca %.0f–%.0f.' % T.ETIKET_H,
-           '- T08 sayaç sembolü y ≥ 1. kat bandı çizgisi → FAIL; x daire bloklarının (D1..) solunda değilse FAIL; "SAYAÇ (KAPIDA)" yazısı FAIL.',
-           '- T09 ıslak mahal poligonunda süzgeç sembolü (çizim + mimari ızgara, 15 cm kümeli) sayısı ≠ 1 → FAIL.',
-           '- T10 kolon sembolü ıslak mahal (20 cm pay) dışında / betonarme içinde / en yakın köşeye > %.0f cm → FAIL.' % T.KOLON_KOSE_MAX,
-           '- T11 `motor/deneme/denetim/denetle.py` ile aynı sayılar.', '']
+    if o.get('tur') == 'yerden':
+        import yerden as Y
+        md += ['## Eşikler (yerden)', ''] + ['- %s %s' % (t, Y.TEST_ADI[t]) for t in sorted(Y.TEST_ADI)] + ['']
+    else:
+        md += ['## Eşikler', '',
+               '- T01 balkon süzgeci–iniş hat boyu ≤ %.0f cm; süzgecin bağlı olduğu ağda pis su katmanı/kolonu varsa FAIL.' % T.BALKON_SUZGEC_MAX,
+               '- T02 armatür→kolon branşman yolu ≤ %.0f cm; parça açıları {0,45,90} ± %.0f°; yol armatür mahalli + kolon mahalli '
+               '(duvar payı %.0f cm) dışına > 40 cm çıkarsa FAIL; WC/LV/DUŞ/EVİYE %.0f cm içinde hat yoksa FAIL.' % (
+                   T.BRANSMAN_MAX, T.ACI_TOL, T.DUVAR_DIBI, T.ARMATUR_BAG_TOL),
+               '- T03 mahal poligonunun %.0f cm içeri çekilmiş bölgesinde ≥ %.0f cm pis su hattı → FAIL.' % (T.DUVAR_DIBI, T.CAPRAZ_MIN),
+               '- T04 sıcak su bağlı ağı en çok örtüştüğü daire poligonu (mahaller + 20 cm duvar payı) dışında > %.0f cm → FAIL; '
+               'kombiye 80 cm içinde başlamıyorsa FAIL.' % T.DAIRE_DISI_MIN,
+               '- T05 sıcak parçası (≥ 60 cm) boyunca soğuğa mesafe %.0f–%.0f cm olan örnek oranı ≥ %%%.0f; ofset std ≤ %.1f cm; '
+               'sıcak–soğuk kesişme (uçtan 15 cm dışı) FAIL.' % (T.PARALEL_ARALIK[0], T.PARALEL_ARALIK[1], 100 * T.PARALEL_ORAN, T.OFSET_STD),
+               '- T06 koridor (antre-kor. / merdiven / hol) içindeki temiz su parçası: duvara mesafe / koridor genişliği < %.2f → FAIL.' % T.KORIDOR_ORTA_ORAN,
+               '- T07 yazı kutuları ezdxf yazı tipi ölçüsüyle; herhangi örtüşme (> 0,2 cm²) FAIL; hat yazı kutusundan ≥ 3 cm geçiyorsa FAIL; '
+               'çap etiketi yüksekliği ortanca %.0f–%.0f.' % T.ETIKET_H,
+               '- T08 sayaç sembolü y ≥ 1. kat bandı çizgisi → FAIL; x daire bloklarının (D1..) solunda değilse FAIL; "SAYAÇ (KAPIDA)" yazısı FAIL.',
+               '- T09 ıslak mahal poligonunda süzgeç sembolü (çizim + mimari ızgara, 15 cm kümeli) sayısı ≠ 1 → FAIL.',
+               '- T10 kolon sembolü ıslak mahal (20 cm pay) dışında / betonarme içinde / en yakın köşeye > %.0f cm → FAIL.' % T.KOLON_KOSE_MAX,
+               '- T11 `motor/deneme/denetim/denetle.py` ile aynı sayılar.',
+               '- T07 ek: gerçek yazı kutusu (`kutu.py`, ezdxf text_size; hizalama + döndürme, MTEXT mtext_size); etiket kutusunun '
+               '> %%%.0f\'i duvar/betonarme taramasında, > %%%.0f\'i eviye/B.M./mimari Ç.M./kombi/makine/aspiratör sembolünde, > %%%.0f\'i '
+               'asansör boşluğunda → FAIL (merdiven holü BİLGİ).' % (100 * T.ETIKET_TARAMA_ORAN, 100 * T.ETIKET_ARMATUR_ORAN, 100 * T.ETIKET_ORTAK_ORAN),
+               '- T12 aynı numaralı kolon katlar arasında ± %.0f cm; bir katta eksik ya da referans new_block\'ta olmayan numara → FAIL.' % T2.KOLON_EKSEN_TOL,
+               '- T13 çizilen Ç.M./B.M. aynı mahal/daire içindeki mimari (+ referans) yerine > %.0f cm → FAIL; kolon (r 8) / aspiratör '
+               'mimari makine yerine < %.0f cm → FAIL.' % (T2.MAKINE_TOL, T2.ISGAL_TOL),
+               '- T14 aspiratör notu kendi ıslak hacmine (kılavuz/sembolden) > %.0f cm, ortak alanda ya da başka dairede → FAIL; kılavuz '
+               'başka mahal içinde > %.0f cm → FAIL.' % (T2.NOT_MAHAL_MAX, T2.KILAVUZ_KESME_MIN),
+               '- T15 pencere etiketi (S/P nn) olmayan ıslak hacimde (mutfak ve < 1 m² duş kabini hariç) aspiratör sembolü (40 cm) ya da '
+               'not (%.0f cm) yok → FAIL.' % T2.NOT_MAHAL_MAX,
+               '- T16 "(EK)", new_block, otomatik, dosya adı, kural cümlesi kalıpları (`testler2.SIZINTI`); ACI 250–255 (BYLAYER/BYBLOCK '
+               'çözülmüş) ya da çok koyu gerçek renk → FAIL (WIPEOUT hariç).',
+               '- T17 pafta genişliği referansın ± %%%.0f\'i; tam şeritte (≥ 5 pafta) eksik / sırasız / tanımsız pafta → FAIL.' % (100 * T2.PAFTA_TOL),
+               '']
     os.makedirs(os.path.dirname(os.path.abspath(o['rapor'])), exist_ok=True)
     with open(o['rapor'], 'w', encoding='utf-8') as f:
         f.write('\n'.join(md))

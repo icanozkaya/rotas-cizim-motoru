@@ -16,7 +16,7 @@ karşılaştırır, geçmezse üreten ajana geri gönderir.*
 
 ## Kontrolörün yaptığı iş (her tur)
 1. `python3 motor/kontrolor/kontrolor.py <dxf> --mimari <mimari> --rapor <klasör>/KONTROLOR_<ad>_R<n>.md`
-   → ölçümler (T01–T11), her FAIL için koordinat + kırpılmış PNG (kontrol edilen | referans new_block yan yana),
+   → ölçümler (T01–T17; yerden ısıtmada `--tur yerden`: Y01–Y06 + T11/T16/T17), her FAIL için koordinat + kırpılmış PNG (kontrol edilen | referans new_block yan yana),
    kat ve şema genel görünümleri.
 2. PNG'leri **okur** (görüntü olarak açar): her RED görüntüsündeki hata türü (balkon süzgeci → pis su kolonu; sayaç
    kapıda/kat bandında; sıcak su merdiven holünden; oda içi çapraz pis su + etiket yığını) çizimde var mı diye bakar;
