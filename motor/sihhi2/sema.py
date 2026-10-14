@@ -20,7 +20,7 @@ import os
 import sys
 
 import ezdxf
-from shapely.geometry import LineString
+from shapely.geometry import LineString, box
 
 BURASI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BURASI)
@@ -186,7 +186,7 @@ def sebeke_sayac_depo(C, m, L, yt):
     """zemin bandı solu: şebeke girişi, 5+4 sayaç grubu, çatıda depo ve iki dikme (new_block 5.3–5.4)"""
     n_d = len(m['daireler'])
     ys = Y0 + 15.0
-    C.yazi('Şebekeden', (X0 + 12, Y0 - 38), 16.6, L_YAZ, renk=211)
+    C.yazi('Şebekeden', (X0 + 12, Y0 - 38), 16.6, L_YAZ, renk=15)
     C.hat([(X0 + 18, Y0 - 12), (X0 + 18, ys), (X0 + 125, ys)], L_SEB)
     for dx, ad in ((36, 'KURESEL-VANA'), (62, 'PISLIK-TUTUCU'), (87, 'CEKVALF'), (112, 'KURESEL-VANA')):
         C.blok('ROTAS-SEMA-' + ad, (X0 + dx, ys), L_SEM)
@@ -200,15 +200,21 @@ def sebeke_sayac_depo(C, m, L, yt):
     dy1 = dy0 + 200.0
     C.hat([(X0 + 125, ys), (X0 + 125, dy1 + 62), (X0 + 437, dy1 + 62), (X0 + 437, dy1)], L_SEB)
     C.blok('ROTAS-SEMA-KURESEL-VANA', (X0 + 437, dy1 + 32), L_SEM, rot=90)
-    C.hat([(dx1 - 45, dy0 + 13), (X0 + 585, dy0 + 13), (X0 + 585, yt - 33), (X0 + 158, yt - 33), (X0 + 158, ys)], L_SEB)
-    C.blok('ROTAS-SEMA-KURESEL-VANA', (X0 + 526, dy0 + 13), L_SEM)
-    C.blok('ROTAS-SEMA-PISLIK-TUTUCU', (X0 + 551, dy0 + 13), L_SEM)
+    # depo çıkışı: alt sağ flanştan kaide içinden aşağı, sağa (vana + pislik tutucu), dağıtım dikmesine
+    C.hat([(dx1 - 45, dy0 + 22), (dx1 - 45, yt + 13), (X0 + 585, yt + 13), (X0 + 585, yt - 33), (X0 + 158, yt - 33),
+           (X0 + 158, ys)], L_SEB)
+    C.msp.add_circle((dx1 - 45, dy0 + 30), 8.0, dxfattribs={'layer': 'ROTAS-SIHHI-DEPO'})
+    C.msp.add_circle((dx1 - 45, dy0 + 30), 4.0, dxfattribs={'layer': 'ROTAS-SIHHI-DEPO'})
+    C.blok('ROTAS-SEMA-KURESEL-VANA', (X0 + 526, yt + 13), L_SEM)
+    C.blok('ROTAS-SEMA-PISLIK-TUTUCU', (X0 + 551, yt + 13), L_SEM)
     depo = 'ROTAS-SIHHI-DEPO'
     C.hat([(dx0, dy0), (dx1, dy0), (dx1, dy1), (dx0, dy1), (dx0, dy0)], depo)
     C.hat([(dx0 - 8, yt), (dx1 + 7, yt), (dx1 + 7, yt + 30), (dx0 - 8, yt + 30), (dx0 - 8, yt)], depo, renk=5)
-    h = C.msp.add_hatch(color=5, dxfattribs={'layer': depo})
-    h.set_pattern_fill('ANSI31', scale=6.0)
-    h.paths.add_polyline_path([(dx0 - 8, yt), (dx1 + 7, yt), (dx1 + 7, yt + 30), (dx0 - 8, yt + 30)], is_closed=True)
+    kb = box(dx0 - 8, yt, dx1 + 7, yt + 30)      # betonarme kaide taraması (45°, 10 cm)
+    for c in range(int(dx0 - 8 - 30), int(dx1 + 7), 10):
+        g = LineString([(c, yt), (c + 40, yt + 40)]).intersection(kb)
+        if g.length > 1:
+            C.hat(list(g.coords), depo, renk=5)
     C.hat([(dx0 + 60, dy1), (dx0 + 60, dy1 + 6), (dx0 + 160, dy1 + 6), (dx0 + 160, dy1)], depo)     # menhol
     # şamandıra
     C.hat([(dx1 - 48, dy1), (dx1 - 48, dy1 - 25)], depo)
@@ -476,7 +482,7 @@ def yagmur_hesap(C, m, L, ek):
              'Q = %.2f l/s  <  Qmax = %.2f l/s' % (Q, qmax),
              'Ø70 lik Boru %s.' % ('UYGUNDUR' if Q < qmax else 'YETMEZ, Ø100 SEÇİLİR')]
     for i, s in enumerate(satir):
-        C.yazi(s, (bx0 + 18, by1 - 34 - 27 * i), 12.0 if i == 0 else 10.5, 'ROTAS-SIHHI-HESAP', renk=1 if i == 0 else 7)
+        C.yazi(s, (bx0 + 18, by1 - 34 - 27 * i), 12.0 if i == 0 else 10.5, 'ROTAS-SIHHI-HESAP', renk=1 if i == 0 else 250)
 
 
 def rogar_semasi(C, m, L, rogarlar):
@@ -492,19 +498,19 @@ def rogar_semasi(C, m, L, rogarlar):
     for i, r in enumerate(rogarlar):
         x = xr0 + A * i
         C.blok('ROTAS-SEMA-ROGAR', (x, yr), 'ROTAS-SIHHI-ROGAR', attr={'NO': r['no']})
-        C.yazi(r.get('olcu_1', '70x70'), (x + 175, yr - 42), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=8, hiza=C_.BOTTOM_RIGHT)
-        C.yazi(r.get('olcu_2', 'h:-70cm'), (x + 175, yr - 56), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=8, hiza=C_.BOTTOM_RIGHT)
+        C.yazi(r.get('olcu_1', '70x70'), (x + 175, yr - 44), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=8, hiza=C_.BOTTOM_RIGHT)
+        C.yazi(r.get('olcu_2', 'h:-70cm'), (x + 175, yr - 58), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=8, hiza=C_.BOTTOM_RIGHT)
         if i < nR - 1:
-            C.hat([(x + 30, yr), (x + A - 30, yr)], L_PIS, lt='Continuous')
+            C.hat([(x + 44.5, yr), (x + A - 44.5, yr)], L_PIS, lt='Continuous')
             xm_ = x + A / 2
-            C.yazi('%1 EĞİM', (xm_ - 8, yr + 24), 12.0, L_PCAP, renk=2, hiza=C_.BOTTOM_CENTER)
-            C.yazi(r.get('cap_cikis', 'Ø150'), (xm_ - 8, yr + 8), 12.0, L_PCAP, renk=2, hiza=C_.BOTTOM_CENTER)
-            C.blok('ROTAS-SEMA-EGIM-OKU', (xm_ + 42, yr + 14), L_SEM)
+            C.yazi('%1 EĞİM', (xm_ - 6, yr + 34), 18.0, L_PCAP, renk=2, hiza=C_.BOTTOM_CENTER)
+            C.yazi(r.get('cap_cikis', 'Ø150'), (xm_ - 6, yr + 6), 18.0, L_PCAP, renk=2, hiza=C_.BOTTOM_CENTER)
+            C.blok('ROTAS-SEMA-EGIM-OKU', (xm_ + 64, yr + 43), L_SEM)
         ks = r.get('kolonlar', [])
         if ks:
-            C.hat([(x, yr + 30), (x, yr + 80)], 'ROTAS-SEMBOL-KILAVUZ')
+            C.hat([(x, yr + 32), (x, yr + 82)], 'ROTAS-SEMBOL-KILAVUZ')
             for j, p in enumerate(ks):
-                C.blok('ROTAS-SEMA-KOLON-NO', (x + 55 * (j % 2), yr + 107.5 + 55 * (j // 2)), 'ROTAS-SIHHI-KOLON-NO',
+                C.blok('ROTAS-SEMA-KOLON-NO', (x + 55 * (j % 2), yr + 109.5 + 55 * (j // 2)), 'ROTAS-SIHHI-KOLON-NO',
                        attr={'NO': p})
 
 
@@ -521,7 +527,7 @@ LEJ = [
 
 def lejant(C):
     x, y = X0, Y0 - 215
-    C.yazi('LEJANT', (x, y), 20.0, 'ROTAS-LEJANT')
+    C.yazi('LEJANT', (x, y), 20.0, 'ROTAS-LEJANT', renk=250)
     for i, (tur, ad, ack) in enumerate(LEJ):
         cx = x + (0 if i < 6 else 820)
         cy = y - 60 - 62 * (i % 6)
@@ -529,9 +535,9 @@ def lejant(C):
             C.hat([(cx, cy), (cx + 140, cy)], ad, lt='Continuous' if ad == L_PIS else None)
         else:
             C.blok(ad, (cx + 50, cy), 'ROTAS-LEJANT')
-        C.yazi(ack, (cx + 175, cy - 5), 12.0, 'ROTAS-LEJANT')
+        C.yazi(ack, (cx + 175, cy - 5), 12.0, 'ROTAS-LEJANT', renk=250)
     C.yazi('MB: temiz su yük birimi, SB: pis su yük birimi. Sayaçlar yalnız zemin bandında, şebeke girişinde toplu; '
-           'kat bantlarında / daire kapısında sayaç yoktur.', (x, y - 60 - 62 * 6 - 10), 11.0, 'ROTAS-LEJANT')
+           'kat bantlarında ve daire girişlerinde su sayacı çizilmez.', (x, y - 60 - 62 * 6 - 10), 11.0, 'ROTAS-LEJANT', renk=250)
 
 
 def pafta(C, x_son):

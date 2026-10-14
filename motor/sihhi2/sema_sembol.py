@@ -260,20 +260,23 @@ def _deşarj_ok(B):
 
 
 def _rogar(B):
-    """rögar şeması kutusu: üst 60x60 (mavi) + iç 50x50 (sarı) + alt kesit 60x32; orijin üst kutunun merkezi"""
+    """rögar şeması kutusu (new_block MTY-ROGAR KAT ölçüsü): üst 89x64 (mavi) + iç (sarı) + alt kesit 89x32;
+    orijin üst kutunun merkezi"""
     b = B.new('ROTAS-SEMA-ROGAR')
-    _pl(b, [(-30, -30), (30, -30), (30, 30), (-30, 30)], 5, True)
-    _pl(b, [(-25, -25), (25, -25), (25, 25), (-25, 25)], 2, True)
-    _pl(b, [(-30, -30), (-30, -62), (30, -62), (30, -30)], 8)
-    _pl(b, [(-25, -35), (25, -35), (25, -57), (-25, -57)], 8, True)
-    _attdef(b, 'NO', (0, 0), h=26.0, renk=5, hiza='C')
+    _pl(b, [(-44.5, -32), (44.5, -32), (44.5, 32), (-44.5, 32)], 5, True)
+    _pl(b, [(-38, -26), (38, -26), (38, 26), (-38, 26)], 2, True)
+    _pl(b, [(-44.5, -32), (-44.5, -64), (44.5, -64), (44.5, -32)], 8)
+    _pl(b, [(-37, -37), (37, -37), (37, -59), (-37, -59)], 8, True)
+    _attdef(b, 'NO', (0, 0), h=31.5, renk=5, hiza='C')
 
 
 def _rogar_plan(B):
-    """temel planı rögarı (plan): 70x70 iç + 10 duvar, orijin merkez"""
+    """temel planı rögarı (plan): 89x62 kutu + iç 73x48 + üstte kesit kutusu 89x34 (new_block temel), orijin merkez"""
     b = B.new('ROTAS-TEMEL-ROGAR')
-    _pl(b, [(-45, -45), (45, -45), (45, 45), (-45, 45)], 5, True)
-    _pl(b, [(-35, -35), (35, -35), (35, 35), (-35, 35)], 2, True)
+    _pl(b, [(-44.5, -31), (44.5, -31), (44.5, 31), (-44.5, 31)], 5, True)
+    _pl(b, [(-36.5, -24), (36.5, -24), (36.5, 24), (-36.5, 24)], 2, True)
+    _pl(b, [(-44.5, 31), (-44.5, 65), (44.5, 65), (44.5, 31)], 8)
+    _pl(b, [(-36.5, 38), (36.5, 38), (36.5, 58), (-36.5, 58)], 8, True)
     _attdef(b, 'NO', (0, 0), h=26.0, renk=5, hiza='C')
 
 

@@ -26,7 +26,7 @@ TPX0, TPX1 = 250042.0, 252513.0
 PY0, PY1 = -444050.0, -441150.0
 CEPHE_ARA = 110.0
 PB_ARA = 506.0
-ONBELLEK = '/tmp/claude-0/s2/temel_mimari.pkl'
+ONBELLEK = '/tmp/claude-0/s2/temel_mimari_v3.pkl'
 
 
 def mimari_zemin():
@@ -37,10 +37,12 @@ def mimari_zemin():
     import mimari2 as M2
     A = M2.kayitlar()
     K = M2.Kat(A, 'Z')
-    u = unary_union([K.S, K.bina]).buffer(25).buffer(-25)
+    # bina dış hattı: balkon hariç mahaller (duvar ortasına kadar şişirilmiş) → dış duvar yüzüne 12 cm, köşeler dik
+    duvar = K.S.intersection(K.bina.buffer(40, join_style=2))
+    u = unary_union([duvar, K.bina]).buffer(8, join_style=2).buffer(-8, join_style=2)
     gs = list(getattr(u, 'geoms', [u]))
     g = max(gs, key=lambda q: q.area)
-    bina = Polygon(g.exterior).simplify(2.0)
+    bina = Polygon(g.exterior).simplify(3.0)
     cols = [c for c in K.cols if c.area > 300]
     out = {'bina': bina, 'cols': cols}
     os.makedirs(os.path.dirname(ONBELLEK), exist_ok=True)
@@ -49,30 +51,54 @@ def mimari_zemin():
     return out
 
 
-def kumele(ks, ceza=350.0, yayilim=520.0):
-    """kolonları y'ye göre (kuzeyden güneye) DP ile kümeler; dönüş: [[kolon, ...], ...]"""
+def _hat_y(K, xr, engel, diger):
+    """kümenin ortak yatay hattı için y: betonarme kolon/perdeye ve başka kümelerin kolonlarına değmeyen,
+    medyana en yakın y. Dönüş (y, iniş toplamı) veya None."""
+    ys = sorted(k['y'] for k in K)
+    med = ys[len(ys) // 2]
+    xw = min(k['x'] for k in K)
+    for d in sorted(set([0] + [s * t for t in range(5, 305, 5) for s in (1, -1)]), key=abs):
+        y = med + d
+        if y > max(ys) + 120 or y < min(ys) - 120:
+            continue
+        gs = [LineString([(xw, y), (xr - 45, y)])] + [LineString([(k['x'], k['y']), (k['x'], y)]) for k in K
+                                                       if abs(k['y'] - y) > 1]
+        if engel is not None and any(g.intersects(engel) for g in gs):
+            continue
+        if any(gs[0].distance(Point(q['x'], q['y'])) < 25 for q in diger):
+            continue
+        return y, sum(abs(k['y'] - y) for k in K)
+    return None
+
+
+def kumele(ks, xr, engel, ceza=350.0, yayilim=520.0):
+    """kolonları kuzeyden güneye 1B kümeler (DP): maliyet = iniş boyları + rögar başına ceza; hattı betonarme
+    kolon/perdeye değen küme olanaksız. Dönüş: [(kolonlar, hat_y), ...]"""
     ks = sorted(ks, key=lambda k: -k['y'])
     n = len(ks)
     if n == 0:
         return []
     INF = 1e18
-    best = [INF] * (n + 1)
-    prev = [0] * (n + 1)
+    best, prev, ysec = [INF] * (n + 1), [0] * (n + 1), {}
     best[0] = 0.0
     for j in range(1, n + 1):
         for i in range(j):
-            grp = [k['y'] for k in ks[i:j]]
-            if max(grp) - min(grp) > yayilim:
+            grp = ks[i:j]
+            if max(k['y'] for k in grp) - min(k['y'] for k in grp) > yayilim or best[i] >= INF:
                 continue
-            med = sorted(grp)[len(grp) // 2]
-            c = best[i] + sum(abs(y - med) for y in grp) + ceza
+            r = _hat_y(grp, xr, engel, ks[:i] + ks[j:])
+            if r is None:
+                if j - i > 1:
+                    continue
+                r = (grp[0]['y'], 0.0)       # tek kolon: kendi y'sinde (kaçamıyorsa olduğu gibi)
+            c = best[i] + r[1] + ceza
             if c < best[j]:
-                best[j], prev[j] = c, i
+                best[j], prev[j], ysec[j] = c, i, r[0]
     out = []
     j = n
     while j > 0:
         i = prev[j]
-        out.append(ks[i:j])
+        out.append((ks[i:j], ysec[j]))
         j = i
     return out[::-1]
 
@@ -82,28 +108,10 @@ def rogar_plani(m, mim):
     xe = bina.bounds[2]
     xr = xe + CEPHE_ARA
     kol = [dict(no=k['no'], x=k['x'], y=k['y'], sb=k.get('sb_toplam', 0)) for k in m.get('kolonlar', [])]
-    kumeler = kumele(kol)
     engel = unary_union([c.buffer(4) for c in cols]) if cols else None
+    kumeler = kumele(kol, xr, engel)
     rog = []
-    for i, K in enumerate(kumeler):
-        ys = sorted(k['y'] for k in K)
-        med = ys[len(ys) // 2]
-        xw = min(k['x'] for k in K)
-        secim = med
-        for d in sorted(set([0] + [s * t for t in range(5, 205, 5) for s in (1, -1)]), key=abs):
-            y = med + d
-            if y > max(ys) + 60 or y < min(ys) - 60:
-                continue
-            gs = [LineString([(xw, y), (xr - 45, y)])] + [LineString([(k['x'], k['y']), (k['x'], y)]) for k in K
-                                                           if abs(k['y'] - y) > 1]
-            if engel is not None and any(g.intersects(engel) for g in gs):
-                continue
-            # başka kümenin kolonuna 25 cm'den yakın geçmesin
-            if any(LineString([(xw, y), (xr, y)]).distance(Point(q['x'], q['y'])) < 25
-                   for K2 in kumeler if K2 is not K for q in K2):
-                continue
-            secim = y
-            break
+    for i, (K, secim) in enumerate(kumeler):
         rog.append(dict(no='R%d' % (i + 1), x=xr, y=secim, kolonlar=[k['no'] for k in sorted(K, key=lambda q: O.kno(q['no']))],
                         _K=K, cap_giris='Ø125', cap_cikis='Ø150', egim='%1', olcu_1='70x70', olcu_2='h:-70cm',
                         sb=sum(k['sb'] for k in K)))
@@ -162,15 +170,15 @@ def temel_uret(m, cikis):
     def egim_et(p, q, cap, dikey=False):
         mx, my = (p[0] + q[0]) / 2 + dx, (p[1] + q[1]) / 2
         if dikey:
-            e1 = _yazi(msp, cap, (mx + 22, my), 12.0, L_CAP, renk=2, rot=90.0, hiza=MC.BOTTOM_CENTER)
-            e2 = _yazi(msp, '%1 EĞİM', (mx + 38, my), 12.0, L_CAP, renk=2, rot=90.0, hiza=MC.BOTTOM_CENTER)
+            e1 = _yazi(msp, cap, (mx + 18, my), 12.0, L_CAP, renk=2, rot=90.0, hiza=MC.BOTTOM_CENTER)
+            e2 = _yazi(msp, '%1 EĞİM', (mx + 40, my), 12.0, L_CAP, renk=2, rot=90.0, hiza=MC.BOTTOM_CENTER)
             yon = -1 if q[1] < p[1] else 1
-            S.ekle(msp, 'ROTAS-SEMA-EGIM-OKU', (mx + 46, my - 60 * yon), 'ROTAS-SIHHI-SEMBOL', rot=90 * (1 if yon > 0 else -1))
+            S.ekle(msp, 'ROTAS-SEMA-EGIM-OKU', (mx + 52, my - 60 * yon), 'ROTAS-SIHHI-SEMBOL', rot=90 * (1 if yon > 0 else -1))
         else:
-            e1 = _yazi(msp, '%1 EĞİM', (mx, my + 22), 12.0, L_CAP, renk=2, hiza=MC.BOTTOM_CENTER)
+            e1 = _yazi(msp, '%1 EĞİM', (mx, my + 28), 12.0, L_CAP, renk=2, hiza=MC.BOTTOM_CENTER)
             e2 = _yazi(msp, cap, (mx, my + 7), 12.0, L_CAP, renk=2, hiza=MC.BOTTOM_CENTER)
             yon = 1 if q[0] > p[0] else -1
-            S.ekle(msp, 'ROTAS-SEMA-EGIM-OKU', (mx + 52 * yon, my + 15), 'ROTAS-SIHHI-SEMBOL', rot=0 if yon > 0 else 180)
+            S.ekle(msp, 'ROTAS-SEMA-EGIM-OKU', (mx + 52 * yon, my + 20), 'ROTAS-SIHHI-SEMBOL', rot=0 if yon > 0 else 180)
         return e1, e2
 
     for r in rog:
@@ -240,7 +248,7 @@ def temel_uret(m, cikis):
         alanlar.append(Point(b).buffer(29))
     # lejant (pafta sağ altı)
     lx, ly = TPX1 - 980, PY0 + 330
-    _yazi(msp, 'LEJANT', (lx, ly), 18.0, 'ROTAS-LEJANT')
+    _yazi(msp, 'LEJANT', (lx, ly), 18.0, 'ROTAS-LEJANT', renk=250)
     sat = [('hat', 'PİS SU HATTI (kolon dibi → rögar Ø125 %1, rögarlar arası Ø150 %1)'),
            ('ROTAS-TEMEL-PIS-KOLON', 'PİS SU KOLON DİBİ (zemin döşemesi altı)'),
            ('ROTAS-TEMEL-ROGAR', 'RÖGAR (MUAYENE BACASI) 70x70, PB: PARSEL BACASI')]
@@ -251,7 +259,7 @@ def temel_uret(m, cikis):
         else:
             S.ekle(msp, ad, (lx + 60, yy), 'ROTAS-LEJANT', attr={'NO': 'R'} if 'ROGAR' in ad else None,
                    olcek=0.5 if 'ROGAR' in ad else 1.0)
-        _yazi(msp, ack, (lx + 150, yy - 5), 11.0, 'ROTAS-LEJANT')
+        _yazi(msp, ack, (lx + 150, yy - 5), 11.0, 'ROTAS-LEJANT', renk=250)
     os.makedirs(os.path.dirname(cikis), exist_ok=True)
     doc.saveas(cikis)
     ek = {'cati_alani_m2': round(mim['bina'].area / 1e4, 1), 'cephe_x': round(mim['bina'].bounds[2], 1),
