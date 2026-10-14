@@ -99,8 +99,9 @@ def isitma_sinifi(r):
     if tip == 'islak':
         if 'banyo' in ad:
             return True, 24, 'banyo'
-        # wc-lvb, duş, wc-duş: küçükse (< 2 m²) ısıtılmaz (duş kabini / dar WC)
-        if A < 2.0:
+        # wc-lvb, duş, wc-duş: küçükse ısıtılmaz (duş kabini / dar WC). Kullanıcı 1. kat D6'da 2,65 m² wc-duşu
+        # ayrı devre yapmamış, yalnız yanındaki banyoyu ısıtmış (R2): banyo adı taşımayan ıslak hacim ≤ 2,7 m² ısıtılmaz
+        if A < 2.7:
             return False, None, 'wc'
         return True, 24, 'banyo'
     return True, 20, 'oda'
@@ -169,8 +170,50 @@ def _kapi_parcasi(a, ge, kapi_u):
     return False
 
 
-def engeller(K, r, res=2.0):
-    """mahal içindeki tefriş/vitrifiye engelleri (MultiPolygon) — çizgilerin kapattığı, ana boşluğa açılmayan bölgeler"""
+def engeller(K, r, res=2.0, islak=False):
+    """mahal içindeki tefriş/vitrifiye engelleri (MultiPolygon) — çizgilerin kapattığı, ana boşluğa açılmayan bölgeler.
+    islak=True (banyo, wc-banyo): yalnız duş teknesi / küvet, klozet ve lavabo hariç tutulur (R2); çamaşır makinesi
+    kutusu gibi diğer kapalı bölgelerin altı ısıtılır."""
+    eng = _engeller(K, r, res)
+    if not islak:
+        return eng
+    P = r['poly']
+    vit = []           # vitrifiye: klozet, duş teknesi, lavabo (+ küvet)
+    for f in getattr(K, 'fx', []):
+        if f['kind'] not in ('WC', 'LV', 'DUS', 'KUVET') or not P.buffer(10).contains(Point(f['c'])):
+            continue
+        vit.append(box(*f['bb']).buffer(4, join_style=2) if f.get('bb') else Point(f['c']).buffer(12))
+    lav = lavabolar(K, P)
+    vit += lav
+    vit_u = unary_union(vit) if vit else Polygon()
+    tut = []
+    for q in _parcalar(eng):
+        if q.area < 3000 or (not vit_u.is_empty and q.intersection(vit_u).area > 50):
+            tut.append(q)
+    tut += [q.intersection(P) for q in lav]
+    return unary_union(tut) if tut else Polygon()
+
+
+def lavabolar(K, P):
+    """lavabo: duvara yaslı küçük kutu (P, 4+ köşe, 25..75 cm) ve içinde batarya/süzgeç daireleri (r < 4)"""
+    daire = [Point(a[1][0]) for a in K.R if a[0] == 'C' and a[2] < 4.0 and P.buffer(-2).contains(Point(a[1][0]))]
+    out = []
+    for a in K.R:
+        if a[0] != 'P' or len(a[1]) < 4:
+            continue
+        g = LineString(a[1])
+        x0, y0, x1, y1 = g.bounds
+        if not (25 <= x1 - x0 <= 75 and 25 <= y1 - y0 <= 75):
+            continue
+        b = box(x0, y0, x1, y1)
+        if not P.buffer(5).contains(b):
+            continue
+        if sum(1 for c in daire if b.contains(c)) >= 2:
+            out.append(b.buffer(4, join_style=2))
+    return out
+
+
+def _engeller(K, r, res=2.0):
     P = r['poly']
     Pin = P.buffer(-3)
     if Pin.is_empty:
@@ -183,6 +226,7 @@ def engeller(K, r, res=2.0):
     oda = g.doldur(P.buffer(-1))
     bar = np.zeros_like(oda)
     say = 0
+    ogeler = []
     for a in K.R:
         if a[0] not in 'LPAC':
             continue
@@ -195,7 +239,27 @@ def engeller(K, r, res=2.0):
         ic = ge.intersection(Pin)
         if ic.is_empty or ic.length < 8:
             continue
-        if _kapi_parcasi(a, ge, kapi_u):
+        ogeler.append([a, ge, ic, _kapi_parcasi(a, ge, kapi_u)])
+    # kapı kanadının (açılı çizilmiş kapı) kapı parçasına değen kısa çizgileri ve kapı etiket dairesi (K2, r≈8)
+    # da kapı parçasıdır: süpürme alanı engel değildir, altından boru geçer (R10 Z19)
+    kapi_y = kapi_u.buffer(40) if not kapi_u.is_empty else kapi_u
+    for _ in range(3):
+        kp = [o[1] for o in ogeler if o[3]]
+        if not kp:
+            break
+        degisti = False
+        for o in ogeler:
+            if o[3]:
+                continue
+            a, ge = o[0], o[1]
+            if a[0] == 'C' and 6.0 <= a[2] <= 10.0 and not kapi_y.is_empty and kapi_y.contains(ge.centroid):
+                o[3] = degisti = True
+            elif a[0] == 'L' and ge.length < 130 and any(ge.distance(k) < 2.0 for k in kp):
+                o[3] = degisti = True
+        if not degisti:
+            break
+    for a, ge, ic, kapi_mi in ogeler:
+        if kapi_mi:
             continue                     # kapı kanadı / kapı yayı: süpürme alanı hariç tutulmaz
         for s in getattr(ic, 'geoms', [ic]):
             if s.geom_type != 'LineString':

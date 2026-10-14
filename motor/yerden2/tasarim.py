@@ -17,12 +17,13 @@ HEDEF_L = 7000.0     # cm
 MAX_L = 8000.0
 IKI_DEVRE_M2 = 14.0
 CEP_X_PAY = 10.0     # besleme hattı -> cep sol kenarı
+KAPI_ORAN = 0.97     # kapı köşesi, en iyi kaplamanın bu oranından azsa daha iyi kaplayan köşe seçilir (R1)
 
 
 def _en_iyi_bolme(Rc, n, R_satir=None):
     """n devre için max L'yi en küçük yapan bölme -> (sonuç, maxL) | (None, inf).
     Kapsama doğrulaması geçmezse alttaki 1..4 satır atlanarak yeniden denenir (köşe girintisi)."""
-    for atla in range(0, 5):
+    for atla in (None, 0, 1, 2, 3, 4):
         r0 = S.kur(Rc, 1, R_satir=R_satir, atla=atla)
         if r0 is None:
             continue
@@ -33,7 +34,7 @@ def _en_iyi_bolme(Rc, n, R_satir=None):
         N = len(r0['ys'])
         best, bL = None, float('inf')
         for b in S.bolmeler(N, n):
-            r = S.kur(Rc, n, R_satir=R_satir, bolme=b, atla=atla)
+            r = S.kur(Rc, n, R_satir=R_satir, bolme=b, atla=r0['atla'], y_u_ofset=r0['faz'])
             if r is None or not _icinde(None, Rc, r):
                 continue
             L = max(S.uzunluk(p) for p in r['devreler'])
@@ -80,7 +81,7 @@ def oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True):
     if not adaylar:
         return None
     eniyi = max(a['toplam'] for a in adaylar)
-    iyi = [a for a in adaylar if a['toplam'] >= 0.93 * eniyi]
+    iyi = [a for a in adaylar if a['toplam'] >= KAPI_ORAN * eniyi]
     if kapi is not None:
         a = min(iyi, key=lambda a: (math.hypot(a['uc'][0] - kapi[0], a['uc'][1] - kapi[1]), -a['toplam']))
     else:
@@ -110,7 +111,7 @@ def oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True):
                 if H.buffer(0.5).contains(cw) and not cw.intersects(yasak):
                     dene = [c for c in cepler_c if c is not None] + [cep]
                     Rs = Rc.difference(unary_union([c.buffer(S.CEP_PAY, join_style=2) for c in dene]))
-                    r2 = S.kur(Rc, n, R_satir=Rs, bolme=bolme, atla=r.get('atla', 0))
+                    r2 = S.kur(Rc, n, R_satir=Rs, bolme=bolme, atla=r.get('atla', 0), y_u_ofset=r.get('faz'))
                     kayip = (sum(S.uzunluk(p) for p in r['devreler']) - sum(S.uzunluk(p) for p in r2['devreler'])
                              if r2 is not None else 1e9)
                     if r2 is not None and _icinde(fr, Rc, r2) and kayip <= 1.5 * (S.ETIKET_W + 30) * (S.ETIKET_H + 30) / S.ADIM:

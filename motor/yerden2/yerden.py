@@ -157,8 +157,8 @@ def bloklar(doc):
     _attdef(b, 'ALAN', (0, -30), 5, 2, TA.MIDDLE_CENTER, gizli=True)
 
 
-def ekle(msp, ad, p, katman, attr, olcek=1.0):
-    e = msp.add_blockref(ad, p, dxfattribs={'layer': katman, 'xscale': olcek, 'yscale': olcek})
+def ekle(msp, ad, p, katman, attr, olcek=1.0, dondur=0):
+    e = msp.add_blockref(ad, p, dxfattribs={'layer': katman, 'xscale': olcek, 'yscale': olcek, 'rotation': dondur})
     e.add_auto_attribs(attr)
     return e
 
@@ -244,7 +244,7 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
         if not ok:
             isitmasiz.append(dict(ad=r['name'], poly=r['poly'], tur=tur))
             continue
-        eng = MY.engeller(K, r)
+        eng = MY.engeller(K, r, islak=(tur == 'banyo'))
         H, R = MY.bolge(r, eng)
         kapi = MY.ana_kapi(K, r, tur)
         d = T.oda_tasarla(r, H, R, kapi, yasak, cep_ac)
@@ -299,57 +299,6 @@ def mimari_m2(K, r):
 
 
 # ====================================================================== etiket yerleşimi
-def yerlestir(w, h, anchor, oda_geom, yasak, borular, mimari=None, maske_izin=True, disari=True):
-    """w×h dikdörtgen yeri:
-      (0) oda içinde, boru üstüne gelmeyen (maske gerekmez)          -> 'bos'
-      (1) oda içinde, borunun üstünde (altı WIPEOUT maskeli)          -> 'ic'
-      (2) oda dışında 800 cm içinde: yazı, etiket, boru ve mimari çizgi olmayan boş yer (kılavuz çizgili) -> 'dis'
-    -> (dikdörtgen, tür) | (None, None)"""
-    from shapely.prepared import prep
-    py = prep(yasak) if not yasak.is_empty else None
-    pb = prep(borular) if borular is not None and not borular.is_empty else None
-    ax, ay = anchor
-    if oda_geom is not None and not oda_geom.is_empty:
-        pi = prep(oda_geom)
-        bx = oda_geom.bounds
-        aday = [(x, y) for x in _aralik(bx[0] + w / 2, bx[2] - w / 2, 10) for y in _aralik(bx[1] + h / 2, bx[3] - h / 2, 10)]
-        aday.sort(key=lambda p: math.hypot(p[0] - ax, p[1] - ay))
-        uygun = []
-        for cx, cy in aday:
-            q = box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2)
-            if pi.contains(q) and (py is None or not py.intersects(q)):
-                if pb is None or not pb.intersects(q):
-                    return q, 'bos'
-                uygun.append(q)
-        if uygun and maske_izin:
-            return uygun[0], 'ic'
-    if not disari:
-        return None, None
-    # oda dışı: yazı/etiket/boru yok; mimari çizgi üstüne binmesi cezalı (az çizgili, yakın yer)
-    from shapely import STRtree
-    mg = list(getattr(mimari, 'geoms', [mimari])) if mimari is not None and not mimari.is_empty else []
-    tree = STRtree(mg) if mg else None
-    best = None
-    for R_ in (250, 450, 800):
-        aday = [(ax + dx, ay + dy) for dx in range(-R_, R_ + 1, 15) for dy in range(-R_, R_ + 1, 15)]
-        for cx, cy in aday:
-            q = box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2)
-            if (py is not None and py.intersects(q)) or (pb is not None and pb.intersects(q)):
-                continue
-            ml = 0.0
-            if tree is not None:
-                for i in tree.query(q):
-                    ml += mg[i].intersection(q).length
-            sk = math.hypot(cx - ax, cy - ay) + 1.0 * ml
-            if best is None or sk < best[0]:
-                best = (sk, q)
-        if best is not None and best[0] < 2.0 * R_:
-            break
-    if best is not None:
-        return best[1], 'dis'
-    return None, None
-
-
 def _aralik(a, b, s):
     out = []
     x = a
@@ -359,71 +308,106 @@ def _aralik(a, b, s):
     return out or [(a + b) / 2]
 
 
+def yer_bul(boyutlar, anchor, kademeler, yasak, mimari=None, kendi=None, adim=10.0):
+    """Etiket yeri: YALNIZ kendi mahalinin içinde (kılavuz çizgisi yok — R3/R4).
+    boyutlar: [(w, h, dönüş)], kademeler: [(bölge, mimari_cizgi_yasak)] sırayla denenir.
+    Puan: anchor'a uzaklık (+ kendi devresinin borusunu örtmüyorsa ceza). -> (dikdörtgen, dönüş) | (None, None)"""
+    from shapely.prepared import prep
+    py = prep(yasak) if yasak is not None and not yasak.is_empty else None
+    pm = prep(mimari) if mimari is not None and not mimari.is_empty else None
+    pk = prep(kendi) if kendi is not None and not kendi.is_empty else None
+    ax, ay = anchor
+    for bolge_, mim_yasak in kademeler:
+        if bolge_ is None or bolge_.is_empty:
+            continue
+        pb = prep(bolge_)
+        bx = bolge_.bounds
+        best = None
+        for w, h, rot in boyutlar:
+            for cx in _aralik(bx[0] + w / 2, bx[2] - w / 2, adim):
+                for cy in _aralik(bx[1] + h / 2, bx[3] - h / 2, adim):
+                    sk = math.hypot(cx - ax, cy - ay) + (0 if rot == 0 else 60)
+                    if best is not None and sk >= best[0]:
+                        continue
+                    q = box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2)
+                    if pk is not None and not pk.intersects(q):
+                        sk += 150
+                        if best is not None and sk >= best[0]:
+                            continue
+                    if not pb.contains(q):
+                        continue
+                    if py is not None and py.intersects(q):
+                        continue
+                    if mim_yasak and pm is not None and pm.intersects(q):
+                        continue
+                    best = (sk, q, rot)
+        if best is not None:
+            return best[1], best[2]
+    return None, None
+
+
 def etiketle(msp, KT, tum_borular):
-    """devre etiketleri (cep / oda içinde maskeli / oda dışında kılavuzlu) + mahal etiketleri"""
+    """Mahal etiketi + devre etiketleri, hepsi kendi mahalinin içinde; boru üstündekilerin altı WIPEOUT maskeli.
+    Kullanıcının çizimi: devre tablosu serpantinin üstüne biner (cep yok), mahal etiketi serbest zeminde
+    (vitrifiye, duş teknesi, küvet ve duvar üstüne binmez — R5)."""
     yasak = KT['yasak']
-    say = dict(cep=0, bos=0, maskeli=0, disari=0, mahal=0, mahal_maskeli=0, mahal_disari=0, yok=0)
+    say = dict(cep=0, maskeli=0, bos=0, dondurulmus=0, mahal=0, mahal_maskeli=0, yok=0, mahal_yok=0)
+    mim = KT['mimari']
     for o in KT['odalar']:
+        P = o['poly']
+        Hn = o['H']                                   # mahal - vitrifiye/tefriş
+        x, y = o['xy']
+        # ---- mahal etiketi (74 × 54): mahal adının üstünde, vitrifiye/duvar/yazı üstüne binmeden
+        q, _ = yer_bul([(74, 54, 0)], (x, y + 100),
+                       [(Hn.buffer(-4, join_style=2), True), (Hn.buffer(-2, join_style=2), False),
+                        (P.buffer(-3, join_style=2), False)], yasak, mim)
+        if q is None:
+            say['mahal_yok'] += 1
+            log('UYARI: mahal etiketi yeri yok: %s' % o['zon'])
+        else:
+            x0, y0, x1, y1 = q.bounds
+            if q.intersects(tum_borular):
+                msp.add_wipeout([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], dxfattribs={'layer': L_MASK})
+                say['mahal_maskeli'] += 1
+            ekle(msp, 'ROTAS-YI-MAHAL', (q.centroid.x, q.centroid.y), L_MAH,
+                 {'DERECE': '%d%%%%DC' % o['sic'], 'NO': o['zon'], 'MAHAL': o['ad'], 'ALAN': '%.2f' % o['alan']})
+            o['etiket'] = q
+            say['mahal'] += 1
+            yasak = yasak.union(q.buffer(4))
+        # ---- devre etiketleri (150 × 80; dar mahalde 90° döndürülmüş)
         for c in o['tasarim']['devreler']:
-            q = c['cep']
+            q, rot = c['cep'], 0
             yer = 'cep'
             if q is None:
+                g = S.cizgi(c['pts'])
                 ux, uy = c['pts'][0][0], c['pts'][0][1]
-                q, yer = yerlestir(S.ETIKET_W, S.ETIKET_H, (ux, uy), o['H'].buffer(1), yasak, tum_borular, KT['mimari'])
+                cc = g.envelope.centroid
+                anc = ((ux + 2 * cc.x) / 3, (uy + 2 * cc.y) / 3)
+                boy = [(S.ETIKET_W, S.ETIKET_H, 0), (S.ETIKET_H, S.ETIKET_W, 90)]
+                q, rot = yer_bul(boy, anc, [(Hn.buffer(1), True), (Hn.buffer(1), False),
+                                            (P.buffer(-2, join_style=2), False)], yasak, mim, kendi=g)
                 if q is None:
                     say['yok'] += 1
                     log('UYARI: etiket yeri yok: devre %d %s' % (c['no'], o['zon']))
                     continue
-                say[{'ic': 'maskeli', 'dis': 'disari', 'bos': 'bos'}[yer]] += 1
+                yer = 'ic' if q.intersects(tum_borular) else 'bos'
+                say['maskeli' if yer == 'ic' else 'bos'] += 1
+                if rot:
+                    say['dondurulmus'] += 1
             else:
                 say['cep'] += 1
             x0, y0, x1, y1 = q.bounds
             if yer == 'ic':
                 msp.add_wipeout([(x0 - 2, y0 - 2), (x1 + 2, y0 - 2), (x1 + 2, y1 + 2), (x0 - 2, y1 + 2)],
                                 dxfattribs={'layer': L_MASK})
-            if yer == 'dis':
-                ux, uy = c['pts'][0][0], c['pts'][0][1]
-                from shapely.ops import nearest_points
-                p = nearest_points(q.exterior, Point(ux, uy))[0]
-                msp.add_line((p.x, p.y), (ux, uy), dxfattribs={'layer': L_ET, 'color': 2})
-                yasak = yasak.union(LineString([(p.x, p.y), (ux, uy)]).buffer(3))
-            ekle(msp, 'ROTAS-YI-ETIKET', (x0, y1), L_ET,
-                 {'UZ': '%.2f m' % c['L_m'], 'AR': '15.0', 'YER': '%.1f W' % c['W'], 'NO1': str(c['no']),
-                  'MAHAL': o['ad'], 'NO': o['zon'], 'DERECE': '%d%%%%DC' % o['sic'], 'ALAN': '%.2f' % o['alan'],
-                  'BORU': 'PEX BORU, 16 x 2.0'})
+            e = ekle(msp, 'ROTAS-YI-ETIKET', (x0, y1) if rot == 0 else (x0, y0), L_ET,
+                     {'UZ': '%.2f m' % c['L_m'], 'AR': '15.0', 'YER': '%.1f W' % c['W'], 'NO1': str(c['no']),
+                      'MAHAL': o['ad'], 'NO': o['zon'], 'DERECE': '%d%%%%DC' % o['sic'], 'ALAN': '%.2f' % o['alan'],
+                      'BORU': 'PEX BORU, 16 x 2.0'}, dondur=rot)
             c['etiket'] = q
             c['etiket_yer'] = yer
             c['etiket_maskeli'] = yer == 'ic'
             yasak = yasak.union(q.buffer(4))
-    # mahal etiketleri: mahal adının üstünde (yoksa oda içinde en yakın boş yer), maskeli
-    for o in KT['odalar']:
-        x, y = o['xy']
-        # önce mahal adının üstünde (referans: üst yarı), boru üstündeyse maskeli
-        q, yer = yerlestir(74, 54, (x, y + 110), o['poly'].buffer(-4), yasak, tum_borular, KT['mimari'],
-                           maske_izin=False, disari=False)
-        if q is None or q.centroid.distance(Point(x, y + 110)) > 160:
-            q, yer = yerlestir(74, 54, (x, y + 110), o['poly'].buffer(-4), yasak, None, KT['mimari'])
-        if q is not None and yer == 'bos' and q.intersects(tum_borular):
-            yer = 'ic'
-        if yer == 'ic':
-            say['mahal_maskeli'] += 1
-        if q is None:
-            log('UYARI: mahal etiketi yeri yok: %s' % o['zon'])
-            continue
-        cx, cy = q.centroid.x, q.centroid.y
-        x0, y0, x1, y1 = q.bounds
-        if yer == 'ic':
-            msp.add_wipeout([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], dxfattribs={'layer': L_MASK})
-        elif yer == 'dis':
-            say['mahal_disari'] += 1
-            from shapely.ops import nearest_points
-            p = nearest_points(q.exterior, Point(x, y))[0]
-            msp.add_line((p.x, p.y), (x, y + 25), dxfattribs={'layer': L_MAH, 'color': 2})
-        ekle(msp, 'ROTAS-YI-MAHAL', (cx, cy), L_MAH, {'DERECE': '%d%%%%DC' % o['sic'], 'NO': o['zon'],
-                                                       'MAHAL': o['ad'], 'ALAN': '%.2f' % o['alan']})
-        o['etiket'] = q
-        say['mahal'] += 1
-        yasak = yasak.union(q.buffer(4))
     KT['yasak'] = yasak
     return say
 
@@ -461,8 +445,8 @@ def model_yaz(KTS):
                 'zon': o['zon'], 'ad': o['ad'], 'tur': o['tur'], 'sic': o['sic'], 'alan_m2': o['alan'],
                 'alan_mimari_m2': o['alan_mimari'],
                 'isitma_alani_m2': round(o['H'].area / 1e4, 2), 'kose': o['tasarim']['kose'],
-                'devreler': [{'no': c['no'], 'L_m': c['L_m'], 'W': c['W'], 'etiket': 'cep' if c['cep'] is not None
-                              else ('maskeli' if c.get('etiket_maskeli') else 'disari')} for c in o['tasarim']['devreler']]})
+                'bbox': [round(v, 1) for v in o['poly'].bounds],
+                'devreler': [{'no': c['no'], 'L_m': c['L_m'], 'W': c['W'], 'etiket': {'cep': 'cep', 'ic': 'maskeli', 'bos': 'bos'}.get(c.get('etiket_yer'), 'yok')} for c in o['tasarim']['devreler']]})
         kat['isitilmayan'] = sorted({'%s (%s)' % (q['ad'].replace('\n', ' '), q['tur']) for q in KT['isitmasiz']})
         out['katlar'].append(kat)
     json.dump(out, open(CIKIS_JSON, 'w'), ensure_ascii=False, indent=1)
@@ -474,8 +458,9 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument('--png', action='store_true', help='önizleme PNG + referansla yan yana')
     ap.add_argument('--ayaklar', action='store_true', help='kollektör ayakları (varsayılan kapalı: kullanıcı planda çizmiyor)')
-    ap.add_argument('--etiket-ust', action='store_true',
-                    help='devre etiketi için cep bırakma: tablo serpantin üstünde, altı maskeli (kullanıcının çizimi gibi)')
+    ap.add_argument('--cep', action='store_true',
+                    help='(eski davranış) devre etiketi için serpantinde cep bırak. Varsayılan: kullanıcının çizimi gibi '
+                         'etiket serpantinin üstünde, altı WIPEOUT maskeli (R1)')
     ap.add_argument('--yenile', action='store_true', help='mimari önbelleğini yenile')
     a = ap.parse_args(argv)
     t0 = time.time()
@@ -488,7 +473,7 @@ def main(argv=None):
     kutular = mimari_kopyala(doc)
     KTS = []
     for k in KATLAR:
-        KT = kat_tasarla(k, kutular, [], cep_ac=not a.etiket_ust)
+        KT = kat_tasarla(k, kutular, [], cep_ac=a.cep)
         n = sum(len(o['tasarim']['devreler']) for o in KT['odalar'])
         log('kat %s: %d ısıtılan mahal, %d devre' % (k, len(KT['odalar']), n))
         KTS.append(KT)

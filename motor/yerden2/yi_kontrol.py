@@ -128,8 +128,34 @@ def calistir(KTS, dxf_yol):
         'diger': hatalar[:20],
         'denetle': ozet,
     }
+    sonuc['yogunluk'] = yogunluk(KTS)
+    sonuc['yogunluk_6_alti'] = [y for y in sonuc['yogunluk'] if y['tur'] in ('oda', 'hol') and y['m_m2_mimari'] < 6.0]
+    sonuc['devre_3m_alti'] = [(k, c['no'], c['L_m']) for k, o, c, g in tum if c['L_m'] < 3.0]
+    sonuc['etiket_mahal_disi'] = [(KT['kat'], o['zon'], c['no']) for KT in KTS for o in KT['odalar']
+                                  for c in o['tasarim']['devreler']
+                                  if c.get('etiket') is not None and not o['poly'].buffer(1).contains(c['etiket'])]
+    sonuc['mahal_etiketi_mahal_disi'] = [(KT['kat'], o['zon']) for KT in KTS for o in KT['odalar']
+                                         if o.get('etiket') is not None and not o['poly'].buffer(1).contains(o['etiket'])]
+    sonuc['mahal_etiketi_vitrifiye_ustu'] = [(KT['kat'], o['zon']) for KT in KTS for o in KT['odalar']
+                                             if o.get('etiket') is not None and not o['eng'].is_empty
+                                             and o['etiket'].intersection(o['eng']).area > 1]
     json.dump(sonuc, open(RAPOR, 'w'), ensure_ascii=False, indent=1, default=str)
-    kisa = {k: (len(v) if isinstance(v, list) else v) for k, v in sonuc.items() if k != 'denetle'}
+    kisa = {k: (len(v) if isinstance(v, list) else v) for k, v in sonuc.items() if k not in ('denetle', 'yogunluk')}
     print('[kontrol]', json.dumps(kisa, ensure_ascii=False))
     print('[denetle]', json.dumps(ozet, ensure_ascii=False, default=str)[:1500])
     return sonuc
+
+
+def yogunluk(KTS):
+    """mahal başına boru yoğunluğu: m boru / mimari m² (kontrolörün ölçüsü) ve m / net ısıtma alanı"""
+    out = []
+    for KT in KTS:
+        for o in KT['odalar']:
+            L = sum(c['L_m'] for c in o['tasarim']['devreler'])
+            Am = o.get('alan_mimari') or o['alan']
+            out.append(dict(kat=KT['kat'], zon=o['zon'], daire='D%d' % o['daire'], ad=o['ad'], tur=o['tur'],
+                            alan_mimari=Am, alan_poligon=o['alan'], alan_net=round(o['H'].area / 1e4, 2),
+                            L_m=round(L, 2), devre=[c['L_m'] for c in o['tasarim']['devreler']],
+                            m_m2_mimari=round(L / Am, 2), m_m2_poligon=round(L / o['alan'], 2),
+                            m_m2_net=round(L / (o['H'].area / 1e4), 2)))
+    return out

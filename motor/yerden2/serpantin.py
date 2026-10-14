@@ -199,52 +199,76 @@ def satirlar(R, y_u_ofset=None):
     return [y0 + off + ADIM * j for j in range(N)]
 
 
+def _satirlar_faz(R, faz):
+    """R alt sınırından faz (+ k·ADIM) satırları; faz None -> eski davranış (çift sayı, boşluk iki kenara)"""
+    if faz is None:
+        return satirlar(R)
+    _, y0, _, y1 = R.bounds
+    out = []
+    y = y0 + faz
+    while y <= y1 + 1e-6:
+        out.append(y)
+        y += ADIM
+    return out
+
+
 def kur(R, n, R_satir=None, bolme=None, cepler=None, y_u_ofset=None, atla=0):
     """Kanonik çerçevede n devreli meander. bolme: devre başına satır sayıları (aşağıdan yukarı: yakın..uzak) | None.
     Dönüş: dict(devreler=[pts...] (0 = en yakın/alt), ys, x_f, bolme) | None"""
     if R.is_empty:
         return None
-    ys_all = satirlar(R, y_u_ofset)
-    if not ys_all:
-        return None
-    # geçerli satırlar: alttan kesintisiz; baştaki kısa (çıkıntı) satırlar atlanır
-    ok = []
-    for y in ys_all:
-        a = araliklar(R, y)
-        if not ok and (not a or max(r - l for l, r in a) < 4 * ADIM):
-            continue
-        if not a:
-            break
-        ok.append((y, a))
-    ok = ok[atla:]
-    if len(ok) % 2:
-        ok = ok[:-1]
-    if not ok:
-        return None
-    y_u = ok[0][0]
-    if len(ok) < 2:
-        return None
-    # besleme x'i adayları: satırların sol uçları; her aday için alttan kesintisiz kapsanan satırlar ve
-    # kabaca kaplanan boy (sum r - x_f) -> en iyisi
-    adaylar = sorted({round(l, 2) for y, a in ok for l, r in a if r - l > 3 * ADIM})
+    # atla=None: satır fazı (0..12,5 cm) ve uç tarafında atlanan satır sayısı (0..6) taranır, en çok boru boyu
+    # veren (faz, atla, besleme x) seçilir. Kapı önündeki dar çıkıntı/girinti yüzünden besleme hattının odanın
+    # ortasına kayması ve satır kaybı önlenir (R1 yoğunluk, R10 Z19).
+    if atla is None:
+        fazlar = [None] + [2.5 * i for i in range(6)]
+        atlar = range(0, 7)
+    else:
+        fazlar = [y_u_ofset]
+        atlar = [atla]
     best = None
-    for xf in adaylar:
-        kul_, top = [], 0.0
-        for y, a in ok:
-            hit = [(l, r) for l, r in a if l - 0.5 <= xf <= r + 0.5]
-            if not hit:
+    for faz in fazlar:
+        ys_all = _satirlar_faz(R, faz)
+        if not ys_all:
+            continue
+        ok_all = []
+        for y in ys_all:
+            a = araliklar(R, y)
+            if not ok_all and (not a or max(r - l for l, r in a) < 4 * ADIM):
+                continue
+            if not a:
                 break
-            kul_.append(y)
-            top += hit[0][1] - xf
-        if best is None or top > best[0] + 1e-6:
-            best = (top, xf, kul_)
+            ok_all.append((y, a))
+        for at in atlar:
+            ok = ok_all[at:]
+            if len(ok) < 2:
+                break
+            # besleme x'i adayları: satırların sol uçları; her aday için alttan kesintisiz kapsanan satırlar
+            # (çift sayıya kırpılmış) ve kabaca kaplanan boy (sum r - x_f) -> en iyisi
+            adaylar = sorted({round(l, 2) for y, a in ok for l, r in a if r - l > 3 * ADIM})
+            for xf in adaylar:
+                kul_, boy = [], []
+                for y, a in ok:
+                    hit = [(l, r) for l, r in a if l - 0.5 <= xf <= r + 0.5]
+                    if not hit:
+                        break
+                    kul_.append(y)
+                    boy.append(hit[0][1] - xf)
+                Nc = len(kul_) - len(kul_) % 2
+                if Nc < 2:
+                    continue
+                top = sum(boy[:Nc]) + 2 * ADIM * Nc
+                kul_ = kul_[:Nc]
+                if best is None or top > best[0] + (1e-6 if (at, faz) == (best[3], best[4]) else 20.0):
+                    best = (top, xf, kul_, at, faz)
     if best is None:
         return None
-    _, x_f, kul = best
+    _, x_f, kul, atla, faz = best
     N = len(kul) - (len(kul) % 2)
     ys = kul[:N]
     if N < 2:
         return None
+    y_u = ys[0]
     if R_satir is None:
         R_satir = R
     if bolme is None:
@@ -262,7 +286,7 @@ def kur(R, n, R_satir=None, bolme=None, cepler=None, y_u_ofset=None, atla=0):
         if pts is None:
             return None
         devreler.append(pts)
-    return dict(devreler=devreler, ys=ys, x_f=x_f, bolme=list(bolme), y_u=y_u, atla=atla)
+    return dict(devreler=devreler, ys=ys, x_f=x_f, bolme=list(bolme), y_u=y_u, atla=atla, faz=faz)
 
 
 def esit_bol(N, n):
