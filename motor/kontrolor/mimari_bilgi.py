@@ -233,6 +233,8 @@ def kat_analiz(A, w, kat='?'):
             if not any(abs(q[0] - c[0]) < 1.5 and abs(q[1] - c[1]) < 1.5 for q in inisler):
                 inisler.append(c)
     daire, tohum = _daire_gruplari(R, rooms, w, cols)
+    kapilar = _kapi_komsulari(R, rooms)
+    daire, degisen = _kapi_ile_ata(rooms, daire, kapilar)
     for i, r in enumerate(rooms):
         r['daire'] = daire.get(i)
     # daire poligonları: aynı daire mahallerinin birleşimi (duvar payı 35 cm: duvar içindeki hat daire içi sayılır)
@@ -251,8 +253,95 @@ def kat_analiz(A, w, kat='?'):
         p = Point(f['c'])
         aday = [r for r in rooms if r['islak'] and r['poly'].buffer(15).contains(p)]
         f['mahal'] = min(aday, key=lambda r: r['poly'].area) if aday else None
+    # T07/T15/T13 için: mimari taramalar (duvar / betonarme), pencere etiketleri, 'mek. havl.' şaftları, makine yerleri
+    taramalar = []
+    for a in R:
+        if a[0] == 'H' and len(a[1]) >= 4:
+            try:
+                pg = Polygon(a[1]).buffer(0)
+                if pg.area > 50:
+                    taramalar.append(pg)
+            except Exception:
+                pass
+    pencereler, mek_havl, makine = [], [], []
+    import re
+    for a in R:
+        if a[0] != 'T':
+            continue
+        t = a[2][0].strip()
+        c = a[1][1] if len(a[1]) > 1 else a[1][0]
+        if re.match(r'^[SP]\d{1,3}\b', t) and a[2][1] < 15:
+            pencereler.append((c, t))
+        n = norm(t)
+        if n in ('mek.', 'mek', 'havl.', 'havl') or n.startswith('mek. havl') or n.startswith('mek.havl'):
+            mek_havl.append(c)
+        tt = n.replace(' ', '').replace("'", '.')
+        if tt.startswith(('c.m', 'ç.m', 'ç.mak', 'çam.', 'cam.mak')):
+            makine.append(('CM', Point(c).buffer(25), 'mimari yazı "%s"' % t))
+        elif tt.startswith(('b.m', 'bul.', 'bul.mak')):
+            makine.append(('BM', Point(c).buffer(25), 'mimari yazı "%s"' % t))
+    for f in fx:
+        if f['kind'] in ('CM', 'BM') and not any(m[0] == f['kind'] and m[1].distance(Point(f['c'])) < 5 for m in makine):
+            pg = box(*f['bb']) if f.get('bb') else Point(f['c']).buffer(25)
+            makine.append((f['kind'], pg, 'mimari sembol'))
     return dict(kat=kat, pencere=w, R=R, rooms=rooms, wet=wet, fx=fx, cols=cols, daire_poly=daire_poly,
-                daire_poly_ic=daire_poly_ic, tohum=tohum, ortak_poly=ortak_poly, bina=bina, labs=labs, inisler=inisler)
+                daire_poly_ic=daire_poly_ic, tohum=tohum, ortak_poly=ortak_poly, bina=bina, labs=labs, inisler=inisler,
+                kapilar=kapilar, daire_kapi_degisen=degisen, taramalar=taramalar, pencereler=pencereler,
+                mek_havl=mek_havl, mimari_makine=makine)
+
+
+KAPI_RE = None
+
+
+def _kapi_komsulari(R, rooms, tol=30.0):
+    """kapı ölçü yazıları ('80/220', '90|220' ...: genişlik 60-120, yükseklik >= 180) -> kapının iki yanındaki mahaller.
+    Dönüş: [(i, j, (x, y))] (mahal indeksleri). Yazı kapı boşluğunun yanında durur: yazıya <= tol cm en yakın iki mahal."""
+    import re
+    global KAPI_RE
+    if KAPI_RE is None:
+        KAPI_RE = re.compile(r'^(\d{2,3})\s*[/|\n]\s*(\d{3})$')
+    out = []
+    for a in R:
+        if a[0] != 'T':
+            continue
+        m = KAPI_RE.match(a[2][0].strip())
+        if not m or not (60 <= int(m.group(1)) <= 120) or int(m.group(2)) < 180:
+            continue
+        c = a[1][1] if len(a[1]) > 1 else a[1][0]
+        pt = Point(c)
+        ds = sorted((r['poly'].distance(pt), i) for i, r in enumerate(rooms))
+        ds = [(d, i) for d, i in ds if d <= tol][:2]
+        if len(ds) == 2:
+            out.append((ds[0][1], ds[1][1], c))
+    return out
+
+
+def _kapi_ile_ata(rooms, daire, kapilar):
+    """kural (kullanıcı, 15.10.2026): mahal hangi dairenin kapısına açılıyorsa o dairedir. Yürüme mesafesiyle atanan
+    daire, mahalin kapı komşularının (ortak alan hariç) HEPSİNİN ortak dairesinden farklıysa kapı komşularının dairesi
+    alınır (ör. new_block 1. kat D6 wc-duş: duvar rasterindeki boşluk yüzünden D5'e düşüyordu). Dönüş: (daire, değişenler)"""
+    daire = dict(daire)
+    komsu = {}
+    for i, j, c in kapilar:
+        komsu.setdefault(i, set()).add(j)
+        komsu.setdefault(j, set()).add(i)
+    degisen = []
+    for _ in range(3):
+        oldu = False
+        for i, r in enumerate(rooms):
+            if ortak_mi(r['name']) or i not in komsu:
+                continue
+            ds = {daire.get(j) for j in komsu[i] if not ortak_mi(rooms[j]['name'])}
+            ds.discard(None)
+            if len(ds) == 1:
+                d = next(iter(ds))
+                if daire.get(i) != d:
+                    degisen.append((r['name'], daire.get(i), d))
+                    daire[i] = d
+                    oldu = True
+        if not oldu:
+            break
+    return daire, degisen
 
 
 def tasi(bilgi, dx, dy):
@@ -278,6 +367,12 @@ def tasi(bilgi, dx, dy):
     b['inisler'] = [(p[0] + dx, p[1] + dy) for p in bilgi['inisler']]
     b['labs'] = [(x + dx, y + dy, s) for x, y, s in bilgi['labs']]
     b['dxdy'] = (dx, dy)
+    b['kaynak_pencere'] = tuple(bilgi['pencere'])
+    b['taramalar'] = [t(g) for g in bilgi.get('taramalar', [])]
+    b['pencereler'] = [((c[0] + dx, c[1] + dy), s) for c, s in bilgi.get('pencereler', [])]
+    b['mek_havl'] = [(c[0] + dx, c[1] + dy) for c in bilgi.get('mek_havl', [])]
+    b['mimari_makine'] = [(k, t(g), s) for k, g, s in bilgi.get('mimari_makine', [])]
+    b['kapilar'] = [(i, j, (c[0] + dx, c[1] + dy)) for i, j, c in bilgi.get('kapilar', [])]
     b['mimari_yazi'] = [((a[1][0][0] + dx, a[1][0][1] + dy), a[2][0], a[2][1], a[2][2])
                         for a in bilgi['R'] if a[0] == 'T']
     return b

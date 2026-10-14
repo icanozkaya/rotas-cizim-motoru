@@ -2,6 +2,7 @@
 Her test Bulgu listesi döndürür: FAIL (kural ihlali, koordinatlı), INFO (bilgi), PASS (test geçti, özet).
 Koordinatlar kontrol edilen çizimin koordinatlarıdır (kat bilgisi öteleme ile taşınmıştır)."""
 import math
+import re
 from collections import defaultdict
 
 import networkx as nx
@@ -31,6 +32,23 @@ KOLON_MAHAL_PAY = 40.0        # kolon ıslak mahal poligonuna bu kadar yakınsa 
 ARMATUR_BAG_TOL = 50.0        # armatür bağlantı noktası – pis su ağı
 ETIKET_H = (8.0, 12.0)        # etiket yazı yüksekliği (kullanıcı: çap bloğu 10)
 ETIKET_HAT_MIN = 8.0          # yazı kutusundan geçen hat boyu (cm): köşeye değen sayılmaz
+ETIKET_BOSLUK = 0.0           # etiket–etiket en az boşluk (cm); 0: yalnız gerçek örtüşme (kutu.py gerçek kutu)
+ETIKET_TARAMA_ORAN = 0.25     # etiket kutusunun bu oranından fazlası duvar/betonarme taramasında -> FAIL
+ETIKET_ARMATUR_ORAN = 0.25    # etiket kutusunun bu oranından fazlası armatür / tesisat sembolü üstünde -> FAIL
+# etiket–armatür testinin uygulandığı semboller. new_block kalibrasyonu (15.10.2026): kullanıcı pis su iniş etiketini
+# klozet / lavabo / duş teknesi / süzgeç / çamaşır makinesi bloğunun ÜSTÜNE yazıyor (52+ kez: tarzı) ama eviye, bulaşık
+# makinesi, kombi, hela ve mimarideki Ç.M. yerinin üstüne HİÇ yazmıyor (0). Tur 1 RED: etiket eviye ve B.M. kutusu üstünde.
+ARMATUR_DENETIM = ('EV (MIMARI)', 'EVIYE', 'BM (MIMARI)', 'BULASIK', 'CM (MIMARI)', 'MAKINE', 'TERMOSIFON', 'KOMBI',
+                   'HELA', 'ASPIRATOR')
+ETIKET_ORTAK_ORAN = 0.30      # etiket kutusunun bu oranından fazlası asansör boşluğu / merdivende -> FAIL
+
+
+def armatur_denetlenir(ad):
+    """T07 etiket–armatür testi hangi armatür/sembollerde uygulanır (new_block kalibrasyonu: BENIOKU)"""
+    n = C.normu(ad)
+    if ARMATUR_DENETIM is None:
+        return True
+    return any(k in n for k in ARMATUR_DENETIM)
 
 
 class Bulgu:
@@ -525,12 +543,13 @@ def t07_etiketler(cz, kat, kb, mimari_yazi_kaynak=None):
         return [Bulgu('T07', 'INFO', 'etiket yok', kat)]
     pg = [e[1] for e in et]
     tree = STRtree(pg)
-    sol, sag = tree.query(pg, predicate='intersects')
+    pgb = [g.buffer(ETIKET_BOSLUK / 2.0, join_style=2) for g in pg] if ETIKET_BOSLUK > 0 else pg
+    sol, sag = tree.query(pgb, predicate='intersects')
     n_ee = 0
     for i, j in zip(sol, sag):
         if i >= j or et[i][2] == et[j][2]:
             continue
-        a, b = pg[i], pg[j]
+        a, b = pgb[i], pgb[j]
         if a.intersection(b).area <= 0.2:
             continue
         c = a.intersection(b).centroid
@@ -570,6 +589,69 @@ def t07_etiketler(cz, kat, kb, mimari_yazi_kaynak=None):
             if n_eh <= 60:
                 out.append(Bulgu('T07', 'FAIL', 'etiket hat üstüne biniyor: "%s" (%.0f cm hat yazı kutusunda)' % (et[i][0][:20], x.length),
                                  kat, (c.x, c.y), pencere=pencere_yap([(c.x, c.y)], pad=80, en_az=(260, 200))))
+    # etiket – duvar/betonarme taraması, armatür/sembol, asansör-merdiven bölgesi (tur 1 madde 5: "etiketler duvar
+    # taramasının, kapı yazısının ve armatürlerin üstüne konmuş; asansör boşluğuna taşmış")
+    n_et = n_ea = n_eo = 0
+    if kb is not None:
+        tar = kb.get('taramalar') or []
+        tt = STRtree(tar) if tar else None
+        arm = []
+        for f in kb.get('fx', []):
+            if f['kind'] in ('KOMBI', 'YS'):
+                continue
+            if f.get('bb'):
+                arm.append(('%s (mimari)' % f['kind'], box(*f['bb']), None))
+            else:
+                arm.append(('%s (mimari)' % f['kind'], Point(f['c']).buffer(18 if f['kind'] in ('LV', 'EV') else 12), None))
+        arm += [(C.normu(ad)[:24], pg, h) for ad, pg, h in cz.sembol_kutulari(w)]
+        arm = [a for a in arm if armatur_denetlenir(a[0])]
+        at = STRtree([g for _, g, _ in arm]) if arm else None
+        ortak = [r for r in kb['rooms'] if r['ortak'] and any(k in r['name'].lower() for k in ('asans', 'merdiven'))]
+        for i, e in enumerate(et):
+            a = pg[i]
+            A = a.area
+            if A <= 0:
+                continue
+            if tt is not None:
+                ust = unary_union([tar[j] for j in tt.query(a, predicate='intersects')] or [Polygon()])
+                x = a.intersection(ust).area if not ust.is_empty else 0.0
+                if x > ETIKET_TARAMA_ORAN * A:
+                    n_et += 1
+                    if n_et <= 40:
+                        c = a.centroid
+                        out.append(Bulgu('T07', 'FAIL', 'etiket duvar/betonarme taramasının üstünde: "%s" (%%%.0f)' % (e[0][:20], 100 * x / A),
+                                         kat, (c.x, c.y), pencere=pencere_yap([(c.x, c.y)], pad=80, en_az=(260, 200))))
+            if at is not None:
+                for j in at.query(a, predicate='intersects'):
+                    if arm[j][2] is not None and arm[j][2] == e[2]:
+                        continue                      # kendi bloğunun özniteliği (kolon bloğundaki P no)
+                    x = a.intersection(arm[j][1]).area
+                    if x > ETIKET_ARMATUR_ORAN * A:
+                        n_ea += 1
+                        if n_ea <= 40:
+                            c = a.centroid
+                            out.append(Bulgu('T07', 'FAIL', 'etiket armatür/sembol üstünde: "%s" / %s (%%%.0f)' % (
+                                e[0][:20], arm[j][0], 100 * x / A), kat, (c.x, c.y), pencere=pencere_yap([(c.x, c.y)], pad=80, en_az=(260, 200))))
+                        break
+            for r in ortak:
+                if re.match(r'^(P|YB)\d+$', e[0]):
+                    break                             # kolon numarası balonu mahal dışında, kolonun yanında (ORNEK_DUZEN)
+                x = a.intersection(r['poly'].buffer(-5)).area
+                if x > ETIKET_ORTAK_ORAN * A:
+                    # asansör boşluğu: FAIL. merdiven holü: BİLGİ — kullanıcı new_block 1. katta kolon toplam etiketini
+                    # ("Ø100 / 46 SB") kılavuzla merdiven holüne almış (boş yer); karar görsel kontrolde
+                    asansor = 'asans' in r['name'].lower()
+                    n_eo += 1 if asansor else 0
+                    if not asansor:
+                        c = a.centroid
+                        out.append(Bulgu('T07', 'INFO', 'etiket merdiven holünde: "%s" (%%%.0f) — kılavuzlu ve boş yerdeyse kabul '
+                                         '(referans new_block 1. kat)' % (e[0][:20], 100 * x / A), kat, (c.x, c.y)))
+                    elif n_eo <= 40:
+                        c = a.centroid
+                        out.append(Bulgu('T07', 'FAIL', 'etiket %s içinde: "%s" (%%%.0f) — etiket mahal dışına kılavuzla, boş yere' % (
+                            r['name'].replace('\n', ' '), e[0][:20], 100 * x / A), kat, (c.x, c.y),
+                            pencere=pencere_yap([(c.x, c.y)], pad=80, en_az=(260, 200))))
+                    break
     # etiket boyu
     hs = sorted(e[4] for e in et if e[3] and ('CAP' in C.normu(e[3]) or 'TEFRIS' in C.normu(e[3])))
     if hs:
@@ -577,7 +659,8 @@ def t07_etiketler(cz, kat, kb, mimari_yazi_kaynak=None):
         if not (ETIKET_H[0] <= med <= ETIKET_H[1]):
             out.append(Bulgu('T07', 'FAIL', 'çap etiketi yazı yüksekliği ortanca %.1f (kullanıcı boyu %.0f-%.0f)' %
                              (med, ETIKET_H[0], ETIKET_H[1]), kat))
-    ozet = 'etiket-etiket %d, etiket-mimari yazı %d, etiket-hat %d (toplam %d etiket)' % (n_ee, n_em, n_eh, len(et))
+    ozet = ('etiket-etiket %d, etiket-mimari yazı %d, etiket-hat %d, etiket-tarama %d, etiket-armatür/sembol %d, '
+            'etiket-asansör boşluğu %d (toplam %d etiket)' % (n_ee, n_em, n_eh, n_et, n_ea, n_eo, len(et)))
     if not any(b.durum == 'FAIL' for b in out):
         out.append(Bulgu('T07', 'PASS', ozet, kat))
     else:

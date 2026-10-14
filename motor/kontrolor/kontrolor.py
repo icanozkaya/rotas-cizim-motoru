@@ -8,7 +8,12 @@
         --katman AD,AD      genel mimari kaynakta okunacak katmanlar (varsayılan: MIMARI/MKDU/DUVAR geçenler)
         --referans-yok      yan yana referans (new_block) kırpımı üretme
         --referans-kaydet   bu çalışmanın test sayılarını referans ölçümü olarak kaydet (new_block'un kendisi için)
-                            -> motor/kontrolor/referans_new_block.json; raporda "Referans" sütunu
+                            -> motor/kontrolor/referans_new_block.json; raporda "Referans" sütunu; kolon numara/konumları
+                            ve ÇM/BM yerleri de '_cizim' alanına yazılır (T12 yeni kolon, T13 makine yeri referansı)
+        --tur sihhi|yerden  test takımı (varsayılan sihhi; yerden: yerden ısıtma planı + şema, `yerden.py`)
+        --kat-pencere JSON  kontrol edilen çizimde kat paftası pencereleri {"Z":[x0,y0,x1,y1],...} (çerçevesiz dosya, ör.
+                            new_block ısıtma şeridi); öteleme yazı eşleşmesiyle bulunur
+        --excel XLSX        (yerden) hesap Excel'i: plan W ↔ Excel W tutarlılığı
 
 denetle.py kontrollerine (MTY, ROTAS- öneki, köprü, kesişme, elektrik, yazı, lejant, audit) EK olarak kullanıcı
 kurallarını ÖLÇEN testler (T01–T10, `testler.py`). Her bulgu: PASS/FAIL + koordinat + kırpılmış PNG (rapor klasörü
@@ -26,6 +31,9 @@ sys.path.insert(0, BURASI)
 import cizim as C  # noqa: E402
 import mimari_bilgi as MB  # noqa: E402
 import testler as T  # noqa: E402
+import testler2 as T2  # noqa: E402
+
+T.TEST_ADI.update(T2.TEST_ADI2)
 
 KOK = os.path.dirname(os.path.dirname(BURASI))
 REFERANS_JSON = os.path.join(BURASI, 'referans_new_block.json')
@@ -40,7 +48,7 @@ def goreli(p):
 
 def argumanlar(argv):
     o = dict(dxf=None, mimari=None, rapor=None, png=True, png_ust=12, pencere=None, katman=None, referans=True,
-             referans_kaydet=False)
+             referans_kaydet=False, tur='sihhi', kat_pencere=None, excel=None)
     it = iter(argv)
     for a in it:
         if a == '--mimari':
@@ -59,6 +67,12 @@ def argumanlar(argv):
             o['referans'] = False
         elif a == '--referans-kaydet':
             o['referans_kaydet'] = True
+        elif a == '--tur':
+            o['tur'] = next(it)
+        elif a == '--kat-pencere':
+            o['kat_pencere'] = {k: tuple(v) for k, v in json.loads(next(it)).items()}
+        elif a == '--excel':
+            o['excel'] = next(it)
         elif o['dxf'] is None:
             o['dxf'] = a
     if not o['dxf']:
@@ -83,6 +97,9 @@ def katlari_esle(cz, o, log):
         if o['pencere']:
             wins = {k: tuple(v) for k, v in o['pencere'].items()}
         log.append('mimari kaynak: %s (%d kayıt)' % (goreli(o['mimari']), len(A)))
+    if o.get('kat_pencere'):
+        cz.kat_paftalari = dict(o['kat_pencere'])
+        log.append('kat paftaları --kat-pencere ile verildi: %s' % sorted(cz.kat_paftalari))
     # kontrol edilen dosya kat paftasız (ör. new_block'un kendisi): pencereler kaynak pencereleri, öteleme 0
     if not cz.kat_paftalari and wins:
         cz.kat_paftalari = dict(wins)
@@ -148,25 +165,53 @@ def calistir(o):
     log.append('dosya: %s — çerçeve %d, kat paftası %s, şema paftası %s' % (
         goreli(o['dxf']), len(cz.cerceveler), sorted(cz.kat_paftalari), 'var' if cz.sema_paftasi else 'yok'))
     katlar, A = katlari_esle(cz, o, log)
-    bulgular = []
-    for k in sorted(katlar, key=lambda s: (s != 'Z', s)):
-        kbt, dxdy, n = katlar[k]
-        for f in T.KAT_TESTLERI:
-            try:
-                bulgular += f(cz, k, kbt)
-            except Exception as ex:
-                import traceback
-                bulgular.append(T.Bulgu(f.__name__[:3].upper(), 'INFO', 'test çöktü: %s' % ex, k))
-                traceback.print_exc()
+    ref_json = {}
+    if os.path.exists(REFERANS_JSON):
         try:
-            bulgular += T.t07_etiketler(cz, k, kbt, mimari_yazi_poligonlari(kbt))
+            ref_json = json.load(open(REFERANS_JSON, encoding='utf-8'))
+        except Exception:
+            ref_json = {}
+    # kullanıcı referans çizimi kayıtları (kolon no/konum, ÇM/BM) yalnız new_block mimarisiyle anlamlı
+    ref_cizim = ref_json.get('_cizim') if (o['mimari'] and MB.new_block_mi(o['mimari'])) else None
+    for k, (kbt, dxdy, n) in katlar.items():
+        if kbt.get('daire_kapi_degisen'):
+            log.append('kat %s: kapı komşuluğuyla daire ataması düzeltildi: %s' % (
+                k, ', '.join('%s D%s→D%s' % (a.replace('\n', ' '), b, c) for a, b, c in kbt['daire_kapi_degisen'])))
+    bulgular = []
+
+    def guvenli(ad, f, *a, kat=None):
+        try:
+            return f(*a)
         except Exception as ex:
-            bulgular.append(T.Bulgu('T07', 'INFO', 'test çöktü: %s' % ex, k))
-    try:
-        bulgular += T.t08_sema_sayac(cz)
-    except Exception as ex:
-        bulgular.append(T.Bulgu('T08', 'INFO', 'test çöktü: %s' % ex, 'ŞEMA'))
-    bulgular += T.t11_denetle(o['dxf'])
+            import traceback
+            traceback.print_exc()
+            return [T.Bulgu(ad, 'INFO', 'test çöktü: %s' % ex, kat)]
+
+    if o['tur'] == 'yerden':
+        import yerden as Y
+        T.TEST_ADI.clear()
+        T.TEST_ADI.update(Y.TEST_ADI)
+        for k in sorted(katlar, key=T2.kat_sira):
+            kbt, dxdy, n = katlar[k]
+            bulgular += guvenli('Y', Y.kat_testleri, cz, k, kbt, kat=k)
+        bulgular += guvenli('Y06', Y.y06_plan_excel, cz, katlar, o.get('excel'))
+        bulgular += guvenli('T16', T2.t16_sizinti_renk, cz)
+        bulgular += guvenli('T17', T2.t17_pafta, cz, 'yerden')
+        bulgular += T.t11_denetle(o['dxf'])
+    else:
+        for k in sorted(katlar, key=T2.kat_sira):
+            kbt, dxdy, n = katlar[k]
+            for f in T.KAT_TESTLERI:
+                bulgular += guvenli(f.__name__[:3].upper(), f, cz, k, kbt, kat=k)
+            bulgular += guvenli('T07', T.t07_etiketler, cz, k, kbt, mimari_yazi_poligonlari(kbt), kat=k)
+            bulgular += guvenli('T13', T2.t13_makine_yeri, cz, k, kbt, ref_cizim, kat=k)
+            bulgular += guvenli('T14', T2.t14_aspirator_notu, cz, k, kbt, kat=k)
+            bulgular += guvenli('T15', T2.t15_penceresiz_aspirator, cz, k, kbt, kat=k)
+        bulgular += guvenli('T12', T2.t12_kolon_sureklilik, cz, katlar, ref_cizim)
+        bulgular += guvenli('T08', T.t08_sema_sayac, cz, kat='ŞEMA')
+        bulgular += T.t11_denetle(o['dxf'])
+        bulgular += guvenli('T16', T2.t16_sizinti_renk, cz)
+        bulgular += guvenli('T17', T2.t17_pafta, cz, 'sihhi')
 
     # ---- PNG
     png_klasor = os.path.splitext(o['rapor'])[0] + '_png'
@@ -218,10 +263,22 @@ def calistir(o):
             except Exception:
                 pass
     if o['referans_kaydet']:
-        ref = {t: dict(fail=sum(1 for b in bulgular if b.test == t and b.durum == 'FAIL'),
-                       info=sum(1 for b in bulgular if b.test == t and b.durum == 'INFO')) for t in T.TEST_ADI}
-        ref['_dosya'] = os.path.basename(o['dxf'])
+        ref = dict(ref_json)
         ref['_tarih'] = time.strftime('%d.%m.%Y')
+        ref['_dosya'] = os.path.basename(o['dxf'])
+        anahtar = 'yerden' if o['tur'] == 'yerden' else None
+        sayilar = {t: dict(fail=sum(1 for b in bulgular if b.test == t and b.durum == 'FAIL'),
+                           info=sum(1 for b in bulgular if b.test == t and b.durum == 'INFO')) for t in T.TEST_ADI}
+        if anahtar:
+            ref['_yerden'] = sayilar
+            try:
+                import yerden as Y
+                ref['_yerden_cizim'] = Y.referans_cikar(cz, katlar)
+            except Exception as ex:
+                log.append('yerden referans kaydı alınamadı: %s' % ex)
+        else:
+            ref.update(sayilar)
+            ref['_cizim'] = T2.referans_cikar(cz, katlar)
         with open(REFERANS_JSON, 'w', encoding='utf-8') as f:
             json.dump(ref, f, ensure_ascii=False, indent=1)
         log.append('referans ölçümü kaydedildi: %s' % goreli(REFERANS_JSON))
@@ -257,8 +314,13 @@ def rapor_yaz(o, cz, katlar, bulgular, log, png_klasor, sure):
             ref = json.load(open(REFERANS_JSON, encoding='utf-8'))
         except Exception:
             ref = {}
+    if o.get('tur') == 'yerden':
+        ref = dict(ref.get('_yerden', {}), _tarih=ref.get('_tarih', ''))
+    aciklama = ref.get('_aciklama', {}) if isinstance(ref.get('_aciklama'), dict) else {}
     md += ['## Özet', '', '| Test | Ne ölçer | Sonuç | FAIL | INFO | Referans new_block FAIL/INFO (aynı ölçüm) |',
            '|---|---|---|---|---|---|']
+    if o.get('tur') == 'yerden':
+        aciklama = json.load(open(REFERANS_JSON, encoding='utf-8')).get('_aciklama_yerden', {}) if os.path.exists(REFERANS_JSON) else {}
     for t in testler:
         bs = [b for b in bulgular if b.test == t]
         nf = sum(1 for b in bs if b.durum == 'FAIL')
@@ -268,8 +330,10 @@ def rapor_yaz(o, cz, katlar, bulgular, log, png_klasor, sure):
         else:
             durum = '✗ FAIL' if nf else ('✓ PASS' if any(b.durum == 'PASS' for b in bs) else 'bilgi')
         r = ref.get(t)
-        md.append('| %s | %s | %s | %d | %d | %s |' % (t, T.TEST_ADI[t], durum, nf, ni,
-                                                      ('%d / %d' % (r['fail'], r['info'])) if r else '-'))
+        rs = ('%d / %d' % (r['fail'], r['info'])) if isinstance(r, dict) else '-'
+        if aciklama.get(t):
+            rs += ' — ' + aciklama[t]
+        md.append('| %s | %s | %s | %d | %d | %s |' % (t, T.TEST_ADI[t], durum, nf, ni, rs))
     if ref:
         md.append('')
         md.append('Referans sütunu: kullanıcının kendi `new_block.dxf` çizimi aynı testlerden geçirildiğinde çıkan sayılar '

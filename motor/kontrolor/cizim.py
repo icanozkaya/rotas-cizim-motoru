@@ -12,6 +12,7 @@ from shapely import STRtree
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'deneme', 'denetim'))
 import denetle as D  # noqa: E402  (ortak kural: boru_katmani, yazi_poligonu, geometri)
+import kutu as K  # noqa: E402  (gerçek yazı kutusu: ezdxf text_size, hizalama + döndürme, MTEXT)
 
 TR = D.TR
 
@@ -80,6 +81,8 @@ class Cizim:
         self.sema_paftasi = self._sema_paftasi()
         self.borular = self._borular()           # [(katman, LineString, varlık)]
         self.insertler = [(e.dxf.name, (e.dxf.insert.x, e.dxf.insert.y), e) for e in self.msp.query('INSERT')]
+        # dinamik blok (*Unn) -> asıl blok adı (kullanıcının MTY blokları: KOLON PİS SU, CAMASIR MAKINASI1 ...)
+        self.insertler_ef = [(efektif_ad(self.doc, e), p, e) for ad, p, e in self.insertler]
         self.daireler = [(e.dxf.layer, (e.dxf.center.x, e.dxf.center.y), e.dxf.radius)
                          for e in self.msp.query('CIRCLE')]
 
@@ -248,7 +251,7 @@ class Cizim:
                 ok = etiket_katmani(lay)
             if not ok:
                 continue
-            pg = D.yazi_poligonu(e)
+            pg = K.yazi_kutusu(e)
             if pg is not None and pg.is_valid and pg.area > 0:
                 out.append((norm(s), pg, sahip, lay, h))
         return out
@@ -257,11 +260,237 @@ class Cizim:
         out = []
         for s, p, h, lay, e in self.yazilar_pencere(w):
             if mimari_yazi_katmani(lay) and e.dxftype() in ('TEXT', 'MTEXT') and (s or '').strip():
-                # MTEXT: sütun genişliği kutuyu büyütür (asansör boşluğu MTEXT'i yarım odayı kaplıyordu) -> karakter tahmini
-                pg = D.yazi_kutusu(e) if e.dxftype() == 'MTEXT' else D.yazi_poligonu(e)
+                # gerçek yazı kutusu (kutu.py): MTEXT için mtext_size, TEXT için yazı tipi ölçüsü
+                pg = K.yazi_kutusu(e)
                 if pg is not None and pg.is_valid and pg.area > 0:
                     out.append((norm(s), pg, lay, h))
         return out
+
+
+    # ------------------------------------------------------------------ T12–T16 için ek okuyucular
+    def insertler_ef_pencere(self, w, ad_icerir=(), ad_icermez=(), herhangi=()):
+        out = []
+        for ad, p, e in self.insertler_ef:
+            if not (w[0] <= p[0] <= w[2] and w[1] <= p[1] <= w[3]):
+                continue
+            n = normu(ad)
+            if ad_icerir and not all(k in n for k in ad_icerir):
+                continue
+            if herhangi and not any(k in n for k in herhangi):
+                continue
+            if any(k in n for k in ad_icermez):
+                continue
+            out.append((ad, p, e))
+        return out
+
+    def kolon_numaralari(self, w):
+        """pis su kolonları numarasıyla: [(no, p_kolon)]. Kolon bloğunun kendi özniteliği P<n> ise (kullanıcının
+        dinamik 'MTY-BORU KOLON PİS SU' bloğu) o; yoksa kolon sembolü en yakın kolon balonuyla (≤ 130 cm) eşlenir."""
+        out, kalan = [], []
+        for ad, p, e in self.insertler_ef_pencere(w, ('PIS', 'KOLON'), ('HAVALIK', 'KAPAK', 'SEMA')):
+            n = normu(ad)
+            at = [norm(a.dxf.text) for a in e.attribs if (a.dxf.text or '').strip()]
+            no = next((t for t in reversed(at) if re.match(r'^P\d+$', t)), None)
+            if no:
+                out.append((no, p))
+            elif any(re.match(r'^YB\d+$', t) for t in at):
+                continue                                   # aynı blok yağmur inişi için de kullanılıyor
+            elif re.search(r'(^|[^A-Z])NO([^A-Z]|$)', n) or n.endswith('-NO'):
+                continue                                   # balon bloğu
+            else:
+                kalan.append(p)
+        balon = [(no, q) for no, q in self.kolon_balonlari(w) if re.match(r'^P\d+$', no)]
+        ciftler = sorted(((math.hypot(p[0] - q[0], p[1] - q[1]), i, j) for i, p in enumerate(kalan)
+                          for j, (no, q) in enumerate(balon)), key=lambda t: t[0])
+        ki, kj = set(), set()
+        for d, i, j in ciftler:
+            if d > 130 or i in ki or j in kj:
+                continue
+            ki.add(i)
+            kj.add(j)
+            out.append((balon[j][0], kalan[i]))
+        for i, p in enumerate(kalan):
+            if i not in ki:
+                out.append(('?', p))
+        return out
+
+    def blok_kutusu(self, e):
+        try:
+            from ezdxf import bbox
+            b = bbox.extents(e.virtual_entities(), fast=True)
+            if b.has_data:
+                return box(b.extmin.x, b.extmin.y, b.extmax.x, b.extmax.y)
+        except Exception:
+            pass
+        p = e.dxf.insert
+        return Point(p.x, p.y).buffer(10)
+
+    MAKINE_RE = re.compile(r"^(Ç|C)['.]?\s*(M|W)['.]?|^(B)['.]?\s*M['.]?|CAMASIR|BULASIK|^ÇM\b|^BM\b", re.I)
+
+    @staticmethod
+    def makine_turu(s):
+        n = normu(s).replace(' ', '')
+        if n.startswith(("C.M", "C'M", 'CM', "C'W", 'CW', 'C.W')) or 'CAMASIR' in n:
+            return 'CM'
+        if n.startswith(('B.M', "B'M", 'BM')) or 'BULASIK' in n:
+            return 'BM'
+        return None
+
+    def makineler(self, w):
+        """çizimdeki çamaşır / bulaşık makinesi gösterimleri: [(tür, merkez, kutu, kaynak)]
+        blok (CAMASIR/BULASIK/MAKINE adlı) + tesisat katmanındaki 'Ç.M.' / 'B.M.' yazıları (yakınında blok yoksa)."""
+        out = []
+        yazilar = []
+        for s, p, h, lay, e in self.yazilar_pencere(w):
+            if mimari_yazi_katmani(lay) or e.dxftype() not in ('TEXT', 'MTEXT', 'ATTRIB'):
+                continue
+            t = self.makine_turu(s)
+            if t and len(norm(s)) <= 20:
+                pg = K.yazi_kutusu(e)
+                c = (pg.centroid.x, pg.centroid.y) if pg is not None else p
+                yazilar.append((t, c, pg, s))
+        for ad, p, e in self.insertler_ef_pencere(w, herhangi=('CAMASIR', 'BULASIK', 'MAKINE', 'MAKINA')):
+            t = self.makine_turu(ad)
+            pg = self.blok_kutusu(e)
+            c = (pg.centroid.x, pg.centroid.y)
+            if t is None:      # genel makine bloğu: türü en yakın 'Ç.M.' / 'B.M.' yazısından
+                yak = sorted(yazilar, key=lambda y: math.hypot(y[1][0] - c[0], y[1][1] - c[1]))
+                if yak and math.hypot(yak[0][1][0] - c[0], yak[0][1][1] - c[1]) <= 120:
+                    t = yak[0][0]
+            if t:
+                out.append((t, c, pg, 'blok ' + ad))
+        for t, c, pg, s in yazilar:
+            if any(o[0] == t and math.hypot(o[1][0] - c[0], o[1][1] - c[1]) <= 120 for o in out):
+                continue
+            out.append((t, c, pg, 'yazı "%s"' % norm(s)))
+        return out
+
+    def aspiratorler(self, w):
+        """aspiratör sembolleri (blok adı ASPIRATOR / FAN; çatı fanı hariç): [(p, kutu)]"""
+        return [(p, self.blok_kutusu(e)) for ad, p, e in self.insertler_ef_pencere(w, herhangi=('ASPIRATOR', 'ASPIRAT'),
+                                                                              ad_icermez=('CATI', 'SEMA'))]
+
+    def aspirator_notlari(self, w):
+        """aspiratör notları: 'Aspiratör' geçen tesisat yazısı (+ hemen altındaki satırlar: kullanıcı 3 ayrı TEXT yazıyor)
+        -> [(metin, kutu, varlık)]"""
+        out = []
+        tum = [(s, p, h, lay, e) for s, p, h, lay, e in self.yazilar_pencere(w)
+               if not mimari_yazi_katmani(lay) and e.dxftype() in ('TEXT', 'MTEXT')]
+        for s, p, h, lay, e in tum:
+            if 'ASPIRAT' not in normu(s):
+                continue
+            pg = K.yazi_kutusu(e)
+            if pg is None:
+                continue
+            if e.dxftype() == 'TEXT':
+                parca = [pg]
+                for s2, p2, h2, l2, e2 in tum:
+                    if e2 is e or e2.dxftype() != 'TEXT':
+                        continue
+                    if abs(p2[0] - p[0]) <= 2 * h and 0 < p[1] - p2[1] <= 4.5 * h:
+                        q = K.yazi_kutusu(e2)
+                        if q is not None:
+                            parca.append(q)
+                from shapely.ops import unary_union
+                pg = unary_union(parca).envelope
+            out.append((norm(s), pg, e))
+        return out
+
+    def kilavuzlar(self, w):
+        """kılavuz (leader) çizgileri: KILAVUZ katmanı + LEADER/MULTILEADER varlıkları -> [LineString]"""
+        b = box(*w)
+        out = []
+        for e in self.msp:
+            t = e.dxftype()
+            lay = e.dxf.get('layer', '0')
+            if t in ('LEADER',):
+                try:
+                    pts = [(v[0], v[1]) for v in e.vertices]
+                    if len(pts) >= 2:
+                        g = LineString(pts)
+                        if g.intersects(b):
+                            out.append(g)
+                except Exception:
+                    pass
+                continue
+            if not kilavuz_mi(lay) or t not in ('LINE', 'LWPOLYLINE', 'POLYLINE'):
+                continue
+            g = D.geometri(e)
+            if g is not None and g.length > 0.5 and g.intersects(b):
+                out.append(g)
+        return out
+
+    def sembol_kutulari(self, w):
+        """tesisat sembolleri (görünür özniteliği olmayan, mimari olmayan bloklar: süzgeç, makine, aspiratör, vana,
+        kolon, armatür blokları) -> [(ad, kutu)] — T07 etiket–armatür/sembol çakışması için"""
+        out = []
+        for ad, p, e in self.insertler_ef_pencere(w):
+            if mimari_yazi_katmani(e.dxf.layer) or normu(e.dxf.layer) in ('0',):
+                continue
+            n = normu(ad)
+            if any(k in n for k in ('CAP', 'ETIKET', 'NO', 'KURESEL', 'VANA', 'SEMA')) and 'MAKINA' not in n:
+                continue
+            if any(not a.is_invisible and (a.dxf.text or '').strip() for a in e.attribs) and not any(
+                    k in n for k in ('MAKINA', 'KLOZET', 'LAVABO', 'EVIYE', 'DUS', 'HELA', 'TERMOSIFON', 'KOLON')):
+                continue
+            out.append((ad, self.blok_kutusu(e), e.dxf.handle))
+        return out
+
+    def paftalar(self):
+        """pafta pencereleri: çerçeveler; çerçeve yoksa ANTED/PAFTA/CERCEVE katmanındaki düşey ayraç çizgileri
+        (≥ 2000 cm; new_block düzeni) -> [(x0, y0, x1, y1)] soldan sağa"""
+        if self.cerceveler:
+            ps = [c for c in self.cerceveler if (c[3] - c[1]) >= 1000]
+            tek = []
+            for c in sorted(ps, key=lambda c: -(c[2] - c[0]) * (c[3] - c[1])):
+                if any(t[0] - 5 <= c[0] and c[2] <= t[2] + 5 and t[1] - 5 <= c[1] and c[3] <= t[3] + 5 for t in tek):
+                    continue
+                tek.append(c)
+            return sorted(tek)
+        dik, yat = [], []
+        for e in self.msp.query('LINE'):
+            n = normu(e.dxf.layer)
+            if not ('ANTED' in n or 'ANTET' in n or 'PAFTA' in n or 'CERCEVE' in n):
+                continue
+            s, t = e.dxf.start, e.dxf.end
+            if abs(s.x - t.x) < 1 and abs(s.y - t.y) >= 2000:
+                dik.append((round(s.x), min(s.y, t.y), max(s.y, t.y)))
+            elif abs(s.y - t.y) < 1 and abs(s.x - t.x) >= 300:
+                yat.append((min(s.x, t.x), max(s.x, t.x)))
+        dik.sort()
+        out = []
+        for a, b in zip(dik[:-1], dik[1:]):
+            if not (300 <= b[0] - a[0] <= 12000 and abs(a[1] - b[1]) < 50):
+                continue
+            # iki şerit arasındaki boşluk pafta değildir: üst/alt çerçeve çizgisi bu aralığı örtmeli
+            if yat and not any(x0 <= a[0] + 1 and x1 >= b[0] - 1 for x0, x1 in yat):
+                continue
+            out.append((float(a[0]), a[1], float(b[0]), a[2]))
+        return out
+
+
+_EF = {}
+
+
+def efektif_ad(doc, e):
+    """INSERT'in asıl blok adı: dinamik blok (*Unn) ise AcDbBlockRepBTag xdata'sındaki asıl blok kaydının adı"""
+    ad = e.dxf.name
+    if not ad.startswith('*'):
+        return ad
+    k = (id(doc), ad)
+    if k in _EF:
+        return _EF[k]
+    sonuc = ad
+    try:
+        br = doc.blocks.get(ad).block_record
+        if br.has_xdata('AcDbBlockRepBTag'):
+            h = [t.value for t in br.get_xdata('AcDbBlockRepBTag') if t.code == 1005]
+            if h and h[0] in doc.entitydb:
+                sonuc = doc.entitydb[h[0]].dxf.name
+    except Exception:
+        pass
+    _EF[k] = sonuc
+    return sonuc
 
 
 def _kumele(pts, tol):
