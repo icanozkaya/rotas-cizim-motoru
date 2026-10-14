@@ -507,7 +507,7 @@ def pis_su_oda(K, oda, fx, kolon_onceki, yasak):
             sp = r['poly'].simplify(6)
             for pg in (sp.geoms if hasattr(sp, 'geoms') else [sp]):
                 for q in pg.exterior.coords:
-                    if ring.distance(Point(q)) < 20:
+                    if ring.distance(Point(q)) < 32:
                         adaylar.append((ring.project(Point(q)), 5))
     out = []
     for s, t in adaylar:
@@ -541,7 +541,7 @@ def pis_su_oda(K, oda, fx, kolon_onceki, yasak):
     if not out:
         return None
     out.sort()
-    for pu, s0, p0 in out[:25]:
+    for pu, s0, p0 in out[:80]:
         sonuc = _pis_kur(ring, fx, s0, p0)
         if sonuc is None:
             continue

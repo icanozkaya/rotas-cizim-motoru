@@ -333,10 +333,10 @@ class Kat:
                 nx_, ny_ = dy / l, -dx / l
                 if r['poly'].contains(Point(p.x + nx_ * 3, p.y + ny_ * 3)):
                     nx_, ny_ = -nx_, -ny_
-                ray = LineString([(p.x + nx_ * 1, p.y + ny_ * 1), (p.x + nx_ * 40, p.y + ny_ * 40)])
+                ray = LineString([(p.x + nx_ * 1, p.y + ny_ * 1), (p.x + nx_ * 30, p.y + ny_ * 30)])
                 if ray.intersection(self.S).length < 3:
-                    hedef = Point(p.x + nx_ * 40, p.y + ny_ * 40)
-                    if any(q['poly'].contains(hedef) for q in self.rooms if q is not r):
+                    hedef = Point(p.x + nx_ * 30, p.y + ny_ * 30)
+                    if any(q['poly'].contains(hedef) for q in self.rooms if q is not r and q['name'] != r['name']):
                         acik.append(Point(p.x, p.y).buffer(5))
         A_ = unary_union(acik) if acik else Polygon()
         ek = []
