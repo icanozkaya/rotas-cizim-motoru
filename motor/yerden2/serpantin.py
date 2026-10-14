@@ -199,7 +199,7 @@ def satirlar(R, y_u_ofset=None):
     return [y0 + off + ADIM * j for j in range(N)]
 
 
-def kur(R, n, R_satir=None, bolme=None, cepler=None, y_u_ofset=None):
+def kur(R, n, R_satir=None, bolme=None, cepler=None, y_u_ofset=None, atla=0):
     """Kanonik çerçevede n devreli meander. bolme: devre başına satır sayıları (aşağıdan yukarı: yakın..uzak) | None.
     Dönüş: dict(devreler=[pts...] (0 = en yakın/alt), ys, x_f, bolme) | None"""
     if R.is_empty:
@@ -216,6 +216,7 @@ def kur(R, n, R_satir=None, bolme=None, cepler=None, y_u_ofset=None):
         if not a:
             break
         ok.append((y, a))
+    ok = ok[atla:]
     if len(ok) % 2:
         ok = ok[:-1]
     if not ok:
@@ -261,7 +262,7 @@ def kur(R, n, R_satir=None, bolme=None, cepler=None, y_u_ofset=None):
         if pts is None:
             return None
         devreler.append(pts)
-    return dict(devreler=devreler, ys=ys, x_f=x_f, bolme=list(bolme), y_u=y_u)
+    return dict(devreler=devreler, ys=ys, x_f=x_f, bolme=list(bolme), y_u=y_u, atla=atla)
 
 
 def esit_bol(N, n):

@@ -142,12 +142,12 @@
        "alan_m2": 4.85,
        "alan_mimari_m2": 5.36,
        "isitma_alani_m2": 3.34,
-       "kose": "SE",
+       "kose": "SW",
        "devreler": [
         {
          "no": 9,
-         "L_m": 11.19,
-         "W": 391.6,
+         "L_m": 13.29,
+         "W": 465.1,
          "etiket": "disari"
         }
        ]
@@ -183,19 +183,19 @@
        "alan_m2": 14.1,
        "alan_mimari_m2": 14.25,
        "isitma_alani_m2": 13.47,
-       "kose": "NW",
+       "kose": "SW",
        "devreler": [
         {
          "no": 11,
-         "L_m": 31.18,
-         "W": 1091.3,
+         "L_m": 32.53,
+         "W": 1138.5,
          "etiket": "cep"
         },
         {
          "no": 12,
-         "L_m": 29.54,
-         "W": 1033.9,
-         "etiket": "cep"
+         "L_m": 37.34,
+         "W": 1306.9,
+         "etiket": "maskeli"
         }
        ]
       },
@@ -308,12 +308,12 @@
        "alan_m2": 7.79,
        "alan_mimari_m2": 10.11,
        "isitma_alani_m2": 6.79,
-       "kose": "SW",
+       "kose": "SE",
        "devreler": [
         {
          "no": 19,
-         "L_m": 28.76,
-         "W": 1006.6,
+         "L_m": 33.66,
+         "W": 1178.1,
          "etiket": "maskeli"
         }
        ]
@@ -608,7 +608,7 @@
        "alan_m2": 7.67,
        "alan_mimari_m2": 10.11,
        "isitma_alani_m2": 6.43,
-       "kose": "NE",
+       "kose": "SE",
        "devreler": [
         {
          "no": 10,
@@ -1046,12 +1046,12 @@
        "alan_m2": 4.79,
        "alan_mimari_m2": 5.04,
        "isitma_alani_m2": 3.33,
-       "kose": "SW",
+       "kose": "NE",
        "devreler": [
         {
          "no": 9,
-         "L_m": 11.12,
-         "W": 389.2,
+         "L_m": 12.08,
+         "W": 422.8,
          "etiket": "disari"
         }
        ]
@@ -1087,18 +1087,18 @@
        "alan_m2": 14.46,
        "alan_mimari_m2": 15.44,
        "isitma_alani_m2": 14.02,
-       "kose": "NE",
+       "kose": "SE",
        "devreler": [
         {
          "no": 11,
-         "L_m": 16.66,
-         "W": 583.1,
+         "L_m": 28.09,
+         "W": 983.1,
          "etiket": "cep"
         },
         {
          "no": 12,
-         "L_m": 17.92,
-         "W": 627.2,
+         "L_m": 25.18,
+         "W": 881.3,
          "etiket": "cep"
         }
        ]
@@ -1332,12 +1332,12 @@
        "alan_m2": 4.82,
        "alan_mimari_m2": 5.04,
        "isitma_alani_m2": 3.35,
-       "kose": "SE",
+       "kose": "SW",
        "devreler": [
         {
          "no": 27,
-         "L_m": 10.36,
-         "W": 362.6,
+         "L_m": 13.34,
+         "W": 466.9,
          "etiket": "disari"
         }
        ]

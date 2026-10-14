@@ -325,14 +325,28 @@ def yerlestir(w, h, anchor, oda_geom, yasak, borular, mimari=None, maske_izin=Tr
             return uygun[0], 'ic'
     if not disari:
         return None, None
-    pm = prep(mimari) if mimari is not None and not mimari.is_empty else None
-    aday = [(ax + dx, ay + dy) for dx in range(-800, 801, 15) for dy in range(-800, 801, 15)]
-    aday.sort(key=lambda p: math.hypot(p[0] - ax, p[1] - ay))
-    for cx, cy in aday:
-        q = box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2)
-        if (py is None or not py.intersects(q)) and (pb is None or not pb.intersects(q)) and \
-                (pm is None or not pm.intersects(q)):
-            return q, 'dis'
+    # oda dışı: yazı/etiket/boru yok; mimari çizgi üstüne binmesi cezalı (az çizgili, yakın yer)
+    from shapely import STRtree
+    mg = list(getattr(mimari, 'geoms', [mimari])) if mimari is not None and not mimari.is_empty else []
+    tree = STRtree(mg) if mg else None
+    best = None
+    for R_ in (250, 450, 800):
+        aday = [(ax + dx, ay + dy) for dx in range(-R_, R_ + 1, 15) for dy in range(-R_, R_ + 1, 15)]
+        for cx, cy in aday:
+            q = box(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2)
+            if (py is not None and py.intersects(q)) or (pb is not None and pb.intersects(q)):
+                continue
+            ml = 0.0
+            if tree is not None:
+                for i in tree.query(q):
+                    ml += mg[i].intersection(q).length
+            sk = math.hypot(cx - ax, cy - ay) + 1.0 * ml
+            if best is None or sk < best[0]:
+                best = (sk, q)
+        if best is not None and best[0] < 2.0 * R_:
+            break
+    if best is not None:
+        return best[1], 'dis'
     return None, None
 
 
