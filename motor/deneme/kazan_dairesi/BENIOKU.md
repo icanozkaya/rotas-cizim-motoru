@@ -1,3 +1,5 @@
+> **ONAYLI (14.10.2026):** Kullanıcı `plan_kesit.py` çıktısını (plan + kesit + kısmi görünüş) doğru kazan dairesi olarak onayladı; kazan dairesi gereken her yerde bu kullanılır. Bu dosyada bundan sonra geçen "teslimde kullanılmaz / arşiv" ifadeleri İPTALDİR.
+
 # kazan_dairesi — parametrik KAZAN DAİRESİ PRENSİP ŞEMASI — R2 (14.10.2026 (B) talimatı)
 
 > **`plan_kesit.py` TESLİMDE KULLANILMAZ.** Merkezi sistem kesiti ve kazan dairesi yerleşimi için yalnız kullanıcının

@@ -50,8 +50,8 @@ EN ÜST ÖNCELİK. Aşağıdaki tüm eski kurallarla (ör. "MTY blokları kullan
 - Çamaşır makinesi pis/temiz su bağlantısı mimaride gösterildiği konumda.
 - Yangın: kolon hatlarında PURJÖR YOK. İtfaiye bağlantı ağzında çek valf akışı tesisata doğru; itfaiye bağlantısında KOLLEKTÖR. Sprinkler çalışma basıncı 9-10 bar aralığında tutulur. Pompa seçiminde "yetersiz" yazılmaz, hesaplanan debi ve basma (m³/h, mSS/bar) yazılır. Şemada boru çapları kademeli düşer (DN150'den aniden DN100'e düşüş yok).
 - WC/banyo mekanik havalandırma hatları KAT PLANLARINDA da gösterilir, sıhhi paftasında kalır, kolon şemasının sonunda çatı/fan çıkışıyla sonlanır.
-- MERKEZİ SİSTEM KESİTİ ve kazan dairesi yerleşimi: yalnız kullanıcının daha önce gönderdiği/onayladığı kesit ve yerleşim planı kullanılır; motorun ürettiği kazan dairesi plan/kesiti (`motor/deneme/kazan_dairesi/plan_kesit.py`) teslimde KULLANILMAZ.
-- Numara/etiketler ait oldukları sembolün yanında, birbirine binmeden (kazan dairesi geri bildirimi: V-21/V-10, TM-01/M-01 karışıklığı).
+- MERKEZİ SİSTEM / KAZAN DAİRESİ: kullanıcının ONAYLADIĞI kazan dairesi = `motor/deneme/kazan_dairesi/plan_kesit.py` çıktısı (plan + kesit + kısmi görünüş; örnek görüntü `kutuphane/arastirma/geri_bildirim/ONAYLI_kazan_dairesi_kismi_gorunus.png`). 14.10.2026 16:39 kullanıcı: "her yerde bunu kullanacaksın". Kazan dairesi gereken her projede bu üretici kullanılır, görünüş/tarzı değiştirilmez; başka kazan dairesi kesit/yerleşimi kullanılmaz.
+- Numara/etiketler ait oldukları sembolün yanında, birbirine binmeden.
 
 ## Kalıcı kurallar — 14.10.2026 kullanıcı standart talimatı (tam metin: `kutuphane/arastirma/KULLANICI_STANDART_TALIMATI_2026-10-14.md`)
 Bu liste aşağıdaki eski kurallarla çelişirse BU LİSTE geçerlidir.
