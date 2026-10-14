@@ -1,0 +1,20 @@
+{
+ "ad": "otopark_dolap",
+ "proje": "DENEME — YAPAY KAPALI OTOPARK (40x25 m, OH2)",
+ "sprinkler_girdi": "otopark_oh2.json",
+ "plan_adi": "-1. BODRUM KAT (OTOPARK)",
+ "sprinkler": true,
+ "merdivenler": [
+  {"ad": "MERDİVEN", "rect": [150, 2500, 450, 2950], "kapi": {"p": [300, 2485], "w": 100}}
+ ],
+ "cikislar": [
+  {"ad": "ARAÇ RAMPASI (ÇIKIŞ)", "p": [3985, 1200], "w": 600, "rect": [4000, 900, 4900, 1500], "kanat": false}
+ ],
+ "katlar": [
+  {"ad": "-1. BODRUM KAT (OTOPARK)", "kot_m": -3.5}
+ ],
+ "tavan_m": 3.2,
+ "pompa": {"ad": "POMPA DAİRESİ (-1. BODRUM)", "kot_m": -3.5, "eksen_m": 0.5},
+ "pompa_grubu_girdi": "../../pompa_grubu/girdi/yangin_test.json",
+ "dolap": {"eszamanli": 2, "jet_m": 5.0}
+}

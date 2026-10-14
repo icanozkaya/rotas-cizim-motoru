@@ -1,0 +1,23 @@
+{
+ "ad": "kat_ofis_dolap",
+ "proje": "DENEME — YAPAY OFİS BİNASI (5 KAT, TİP KAT 30x20 m, OH1)",
+ "sprinkler_girdi": "kat_ofis_oh1.json",
+ "plan_adi": "NORMAL KAT (ZEMİN - 4. KAT)",
+ "sprinkler": true,
+ "merdivenler": [
+  {"ad": "MERDİVEN-1", "rect": [-275, 1020, 0, 1470], "kapi": {"p": [12.5, 1245], "w": 100}},
+  {"ad": "MERDİVEN-2 (YANGIN MERDİVENİ)", "rect": [3000, 1020, 3275, 1470], "kapi": {"p": [2987.5, 1245], "w": 100}}
+ ],
+ "cikislar": [],
+ "katlar": [
+  {"ad": "ZEMİN KAT", "kot_m": 0.0},
+  {"ad": "1. KAT", "kot_m": 3.5},
+  {"ad": "2. KAT", "kot_m": 7.0},
+  {"ad": "3. KAT", "kot_m": 10.5},
+  {"ad": "4. KAT", "kot_m": 14.0}
+ ],
+ "tavan_m": 3.2,
+ "pompa": {"ad": "BODRUM KAT (POMPA DAİRESİ)", "kot_m": -3.5, "eksen_m": 0.5},
+ "pompa_grubu_girdi": "../../pompa_grubu/girdi/yangin_test.json",
+ "dolap": {"eszamanli": 2, "jet_m": 5.0}
+}
