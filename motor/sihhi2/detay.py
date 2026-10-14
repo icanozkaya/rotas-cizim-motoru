@@ -620,7 +620,44 @@ def _wc_girdi(girdi=None):
     return None
 
 
-def wc_izometri(msp, x0, y0, w_max, h_max, girdi=None, blok_adi='ROTAS-WC-HAV-IZOMETRI', lejant=True):
+def saft_birlestir(g, gruplar):
+    """WC havalandırma girdisinde şaftları kullanıcının şaft düzenine göre birleştirir.
+    gruplar: daire listeleri, ör. [['D3','D5','D8'], ['D1','D2','D4','D6','D7','D9']] (new_block: iki şaft,
+    240 ve 480 m³/h). Her daire o kattaki tek aspiratörle (q_oda) bağlanır: aynı kat + daire + şafttaki mahaller
+    tek kayda indirgenir (kullanıcı: "Wc Aspiratörü 80 m3/h-50 pa Ø150 mm" kat başına). Girdi değiştirilmez."""
+    import copy
+    g = copy.deepcopy(g)
+    ad = {}
+    for i, grp in enumerate(gruplar):
+        for d in grp:
+            ad[d] = 'Ş%d' % (i + 1)
+    eski = {s['ad']: s for s in g.get('saftlar', [])}
+    yeni_mah, gor = [], {}
+    for m in g.get('mahaller', []):
+        sn = ad.get(m['daire'])
+        if sn is None:
+            continue
+        k = (m['kat'], m['daire'], sn)
+        if k in gor:
+            gor[k]['ad'] += ' + ' + m['ad']
+            gor[k]['brans_m'] = max(gor[k].get('brans_m', 1.0), m.get('brans_m', 1.0))
+            continue
+        m = dict(m, saft=sn)
+        gor[k] = m
+        yeni_mah.append(m)
+    saft = []
+    for i, grp in enumerate(gruplar):
+        sn = 'Ş%d' % (i + 1)
+        ref = next((eski[m0['saft']] for m0 in g.get('mahaller', []) if m0['daire'] in grp and m0['saft'] in eski), {})
+        saft.append(dict(ad=sn, xy=ref.get('xy'), baglanti_yuk=ref.get('baglanti_yuk', 2.6)))
+    g['saftlar'] = saft
+    g['mahaller'] = yeni_mah
+    g['kabul'] = dict(g['kabul'], oda_basina_aspirator=False)
+    return g
+
+
+def wc_izometri(msp, x0, y0, w_max, h_max, girdi=None, blok_adi='ROTAS-WC-HAV-IZOMETRI', lejant=False,
+                saft_gruplari=None):
     """WC havalandırma izometrisini (motor/deneme/wc_havalandirma, R2 saf geometri) bir bloğa çizer ve
     (x0, y0) sol altına, w_max × h_max alanına sığacak ölçekle yerleştirir. Dönüş: dict(olcek, w, h, say, r) ya da None."""
     import ciz as WC                      # wc_havalandirma/ciz.py
@@ -628,6 +665,8 @@ def wc_izometri(msp, x0, y0, w_max, h_max, girdi=None, blok_adi='ROTAS-WC-HAV-IZ
     g = _wc_girdi(girdi)
     if g is None:
         return None
+    if saft_gruplari:
+        g = saft_birlestir(g, saft_gruplari)
     doc = msp.doc
     for n, (cc, lt) in WC.KAT.items():
         if n not in doc.layers:
@@ -649,8 +688,7 @@ def wc_izometri(msp, x0, y0, w_max, h_max, girdi=None, blok_adi='ROTAS-WC-HAV-IZ
     bb = WC.izometri(cz, g, r, 0.0, 0.0)
     if lejant:
         WC.lejant(cz, bb[2] + 120, bb[3] - 120)
-    cz.text((bb[0], bb[3] + 60), 'WC HAVALANDIRMA İZOMETRİSİ (KOLON ŞEMASI) — ÖLÇEKSİZ', 30, 'ROTAS-PAFTA-YAZI', 'BL', maske=False)
-    cz.text((bb[0], bb[3] + 25), g.get('proje', ''), 16, 'ROTAS-PAFTA-YAZI', 'BL', maske=False)
+    cz.text((bb[0], bb[3] + 60), 'WC HAVALANDIRMA İZOMETRİSİ', 30, 'ROTAS-PAFTA-YAZI', 'BL', maske=False)
     nm, cak = cz.yazilari_bas()
     ext = _bbox.extents(blk, fast=True)
     bw, bh = ext.extmax.x - ext.extmin.x, ext.extmax.y - ext.extmin.y
@@ -661,13 +699,13 @@ def wc_izometri(msp, x0, y0, w_max, h_max, girdi=None, blok_adi='ROTAS-WC-HAV-IZ
 
 
 # ============================================================================= detay paftası
-def detay_paftasi(msp, x0, y0, w=2065.0, h=2900.0, girdi=None, adet=None, bosluk=25.0):
+def detay_paftasi(msp, x0, y0, w=2065.0, h=2900.0, girdi=None, adet=None, bosluk=25.0, saft_gruplari=None):
     """Referans son pafta: üstte WC havalandırma izometrisi, altta SIHHİ DETAYLAR (sol kenar x0 + 25, alt y0 + 23)."""
     katmanlar(msp.doc)
     dx, dy = x0 + bosluk, y0 + 23.4
     D = sihhi_detaylar(msp, dx, dy, adet)
     ust_y = dy + DETAY_H + 40
-    W = wc_izometri(msp, x0 + 60, ust_y, w - 120, (y0 + h) - ust_y - 60, girdi)
+    W = wc_izometri(msp, x0 + 60, ust_y, w - 120, (y0 + h) - ust_y - 60, girdi, saft_gruplari=saft_gruplari)
     return dict(detay=D, wc=W)
 
 

@@ -28,8 +28,8 @@ BAG = {
     'YS': (None, None),
 }
 # armatür yarı genişliği (etiket / yerleşim için)
-# sembol dolgusu: renk 7 (beyaz zeminde siyah, siyah ekranda beyaz — kullanıcının dolu vana / T.K. sembolleri)
-DOLGU = 7
+# sembol dolgusu: renk 8 (orta gri 128: siyah ekranda da beyaz kâğıtta da DOLU görünür; 250 siyah ekranda kaybolur)
+DOLGU = 8
 YARI = {'LV': 32, 'DUS': 42, 'EV': 50, 'WC': 24, 'CM': 31, 'BM': 31, 'YS': 13}
 
 
@@ -288,11 +288,11 @@ def _balonlar(B):
     for ad, rn, ry in (('ROTAS-SEMA-KOLON-NO', 6, 6), ('ROTAS-SEMA-KOLON-NO-YAGMUR', 3, 3)):
         b = B.new(ad)
         b.add_circle((0, 0), 27.5, dxfattribs={'color': rn})
-        b.add_circle((0, 0), 24.5, dxfattribs={'color': 7})
+        b.add_circle((0, 0), 24.5, dxfattribs={'color': DOLGU})
         _attdef(b, 'NO', (0, 0), h=20.0, renk=ry, hiza='C')
     b = B.new('ROTAS-SEMA-DAIRE-NO')
     b.add_circle((0, 0), 55.0, dxfattribs={'color': 6})      # dış mor + iç daire (kullanıcının ölçek 2 balonu)
-    b.add_circle((0, 0), 49.0, dxfattribs={'color': 7})
+    b.add_circle((0, 0), 49.0, dxfattribs={'color': DOLGU})
     _attdef(b, 'NO', (0, 0), h=40.0, renk=6, hiza='C')
     b = B.new('ROTAS-TEMEL-PIS-KOLON')
     b.add_circle((0, 0), 7.0, dxfattribs={'color': 6})

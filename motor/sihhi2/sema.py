@@ -166,27 +166,38 @@ def _grup_uc(Y, p):
 
 
 def _ref_yerlesim(ys):
-    """model kullanıcının kolonlarıyla (P1…P9, aynı yığın sırası) aynıysa kullanıcının x'leri; sığmazsa None"""
+    """model kullanıcının kolonlarıyla (P1…P9, aynı yığın sırası) aynıysa kullanıcının x'leri. Bir grup kullanıcınınkinden
+    uzunsa (ör. ek armatür) yalnız sağındaki kolonlar gerektiği kadar kayar; aksi hâlde None (formül yerleşimi)."""
     sira = [p for Y in ys for p in Y.kolonlar]
     if sira != sorted(REF_KOLON_X, key=REF_KOLON_X.get):
         return None
     if [Y.kolonlar[0] for Y in ys] != sorted(REF_DIKME, key=REF_DIKME.get):
         return None
-    L = {'yigin': [], 'kolon_x': dict(REF_KOLON_X)}
-    for j, Y in enumerate(ys):
-        d = {'Y': Y, 'dikme': REF_DIKME[Y.kolonlar[0]]}
-        for i, p in enumerate(Y.kolonlar[:-1]):
-            if REF_KOLON_X[p] + _grup_uc(Y, p) + BOS_MIN > REF_KOLON_X[Y.kolonlar[i + 1]]:
-                return None
+    L = {'yigin': [], 'kolon_x': {}}
+    kay = 0.0                                   # birikmiş sağa kayma
+    for Y in ys:
+        dik = REF_DIKME[Y.kolonlar[0]] + kay
+        if L['yigin']:
+            kay = max(kay, L['yigin'][-1]['son'] + 50.0 - REF_DIKME[Y.kolonlar[0]])
+            dik = REF_DIKME[Y.kolonlar[0]] + kay
+        d = {'Y': Y, 'dikme': dik}
+        onceki = None
+        for p in Y.kolonlar:
+            x = REF_KOLON_X[p] + kay
+            if onceki is not None:
+                gerek = L['kolon_x'][onceki] + _grup_uc(Y, onceki) + BOS_MIN
+                if gerek > x:
+                    kay += gerek - x
+                    x = gerek
+            L['kolon_x'][p] = x
+            onceki = p
         son = Y.kolonlar[-1]
-        d['kombi'] = REF_KOLON_X[son] + max(_grup_uc(Y, son) + A_ARM, 300.0)
+        d['kombi'] = L['kolon_x'][son] + max(_grup_uc(Y, son) + A_ARM, 300.0)
         d['son'] = d['kombi'] + 75.0
-        sinir = REF_DIKME[ys[j + 1].kolonlar[0]] - 60.0 if j + 1 < len(ys) else REF_X1 - 60.0
-        if d['son'] > sinir + 60.0 or d['kombi'] + 60 > sinir + 60.0:
-            return None
         L['yigin'].append(d)
-    L['x1'] = REF_X1
+    L['x1'] = max(REF_X1 + kay, L['yigin'][-1]['son'] + 25.0)
     L['ref'] = True
+    L['kayma'] = round(kay, 1)
     return L
 
 
@@ -359,12 +370,13 @@ def grup_ciz(C, g, xk, y0, kombi_x=None, sicak_disari=0.0, sicak_yukari=False):
         if t == 'YS':
             continue
         yl = {'LV': 28, 'DUS': 40, 'EV': 96, 'WC': 46, 'CM': 40, 'BM': 40}[t]
-        if b[0]:
+        if b[0]:      # iki hatlı: sıcak solda, soğuk sağda
             C.blok('ROTAS-SEMA-ET2-SOL', (x - 14, y0 + yl), L_TCAP, attr={'CAP': cap, 'DEGER': O.fmt(mh) + ' MB'})
-            xr = x + (22 if t == 'EV' else 14)
-        else:
-            xr = x + S.YARI[t] + 4
-        C.blok('ROTAS-SEMA-ET2-SAG', (xr, y0 + yl), L_TCAP, attr={'CAP': cap, 'DEGER': O.fmt(ms) + ' MB'})
+            C.blok('ROTAS-SEMA-ET2-SAG', (x + (22 if t == 'EV' else 14), y0 + yl), L_TCAP,
+                   attr={'CAP': cap, 'DEGER': O.fmt(ms) + ' MB'})
+        else:         # tek hatlı (klozet, ÇM, BM): kullanıcıda etiket armatürün SOLUNDA
+            xl = x - (14 if t == 'WC' else S.YARI[t] + 4)
+            C.blok('ROTAS-SEMA-ET2-SOL', (xl, y0 + yl), L_TCAP, attr={'CAP': cap, 'DEGER': O.fmt(ms) + ' MB'})
     xs0, xh0 = xk + D_S, xk + D_H
     # soğuk 130 hattı
     son_s = (kombi_x + 5) if kombi_x else (max(ts) if ts else None)

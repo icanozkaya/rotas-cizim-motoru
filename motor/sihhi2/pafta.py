@@ -169,8 +169,12 @@ def _var(p):
 
 
 # ============================================================================= birleştir
+# new_block WC havalandırma şaftları (kullanıcının izometrisi): D3-5-8 240 m³/h, D1-2-4-6-7-9 480 m³/h
+NB_SAFT_GRUPLARI = [['D3', 'D5', 'D8'], ['D1', 'D2', 'D4', 'D6', 'D7', 'D9']]
+
+
 def birlestir(plan_dxf, sema_dxf, temel_dxf, cikti, bilgi=None, vaziyet=None, wc_girdi=None,
-              x0=247352.0, y0=-444050.0):
+              x0=247352.0, y0=-444050.0, saft_gruplari=NB_SAFT_GRUPLARI):
     t0 = time.time()
     doc = belge()
     msp = doc.modelspace()
@@ -235,7 +239,7 @@ def birlestir(plan_dxf, sema_dxf, temel_dxf, cikti, bilgi=None, vaziyet=None, wc
         x += W_SEMA
     # 6) WC HAVALANDIRMA İZOMETRİSİ + SIHHİ DETAYLAR (lejant ADET'i bütün belgeden sayılır → en sonda)
     cerceve(msp, x, y0, W_DETAY)
-    R = D.detay_paftasi(msp, x, y0, W_DETAY, SERIT_H, wc_girdi)
+    R = D.detay_paftasi(msp, x, y0, W_DETAY, SERIT_H, wc_girdi, saft_gruplari=saft_gruplari)
     P.append(('WC HAV. İZOMETRİSİ + SIHHİ DETAYLAR', x, x + W_DETAY, 'detay.py'))
     if not R.get('wc'):
         U.append('WC havalandırma girdisi yok: izometri çizilmedi')
@@ -276,8 +280,11 @@ if __name__ == '__main__':
     ap.add_argument('--vaziyet', default=None, help='kullanıcının mimari DXF\'i (new_block.dxf; yerleşim paftası yerinde alınır)')
     ap.add_argument('--wc', default=None, help='wc_havalandirma girdi JSON')
     ap.add_argument('--cikti', default=VARSAYILAN['cikti'])
+    ap.add_argument('--saft', default=None,
+                    help='WC havalandırma şaftları, daire grupları: "D3,D5,D8;D1,D2,D4,D6,D7,D9" (varsayılan new_block)')
     a = ap.parse_args()
-    R = birlestir(a.plan, a.sema, a.temel, a.cikti, vaziyet=a.vaziyet, wc_girdi=a.wc)
+    sg = [g.split(',') for g in a.saft.split(';')] if a.saft else NB_SAFT_GRUPLARI
+    R = birlestir(a.plan, a.sema, a.temel, a.cikti, vaziyet=a.vaziyet, wc_girdi=a.wc, saft_gruplari=sg)
     for p in R['paftalar']:
         print('  %-36s x %.0f … %.0f (%.0f)  %s' % (p[0], p[1], p[2], p[2] - p[1], p[3]))
     for u in R['uyarilar']:
