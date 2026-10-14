@@ -36,6 +36,21 @@ KATMAN = {  # ad: (renk, çizgi tipi)
     'ROTAS-MIMARI-VAZIYET': (8, 'Continuous'),
     'ROTAS-YER-TUTUCU': (1, 'DASHED'),
 }
+_FONT = {}
+
+
+def yazi_genislik(s, h, w=0.85, font='arial.ttf'):
+    """Yazının gerçek (arial ölçülü) genişliği; ezdxf.fonts yoksa yaklaşık."""
+    try:
+        from ezdxf.fonts import fonts
+        k = (font, round(h, 3), round(w, 3))
+        if k not in _FONT:
+            _FONT[k] = fonts.make_font(font, h, w)
+        return _FONT[k].text_width(str(s))
+    except Exception:
+        return len(str(s)) * h * 0.62 * w
+
+
 AL = {'TL': TA.TOP_LEFT, 'TC': TA.TOP_CENTER, 'TR': TA.TOP_RIGHT, 'ML': TA.MIDDLE_LEFT, 'MC': TA.MIDDLE_CENTER,
       'MR': TA.MIDDLE_RIGHT, 'BL': TA.BOTTOM_LEFT, 'BC': TA.BOTTOM_CENTER, 'BR': TA.BOTTOM_RIGHT}
 
@@ -147,7 +162,7 @@ class Ciz:
         t = self.m.add_text(s, height=h, rotation=rot, dxfattribs={'layer': kat or self.kat_yazi, 'style': STIL, 'width': w})
         t.set_placement(self.p(x, y), align=AL[al])
         # yaklaşık kutu (çakışma raporu için)
-        gw = len(s) * h * 0.62 * w
+        gw = yazi_genislik(s, h, w)
         ax = {'L': 0, 'C': 0.5, 'R': 1}[al[1]]
         ay = {'B': 0, 'M': 0.5, 'T': 1}[al[0]]
         if rot % 180 == 0:
@@ -257,7 +272,7 @@ def antet_ciz(msp, x0, y0, bilgi=None, baslik=None):
     c.rect(305.2, 366.2, 307.4, 495.0, L)
     c.solid([(305.2, 366.2), (307.4, 366.2), (307.4, 495.0), (305.2, 495.0)], L)
     c.text(b['firma'], 334.4, 465.0, 30, 'BL', w=0.9)
-    c.text(b['firma_ek'], 334.4 + len(b['firma']) * 30 * 0.78 * 0.9 + 8, 465.0, 11.3, 'BL', w=0.85)
+    c.text(b['firma_ek'], 334.4 + yazi_genislik(b['firma'], 30, 0.9) + 8, 465.0, 11.3, 'BL', w=0.85)
     c.text(b['muellif_unvan'], 335.9, 440.4, 11.3, 'TL')
     c.text(b['iletisim'], 336.5, 424.3, 10.8, 'TL', w=0.8)
     c.text(b['kimlik'], 336.4, 402.6, 9.7, 'TL')
@@ -346,8 +361,11 @@ def _kutu_satirlari(c, x0, y0, w, satirlar, h=20.0, aralik=30.0, ust_bosluk=20.0
     y = y0 - ust_bosluk - h / 2
     for et, deg in satirlar:
         c.text(et, x0 + 25, y, h, 'ML', kat_yazi)
-        n = max(2, int((etiket_w - len(et) * h * 0.62 * 0.85) / (h * 0.3)))
-        c.text('.' * n, x0 + 25 + len(et) * h * 0.62 * 0.85 + 4, y, h, 'ML', kat_yazi, w=0.5)
+        xd0 = x0 + 25 + yazi_genislik(et, h, 0.85) + 6           # nokta dizisi: etiket sonu + 6 … değer − 8
+        xd1 = x0 + 25 + etiket_w + 2
+        n = int((xd1 - xd0) / max(yazi_genislik('.', h, 0.5), 1e-6))
+        if n >= 2:
+            c.text('.' * n, xd0, y, h, 'ML', kat_yazi, w=0.5)
         c.text(deg, x0 + 25 + etiket_w + 10, y, h, 'ML', kat_yazi)
         y -= aralik
     return H

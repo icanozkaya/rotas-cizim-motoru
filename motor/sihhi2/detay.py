@@ -126,13 +126,14 @@ def tablo(c, x0, y_ust, basliklar, kolonlar, satirlar, rh=24.0, h_bas=12.0, h_sa
         y -= h_tit * 1.9
     y -= 4
     n_sat_bas = max(len(k.split('\n')) for k, _ in kolonlar)
-    HB = 18 + 14 * (n_sat_bas - 1)
+    SA = h_bas * 1.45                                   # başlık satır aralığı (yazılar birbirine binmez)
+    HB = 18 + SA * (n_sat_bas - 1)
     c.rect(x0, y - HB, x0 + W, y, KAT_TAB)
     x = x0
     for k, w in kolonlar:
         sat = k.split('\n')
         for j, s in enumerate(sat):
-            c.text(s, x + w / 2, y - HB / 2 + (len(sat) - 1) * 7 - j * 14, h_bas, 'MC', KAT_TAB_Y, w=0.8)
+            c.text(s, x + w / 2, y - HB / 2 + (len(sat) - 1) * SA / 2 - j * SA, h_bas, 'MC', KAT_TAB_Y, w=0.8)
         x += w
         if x < x0 + W - 1:
             c.line(x, y - HB, x, y, KAT_TAB)
@@ -388,7 +389,7 @@ def detay_alaturka(c):
     _olcu(c, ox + 90, 150, ox + 90, 300, '1070', 12, 4.5)
     _kilavuz(c, 'TAHARET MUSLUĞU', ox + 88, 240, ox + 110, 270, 'ML')
     _kilavuz(c, 'PİS SU BORUSU Ø100', ox + 45, 180, ox + 110, 120, 'ML')
-    _baslik(c, 'ÜST GÖRÜNÜŞ', ox + 45, 130, 7)
+    _baslik(c, 'ÜST GÖRÜNÜŞ', ox + 45, 104, 7)
     _baslik(c, 'ALATURKA HELA TAŞI DETAYI', 230, -14)
 
 
@@ -411,7 +412,7 @@ def detay_yer_suzgeci(c):
     _boru(c, (230, 108), (330, 108), 10)                 # çıkış Ø50 (yana)
     c.line(230, 103, 230, 113, KAT)
     _olcu(c, 140, 164, 260, 164, 'A', 18, 6)
-    _olcu(c, 150, 156, 250, 156, 'B', 30, 6)
+    _olcu(c, 150, 156, 250, 156, 'B', 40, 6)
     _olcu(c, 170, 96, 230, 96, 'C', -14, 6)
     _olcu(c, 260, 96, 260, 156, 'H', 60, 6)
     _olcu(c, 330, 103, 330, 113, 'Ø50', 14, 6)
