@@ -47,9 +47,9 @@ KATMAN = {  # ad: (renk, çizgi tipi, kalınlık)
     'ROTAS-SIHHI-YAGMUR-NO': (3, 'Continuous', 18), 'ROTAS-SIHHI-SEMBOL': (1, 'Continuous', 18),
     'ROTAS-SIHHI-SEMA-ARMATUR': (4, 'Continuous', 13), 'ROTAS-SIHHI-CIHAZ-YAZI': (1, 'Continuous', 13),
     'ROTAS-SIHHI-DEPO': (1, 'Continuous', 18), 'ROTAS-SIHHI-DEPO-YAZI': (3, 'Continuous', 13),
-    'ROTAS-SIHHI-ROGAR': (5, 'Continuous', 25), 'ROTAS-SIHHI-ROGAR-YAZI': (8, 'Continuous', 9),
+    'ROTAS-SIHHI-ROGAR': (5, 'Continuous', 25), 'ROTAS-SIHHI-ROGAR-YAZI': (9, 'Continuous', 9),
     'ROTAS-SIHHI-HESAP': (1, 'Continuous', 20), 'ROTAS-SEMBOL-KILAVUZ': (6, 'Continuous', 9),
-    'ROTAS-PAFTA': (144, 'Continuous', 35), 'ROTAS-PAFTA-YAZI': (8, 'Continuous', 25),
+    'ROTAS-PAFTA': (144, 'Continuous', 35), 'ROTAS-PAFTA-YAZI': (7, 'Continuous', 25),
     'ROTAS-LEJANT': (7, 'Continuous', 18), 'ROTAS-MIMARI': (8, 'Continuous', 13),
 }
 L_SOG, L_SIC, L_PIS, L_YAG, L_SEB = ('ROTAS-SIHHI-SOGUK-SU', 'ROTAS-SIHHI-SICAK-SU', 'ROTAS-SIHHI-PIS-SU',
@@ -119,8 +119,9 @@ class Ciz:
     def blok(self, ad, p, katman, attr=None, rot=0.0, olcek=1.0):
         return S.ekle(self.msp, ad, p, katman, rot=rot, attr=attr, olcek=olcek)
 
-    def pvc(self, pts, w, halka=True):
-        """PVC görünümü: eksenin iki yanında dış hat (kahverengi 43) + parça uçlarında muf halkası"""
+    def pvc(self, pts, w, halka=True, muf_son=True):
+        """PVC görünümü (kullanıcının PVC BORU / ÇATAL blokları): eksenin iki yanında dış hat (kahverengi 43) +
+        her parçanın başında MUF (boru dış hattından 2 cm geniş, 8 cm boy, iki uç halkası); uzun parçada uçta da muf"""
         ls = LineString(pts)
         for s in (1, -1):
             o = ls.offset_curve(s * w, join_style=2, mitre_limit=3.0)
@@ -129,40 +130,91 @@ class Ciz:
             gs = getattr(o, 'geoms', [o])
             for g in gs:
                 self.hat(list(g.coords), L_PVC)
-        if halka:
-            for a, b in zip(pts[:-1], pts[1:]):
-                L = math.hypot(b[0] - a[0], b[1] - a[1])
-                if L < 30:
-                    continue
-                ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L
-                for t in (6.0, L - 6.0):
-                    cx, cy = a[0] + ux * t, a[1] + uy * t
-                    self.hat([(cx - uy * (w + 1.2), cy + ux * (w + 1.2)), (cx + uy * (w + 1.2), cy - ux * (w + 1.2))], L_PVC)
+        if not halka:
+            return
+        n = len(pts) - 1
+        for i, (a, b) in enumerate(zip(pts[:-1], pts[1:])):
+            L = math.hypot(b[0] - a[0], b[1] - a[1])
+            if L < 24:
+                continue
+            ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L
+            nx, ny = -uy, ux
+            uclar = [2.0]
+            if L >= 60 and (muf_son or i < n - 1):
+                uclar.append(L - 10.0)
+            W = w + 2.0
+            for t in uclar:
+                p0 = (a[0] + ux * t, a[1] + uy * t)
+                p1 = (a[0] + ux * (t + 8), a[1] + uy * (t + 8))
+                kose = [(p0[0] + nx * W, p0[1] + ny * W), (p1[0] + nx * W, p1[1] + ny * W),
+                        (p1[0] - nx * W, p1[1] - ny * W), (p0[0] - nx * W, p0[1] - ny * W)]
+                self.hat(kose + [kose[0]], L_PVC)
 
 
 # ====================================================================== YERLEŞİM
+# kullanıcının new_block şemasındaki kolon x'leri ve daire dikmeleri (SIHHI_ALTIN_REFERANS §5.2); bant 260820…267449
+REF_KOLON_X = {'P9': 261562.6, 'P8': 262184.6, 'P7': 262914.1, 'P6': 263522.2, 'P5': 264272.5, 'P4': 264659.0,
+               'P3': 265253.6, 'P2': 266548.1, 'P1': 266934.6}
+REF_DIKME = {'P9': 261524.9, 'P6': 263480.3, 'P3': 265211.6}     # yığının ilk kolonu → daire dikmesi x
+REF_X1 = 267449.0
+BOS_MIN = 50.0                                   # grup son armatürü → sonraki kolon en az
+
+
+def _grup_uc(Y, p):
+    nmax = max((len(g.tipler) for (k, q), g in Y.gruplar.items() if q == p), default=1)
+    return A_ILK + A_ARM * (nmax - 1)
+
+
+def _ref_yerlesim(ys):
+    """model kullanıcının kolonlarıyla (P1…P9, aynı yığın sırası) aynıysa kullanıcının x'leri; sığmazsa None"""
+    sira = [p for Y in ys for p in Y.kolonlar]
+    if sira != sorted(REF_KOLON_X, key=REF_KOLON_X.get):
+        return None
+    if [Y.kolonlar[0] for Y in ys] != sorted(REF_DIKME, key=REF_DIKME.get):
+        return None
+    L = {'yigin': [], 'kolon_x': dict(REF_KOLON_X)}
+    for j, Y in enumerate(ys):
+        d = {'Y': Y, 'dikme': REF_DIKME[Y.kolonlar[0]]}
+        for i, p in enumerate(Y.kolonlar[:-1]):
+            if REF_KOLON_X[p] + _grup_uc(Y, p) + BOS_MIN > REF_KOLON_X[Y.kolonlar[i + 1]]:
+                return None
+        son = Y.kolonlar[-1]
+        d['kombi'] = REF_KOLON_X[son] + max(_grup_uc(Y, son) + A_ARM, 300.0)
+        d['son'] = d['kombi'] + 75.0
+        sinir = REF_DIKME[ys[j + 1].kolonlar[0]] - 60.0 if j + 1 < len(ys) else REF_X1 - 60.0
+        if d['son'] > sinir + 60.0 or d['kombi'] + 60 > sinir + 60.0:
+            return None
+        L['yigin'].append(d)
+    L['x1'] = REF_X1
+    L['ref'] = True
+    return L
+
+
 def yerlesim(m, ys):
-    """yığın ve kolon x'leri; dönüş dict"""
+    """yığın ve kolon x'leri; dönüş dict. Kolonlar kullanıcının şemasındakilerle aynıysa onun x'leri (bant 6629)."""
     n_d = len(m['daireler'])
     nk = max(1, math.ceil(n_d / 5.0))
+    R = _ref_yerlesim(ys)
+    if R:
+        R['nk'] = nk
+        return R
     sayac_son = X0 + 173 + 161 * (nk - 1) + 148
     x = max(X0 + 705.0, sayac_son + 230.0)
-    L = {'yigin': [], 'kolon_x': {}, 'nk': nk}
+    L = {'yigin': [], 'kolon_x': {}, 'nk': nk, 'ref': False}
     for Y in ys:
         d = {'Y': Y, 'dikme': x}
         kx = x + 38.0
         for i, p in enumerate(Y.kolonlar):
             L['kolon_x'][p] = kx
-            nmax = max((len(g.tipler) for (k, q), g in Y.gruplar.items() if q == p), default=1)
-            ext = A_ILK + A_ARM * (nmax - 1)
+            ext = _grup_uc(Y, p)
             if i == len(Y.kolonlar) - 1:
                 d['kombi'] = kx + max(ext + A_ARM, 300.0)
             else:
                 kx = kx + ext + 175.0
         d['son'] = d['kombi'] + 75.0
         L['yigin'].append(d)
-        x = d['son'] + 200.0
-    L['x1'] = L['yigin'][-1]['son'] + 60.0 if L['yigin'] else X0 + 2000
+        x = d['son'] + 65.0
+    L['x1'] = L['yigin'][-1]['son'] + 25.0 if L['yigin'] else X0 + 2000
     return L
 
 
@@ -171,9 +223,13 @@ def cerceve(C, m, L):
     n = O.kat_sayisi(m)
     x1 = L['x1']
     yt = Y0 + n * H
+    # kat çizgileri yağmur şeması bölmesinin sağ ucuna kadar sürer (new_block: 267499…268070, 571 cm)
+    nyb = len(m.get('yagmur', []))
+    xr = max(x1 + 621.0, x1 + 86 + 60 * (nyb - 1) + 76) if nyb else x1 + 50
+    L['x_bolme'] = xr
     for k in range(n + 1):
-        C.hat([(X0 - 50, Y0 + k * H), (x1 + 50, Y0 + k * H)], 'ROTAS-SIHHI-SEMA-BANT')
-    for x in (X0 - 50, X0, x1, x1 + 50):
+        C.hat([(X0 - 50, Y0 + k * H), (xr, Y0 + k * H)], 'ROTAS-SIHHI-SEMA-BANT')
+    for x in sorted({X0 - 50, X0, x1, x1 + 50, xr}):
         C.hat([(x, Y0), (x, yt)], 'ROTAS-SIHHI-SEMA-BANT')
     adlar = m['proje'].get('kat_adlari') or ['ZEMİN KAT']
     for k in range(n):
@@ -216,31 +272,48 @@ def sebeke_sayac_depo(C, m, L, yt):
         if g.length > 1:
             C.hat(list(g.coords), depo, renk=5)
     C.hat([(dx0 + 60, dy1), (dx0 + 60, dy1 + 6), (dx0 + 160, dy1 + 6), (dx0 + 160, dy1)], depo)     # menhol
-    # şamandıra
-    C.hat([(dx1 - 48, dy1), (dx1 - 48, dy1 - 25)], depo)
-    C.msp.add_circle((dx1 - 60, dy1 - 32), 7.0, dxfattribs={'layer': depo})
-    # havalık + taşma (2"), boşaltma, seviye göstergesi
-    xh = dx0 - 35
-    C.hat([(dx0 + 60, dy1 - 45), (xh, dy1 - 45), (xh, dy1 + 25)], depo)
+    # dolum girişi: üstte flanş + şamandıralı (flatörlü) vana
+    xd = X0 + 437
+    C.hat([(xd - 7, dy1 + 2), (xd + 7, dy1 + 2), (xd + 7, dy1 + 6), (xd - 7, dy1 + 6), (xd - 7, dy1 + 2)], depo)
+    C.hat([(xd, dy1), (xd, dy1 - 18)], depo)
+    C.hat([(xd - 5, dy1 - 18), (xd + 5, dy1 - 18), (xd + 5, dy1 - 26), (xd - 5, dy1 - 26), (xd - 5, dy1 - 18)], depo)
+    C.hat([(xd, dy1 - 22), (xd - 30, dy1 - 34)], depo)                       # şamandıra kolu
+    C.msp.add_circle((xd - 37, dy1 - 37), 7.0, dxfattribs={'layer': depo})  # şamandıra topu
+    C.hat([(xd - 60, dy1 - 40), (xd + 20, dy1 - 40)], depo, lt='ROTAS_BASMA', renk=4)   # su seviyesi
+    # havalık + taşma (2"): kaz boynu havalık, taşma depo yan duvarına FLANŞLA girer (içeri uzanmaz)
+    xh = dx0 - 70
+    yta = dy1 - 45
+    C.hat([(dx0, yta), (xh, yta)], depo)
+    for fx in (dx0 - 3, dx0 - 8):                                            # flanş çifti
+        C.hat([(fx, yta - 7), (fx, yta + 7)], depo)
+    C.hat([(xh, dy0 - 15), (xh, dy1 + 25)], depo)
     C.msp.add_arc((xh - 7, dy1 + 25), 7.0, 0, 180, dxfattribs={'layer': depo})
-    C.hat([(xh, dy1 - 45), (xh, dy0 + 10), (dx0 - 70, dy0 + 10), (dx0 - 70, dy0 - 10)], depo)
-    C.hat([(dx0 - 76, dy0 - 10), (dx0 - 70, dy0 - 18), (dx0 - 64, dy0 - 10)], depo)
-    C.blok('ROTAS-SEMA-KURESEL-VANA', (dx0 - 52, dy0 + 10), depo)
+    C.hat([(xh - 14, dy1 + 25), (xh - 14, dy1 + 18)], depo)
+    C.yazi('2"', (xh - 6, dy0 + 90), 11.0, 'ROTAS-SIHHI-DEPO-YAZI', hiza=ezdxf.enums.TextEntityAlignment.BOTTOM_RIGHT)
+    # boşaltma: DEPO TABANINDAN (flanşlı), kaide içinden sola, vana, taşma birleşimi, huni
+    xb = dx0 + 25
+    C.hat([(xb - 7, dy0 - 2), (xb + 7, dy0 - 2)], depo)
+    C.hat([(xb, dy0), (xb, dy0 - 15), (dx0 - 115, dy0 - 15), (dx0 - 115, dy0 - 32)], depo)
+    C.hat([(dx0 - 121, dy0 - 32), (dx0 - 115, dy0 - 40), (dx0 - 109, dy0 - 32)], depo)       # huni
+    C.blok('ROTAS-SEMA-KURESEL-VANA', (dx0 - 35, dy0 - 15), depo)
+    # seviye göstergesi (flanşlı, iki ağız)
     C.hat([(dx1 + 14, dy0 + 20), (dx1 + 14, dy1 - 20)], depo, lt='ROTAS_BASMA', renk=4)
-    C.hat([(dx1, dy0 + 20), (dx1 + 14, dy0 + 20)], depo)
-    C.hat([(dx1, dy1 - 20), (dx1 + 14, dy1 - 20)], depo)
+    for yy_ in (dy0 + 20, dy1 - 20):
+        C.hat([(dx1, yy_), (dx1 + 14, yy_)], depo)
+        C.hat([(dx1 + 3, yy_ - 5), (dx1 + 3, yy_ + 5)], depo)
     v = m['proje'].get('depo', {}).get('hacim_m3', 3.0)
     C.yazi('KULLANIM SU DEPOSU', ((dx0 + dx1) / 2, dy0 + 112), 15.0, 'ROTAS-SIHHI-DEPO-YAZI',
            hiza=ezdxf.enums.TextEntityAlignment.MIDDLE_CENTER)
     C.yazi('V=%sm3' % O.fmt(v), ((dx0 + dx1) / 2, dy0 + 90), 15.0, 'ROTAS-SIHHI-DEPO-YAZI',
            hiza=ezdxf.enums.TextEntityAlignment.MIDDLE_CENTER)
     R = ezdxf.enums.TextEntityAlignment.BOTTOM_RIGHT
-    C.yazi('Havalık', (xh - 18, dy1 + 2), 13.0, 'ROTAS-SIHHI-DEPO-YAZI', hiza=R)
-    C.yazi('Taşma 2"', (xh - 18, dy1 - 16), 13.0, 'ROTAS-SIHHI-DEPO-YAZI', hiza=R)
-    C.yazi('Boşaltma', (dx0 - 82, dy0 - 4), 13.0, 'ROTAS-SIHHI-DEPO-YAZI', hiza=R)
+    C.yazi('Havalık', (xh - 22, dy1 - 10), 13.0, 'ROTAS-SIHHI-DEPO-YAZI', hiza=R)
+    C.yazi('Taşma', (xh - 22, yta + 4), 13.0, 'ROTAS-SIHHI-DEPO-YAZI', hiza=R)
+    C.yazi('Boşaltma', (X0 + 132, dy0 + 6), 13.0, 'ROTAS-SIHHI-DEPO-YAZI')
     C.yazi('Su Seviye', (dx1 + 22, dy0 + 120), 13.0, 'ROTAS-SIHHI-DEPO-YAZI')
     C.yazi('Göstergesi', (dx1 + 22, dy0 + 103), 13.0, 'ROTAS-SIHHI-DEPO-YAZI')
-    # akış okları (her katta): dolum ↑, dağıtım ↓
+    # akış okları: şebeke girişinde →, her katta dolum ↑, dağıtım ↓
+    C.blok('ROTAS-SEMA-AKIS-OKU', (X0 + 30, Y0 - 12), L_SEM, rot=-90)
     for k in range(O.kat_sayisi(m)):
         yy = Y0 + k * H + (200 if k else 260)
         C.blok('ROTAS-SEMA-AKIS-OKU', (X0 + 112, yy), L_SEM)
@@ -330,7 +403,8 @@ def grup_ciz(C, g, xk, y0, kombi_x=None, sicak_disari=0.0, sicak_yukari=False):
         C.hat(p, L_PIS, lt='Continuous')
         C.pvc(p, w)
         kir.append(x - 15)
-        C.blok('ROTAS-SEMA-ET2-SAG', (x + 9, y0 - 46), L_PCAP, attr={'CAP': O.pis_cap(sb, wc), 'DEGER': '%d SB' % sb})
+        C.blok('ROTAS-SEMA-ET2-SAG', (x + 9, y0 - 40), L_PCAP, olcek=1.5,
+               attr={'CAP': O.pis_cap(sb, wc), 'DEGER': '%d SB' % sb})
         top = sum(O.SB.get(u, 0) for u in T[i:])
         C.blok('ROTAS-SEMA-ET-SB', (x - 80, yt), L_PCAP,
                attr={'CAP': O.pis_cap(top, 'WC' in T[i:]), 'SB': '%d SB' % top})
@@ -419,17 +493,17 @@ def kolonlar_ciz(C, m, L, ys, yt, ozet):
             C.yazi('R', (xk + 72, Y0 - 110), 25.0, 'ROTAS-SIHHI-ROGAR-YAZI', renk=5)
             for k in range(n):
                 ya = Y0 + k * H - 70
-                yb = (Y0 + (k + 1) * H - 70) if k < n - 1 else yt + 28
+                yb = (Y0 + (k + 1) * H - 70) if k < n - 1 else yt + 45.5   # kolon balonun altına değer
                 C.hat([(xk, ya), (xk, yb)], L_PIS, lt='Continuous')
-                C.pvc([(xk, ya), (xk, yb)], 5.0)
+                C.pvc([(xk, ya), (xk, yb)], 5.0, muf_son=k < n - 1)
                 kum = sum(sbk[k:])
                 if sbk[k] > 0 or k == 0:
-                    C.blok('ROTAS-SEMA-ET2-SOL', (xk - 14, Y0 + k * H - 100), L_PCAP,
+                    C.blok('ROTAS-SEMA-ET2-SOL', (xk - 14, Y0 + k * H - 112), L_PCAP, olcek=1.5,
                            attr={'CAP': O.pis_cap(kum, any(wck[k:])), 'DEGER': '%d SB' % kum})
             C.blok('ROTAS-SEMA-TEMIZLEME-KAPAGI', (xk, Y0 + 24), L_SEM)
             C.yazi('T.K.', (xk - 13, Y0 + 19), 10.0, L_YAZ, renk=1, hiza=ezdxf.enums.TextEntityAlignment.BOTTOM_RIGHT)
             C.blok('ROTAS-SEMA-HAVALIK', (xk, yt + 28), 'ROTAS-SIHHI-PIS-SU-PVC-DETAY')
-            C.blok('ROTAS-SEMA-KOLON-NO', (xk, yt + 80), 'ROTAS-SIHHI-KOLON-NO', attr={'NO': p})
+            C.blok('ROTAS-SEMA-KOLON-NO', (xk, yt + 73), 'ROTAS-SIHHI-KOLON-NO', attr={'NO': p})
             ozet['kolonlar'][p] = {'x_sema': round(xk, 1), 'sb_kat': sbk, 'sb_toplam': sum(sbk),
                                    'cap': O.pis_cap(sum(sbk), any(wck))}
 
@@ -482,7 +556,7 @@ def yagmur_hesap(C, m, L, ek):
              'Q = %.2f l/s  <  Qmax = %.2f l/s' % (Q, qmax),
              'Ø70 lik Boru %s.' % ('UYGUNDUR' if Q < qmax else 'YETMEZ, Ø100 SEÇİLİR')]
     for i, s in enumerate(satir):
-        C.yazi(s, (bx0 + 18, by1 - 34 - 27 * i), 12.0 if i == 0 else 10.5, 'ROTAS-SIHHI-HESAP', renk=1 if i == 0 else 250)
+        C.yazi(s, (bx0 + 18, by1 - 34 - 27 * i), 12.0 if i == 0 else 10.5, 'ROTAS-SIHHI-HESAP', renk=1 if i == 0 else 7)
 
 
 def rogar_semasi(C, m, L, rogarlar):
@@ -498,8 +572,8 @@ def rogar_semasi(C, m, L, rogarlar):
     for i, r in enumerate(rogarlar):
         x = xr0 + A * i
         C.blok('ROTAS-SEMA-ROGAR', (x, yr), 'ROTAS-SIHHI-ROGAR', attr={'NO': r['no']})
-        C.yazi(r.get('olcu_1', '70x70'), (x + 175, yr - 44), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=8, hiza=C_.BOTTOM_RIGHT)
-        C.yazi(r.get('olcu_2', 'h:-70cm'), (x + 175, yr - 58), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=8, hiza=C_.BOTTOM_RIGHT)
+        C.yazi(r.get('olcu_1', '70x70'), (x + 175, yr - 44), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=9, hiza=C_.BOTTOM_RIGHT)
+        C.yazi(r.get('olcu_2', 'h:-70cm'), (x + 175, yr - 58), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=9, hiza=C_.BOTTOM_RIGHT)
         if i < nR - 1:
             C.hat([(x + 44.5, yr), (x + A - 44.5, yr)], L_PIS, lt='Continuous')
             xm_ = x + A / 2
@@ -514,37 +588,10 @@ def rogar_semasi(C, m, L, rogarlar):
                        attr={'NO': p})
 
 
-LEJ = [
-    ('hat', L_SOG, 'SOĞUK SU HATTI'), ('hat', L_SIC, 'SICAK SU HATTI (kombiden, soğuğa 5 cm paralel)'),
-    ('hat', L_PIS, 'PİS SU HATTI (PVC, Ø / SB etiketli)'), ('hat', L_YAG, 'YAĞMUR SUYU İNİŞİ'),
-    ('hat', L_SEB, 'ŞEBEKE / DEPO / SAYAÇ GRUBU HATTI'),
-    ('blok', 'ROTAS-SEMA-KURESEL-VANA', 'KÜRESEL VANA'), ('blok', 'ROTAS-SEMA-PISLIK-TUTUCU', 'PİSLİK TUTUCU'),
-    ('blok', 'ROTAS-SEMA-SU-SAYACI', 'SU SAYACI (yalnız zemin, şebeke girişinde)'),
-    ('blok', 'ROTAS-SEMA-CEKVALF', 'ÇEK VALF'), ('blok', 'ROTAS-SEMA-TEMIZLEME-KAPAGI', 'TEMİZLEME KAPAĞI (T.K.)'),
-    ('blok', 'ROTAS-SEMA-HAVALIK', 'PİS SU HAVALIK ŞAPKASI'), ('blok', 'ROTAS-SEMA-ROGAR-OK', 'RÖGARA GİDER (R)'),
-]
-
-
-def lejant(C):
-    x, y = X0, Y0 - 215
-    C.yazi('LEJANT', (x, y), 20.0, 'ROTAS-LEJANT', renk=250)
-    for i, (tur, ad, ack) in enumerate(LEJ):
-        cx = x + (0 if i < 6 else 820)
-        cy = y - 60 - 62 * (i % 6)
-        if tur == 'hat':
-            C.hat([(cx, cy), (cx + 140, cy)], ad, lt='Continuous' if ad == L_PIS else None)
-        else:
-            C.blok(ad, (cx + 50, cy), 'ROTAS-LEJANT')
-        C.yazi(ack, (cx + 175, cy - 5), 12.0, 'ROTAS-LEJANT', renk=250)
-    C.yazi('MB: temiz su yük birimi, SB: pis su yük birimi. Sayaçlar yalnız zemin bandında, şebeke girişinde toplu; '
-           'kat bantlarında ve daire girişlerinde su sayacı çizilmez.', (x, y - 60 - 62 * 6 - 10), 11.0, 'ROTAS-LEJANT', renk=250)
-
-
 def pafta(C, x_son):
     px1 = max(SEMA_PAFTA_MIN_X1, x_son + 80)
     C.hat([(PX0, PY0), (px1, PY0), (px1, PY1), (PX0, PY1), (PX0, PY0)], 'ROTAS-PAFTA')
-    C.yazi('SIHHİ TESİSAT AÇILIMLI KOLON ŞEMASI..........ÖLÇEK: YOK', (PX0 + 538, PY0 + 39), 40.0, 'ROTAS-PAFTA-YAZI')
-    return px1
+    return px1     # kullanıcının şema paftasında başlık ve lejant yok (lejant detay paftasında)
 
 
 def sema_uret(m, rogarlar, ek, cikis):
@@ -565,8 +612,7 @@ def sema_uret(m, rogarlar, ek, cikis):
     gx1 = yagmur_ciz(C, m, L, yt) or L['x1']
     yagmur_hesap(C, m, L, ek)
     rogar_semasi(C, m, L, rogarlar)
-    lejant(C)
-    px1 = pafta(C, gx1)
+    px1 = pafta(C, max(gx1, L.get('x_bolme', gx1) - 20))
     ozet['pafta'] = [PX0, PY0, px1, PY1]
     ozet['sema_genislik'] = round(L['x1'] - X0, 1)
     os.makedirs(os.path.dirname(cikis), exist_ok=True)

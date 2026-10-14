@@ -26,6 +26,8 @@ TPX0, TPX1 = 250042.0, 252513.0
 PY0, PY1 = -444050.0, -441150.0
 CEPHE_ARA = 110.0
 PB_ARA = 506.0
+H_EGIM = 20.0
+PAH = 5.0
 ONBELLEK = '/tmp/claude-0/s2/temel_mimari_v3.pkl'
 
 
@@ -109,16 +111,35 @@ def rogar_plani(m, mim):
     xr = xe + CEPHE_ARA
     kol = [dict(no=k['no'], x=k['x'], y=k['y'], sb=k.get('sb_toplam', 0)) for k in m.get('kolonlar', [])]
     engel = unary_union([c.buffer(4) for c in cols]) if cols else None
-    kumeler = kumele(kol, xr, engel)
+    mrog = [r for r in (m.get('rogarlar') or []) if r.get('kolonlar') and r.get('no') != 'PB']
     rog = []
-    for i, (K, secim) in enumerate(kumeler):
-        rog.append(dict(no='R%d' % (i + 1), x=xr, y=secim, kolonlar=[k['no'] for k in sorted(K, key=lambda q: O.kno(q['no']))],
-                        _K=K, cap_giris='Ø125', cap_cikis='Ø150', egim='%1', olcu_1='70x70', olcu_2='h:-70cm',
-                        sb=sum(k['sb'] for k in K)))
+    if mrog:
+        # modeldeki (kullanıcının) rögar ataması: R1←P7,P9; R2←P8; ... — ek rögar üretilmez
+        kd = {k['no']: k for k in kol}
+        for r in mrog:
+            K = [kd[p] for p in r['kolonlar'] if p in kd]
+            if not K:
+                continue
+            diger = [k for k in kol if k not in K]
+            rx = r['x'] if r.get('x') and abs(r['x'] - xr) < 300 else xr
+            h = _hat_y(K, rx, engel, diger)
+            secim = h[0] if h else sorted(k['y'] for k in K)[len(K) // 2]
+            ry = r['y'] if r.get('y') is not None and abs(r['y'] - secim) <= 40 else secim
+            rog.append(dict(no=r['no'], x=rx, y=ry, hat_y=secim,
+                            kolonlar=[k['no'] for k in sorted(K, key=lambda q: O.kno(q['no']))], _K=K,
+                            cap_giris='Ø125', cap_cikis=r.get('cap', 'Ø150'), egim=r.get('egim', '%1'),
+                            olcu_1='70x70', olcu_2='h:-70cm', sb=sum(k['sb'] for k in K)))
+        rog.sort(key=lambda r: O.kno(r['no']))
+    else:
+        for i, (K, secim) in enumerate(kumele(kol, xr, engel)):
+            rog.append(dict(no='R%d' % (i + 1), x=xr, y=secim, hat_y=secim,
+                            kolonlar=[k['no'] for k in sorted(K, key=lambda q: O.kno(q['no']))],
+                            _K=K, cap_giris='Ø125', cap_cikis='Ø150', egim='%1', olcu_1='70x70', olcu_2='h:-70cm',
+                            sb=sum(k['sb'] for k in K)))
     # rögarlar arası en az 160 cm
     for a, b in zip(rog[:-1], rog[1:]):
         if a['y'] - b['y'] < 160:
-            b['y'] = a['y'] - 160
+            b['y'] = b['hat_y'] = a['y'] - 160
     kum = 0
     for r in rog:
         kum += r['sb']
@@ -169,23 +190,24 @@ def temel_uret(m, cikis):
 
     def egim_et(p, q, cap, dikey=False):
         mx, my = (p[0] + q[0]) / 2 + dx, (p[1] + q[1]) / 2
+        # kullanıcının *U67 eğim yazısı: "Ø150 / % 1 EĞİM", h 20, hattın 29–34 cm yanında (ALTIN_REFERANS §6)
         if dikey:
-            e1 = _yazi(msp, cap, (mx + 18, my), 12.0, L_CAP, renk=2, rot=90.0, hiza=MC.BOTTOM_CENTER)
-            e2 = _yazi(msp, '%1 EĞİM', (mx + 40, my), 12.0, L_CAP, renk=2, rot=90.0, hiza=MC.BOTTOM_CENTER)
+            e1 = _yazi(msp, cap, (mx + 30, my), H_EGIM, L_CAP, renk=2, rot=90.0, hiza=MC.TOP_CENTER)
+            e2 = _yazi(msp, '%1 EĞİM', (mx + 56, my), H_EGIM, L_CAP, renk=2, rot=90.0, hiza=MC.TOP_CENTER)
             yon = -1 if q[1] < p[1] else 1
-            S.ekle(msp, 'ROTAS-SEMA-EGIM-OKU', (mx + 52, my - 60 * yon), 'ROTAS-SIHHI-SEMBOL', rot=90 * (1 if yon > 0 else -1))
+            S.ekle(msp, 'ROTAS-SEMA-EGIM-OKU', (mx + 70, my - 70 * yon), 'ROTAS-SIHHI-SEMBOL', rot=90 * (1 if yon > 0 else -1))
         else:
-            e1 = _yazi(msp, '%1 EĞİM', (mx, my + 28), 12.0, L_CAP, renk=2, hiza=MC.BOTTOM_CENTER)
-            e2 = _yazi(msp, cap, (mx, my + 7), 12.0, L_CAP, renk=2, hiza=MC.BOTTOM_CENTER)
+            e1 = _yazi(msp, '%1 EĞİM', (mx, my + 55), H_EGIM, L_CAP, renk=2, hiza=MC.BOTTOM_CENTER)
+            e2 = _yazi(msp, cap, (mx, my + 29), H_EGIM, L_CAP, renk=2, hiza=MC.BOTTOM_CENTER)
             yon = 1 if q[0] > p[0] else -1
-            S.ekle(msp, 'ROTAS-SEMA-EGIM-OKU', (mx + 52 * yon, my + 20), 'ROTAS-SIHHI-SEMBOL', rot=0 if yon > 0 else 180)
+            S.ekle(msp, 'ROTAS-SEMA-EGIM-OKU', (mx + 75 * yon, my + 40), 'ROTAS-SIHHI-SEMBOL', rot=0 if yon > 0 else 180)
         return e1, e2
 
     for r in rog:
         if r['no'] == 'PB':
             continue
         K = r['_K']
-        y = r['y']
+        y = r.get('hat_y', r['y'])
         xw = min(k['x'] for k in K)
         bag = []
         for k in sorted(K, key=lambda q: q['x']):
@@ -194,17 +216,21 @@ def temel_uret(m, cikis):
                 continue
             s = 1 if k['y'] > y else -1
             if k['x'] == xw:   # L köşe, 5 cm 45° pah
-                hat([(k['x'], k['y']), (k['x'], y + 5 * s), (k['x'] + 5, y)])
-                bag.append(k['x'] + 5)
+                hat([(k['x'], k['y']), (k['x'], y + PAH * s), (k['x'] + PAH, y)])
+                bag.append(k['x'] + PAH)
             else:
                 hat([(k['x'], k['y']), (k['x'], y)])
                 bag.append(k['x'])
         xs = sorted(set(bag)) + [r['x'] - 45]
+        if abs(y - r['y']) > 1:      # hat rögar ekseninden kaçık: son parçada 45° pahla rögara gir
+            xs[-1] = r['x'] - 45 - abs(y - r['y'])
         for a, b in zip(xs[:-1], xs[1:]):
             hat([(a, y), (b, y)])
             if b - a >= 150:
                 for e in egim_et((a, y), (b, y), 'Ø125'):
                     alanlar.append(_kutu(e))
+        if abs(y - r['y']) > 1:
+            hat([(xs[-1], y), (r['x'] - 45, r['y'])])
     # rögarlar ve aralarındaki Ø150
     for i, r in enumerate(rog):
         p = T((r['x'], r['y']))
@@ -212,11 +238,11 @@ def temel_uret(m, cikis):
         alanlar.append(box(p[0] - 45, p[1] - 45, p[0] + 45, p[1] + 45))
         if r['no'] == 'PB':
             tp = (p[0] - 45, p[1] - 62)
-            e1 = _yazi(msp, r['olcu_1'], tp, 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=8)
-            e2 = _yazi(msp, r['olcu_2'], (tp[0], tp[1] - 14), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=8)
+            e1 = _yazi(msp, r['olcu_1'], tp, 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=9)
+            e2 = _yazi(msp, r['olcu_2'], (tp[0], tp[1] - 14), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=9)
         else:
-            e1 = _yazi(msp, r['olcu_1'], (p[0] + 55, p[1] + 30), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=8)
-            e2 = _yazi(msp, r['olcu_2'], (p[0] + 55, p[1] + 16), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=8)
+            e1 = _yazi(msp, r['olcu_1'], (p[0] + 55, p[1] + 30), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=9)
+            e2 = _yazi(msp, r['olcu_2'], (p[0] + 55, p[1] + 16), 9.6, 'ROTAS-SIHHI-ROGAR-YAZI', renk=9)
         alanlar += [_kutu(e1), _kutu(e2)]
         if i + 1 < len(rog):
             q = rog[i + 1]
@@ -248,10 +274,10 @@ def temel_uret(m, cikis):
         alanlar.append(Point(b).buffer(29))
     # lejant (pafta sağ altı)
     lx, ly = TPX1 - 980, PY0 + 330
-    _yazi(msp, 'LEJANT', (lx, ly), 18.0, 'ROTAS-LEJANT', renk=250)
-    sat = [('hat', 'PİS SU HATTI (kolon dibi → rögar Ø125 %1, rögarlar arası Ø150 %1)'),
-           ('ROTAS-TEMEL-PIS-KOLON', 'PİS SU KOLON DİBİ (zemin döşemesi altı)'),
-           ('ROTAS-TEMEL-ROGAR', 'RÖGAR (MUAYENE BACASI) 70x70, PB: PARSEL BACASI')]
+    _yazi(msp, 'LEJANT', (lx, ly), 18.0, 'ROTAS-LEJANT', renk=7)
+    sat = [('hat', 'PİS SU HATTI'),
+           ('ROTAS-TEMEL-PIS-KOLON', 'PİS SU KOLON DİBİ'),
+           ('ROTAS-TEMEL-ROGAR', 'RÖGAR 70x70 / PB PARSEL BACASI')]
     for i, (ad, ack) in enumerate(sat):
         yy = ly - 50 - 70 * i
         if ad == 'hat':
@@ -259,7 +285,7 @@ def temel_uret(m, cikis):
         else:
             S.ekle(msp, ad, (lx + 60, yy), 'ROTAS-LEJANT', attr={'NO': 'R'} if 'ROGAR' in ad else None,
                    olcek=0.5 if 'ROGAR' in ad else 1.0)
-        _yazi(msp, ack, (lx + 150, yy - 5), 11.0, 'ROTAS-LEJANT', renk=250)
+        _yazi(msp, ack, (lx + 150, yy - 5), 11.0, 'ROTAS-LEJANT', renk=7)
     os.makedirs(os.path.dirname(cikis), exist_ok=True)
     doc.saveas(cikis)
     ek = {'cati_alani_m2': round(mim['bina'].area / 1e4, 1), 'cephe_x': round(mim['bina'].bounds[2], 1),

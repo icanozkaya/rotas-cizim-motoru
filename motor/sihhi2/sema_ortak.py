@@ -97,12 +97,29 @@ class Yigin:
         self.kombi_kat = {}      # kat -> kombi var mı
 
 
+# armatür sırası, KOLONDAN DIŞA (kullanıcının new_block şeması, SIHHI_ALTIN_REFERANS §5.2 x ölçüleri:
+# D1 banyo P3 → lavabo 265407 – klozet 265537 – süzgeç 265667 – duş 265797 – ÇM 265927;
+# D1 wc-lvb P2 → klozet 266702 – lavabo 266832; D1 mutfak P1 → BM 267088 – eviye 267218 – kombi 267348)
+SIRA_BANYO = ['LV', 'WC', 'YS', 'DUS', 'CM']
+SIRA_WC = ['WC', 'LV', 'YS']
+SIRA_MUTFAK = ['BM', 'EV', 'YS']
+
+
+def arm_sirala(tipler, mutfak=False):
+    if mutfak or ('EV' in tipler or 'BM' in tipler) and not ('WC' in tipler or 'DUS' in tipler):
+        sira = SIRA_MUTFAK + ['CM', 'LV', 'WC', 'DUS']
+    elif 'DUS' in tipler or 'CM' in tipler:
+        sira = SIRA_BANYO + ['EV', 'BM']
+    else:
+        sira = SIRA_WC + ['DUS', 'CM', 'EV', 'BM']
+    return sorted(tipler, key=lambda t: sira.index(t) if t in sira else 99)
+
+
 def yiginlar(m):
     """daireleri plan konumuna göre yığınla, yığınları ve kolonları new_block şema sırasına diz.
     Sıra (kullanıcı çizimi): yığınlar kolon x ortalaması artan (D3, D2, D1); yığın içinde ıslak hacim kolonları
     kuzeyden güneye (y azalan), mutfak kolon(lar)ı en sağda (kombi yanında)."""
     kol = {k['no']: k for k in m.get('kolonlar', [])}
-    sira_sema = {k['no']: k.get('armatur_sirasi_sema') or [] for k in m.get('kolonlar', [])}
     ys = []
     for d in m['daireler']:
         ref = d.get('kombi') or d.get('giris') or {}
@@ -132,13 +149,12 @@ def yiginlar(m):
             tip = [a['tip'] for a in h.get('armaturler', [])]
             if h.get('suzgec'):
                 tip.append('YS')
-            ss = sira_sema.get(p) or []
-            tip.sort(key=lambda t: (ss.index(t) if t in ss else 99))
             g = hedef.gruplar.get((d['kat'], p))
             if g is None:
-                hedef.gruplar[(d['kat'], p)] = Grup(d['kat'], d['no'], h.get('ad', ''), p, tip)
+                g = hedef.gruplar[(d['kat'], p)] = Grup(d['kat'], d['no'], h.get('ad', ''), p, tip)
             else:   # aynı katta aynı kolona iki hacim: birleştir
                 g.tipler += tip
+            g.tipler = arm_sirala(g.tipler, g.mutfak)
     for Y in ys:
         ps = sorted({p for (_, p) in Y.gruplar})
         mutfak = {p for (_, p), g in Y.gruplar.items() if g.mutfak}

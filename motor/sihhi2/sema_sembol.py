@@ -28,6 +28,8 @@ BAG = {
     'YS': (None, None),
 }
 # armatür yarı genişliği (etiket / yerleşim için)
+# sembol dolgusu: renk 7 (beyaz zeminde siyah, siyah ekranda beyaz — kullanıcının dolu vana / T.K. sembolleri)
+DOLGU = 7
 YARI = {'LV': 32, 'DUS': 42, 'EV': 50, 'WC': 24, 'CM': 31, 'BM': 31, 'YS': 13}
 
 
@@ -115,25 +117,27 @@ def _klozet(B):
 
 
 def _dus(B):
+    """duş teknesi + duvar bataryası (bağlantı +106) + el duşu askısı; sembolün tamamı +124'ün altında
+    (dağıtım hattı +130 ve MB etiketleri kesilmez)"""
     b = B.new('ROTAS-SEMA-DUS')
     C, Y = 4, 2
     # duş teknesi
     _pl(b, [(-42, 0), (42, 0), (42, 7), (-42, 7)], C, True)
     _ln(b, (-38, 7), (-38, 10), C)
     _ln(b, (38, 7), (38, 10), C)
-    # duvar bataryası
-    _pl(b, [(-12, 100), (12, 100), (12, 106), (-12, 106)], C, True)
-    for s in (-1, 1):
-        b.add_circle((s * 9, 96), 3.0, dxfattribs={'color': C})
-        _ln(b, (s * 5, 106), (s * 5, 110), C)
-    _pl(b, [(-2, 100), (-2, 94), (6, 88), (14, 88)], C)                 # el duşu çıkışı
-    # el duşu sürgü çubuğu + başlık
-    _ln(b, (16, 112), (16, 186), C)
-    _pl(b, [(12, 186), (24, 192), (26, 188), (14, 182)], C, True)
-    _pl(b, [(14, 88), (20, 70), (22, 100), (16, 140)], C)                # hortum
+    # duvar bataryası (iki giriş üstte +106)
+    _pl(b, [(-12, 92), (12, 92), (12, 98), (-12, 98)], C, True)
+    for s_ in (-1, 1):
+        b.add_circle((s_ * 9, 88), 3.0, dxfattribs={'color': C})
+        _ln(b, (s_ * 5, 98), (s_ * 5, 106), C)
+    _pl(b, [(-2, 92), (-2, 86), (6, 80), (14, 80)], C)                 # el duşu çıkışı
+    # el duşu askısı + başlık (batarya hizasında, yukarı çıkmaz)
+    _ln(b, (24, 74), (24, 116), C)
+    _pl(b, [(20, 116), (32, 122), (34, 118), (22, 112)], C, True)
+    _pl(b, [(14, 80), (18, 70), (24, 74)], C)                           # hortum
     # sabunluk (sarı)
-    _pl(b, [(-36, 112), (-22, 112), (-22, 124), (-36, 124)], Y, True)
-    _ln(b, (-36, 116), (-22, 116), Y)
+    _pl(b, [(-36, 104), (-22, 104), (-22, 114), (-36, 114)], Y, True)
+    _ln(b, (-36, 107), (-22, 107), Y)
 
 
 def _eviye(B):
@@ -204,8 +208,8 @@ def _kombi(B):
 
 # ====================================================================== VANA / SAYAÇ (hat üstü, yatay, 20 genişlik)
 def _vana_govde(b):
-    _dolgu(b, [(-10, -5), (0, 0), (-10, 5)], 250)
-    _dolgu(b, [(10, -5), (0, 0), (10, 5)], 250)
+    _dolgu(b, [(-10, -5), (0, 0), (-10, 5)], DOLGU)
+    _dolgu(b, [(10, -5), (0, 0), (10, 5)], DOLGU)
     _pl(b, [(-10, -5), (10, 5), (10, -5), (-10, 5)], 1, True)
 
 
@@ -223,7 +227,7 @@ def _vanalar(B):
     _ln(b, (0, 0), (5, 9), 1)
     _ln(b, (3, 10), (7, 8), 1)
     b = B.new('ROTAS-SEMA-SU-SAYACI')
-    _dolgu(b, [(-7, -7), (7, -7), (7, 7), (-7, 7)], 250)
+    _dolgu(b, [(-7, -7), (7, -7), (7, 7), (-7, 7)], DOLGU)
     _pl(b, [(-7, -7), (7, -7), (7, 7), (-7, 7)], 1, True)
     _ln(b, (-7, -7), (9, 9), 1)
     _dolgu(b, [(9, 9), (4, 7), (7, 4)], 1)
@@ -232,7 +236,7 @@ def _vanalar(B):
 # ====================================================================== PİS SU ŞEMA PARÇALARI
 def _tk(B):
     b = B.new('ROTAS-SEMA-TEMIZLEME-KAPAGI')
-    _dolgu(b, [(-10, -11), (10, -11), (10, 11), (-10, 11)], 250)
+    _dolgu(b, [(-10, -11), (10, -11), (10, 11), (-10, 11)], DOLGU)
     _pl(b, [(-10, -11), (10, -11), (10, 11), (-10, 11)], 1, True)
     b.add_circle((0, 0), 9.0, dxfattribs={'color': 1})
     for x in (-5, 5):
@@ -284,11 +288,11 @@ def _balonlar(B):
     for ad, rn, ry in (('ROTAS-SEMA-KOLON-NO', 6, 6), ('ROTAS-SEMA-KOLON-NO-YAGMUR', 3, 3)):
         b = B.new(ad)
         b.add_circle((0, 0), 27.5, dxfattribs={'color': rn})
-        b.add_circle((0, 0), 24.5, dxfattribs={'color': rn})
+        b.add_circle((0, 0), 24.5, dxfattribs={'color': 7})
         _attdef(b, 'NO', (0, 0), h=20.0, renk=ry, hiza='C')
     b = B.new('ROTAS-SEMA-DAIRE-NO')
-    b.add_circle((0, 0), 55.0, dxfattribs={'color': 6})
-    b.add_circle((0, 0), 49.0, dxfattribs={'color': 6})
+    b.add_circle((0, 0), 55.0, dxfattribs={'color': 6})      # dış mor + iç daire (kullanıcının ölçek 2 balonu)
+    b.add_circle((0, 0), 49.0, dxfattribs={'color': 7})
     _attdef(b, 'NO', (0, 0), h=40.0, renk=6, hiza='C')
     b = B.new('ROTAS-TEMEL-PIS-KOLON')
     b.add_circle((0, 0), 7.0, dxfattribs={'color': 6})
