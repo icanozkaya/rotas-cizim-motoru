@@ -1,4 +1,35 @@
-# uctan_uca — new_block.dxf üzerinde uçtan uca sıhhi tesisat denemesi (14.10.2026)
+# uctan_uca — new_block.dxf üzerinde uçtan uca sıhhi tesisat denemesi (14.10.2026, R2)
+
+## R2 — 14.10.2026 kullanıcı standart talimatı revizyonu (`r2.py` + `nb.py`)
+Çıktı: `proje/denemeler/uctan_uca/NB_SIHHI_DENEME_R2.dxf` (R1 `NB_SIHHI_DENEME.dxf` önce/sonra için korunur). Karşılaştırma: `KARSILASTIRMA.md` §0.
+- YB / SB yöntemi MTY ile aynı kaldı (MB / inç'e geçilmedi). Kolon–rögar çapı hesapla (`dn_sb`, zemin altı en az Ø100): kolon başı ≤ 75 SB → Ø100;
+  kullanıcı Ø125 çizmiş (hesap gerektirmiyor, fark raporda).
+- Kolon yeri (`r2.kolon_yeri2`): yalnız köşe adayları — her armatürden en yakın **gerçek duvara** (eksen çizgileri aynı doğruda birleştirilir, ≥ 100 cm;
+  tezgâh / eviye / tekne çizgileri sayılmaz), sonra duvar boyunca köşeye. Puan: SB ağırlıklı boru boyu (mutfakta yalnız eviye), "mek. havl." şaftı
+  (≤ 70 cm) ve komşu ıslak hacim bonusu, yasak bölgeye ceza; betonarmeden ≥ 15 cm. Numara kullanıcı biçimi P1.. ve kullanıcı sırası
+  (daire → mutfak / wc / banyo / duş). Kullanıcı kolonlarına ortalama fark 115 → 58 cm.
+- Kat planı farklılığı: üst kattaki `wc-banyo`, `wc-duş` tanınır; ıslak hacim → daire ataması kapılardan yürüme mesafesiyle (`r2.geodezik_daire`);
+  zeminde karşılığı olmayan ıslak hacme o katta yeni köşe kolonu (P10), alt katlardan temele iner.
+- Eksik ÇM / BM (`r2.ek_makineler`): banyo (yoksa wc+banyo / wc-banyo / wc-duş / duş) boş köşesine ÇM, mutfakta eviye yanına BM; planda "C'W' / B'M' (EK)".
+- Balkon süzgeçleri (`r2.balkon_suzgecleri`): balkon etiketinden ortogonal dikdörtgen, en yakın yağmur inişine bakan köşe; Ø50 ayrı hat yağmur inişine
+  (pis su ağına bağlanmaz).
+- Temiz su: merdiven holünde daire kapılarının yanında ADK kolonları (giriş numaraları 300 cm içinde kümelenir: ADK-1 D1/D2, ADK-2 D3), her katta kolon →
+  sayaç + küresel vana → kapı; ana hat yalnız ortak alan ızgarasında (tüm daire mahalleri kapalı). DBK ADK-2 yanında, şebeke bina girişinden düz.
+  Daire içi: soğuk A* ağacı (kombi dahil) → `networkx` grafı; sıcak = kombiden sıcak armatürlere soğuk ağaç yolları, (±7, ±7) öteleme (duvar / yasak
+  kesişimi en az olan yön) → yan yana paralel. Etiket (`MTY-TEMIZ SU CAP MB`) dal başına bir tane, ekleme noktası boru ekseninde, SO soğuk / SC sıcak.
+- Yasak bölgeler (`r2.yasak_bolgeler`, `nb.yasak_kontrol`): betonarme kolon / perde, asansör boşluğu, enerji odası (etiketten ortogonal ışınla dikdörtgen);
+  router'da yasak, pis su doğrudan hattı keserse dik kırık; sonda tüm hatlar 3 katta kontrol + ana hattın daire mahallerine girişi. Sonuç `ozet_r2.json` `yasak`.
+- Depo kararı (`depo_karari`): mimaride bodrum + depo yeri → bodrum + hidrofor; yoksa çatı deposu (bu projede çatı).
+- Pafta sonu "LEJANT VE MALZEME LİSTESİ": `semboller/sembol.py otomatik_lejant` (SIHHİ DETAYLAR bloğu eklenmeden önce sayılır) + armatür adet tablosu +
+  boru metrajı (plandan ölçülen + kolon boyları).
+- Rögar gruplaması: grup boyu ≤ 450 cm (kullanıcının 4 rögar dizilimi).
+- Kolon no balonu (`kolon_etiketleri`): 16 yön × 5 mesafe arama, kat kayıtlarına (mimari + boru + yazı) değmeyen ilk konum, gerekirse kısa kılavuz çizgi.
+
+R2 sınırları: D3 mutfak kolonu cephe köşesine düşüyor (kullanıcı tezgâh ucu); şema (p2 gsheet) sayaç grubunu hâlâ zemin bandında gösteriyor
+(planda kat sayaçları); çatı planı, WC havalandırma izometrisi, kesit / görünüşler yok; çap etiket ölçeği 8 (kullanıcı 10).
+`ozet_r1.json` / `ozet_r2.json`: karşılaştırmanın girdileri (nb.py `/tmp/claude-0/uu/nb_ozet_r2.json` yazar, karsilastir.py kopyalar).
+
+## R1 (ilk deneme)
 
 ## Ne yapar
 1. `mimari.py`: `ornekler/new_block.dxf.xz` -> `/tmp/claude-0/uu/new_block.dxf`; yalnız **MKDU0** (mimari) okunur,
@@ -30,7 +61,7 @@ python3 /home/claude/rotas-cizim-motoru/motor/deneme/uctan_uca/karsilastir.py
 ```
 Gereken: `/home/claude/nb` (motor kopyası, kurulum.sh), `/tmp/claude-0/blk` MTY blokları, ezdxf / shapely / cv2 / scipy / skimage.
 Parametreler (`params.json`): `rogar_cephe`, `depo`, `depo_V`, `kombi_kw`, `cikti`.
-Çıktı: `proje/denemeler/uctan_uca/NB_SIHHI_DENEME.dxf` (antette "DENEME" yazar).
+Çıktı: R2 `proje/denemeler/uctan_uca/NB_SIHHI_DENEME_R2.dxf` (antette "DENEME R2"); R1 için `params.json` ile `cikti` verilebilir.
 
 ## Sınırlar
 - Armatür imzaları bu mimarın çizim tarzına göre ayarlı; başka dosyada eşikler gözden geçirilmeli. Mimaride işaretli olmayan

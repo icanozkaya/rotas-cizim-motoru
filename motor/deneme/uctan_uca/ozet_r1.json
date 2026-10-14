@@ -1,0 +1,481 @@
+{
+ "kolon": [
+  [
+   "P1",
+   "BANYO",
+   1,
+   [
+    253862,
+    -442622
+   ],
+   100,
+   {
+    "Z": 25.0,
+    "1": 25.0,
+    "2": 25.0
+   }
+  ],
+  [
+   "P2",
+   "WC",
+   1,
+   [
+    253742,
+    -442795
+   ],
+   100,
+   {
+    "Z": 12.0,
+    "2": 12.0
+   }
+  ],
+  [
+   "P3",
+   "MUTFAK",
+   1,
+   [
+    253617,
+    -443305
+   ],
+   70,
+   {
+    "Z": 8.0,
+    "1": 8.0,
+    "2": 8.0
+   }
+  ],
+  [
+   "P4",
+   "BANYO",
+   2,
+   [
+    253268,
+    -442622
+   ],
+   100,
+   {
+    "Z": 25.0,
+    "1": 25.0,
+    "2": 25.0
+   }
+  ],
+  [
+   "P5",
+   "WC",
+   2,
+   [
+    253388,
+    -442795
+   ],
+   100,
+   {
+    "Z": 12.0,
+    "1": 12.0,
+    "2": 12.0
+   }
+  ],
+  [
+   "P6",
+   "MUTFAK",
+   2,
+   [
+    253513,
+    -443305
+   ],
+   70,
+   {
+    "Z": 8.0,
+    "1": 8.0,
+    "2": 8.0
+   }
+  ],
+  [
+   "P7",
+   "BANYO",
+   3,
+   [
+    253202,
+    -442168
+   ],
+   100,
+   {
+    "Z": 21.0,
+    "1": 19.0,
+    "2": 19.0
+   }
+  ],
+  [
+   "P8",
+   "DUŞ",
+   3,
+   [
+    252783,
+    -441978
+   ],
+   100,
+   {
+    "Z": 11.0,
+    "1": 11.0,
+    "2": 11.0
+   }
+  ],
+  [
+   "P9",
+   "MUTFAK",
+   3,
+   [
+    253723,
+    -441692
+   ],
+   70,
+   {
+    "Z": 4.0,
+    "1": 4.0,
+    "2": 4.0
+   }
+  ]
+ ],
+ "temel_kolon_kesen": [],
+ "rogar": {
+  "R1": {
+   "p": [
+    254518,
+    -441692
+   ],
+   "kols": [
+    "P9"
+   ]
+  },
+  "R2": {
+   "p": [
+    254518,
+    -442073
+   ],
+   "kols": [
+    "P8",
+    "P7"
+   ]
+  },
+  "R3": {
+   "p": [
+    254518,
+    -442708
+   ],
+   "kols": [
+    "P1",
+    "P4",
+    "P2",
+    "P5"
+   ]
+  },
+  "R4": {
+   "p": [
+    254518,
+    -443305
+   ],
+   "kols": [
+    "P3",
+    "P6"
+   ]
+  },
+  "PB": {
+   "p": [
+    254738,
+    -443305
+   ],
+   "kols": []
+  }
+ },
+ "kat": {
+  "Z": {
+   "kolon": {
+    "P4": 25.0,
+    "P5": 12.0,
+    "P7": 21.0,
+    "P1": 25.0,
+    "P8": 11.0,
+    "P9": 4.0,
+    "P3": 8.0,
+    "P6": 8.0,
+    "P2": 12.0
+   },
+   "temiz": {
+    "1": {
+     "yb": 5.5,
+     "ok": 9,
+     "fail": 0,
+     "hot": 4
+    },
+    "2": {
+     "yb": 5.5,
+     "ok": 9,
+     "fail": 0,
+     "hot": 4
+    },
+    "3": {
+     "yb": 4.0,
+     "ok": 7,
+     "fail": 0,
+     "hot": 5
+    }
+   }
+  },
+  "1": {
+   "kolon": {
+    "P4": 25.0,
+    "P9": 4.0,
+    "P1": 25.0,
+    "P3": 8.0,
+    "P6": 8.0,
+    "P5": 12.0,
+    "P7": 19.0,
+    "P8": 11.0
+   },
+   "temiz": {
+    "4": {
+     "yb": 5.5,
+     "ok": 9,
+     "fail": 0,
+     "hot": 4
+    },
+    "5": {
+     "yb": 4.0,
+     "ok": 7,
+     "fail": 0,
+     "hot": 5
+    },
+    "6": {
+     "yb": 4.5,
+     "ok": 7,
+     "fail": 0,
+     "hot": 3
+    }
+   }
+  },
+  "2": {
+   "kolon": {
+    "P4": 25.0,
+    "P1": 25.0,
+    "P8": 11.0,
+    "P9": 4.0,
+    "P3": 8.0,
+    "P6": 8.0,
+    "P5": 12.0,
+    "P2": 12.0,
+    "P7": 19.0
+   },
+   "temiz": {
+    "7": {
+     "yb": 5.5,
+     "ok": 9,
+     "fail": 0,
+     "hot": 4
+    },
+    "8": {
+     "yb": 4.0,
+     "ok": 7,
+     "fail": 0,
+     "hot": 5
+    },
+    "9": {
+     "yb": 5.5,
+     "ok": 9,
+     "fail": 0,
+     "hot": 4
+    }
+   }
+  }
+ },
+ "bina_alani": 367.6976,
+ "sema": {
+  "sema_w": 7920.0,
+  "groups": [
+   [
+    {
+     "Z": [
+      "D1",
+      "daire"
+     ],
+     "1": [
+      "D6",
+      "daire"
+     ],
+     "2": [
+      "D9",
+      "daire"
+     ]
+    },
+    [
+     "P1",
+     "P2",
+     "P3"
+    ]
+   ],
+   [
+    {
+     "Z": [
+      "D2",
+      "daire"
+     ],
+     "1": [
+      "D4",
+      "daire"
+     ],
+     "2": [
+      "D7",
+      "daire"
+     ]
+    },
+    [
+     "P4",
+     "P5",
+     "P6"
+    ]
+   ],
+   [
+    {
+     "Z": [
+      "D3",
+      "daire"
+     ],
+     "1": [
+      "D5",
+      "daire"
+     ],
+     "2": [
+      "D8",
+      "daire"
+     ]
+    },
+    [
+     "P7",
+     "P8",
+     "P9"
+    ]
+   ]
+  ],
+  "units": [
+   [
+    "D1",
+    "Z",
+    0,
+    5.5
+   ],
+   [
+    "D6",
+    "1",
+    0,
+    4.5
+   ],
+   [
+    "D9",
+    "2",
+    0,
+    5.5
+   ],
+   [
+    "D2",
+    "Z",
+    1,
+    5.5
+   ],
+   [
+    "D4",
+    "1",
+    1,
+    5.5
+   ],
+   [
+    "D7",
+    "2",
+    1,
+    5.5
+   ],
+   [
+    "D3",
+    "Z",
+    2,
+    4.0
+   ],
+   [
+    "D5",
+    "1",
+    2,
+    4.0
+   ],
+   [
+    "D8",
+    "2",
+    2,
+    4.0
+   ]
+  ],
+  "ybt": 44.0,
+  "yagmur": {
+   "D": 6.560409940189205,
+   "f": 9,
+   "P": 404.47
+  },
+  "frames": [
+   "ANTET, NOTLAR VE LEJANT",
+   "YERLEŞİM PLANI",
+   "TEMEL PLANI",
+   "ZEMİN KAT SIHHİ TESİSAT PLANI",
+   "1. KAT SIHHİ TESİSAT PLANI",
+   "2. KAT SIHHİ TESİSAT PLANI",
+   "SIHHİ TESİSAT AÇILIMLI KOLON ŞEMASI + RÖGAR ŞEMASI",
+   "YAĞMUR SUYU ŞEMASI VE HESABI",
+   "SIHHİ DETAYLAR"
+  ]
+ },
+ "kontrol": {
+  "kolon_cakisma": [],
+  "bosta_uc": 0,
+  "kopru": 14,
+  "cakisik": 13,
+  "yazi_maskesi": 120,
+  "dedupe": 20
+ },
+ "detay_boyut": [
+  1999,
+  1500
+ ],
+ "dxf": {
+  "yol": "/home/claude/rotas-cizim-motoru/proje/denemeler/uctan_uca/NB_SIHHI_DENEME.dxf",
+  "surum": "AC1032",
+  "varlik": 17320,
+  "katmanlar": [
+   "0",
+   "ROTAS-BINA-HATTI",
+   "ROTAS-CIHAZ",
+   "ROTAS-HESAP",
+   "ROTAS-ISIKAYBIMAHAL",
+   "ROTAS-ISITMA-DONUS-BORU",
+   "ROTAS-ISITMA-GIDIS-BORU",
+   "ROTAS-KAT-ADI",
+   "ROTAS-KOLLETOR",
+   "ROTAS-MIMARI",
+   "ROTAS-MIMARI-KOLON",
+   "ROTAS-MIMARI-YAZI",
+   "ROTAS-PAFTA",
+   "ROTAS-PEX-BORU",
+   "ROTAS-PIS-SU-BORUSU",
+   "ROTAS-PISSU-BORU-TAVANDAN",
+   "ROTAS-PISSU-CAP",
+   "ROTAS-PISSU-KOLONNO",
+   "ROTAS-PVC",
+   "ROTAS-RAST-TEM-SU-DEPOSU",
+   "ROTAS-ROGAR",
+   "ROTAS-SEMA",
+   "ROTAS-SICAKSU-BORU",
+   "ROTAS-SOGUKSU-BORU",
+   "ROTAS-TEFRIS",
+   "ROTAS-TEMIZSU-CAP",
+   "ROTAS-VANA",
+   "ROTAS-YAGMUR-BORUSU",
+   "ROTAS-YAGMUR-BORUSU-CAP",
+   "ROTAS-YAZI"
+  ],
+  "insert": 767
+ }
+}

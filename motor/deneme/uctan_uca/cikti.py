@@ -57,6 +57,8 @@ def yaz(OUT, G):
             for a in e.attribs:
                 if not a.dxf.layer.startswith('ROTAS-') and a.dxf.layer not in ('0',):
                     a.dxf.layer = ren.get(a.dxf.layer, nn)
+    # lejant, SIHHİ DETAYLAR bloğu eklenmeden önce sayılır (detay bloğunun içindeki örnek semboller kullanılan sayılmasın)
+    lejant_ve_metraj(doc, OUT, G)
     if G.get('DETAY'):
         from ezdxf.addons import Importer
         src = ezdxf.readfile(G['M'].SRC)
@@ -77,5 +79,67 @@ def yaz(OUT, G):
     msp_l = sorted({e.dxf.layer for e in d2.modelspace()})
     OUT['dxf'] = dict(yol=out, surum=d2.dxfversion, varlik=len(d2.modelspace()), katmanlar=msp_l,
                       insert=len(d2.modelspace().query('INSERT')))
-    json.dump(OUT, open(wd + '/nb_ozet.json', 'w'), ensure_ascii=False, indent=1, default=str)
+    json.dump(OUT, open(wd + '/nb_ozet_r2.json', 'w'), ensure_ascii=False, indent=1, default=str)
     print(json.dumps(OUT, ensure_ascii=False, indent=1, default=str)[:6000])
+
+
+ADI = dict(WC='Klozet / alaturka hela', LV='Lavabo', DUS='Duş teknesi', EV='Eviye', CM='Çamaşır makinesi bağlantısı',
+           BM='Bulaşık makinesi bağlantısı', YS='Yer süzgeci (ıslak hacim)', KOMBI='Kombi (duvar tipi, yoğuşmalı)',
+           BALKON_SUZGEC='Balkon süzgeci (yağmur hattına)')
+
+
+def lejant_ve_metraj(doc, OUT, G):
+    """pafta sonu: kullanılan sembollerin lejantı + adet tablosu (semboller/sembol.py otomatik_lejant) ve
+    armatür / boru metraj tablosu; ikisi tek çerçevede "LEJANT VE MALZEME LİSTESİ"."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'semboller'))
+    import sembol
+    from ezdxf import bbox
+    from ezdxf.enums import TextEntityAlignment as TA
+    msp = doc.modelspace()
+    ext = bbox.extents(msp, fast=True)          # detay paftasının çerçevesi dahil
+    x0 = ext.extmax.x + 120.0
+    FH = G['FH']
+    top = FH - 160.0
+    say = sembol.otomatik_lejant(doc, x0 + 60, top, baslik_onek='KULLANILAN SEMBOLLER - ')
+    le = [e for e in msp if e.dxf.layer.startswith('ROTAS-LEJANT')]
+    eb = bbox.extents(le, fast=True) if le else None
+    tx = (eb.extmax.x + 120.0) if eb and eb.has_data else x0 + 60
+    if 'ROTAS-METRAJ' not in doc.layers:
+        doc.layers.add('ROTAS-METRAJ', color=7)
+    lay = dict(layer='ROTAS-METRAJ')
+
+    def txt(p, s_, h, al=TA.MIDDLE_LEFT):
+        msp.add_text(s_, height=h, dxfattribs=lay).set_placement(p, align=al)
+
+    def tablo(x, y, baslik, rows, cw=(520.0, 160.0, 120.0)):
+        rh = 26.0
+        W = sum(cw)
+        txt((x, y + 22), baslik, 16)
+        hdr = [('MALZEME / ARMATÜR', 'MİKTAR', 'BİRİM')] + rows
+        for i, r in enumerate(hdr):
+            yy = y - i * rh
+            msp.add_lwpolyline([(x, yy), (x + W, yy)], dxfattribs=lay)
+            cx = x
+            for j, c in enumerate(r):
+                txt((cx + 8, yy - rh / 2), str(c), 10 if i else 11)
+                cx += cw[j]
+        yb = y - len(hdr) * rh
+        msp.add_lwpolyline([(x, yb), (x + W, yb)], dxfattribs=lay)
+        cx = x
+        for c in (0,) + tuple(cw):
+            cx += c
+            msp.add_lwpolyline([(cx, y), (cx, yb)], dxfattribs=lay)
+        return W, y - yb
+    ad = OUT.get('adet', {})
+    rows = [(ADI.get(k, k), v, 'adet') for k, v in sorted(ad.items(), key=lambda t: list(ADI).index(t[0]) if t[0] in ADI else 99)]
+    w1, h1 = tablo(tx, top, 'ARMATÜR / CİHAZ ADET TABLOSU (9 DAİRE, EK = MİMARİDE OLMAYIP EKLENEN DAHİL)', rows)
+    rows2 = [(k, '%.1f' % v, 'm') for k, v in OUT.get('metraj', {}).items()]
+    w2, h2 = tablo(tx, top - h1 - 110, 'BORU METRAJI (PLANDAN ÖLÇÜLEN + KOLON BOYLARI, FİRESİZ)', rows2)
+    txt((tx, top - h1 - h2 - 160), 'Sembol adetleri çizimdeki blok sayımından otomatik (semboller/sembol.py otomatik_lejant).', 9)
+    xe = tx + max(w1, w2) + 80
+    ys = [e for e in le] if le else []
+    yb = min(0.0, (eb.extmin.y - 60) if eb and eb.has_data else 0.0)
+    msp.add_lwpolyline([(x0, yb), (xe, yb), (xe, FH), (x0, FH)], close=True, dxfattribs=dict(layer='ROTAS-PAFTA'))
+    t = msp.add_text('LEJANT VE MALZEME LİSTESİ', height=40, dxfattribs=dict(layer='ROTAS-KAT-ADI'))
+    t.set_placement(((x0 + xe) / 2, 120.0 if yb >= 0 else yb + 60), align=TA.MIDDLE_CENTER)
+    OUT['lejant'] = dict(sembol_adet=say, x=[round(x0), round(xe)])

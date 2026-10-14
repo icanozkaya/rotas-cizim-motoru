@@ -43,12 +43,17 @@ def ciz(G):
         x = cur + 160.0
         kol = []
         for c in ks:
+            src = DZ
             w = [w_ for w_ in DZ['wet'] if G['kolon_of']('Z', w_) is c]
-            keys = sorted({f['kind'] for w_ in w for f in DZ['F'] if f['room'] is w_ and f['kind'] in ORDER}, key=ORDER.index)
+            if not w and c.get('kat_ozel'):          # yalnız üst katta olan ıslak hacim (kat planı farklılığı)
+                src = DATA[c['kat_ozel']]
+                w = [w_ for w_ in src['wet'] if G['kolon_of'](c['kat_ozel'], w_) is c]
             # aynı türden birden çok armatür varsa (ör. 2 YS) tekrarla
             keys = []
             for w_ in w:
-                keys += [f['kind'] for f in DZ['F'] if f['room'] is w_ and f['kind'] in ORDER]
+                keys += [f['kind'] for f in src['F'] if f['room'] is w_ and f['kind'] in ORDER]
+            if not keys:
+                keys = ['YS']
             keys.sort(key=ORDER.index)
             rows.append((x, keys, c))
             base = G['STATS_SB'][c['name']]
@@ -68,7 +73,7 @@ def ciz(G):
     sema_w = cur + 120.0
     ybt = sum(u[3] for u in units)
     P = dict(floors=[(k, '%s %s' % (G['FNAME'][k], G['KOT'][k])) for k in FL], roof_name='ÇATI +9,00', sema_w=sema_w,
-             supply=dict(depo='cati', V=G['PRM']['depo_V'], vnote='9 BAĞIMSIZ BÖLÜM ≤ 10 → 3 m³ (ÇATIDA, HİDROFORSUZ)',
+             supply=dict(depo=G['DEPO'], V=G['PRM']['depo_V'], vnote='9 BAĞIMSIZ BÖLÜM ≤ 10 → 3 m³ (ÇATIDA, HİDROFORSUZ)' if G['DEPO'] == 'cati' else '9 BAĞIMSIZ BÖLÜM → 3 m³ (BODRUM, HİDROFOR GRUBU)',
                          ybt=ybt, tasma='TAŞMA/BOŞALTMA → ÇATI OLUĞU (HAVA BOŞLUKLU)', hidrofor=None, units=units),
              groups=groups,
              yagmur=dict(names=['YB%d' % (i + 1) for i in range(len(G['YBP']))], P=G['ROOF_A'], dn=100, foot={},
@@ -119,6 +124,11 @@ def ciz(G):
     for r in cad.R[n0:]:
         for p in (r[2] if r[0] in ('P', 'W') else [r[2]] if r[0] in ('C', 'T') else [r[2], r[3]] if r[0] == 'L' else []):
             xs.append(p[0]); ys.append(p[1])
+    # iç içe anonim blok patlatması bazı ilkelleri çok uzağa atabiliyor: ortanca çevresindeki noktalarla ölç
+    import statistics
+    mx, my = statistics.median(xs), statistics.median(ys)
+    sel = [(x, y) for x, y in zip(xs, ys) if abs(x - mx) < 6000 and abs(y - my) < 6000]
+    xs, ys = [p[0] for p in sel], [p[1] for p in sel]
     bw, bh = max(xs) - min(xs), max(ys) - min(ys)
     del cad.R[n0:]; cad.BLK.pop()
     ksc = min(1.0, 2300.0 / bh) if bh > 0 else 1.0
@@ -148,7 +158,7 @@ def ciz(G):
 
 
 ANTET = dict(proje="METRA MİMARLIK YAPI SAN. VE TİC. LTD. ŞTİ.'NE AİT 9 BAĞIMSIZ BÖLÜMLÜ MESKEN",
-             konu='SIHHİ TESİSAT PROJESİ  -  DENEME (OTOMATİK ÜRETİM, KONTROL EDİLMEDİ)',
+             konu='SIHHİ TESİSAT PROJESİ  -  DENEME R2 (OTOMATİK ÜRETİM, KONTROL EDİLMEDİ)',
              rows=[('YAPININ ÖZELLİKLERİ', ''), ('YAPI SAHİBİ', 'METRA MİMARLIK YAPI SAN. VE TİC. LTD. ŞTİ.'),
                    ('YAPI CİNSİ / SINIFI', 'BETONARME / 3A'), ('KAT ADEDİ', 'ZEMİN + 2 KAT (3)'), ('BAĞIMSIZ BÖLÜM', '9 DAİRE'),
                    ('SU TEMİNİ', 'ŞEBEKE (SASKİ) + 3,00 m³ ÇATI DEPOSU'), ('ARSANIN ÖZELLİKLERİ', ''),
@@ -157,8 +167,11 @@ NOTES = [
     'BU PAFTA SETİ OTOMATİK DENEMEDİR (MİMARİDEN OTOMATİK TANIMA + YERLEŞİM); TASARIM DEĞERLERİ KONTROL EDİLMEDEN UYGULAMAYA VERİLMEZ.',
     'Temiz su tesisatı PPRC PN20 borularla yapılacak, sıcak su boruları izolasyonlu döşenecektir.',
     'Şebeke suyu bina girişindeki ana sayaçtan DBK kolonu ile çatıdaki 3,00 m³ kullanma suyu deposuna verilecektir.',
-    'Depodan inen ADK kolonu zemin kat merdiven holündeki sayaç grubuna bağlanacak; her daire ayrı sayaç ve kolondan beslenecektir.',
-    'Temiz su kolonları merdiven holünde kolon kutusu içinde, her katta aynı hizadadır; daire girişlerinde küresel vana konulacaktır.',
+    'Çatı deposundan inen ADK kolonları merdiven holünde (ortak alan) daire kapılarının yanındadır; her katta kolondan daire kapısına kısa yatay hat, kat sahanlığında daire sayacı + küresel vana.',
+    'Bina besleme ve dağıtım hatları daire içinden geçirilmeyecek; ana hatlar ortak alanda (merdiven holü) gezerek dairelere girecektir.',
+    'Daire içinde sıcak ve soğuk su boruları yan yana paralel döşenecektir; her dairede çamaşır ve bulaşık makinesi bağlantısı (mimaride gösterilmese de) yapılacaktır.',
+    'Balkon süzgeçleri pis su hattına bağlanmayacak; ayrı Ø50 süzgeç hattı ile en yakın yağmur iniş borusuna bağlanacaktır.',
+    'Betonarme kolon/perde, asansör boşluğu ve enerji odası içinden hiçbir tesisat hattı geçirilmeyecektir.',
     'Sıcak kullanma suyu her dairede duvar tipi hermetik yoğuşmalı kombiden sağlanacaktır.',
     'Pis su tesisatı TS EN 1451 PVC; bina içi yatay hatlar en az %2, rögarlar arası %1 eğimle döşenecektir.',
     'Mutfak ve banyo/WC giderleri birleştirilmeyecek; her ıslak hacim kendi kolonuna bağlanacaktır.',
