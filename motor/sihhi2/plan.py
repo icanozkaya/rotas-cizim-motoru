@@ -25,6 +25,7 @@ from ezdxf.addons import Importer
 from shapely import STRtree
 from shapely.geometry import LineString, Point, Polygon, box, MultiLineString
 from shapely.ops import unary_union, substring, nearest_points
+from shapely.affinity import translate as shapely_translate
 
 BURASI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BURASI)
@@ -42,8 +43,16 @@ TMP = '/tmp/claude-0/s2'
 KATLAR = ['Z', '1', '2']
 KAT_ADI = {'Z': 'ZEMİN KAT', '1': '1. KAT', '2': '2. KAT'}
 PAFTA = {'Z': (252513.0, 254578.0), '1': (254578.0, 256617.0), '2': (256617.0, 258656.0)}
-LEJANT_PAFTA = (258656.0, 260714.0)
+CATI_PAFTA = (258656.0, 260714.0)
 PY0, PY1 = -444050.0, -441150.0
+CATI_OFF = 6143.0            # çatı paftası mimari ötelemesi (zemin çerçevesine göre)
+
+# ---- kullanıcının tasarım seçimleri (new_block MTY çizimi): kolon yeri/numarası, rögar ataması, ÇM/BM yeri.
+# Kural (kullanıcı): bunlar kafaya göre değiştirilmez. Üretim: tasarim_cikar.py
+with open(BURASI + '/tasarim_new_block.json', encoding='utf-8') as _f:
+    TASARIM = json.load(_f)
+KOLON_SABIT = {k: tuple(v) for k, v in TASARIM['kolonlar'].items()}
+MARJ = 2.5                   # etiket yazı kutusu çevresi boşluk (cm)
 
 # ---- kullanıcı çizimi değerleri (SIHHI_ALTIN_REFERANS.md, MODEL.md)
 SB = {'LV': 2, 'WC': 10, 'DUS': 7, 'EV': 4, 'CM': 4, 'BM': 4, 'YS': 2}
@@ -61,8 +70,9 @@ KATMAN = {  # ad: (renk, çizgi tipi, kalınlık)
     'ROTAS-SIHHI-KOLON-NO': (1, 'Continuous', 18), 'ROTAS-SIHHI-YAGMUR-NO': (3, 'Continuous', 18),
     'ROTAS-SIHHI-SEMBOL': (1, 'Continuous', 18), 'ROTAS-SIHHI-CIHAZ-YAZI': (1, 'Continuous', 13),
     'ROTAS-SIHHI-HAVALANDIRMA-YAZI': (30, 'Continuous', 9), 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL': (30, 'Continuous', 13),
-    'ROTAS-SEMBOL-KILAVUZ': (8, 'Continuous', 9), 'ROTAS-PAFTA': (144, 'Continuous', 35),
-    'ROTAS-PAFTA-YAZI': (8, 'Continuous', 25), 'ROTAS-LEJANT': (7, 'Continuous', 18),
+    'ROTAS-SEMBOL-KILAVUZ': (9, 'Continuous', 9), 'ROTAS-PAFTA': (144, 'Continuous', 35),
+    'ROTAS-PAFTA-YAZI': (7, 'Continuous', 25), 'ROTAS-SIHHI-CATI': (3, 'Continuous', 18),
+    'ROTAS-SIHHI-CATI-YAZI': (7, 'Continuous', 13),
 }
 L_PIS, L_SOG, L_SIC, L_YAG = 'ROTAS-SIHHI-PIS-SU', 'ROTAS-SIHHI-SOGUK-SU', 'ROTAS-SIHHI-SICAK-SU', 'ROTAS-SIHHI-YAGMUR'
 L_PCAP, L_TCAP = 'ROTAS-SIHHI-PIS-SU-CAP', 'ROTAS-SIHHI-TEMIZ-SU-CAP'
@@ -85,6 +95,15 @@ def birim(a, b):
 def fmt_mb(v):
     s = ('%.2f' % v).rstrip('0').rstrip('.')
     return s + ' MB'
+
+
+def sbf(f):
+    """armatür SB yükü (bağlantı sözde-armatürü: komşu ıslak hacmin toplamı)"""
+    return f.get('sb', SB.get(f['kind'], 0))
+
+
+def wcf(f):
+    return f['kind'] == 'WC' or bool(f.get('wc'))
 
 
 def inc(mb):
@@ -150,6 +169,32 @@ class Engel:
             self._ta, self._na = STRtree(self.alan) if self.alan else None, len(self.alan)
         if self._tc is None or len(self.cizgi) - self._nc > 40:
             self._tc, self._nc = STRtree(self.cizgi) if self.cizgi else None, len(self.cizgi)
+
+    # etiket / balon için ek yasak alanlar (duvar katısı, mimari tarama, armatür kutusu, asansör, merdiven)
+    def yasak_ekle(self, g, tur):
+        if g is None or g.is_empty:
+            return
+        d = self.__dict__.setdefault('_yasak', {})
+        d.setdefault(tur, []).append(g)
+        self.__dict__.setdefault('_yasak_t', {})[tur] = None
+
+    def yasakta(self, pg, tur, tol=0.5):
+        d = self.__dict__.get('_yasak', {})
+        L = d.get(tur)
+        if not L:
+            return False
+        tt = self.__dict__.setdefault('_yasak_t', {})
+        if tt.get(tur) is None:
+            tt[tur] = STRtree(L)
+        for i in tt[tur].query(pg):
+            g = L[i]
+            if g.intersects(pg) and g.intersection(pg).area > tol:
+                return True
+        return False
+
+    def etiket_carpar(self, pg, tur='etiket'):
+        """etiket yazı kutusu: marjlı kutu engellere + yasak alanlara"""
+        return self.carpar(pg.buffer(MARJ, join_style=2)) or self.yasakta(pg, tur)
 
     def carpar(self, pg, alan_tol=0.05, cizgi_tol=0.3, haric=()):
         self._agac()
@@ -335,7 +380,7 @@ def mimari_kopyala(doc, eng):
             tx = (e.dxf.text if e.dxftype() == 'TEXT' else e.plain_text()).upper()
             if 'PLANI' in tx and 'ÖLÇEK' in tx:          # kullanıcının pafta başlığı: bizim başlığımız yazılır
                 continue
-        for k, (x0, x1) in PAFTA.items():
+        for k, (x0, x1) in list(PAFTA.items()) + [('C', CATI_PAFTA)]:
             if x0 < min(xs) and max(xs) < x1:
                 sec.append(e)
                 break
@@ -351,6 +396,18 @@ def mimari_kopyala(doc, eng):
                 eng.ekle_alan(pg)
         else:
             e.dxf.layer = 'ROTAS-MIMARI'
+            if e.dxftype() == 'HATCH':          # duvar / kolon taraması: etiket ve balon konmaz
+                for pth in e.paths:
+                    try:
+                        vs = [(v[0], v[1]) for v in pth.vertices] if hasattr(pth, 'vertices') else \
+                             [(ed.start[0], ed.start[1]) for ed in pth.edges if hasattr(ed, 'start')]
+                        if len(vs) >= 3:
+                            pg = Polygon(vs).buffer(0)
+                            if pg.area > 50:
+                                eng.yasak_ekle(pg, 'etiket')
+                                eng.yasak_ekle(pg, 'balon')
+                    except Exception:
+                        pass
         e.dxf.color = 256
     # içe aktarılan katman MKDU0 ve MTY adlı stilleri temizle
     for ad in ('MKDU0',):
@@ -486,12 +543,13 @@ class PisOda:
         self.kolon = None
 
 
-def pis_su_oda(K, oda, fx, kolon_onceki, yasak):
+def pis_su_oda(K, oda, fx, kolon_onceki, yasak, sabit=None):
     """iki halka denenir: (1) eski mahal poligonu (mutfakta tezgâh altı +22), (2) armatür çentikleri kapatılmış poligon
-    (mutfakta tezgâh dahil, duvar dibine kadar). Doğrulanan en iyi puanlı sonuç."""
+    (mutfakta tezgâh dahil, duvar dibine kadar). Doğrulanan en iyi puanlı sonuç.
+    sabit: kullanıcının kolon ekseni (tasarım) — kolon buraya oturur, kollar halkadan kısa ayakla bağlanır."""
     sonuclar = []
     for p_ in _pis_poligonlar(K, oda):
-        r_ = _pis_su_halka(K, oda, fx, kolon_onceki, yasak, p_)
+        r_ = _pis_su_halka(K, oda, fx, kolon_onceki, yasak, p_, sabit=sabit)
         if r_ is not None:
             sonuclar.append(r_)
     if not sonuclar:
@@ -529,13 +587,15 @@ def _pis_poligonlar(K, oda):
     return out
 
 
-def _pis_su_halka(K, oda, fx, kolon_onceki, yasak, poly):
+def _pis_su_halka(K, oda, fx, kolon_onceki, yasak, poly, sabit=None):
     """kolon seçimi + kollar + branşmanlar (verilen mahal poligonunun halkasında)"""
     hg = halka(poly)
     ring = hg.exterior
     if not ring.is_ccw:
         ring = LineString(list(ring.coords)[::-1])
     L = ring.length
+    if sabit is not None:
+        return _pis_sabit(K, oda, fx, ring, sabit)
     cs = list(ring.coords)[:-1]
     n = len(cs)
     # aday kolon noktaları: dışbükey köşeler + köşeden 40 cm'e kadar kenar boyunca
@@ -586,7 +646,7 @@ def _pis_su_halka(K, oda, fx, kolon_onceki, yasak, poly):
             sf = ring.project(Point(f['c']))
             d1, d2 = yay_mesafesi(ring, s, sf)
             y = min(d1, d2) + ring.distance(Point(f['c']))
-            w = 2.0 if f['kind'] == 'WC' else 1.0
+            w = 2.0 if wcf(f) else 1.0
             top += w * y
             mx = max(mx, y)
         pu = top + 0.7 * mx + 1.5 * t
@@ -617,6 +677,31 @@ def _pis_su_halka(K, oda, fx, kolon_onceki, yasak, poly):
     return dict(kolon=p0, kollar=kollar, br=br, ring=ring, oda=oda, puan=pu, dogrulanmadi=True)
 
 
+def _pis_sabit(K, oda, fx, ring, C):
+    """kolon kullanıcının ekseninde (C): halkada C'nin izdüşümü ve ±10/20 cm komşuları denenir; halka noktasından
+    C'ye kısa dik ayak. Doğrulanan, en kısa toplam boylu sonuç."""
+    s_c = ring.project(Point(C))
+    L = ring.length
+    iyi = None
+    for ds in (0, 10, -10, 20, -20, 35, -35):
+        s0 = (s_c + ds) % L
+        p0 = tuple(ring.interpolate(s0).coords[0])
+        r_ = _pis_kur(ring, fx, s0, p0)
+        if r_ is None:
+            continue
+        kollar, br = r_
+        if dist(p0, C) > 1.0:
+            kollar, br, p1 = _ayak_ekle(oda, kollar, br, p0, C)
+        else:
+            p1 = C
+        boy = sum(k.length for k in kollar.values()) + sum(LineString(b['pts']).length for b in br if len(b['pts']) > 1)
+        ok = pis_dogrula(K, oda, kollar, br, p1, kose_kontrol=False)
+        puan = boy + (0 if ok else 10000) + 2 * abs(ds)
+        if iyi is None or puan < iyi['puan']:
+            iyi = dict(kolon=C, kollar=kollar, br=br, ring=ring, oda=oda, puan=puan, dogrulanmadi=not ok)
+    return iyi
+
+
 def _ayak_ekle(oda, kollar, br, p0, q):
     """alt/üst kattaki kolon ekseni q: kol başına kısa dik (gerekirse L) ayak; kolon q'ya taşınır"""
     u = birim(q, p0)
@@ -639,12 +724,17 @@ def _ayak_ekle(oda, kollar, br, p0, q):
     return kollar, br2, q
 
 
-def pis_dogrula(K, oda, kollar, br, p0):
+def pis_dogrula(K, oda, kollar, br, p0, kose_kontrol=True):
     """kontrolör ölçüleriyle aynı mimari tanıma (MB) üzerinden: kolon ıslak hacim köşesinde, balkona taşmıyor,
     branşman yolu ≤ 260, pis–pis kesişme yok"""
     kb = getattr(K, 'kb', None)
     pt = Point(p0)
-    if kb is not None:
+    if kb is not None and not kose_kontrol:
+        hatlar = list(kollar.values()) + [LineString(b['pts']) for b in br if len(b['pts']) > 1]
+        for r2 in kb['rooms']:
+            if r2['balkon'] and any(h.intersection(r2['poly'].buffer(-5)).length > 18 for h in hatlar):
+                return False
+    elif kb is not None:
         aday = [r for r in kb['rooms'] if r['islak'] and r['poly'].buffer(35).contains(pt)]
         if not aday:
             return False
@@ -805,13 +895,14 @@ def pis_parcalar(ps):
             if t1 - t0 < 0.5:
                 continue
             ust = [b for b in brs if b['t'] >= t1 - 0.01]
-            sb = sum(SB[b['f']['kind']] for b in ust)
-            wc = any(b['f']['kind'] == 'WC' for b in ust)
+            sb = sum(sbf(b['f']) for b in ust)
+            wc = any(wcf(b['f']) for b in ust)
             g = substring(kol, t0, t1)
             parcalar.append(dict(g=g, sb=sb, cap=pis_cap(sb, wc), tur='kol'))
     for b in ps['br']:
         k = b['f']['kind']
-        parcalar.append(dict(g=LineString(b['pts']) if len(b['pts']) > 1 else None, sb=SB[k], cap=pis_cap(SB[k], k == 'WC'),
+        parcalar.append(dict(g=LineString(b['pts']) if len(b['pts']) > 1 else None, sb=sbf(b['f']),
+                             cap=pis_cap(sbf(b['f']), wcf(b['f'])),
                              tur='br', f=b['f']))
     return [p for p in parcalar if p['g'] is not None and p['g'].length > 0.5]
 
@@ -956,6 +1047,28 @@ def duvara_dayali_nokta(oda_poly, c, eksen=None, ic=10.0):
 
 
 def temiz_su_daire(K, dno, fx, tohum):
+    """kuru mahaller (oda/salon/yatak odası) önce KAPALI; ulaşılamayan armatür varsa yalnız o ıslak hacme bitişik EN KÜÇÜK
+    kuru mahal açılır (ör. D3 duşu: 7,75 m² 'oda', yatak odası değil) — kullanıcı güzergâhı."""
+    izin = set()
+    for _ in range(4):
+        ts = _temiz_su_daire(K, dno, fx, tohum, izin)
+        if not ts.get('eksik'):
+            return ts
+        ek = None
+        for f in ts['eksik']:
+            ad = [r for r in K.rooms if r['daire'] == dno and r['tip'] == 'kuru' and r['i'] not in izin
+                  and r['poly'].distance(f['oda']['poly']) < 30]
+            if ad:
+                q = min(ad, key=lambda r: r['poly'].area)
+                if ek is None or q['poly'].area < ek['poly'].area:
+                    ek = q
+        if ek is None:
+            return ts
+        izin.add(ek['i'])
+    return ts
+
+
+def _temiz_su_daire(K, dno, fx, tohum, kuru_izin):
     """daire temiz su ağacı. Dönüş: dict(soguk=[(p,q,mb)], sicak=[(p,q,mb)], giris=(G,H), musluk=[(p, kind)],
     zincir=[dict(pts, mb_s, mb_h, ...)], kombi=p)"""
     izin = [r for r in K.rooms if r['daire'] == dno and r['tip'] in ('hol', 'islak', 'mutfak')]
@@ -984,7 +1097,7 @@ def temiz_su_daire(K, dno, fx, tohum):
     cost[dm] = 25.0
     cost[yasak_m & ~izin_m] = np.inf
     # aynı dairenin kuru mahalleri (oda/salon): yalnız gerekirse, duvar dibinden (ör. odadan girilen duş)
-    kuru = [r for r in yasak if r['daire'] == dno and r['tip'] not in ('ortak', 'balkon')]
+    kuru = [r for r in yasak if r['daire'] == dno and r['tip'] not in ('ortak', 'balkon') and r['i'] in kuru_izin]
     if kuru:
         km = (g.doldur(unary_union([r['poly'].buffer(-3) for r in kuru])) > 0) & ~izin_m
         dk = ndi.distance_transform_edt(km) * g.res
@@ -993,10 +1106,13 @@ def temiz_su_daire(K, dno, fx, tohum):
         dmk = duvar_m & yk & ~izin_m & ~np.isfinite(cost)
         cost[dmk] = 25.0
         cost[yasak_m & ~izin_m & ~km] = np.inf
+    else:
+        km = np.zeros_like(izin_m)
     cost[kapi_m] = np.inf
     if not K.kapi_u.is_empty:      # kapı kanadı süpürme alanı: hat kapı önünden/kanadından geçmesin
         kk = (g.doldur(K.kapi_u.buffer(48)) > 0) & np.isfinite(cost)
         cost[kk] += 30.0
+        cost[kk & km] += 150.0     # kuru mahalde kapı açılım alanı: kesinlikle kaçın
     # ---- giriş: hol mahallinin ortak alana bakan DOLU duvarında, daire no yazısına (kapı önü) en yakın nokta
     hol = [r for r in izin if r['tip'] == 'hol']
     ortak = unary_union([r['poly'] for r in K.rooms if r['tip'] == 'ortak'] or [Polygon()])
@@ -1059,6 +1175,7 @@ def temiz_su_daire(K, dno, fx, tohum):
         hedef[(best[1], best[2])] = f
         musluk.append((g.xy(best[1], best[2]), f))
         f['tap'] = g.xy(best[1], best[2])
+    eksik = []
     kok = g.rc(H)
     agac = {kok}
     kenar = set()
@@ -1073,8 +1190,7 @@ def temiz_su_daire(K, dno, fx, tohum):
         ce[yak] += 12.0
         anahtar, yol = dijkstra_agac(ce, agac, {k: v for k, v in kalan.items()}, donus=30.0)
         if anahtar is None:
-            log('  ! D%s: %d hedefe yol bulunamadı: %s' % (dno, len(kalan), ', '.join(
-                '%s/%s@%.0f,%.0f' % (f['kind'], f['oda']['name'], f['c'][0], f['c'][1]) for f in kalan.values())))
+            eksik = list(kalan.values())
             break
         yol = merdiven_duzelt(yol, cost, agac)
         hc = yol[0]
@@ -1182,8 +1298,11 @@ def temiz_su_daire(K, dno, fx, tohum):
             zincirler.append(dict(pts=pts, mb_s=alt_s[zin[-1]], mb_h=sicak_mb[e1] if e1 in sicak_k else 0.0,
                                   sicak=e1 in sicak_k, kok=(zin[0] == kok), uc=uc,
                                   bas=g.xy(*zin[0]), son=g.xy(*zin[-1])))
+    if eksik:
+        log('  D%s: %d hedefe yol yok (kuru izin %s): %s' % (dno, len(eksik), sorted(kuru_izin), ', '.join(
+            '%s/%s' % (f['kind'], f['oda']['name']) for f in eksik)))
     return dict(soguk=soguk, sicak=sicak, G=G, H=H, musluk=musluk, zincir=zincirler, toplam=toplam,
-                kombi=kombiler[0]['c'] if kombiler else None, izin=U)
+                kombi=kombiler[0]['c'] if kombiler else None, izin=U, eksik=eksik)
 
 
 # ====================================================================== EK ARMATÜR (mimaride yoksa)
@@ -1216,10 +1335,51 @@ def ek_nokta(oda, fx_oda, K, ofset, uzak, tercih, makine=False):
     return best[1] if best else None
 
 
+def makine_ciz(msp, eng, f):
+    """ÇM / BM bağlantı yeri: kullanıcının blok kutusu ölçüsünde dikdörtgen + 'Ç.M.' / 'B.M.' yazısı (mimari yerinde)"""
+    kutu = f['kutu']
+    x0, y0, x1, y1 = kutu.bounds
+    msp.add_lwpolyline([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], close=True,
+                       dxfattribs={'layer': 'ROTAS-SIHHI-SEMBOL'})
+    dik = (y1 - y0) > (x1 - x0)
+    t = msp.add_text('Ç.M.' if f['kind'] == 'CM' else 'B.M.',
+                     dxfattribs={'layer': 'ROTAS-SIHHI-CIHAZ-YAZI', 'height': 7.0, 'style': 'ROTAS-YAZI', 'width': 0.8,
+                                 'rotation': 90.0 if dik else 0.0})
+    t.set_placement(((x0 + x1) / 2, (y0 + y1) / 2), align=ezdxf.enums.TextEntityAlignment.MIDDLE_CENTER)
+    eng.ekle_alan(kutu)
+    for pg in yazi_kutulari(t):
+        eng.ekle_alan(pg)
+
+
 def ek_armaturler(K):
     """her ıslak hacimde 1 süzgeç; her dairede ÇM ve BM (mimaride yoksa EK)"""
     ekler = []
     daireler = sorted({r['daire'] for r in K.rooms if r['daire'] is not None})
+    # ÇM / BM: kullanıcının çiziminde (mimari niş / tezgâh altı) gösterildiği yer — tasarim_new_block.json
+    for m in TASARIM['makineler'].get(K.k, []):
+        c = (m['x'] + K.off, m['y'])
+        kutu = box(m['kutu'][0] + K.off, m['kutu'][1], m['kutu'][2] + K.off, m['kutu'][3])
+        aday = [r for r in K.rooms if r['tip'] in ('islak', 'mutfak') and r['poly'].distance(Point(c)) < 45]
+        if not aday:
+            continue
+        r = min(aday, key=lambda q: q['poly'].distance(kutu))
+        var = [f for f in K.fx if f['kind'] == m['tip'] and f['oda'] is r]
+        if var:                                   # mimari tanıma buldu: bağlantı noktası kullanıcınınki
+            f = min(var, key=lambda q: dist(q['c'], c))
+            f['c'] = c
+            f['kutu'] = kutu
+        else:
+            f = dict(kind=m['tip'], c=c, oda=r, ek=True, kutu=kutu)
+            K.fx.append(f)
+            ekler.append(f)
+    # tasarımda olmayan, mimari tanımanın bulduğu fazladan ÇM/BM (aynı dairede ikinci) atılır
+    for d in daireler:
+        for tip in ('CM', 'BM'):
+            fs = [f for f in K.fx if f['kind'] == tip and f['oda'] is not None and f['oda']['daire'] == d]
+            if len(fs) > 1 and any(f.get('kutu') is not None for f in fs):
+                for f in fs:
+                    if f.get('kutu') is None:
+                        K.fx.remove(f)
     for r in K.rooms:
         if r['tip'] not in ('islak', 'mutfak'):
             continue
@@ -1232,31 +1392,6 @@ def ek_armaturler(K):
                 f = dict(kind='YS', c=p, oda=r, ek=True)
                 K.fx.append(f)
                 ekler.append(f)
-    for d in daireler:
-        fo = [f for f in K.fx if f['oda'] is not None and f['oda']['daire'] == d]
-        if not any(f['kind'] == 'CM' for f in fo):
-            banyolar = sorted([r for r in K.rooms if r['daire'] == d and r['tip'] == 'islak'],
-                              key=lambda r: -r['poly'].area)
-            for r in banyolar:
-                fr = [f for f in K.fx if f['oda'] is r]
-                ref = next((f['c'] for f in fr if f['kind'] in ('DUS', 'WC')), None)
-                p = ek_nokta(r, fr, K, 32.0, 48.0, ref, makine=True)
-                if p:
-                    f = dict(kind='CM', c=p, oda=r, ek=True)
-                    K.fx.append(f)
-                    ekler.append(f)
-                    break
-        if not any(f['kind'] == 'BM' for f in fo):
-            mut = [r for r in K.rooms if r['daire'] == d and r['tip'] == 'mutfak']
-            for r in mut:
-                fr = [f for f in K.fx if f['oda'] is r]
-                ev = next((f['c'] for f in fr if f['kind'] == 'EV'), None)
-                p = ek_nokta(r, fr, K, 32.0, 48.0, ev, makine=True)
-                if p:
-                    f = dict(kind='BM', c=p, oda=r, ek=True)
-                    K.fx.append(f)
-                    ekler.append(f)
-                    break
     return ekler
 
 
@@ -1265,17 +1400,25 @@ def daire_poly(c, r, n=24):
     return Point(c).buffer(r, resolution=max(4, n // 4))
 
 
-def balon_yeri(c, eng, yasak, r=27.5, mesafeler=(55, 70, 85, 100, 115), disarida=None, kil_tol=0.5):
-    for dd in mesafeler:
-        for k in range(16):
-            a = math.radians(22.5 * k + 11.25 * ((dd // 15) % 2))
+def balon_yeri(c, eng, yasak, r=27.5, mesafeler=(55, 70, 85, 100, 115), disarida=None, kil_tol=0.5, tercih=None):
+    def adaylar():
+        if tercih is not None:
+            dd = math.hypot(*tercih)
+            a0 = math.atan2(tercih[1], tercih[0])
+            for da in (0, 12, -12, 24, -24):
+                for ek in (0, 10, 20):
+                    yield dd + ek, a0 + math.radians(da)
+        for dd in mesafeler:
+            for k in range(16):
+                yield dd, math.radians(22.5 * k + 11.25 * ((dd // 15) % 2))
+    for dd, a in adaylar():
             p = (c[0] + dd * math.cos(a), c[1] + dd * math.sin(a))
             pg = daire_poly(p, r + 1.0)
             if yasak is not None and pg.intersects(yasak):
                 continue
             if disarida is not None and not disarida.contains(Point(p)):
                 continue
-            if eng.carpar(pg):
+            if eng.carpar(pg.buffer(MARJ)) or eng.yasakta(pg, 'balon'):
                 continue
             kil = LineString([(c[0] + 16 * math.cos(a), c[1] + 16 * math.sin(a)),
                               (p[0] - r * math.cos(a), p[1] - r * math.sin(a))])
@@ -1303,9 +1446,15 @@ def etiket_dene_pis(msp, eng, g, cap, sb, adaylar_t=(0.5, 0.38, 0.62, 0.26, 0.74
         for ad in ('ROTAS-S2-PS-CAP-U', 'ROTAS-S2-PS-CAP-A'):
             e = ekle_insert(msp, ad, (a.x, a.y), L_PCAP, rot=ang, attr={'CAP': cap, 'SB': '%d SB' % sb})
             kut = yazi_kutulari(e)
-            if kut and not any(eng.carpar(k) for k in kut):
+            sg = 1 if ad.endswith('U') else -1
+            ca, sa = math.cos(math.radians(ang)), math.sin(math.radians(ang))
+            T = lambda x, y: (a.x + x * ca - y * sa, a.y + x * sa + y * ca)  # noqa: E731
+            kanca = LineString([T(0, 0), T(0, 16 * sg), T(34, 16 * sg)])
+            kanca_u = LineString([T(0, 16 * sg), T(34, 16 * sg)])
+            if kut and not any(eng.etiket_carpar(k) for k in kut) and not eng.carpar(kanca_u.buffer(0.4), cizgi_tol=1.0):
                 for k in kut:
                     eng.ekle_alan(k)
+                eng.ekle_cizgi(kanca)
                 return e
             msp.delete_entity(e)
     return None
@@ -1350,7 +1499,7 @@ def etiket_kilavuzlu(msp, eng, a, satirlar, blok, katman, yasak=None, hks=(14, 2
             e = ekle_insert(msp, blok, (ix, iy), katman, attr=satirlar)
             kut = yazi_kutulari(e)
             kil = LineString([a, (hx, hy)])
-            if any(eng.carpar(k) for k in kut) or (hk > 40 and eng.carpar(kil.buffer(0.4), cizgi_tol=1.0)):
+            if any(eng.etiket_carpar(k) for k in kut) or (hk > 40 and eng.carpar(kil.buffer(0.4), cizgi_tol=1.0)):
                 msp.delete_entity(e)
                 continue
             if yasak is not None and any(k.intersects(yasak) for k in kut):
@@ -1385,7 +1534,7 @@ def etiket_halka(msp, eng, m, satirlar, blok, katman, mesafeler=(35, 50, 70, 90,
             p = (m[0] + dd * math.cos(a), m[1] + dd * math.sin(a))
             ins = (p[0] - cx, p[1] - cy)
             kutu = box(bx0 + ins[0] - 1, by0 + ins[1] - 1, bx1 + ins[0] + 1, by1 + ins[1] + 1)
-            if eng.carpar(kutu):
+            if eng.etiket_carpar(kutu):
                 continue
             q = nearest_points(kutu.exterior, Point(m))[0]
             kil = LineString([m, (q.x, q.y)])
@@ -1394,7 +1543,7 @@ def etiket_halka(msp, eng, m, satirlar, blok, katman, mesafeler=(35, 50, 70, 90,
                 continue
             e = ekle_insert(msp, blok, ins, katman, attr=satirlar)
             kut2 = yazi_kutulari(e)
-            if any(eng.carpar(k2) for k2 in kut2):
+            if any(eng.etiket_carpar(k2) for k2 in kut2):
                 msp.delete_entity(e)
                 continue
             for k2 in kut2:
@@ -1445,13 +1594,37 @@ def yb_sirasi(inisler, merkez):
 
 class Durum:
     def __init__(self):
-        self.kolonlar = {}          # no -> dict(x0, y0 (zemin çerçevesi), katlar, sb_kat)
-        self.n_kolon = 0
+        self.kolonlar = {no: dict(no=no, x=q[0], y=q[1], katlar=[], sb_kat={}, oda={})   # kullanıcının P1..P9
+                         for no, q in KOLON_SABIT.items()}
+        self.n_kolon = len(self.kolonlar)
         self.yb = {}                # no -> (x0, y0)
         self.model_daire = []
         self.adet = defaultdict(int)
         self.uyari = []
         self.temiz_daire = {}
+
+
+def kat_yasaklari(eng, K):
+    """etiket / balon konmayacak alanlar: duvar katısı, asansör boşluğu, (etiket için) merdiven ve armatür kutuları"""
+    for g in (K.S.geoms if hasattr(K.S, 'geoms') else [K.S]):
+        g = g.buffer(-1.0)
+        if not g.is_empty:
+            eng.yasak_ekle(g, 'etiket')
+            eng.yasak_ekle(g, 'balon')
+    for r in K.rooms:
+        a = M2.MB.norm(r['name'])
+        if 'asans' in a:
+            eng.yasak_ekle(r['poly'].buffer(8), 'etiket')
+            eng.yasak_ekle(r['poly'].buffer(8), 'balon')
+        elif r['tip'] == 'ortak':
+            eng.yasak_ekle(r['poly'], 'etiket')
+    for f in K.fx:
+        bb = f.get('bb')
+        if bb and f['kind'] != 'KOMBI':
+            try:
+                eng.yasak_ekle(box(bb[0], bb[1], bb[2], bb[3]).buffer(-2), 'etiket')
+            except Exception:
+                pass
 
 
 def kat_ciz(doc, eng, K, dur, onceki):
@@ -1461,39 +1634,66 @@ def kat_ciz(doc, eng, K, dur, onceki):
     ek = ek_armaturler(K)
     log('kat %s: mahal %d, armatür %d (EK %d: %s)' % (k, len(K.rooms), len(K.fx), len(ek),
                                                      ', '.join('%s/%s' % (f['kind'], f['oda']['name']) for f in ek)))
-    # ---------------- pis su
+    # ---------------- pis su (kolonlar: kullanıcının P1..P9 eksenleri, her katta aynı nokta)
     pisler = []
-    kol_onceki = [(x + off, y) for (x, y) in onceki] if onceki else []
+    odalar = []
     for r in K.rooms:
         if r['tip'] not in ('islak', 'mutfak') or r['daire'] is None:
             continue
         fo = [f for f in K.fx if f['oda'] is r and f['kind'] in SB]
         if not fo:
             continue
-        ps = pis_su_oda(K, r, fo, kol_onceki, None)
-        if ps is None:
-            dur.uyari.append('kat %s %s: kolon yeri bulunamadı' % (k, r['name']))
+        no, C = min(((n, (q[0] + off, q[1])) for n, q in KOLON_SABIT.items()),
+                    key=lambda nc: (r['poly'].distance(Point(nc[1])), dist(nc[1], tuple(r['poly'].centroid.coords[0]))))
+        odalar.append(dict(r=r, fo=fo, no=no, C=C, misafir=r['poly'].distance(Point(C)) > 45))
+    # misafir ıslak hacim (kolonu komşu ıslak hacimde, ör. 1. kat D6 wc-duş -> P3): kendi halkasından komşunun halkasına
+    # duvar içinden kısa bağlantı; komşu (ev sahibi) ağına 'BAG' sözde-armatürü olarak katılır
+    for o in odalar:
+        if not o['misafir']:
             continue
+        ev = [q for q in odalar if q['no'] == o['no'] and not q['misafir']]
+        if not ev:
+            o['misafir'] = False
+            continue
+        ev = min(ev, key=lambda q: q['r']['poly'].distance(o['r']['poly']))
+        hr = halka(ev['r']['poly']).exterior
+        E = tuple(nearest_points(hr, o['r']['poly'])[0].coords[0])
+        gr = halka(o['r']['poly']).exterior
+        G = tuple(nearest_points(gr, Point(E))[0].coords[0])
+        if abs(G[0] - E[0]) < 3:
+            G = (E[0], G[1])
+        elif abs(G[1] - E[1]) < 3:
+            G = (G[0], E[1])
+        ps = pis_su_oda(K, o['r'], o['fo'], [], None, sabit=G)
+        if ps is None:
+            dur.uyari.append('kat %s %s: bağlantı kurulamadı' % (k, o['r']['name']))
+            continue
+        bag = temiz([G, E]) if (abs(G[0] - E[0]) < 0.5 or abs(G[1] - E[1]) < 0.5) else oktal([G, (G[0], E[1]), E])
+        sb = sum(sbf(f) for f in o['fo'])
+        ps.update(no=o['no'], misafir=True, baglanti=bag, bag_sb=sb, bag_wc=any(wcf(f) for f in o['fo']))
+        ev['fo'] = ev['fo'] + [dict(kind='BAG', c=E, oda=ev['r'], sb=sb, wc=ps['bag_wc'], ek=False)]
+        pisler.append(ps)
+    for o in odalar:
+        if o['misafir']:
+            continue
+        ps = pis_su_oda(K, o['r'], o['fo'], [], None, sabit=o['C'])
+        if ps is None:
+            dur.uyari.append('kat %s %s: pis su ağı kurulamadı' % (k, o['r']['name']))
+            continue
+        ps['no'] = o['no']
         pisler.append(ps)
     pisler.sort(key=kolon_sirasi)
-    # numara: alt kattaki aynı konumdaki kolonun numarası; yoksa yeni
     for ps in pisler:
-        x0, y0 = ps['kolon'][0] - off, ps['kolon'][1]
-        no = None
-        for kn, kv in dur.kolonlar.items():
-            if dist((x0, y0), (kv['x'], kv['y'])) < 3 and k not in kv['katlar']:
-                no = kn
-                break
-        if no is None:
-            dur.n_kolon += 1
-            no = 'P%d' % dur.n_kolon
-            dur.kolonlar[no] = dict(no=no, x=round(x0, 1), y=round(y0, 1), katlar=[], sb_kat={}, oda={})
-        ps['no'] = no
+        no = ps['no']
         kv = dur.kolonlar[no]
-        kv['katlar'].append(k)
-        kv['oda'][k] = '%s D%s' % (ps['oda']['name'], ps['oda']['daire'])
-        kv['sb_kat'][k] = sum(SB[b['f']['kind']] for b in ps['br'])
-        kv.setdefault('armatur', {})[k] = [b['f']['kind'] for b in ps['br']]
+        if k not in kv['katlar']:
+            kv['katlar'].append(k)
+        kv['oda'][k] = ((kv['oda'][k] + ' + ') if k in kv['oda'] else '') + '%s D%s' % (ps['oda']['name'], ps['oda']['daire'])
+        kv['sb_kat'][k] = kv['sb_kat'].get(k, 0) + sum(sbf(b['f']) for b in ps['br'] if b['f']['kind'] != 'BAG')
+        kv.setdefault('armatur', {}).setdefault(k, [])
+        kv['armatur'][k] += [b['f']['kind'] for b in ps['br'] if b['f']['kind'] != 'BAG']
+        if ps.get('dogrulanmadi'):
+            dur.uyari.append('kat %s %s %s: pis su doğrulaması (yol boyu/kesişme) geçmedi' % (k, ps['oda']['name'], no))
     for ps in pisler:
         for kol in ps['kollar'].values():
             msp.add_lwpolyline(list(kol.coords), dxfattribs={'layer': L_PIS})
@@ -1502,18 +1702,31 @@ def kat_ciz(doc, eng, K, dur, onceki):
             if len(b['pts']) > 1:
                 msp.add_lwpolyline(b['pts'], dxfattribs={'layer': L_PIS})
                 eng.ekle_cizgi(LineString(b['pts']))
+        if ps.get('misafir'):
+            msp.add_lwpolyline(ps['baglanti'], dxfattribs={'layer': L_PIS})
+            eng.ekle_cizgi(LineString(ps['baglanti']))
+            continue
         ekle_insert(msp, 'ROTAS-S2-PIS-KOLON', ps['kolon'], 'ROTAS-SIHHI-SEMBOL')
         eng.ekle_alan(daire_poly(ps['kolon'], 15))
         dur.adet['ROTAS-S2-PIS-KOLON'] += 1
+    # bağlantısız geçen kolon (o katta ıslak hacmi yok, ör. 1. kat P2): kolon sembolü yine çizilir (düşey süreklilik)
+    kullanilan = {ps['no'] for ps in pisler}
+    K.gecis_kolonlari = []
+    for no, q in KOLON_SABIT.items():
+        if no not in kullanilan:
+            C = (q[0] + off, q[1])
+            ekle_insert(msp, 'ROTAS-S2-PIS-KOLON', C, 'ROTAS-SIHHI-SEMBOL')
+            eng.ekle_alan(daire_poly(C, 15))
+            K.gecis_kolonlari.append((no, C))
     # süzgeçler (ıslak hacim)
     for f in K.fx:
         if f['kind'] == 'YS' and f['oda'] is not None and f['oda']['tip'] in ('islak', 'mutfak'):
             ekle_insert(msp, 'ROTAS-S2-YER-SUZGECI', f['c'], 'ROTAS-SIHHI-SEMBOL')
             eng.ekle_alan(Point(f['c']).buffer(8, cap_style=3))
             dur.adet['ROTAS-S2-YER-SUZGECI'] += 1
-        if f.get('ek') and f['kind'] in ('CM', 'BM'):
-            ekle_insert(msp, 'ROTAS-S2-MAKINE-EK', f['c'], 'ROTAS-SIHHI-SEMBOL')
-            dur.adet['ROTAS-S2-MAKINE-EK'] += 1
+        if f['kind'] in ('CM', 'BM') and f.get('kutu'):
+            makine_ciz(msp, eng, f)
+            dur.adet['ROTAS-S2-MAKINE'] += 1
     # ---------------- temiz su
     temizler = {}
     for p, dno in K.tohum:
@@ -1585,7 +1798,8 @@ def kat_ciz(doc, eng, K, dur, onceki):
         ekle_insert(msp, 'ROTAS-S2-KOLON-YAGMUR', p, 'ROTAS-SIHHI-SEMBOL')
         eng.ekle_alan(Point(p).buffer(9))
         dur.adet['ROTAS-S2-KOLON-YAGMUR'] += 1
-    # ---------------- aspiratör (penceresiz ıslak hacim)
+    # ---------------- aspiratör: penceresiz HER ıslak hacimde sembol (şafta yakın, ÇM nişi / armatür / kolon dışı);
+    # yazı şaft grubu başına 1 (kullanıcı: 80 m3/h × bağlı ıslak hacim)
     asp = []
     for r in K.rooms:
         if r['tip'] != 'islak' or r['daire'] is None:
@@ -1597,33 +1811,123 @@ def kat_ciz(doc, eng, K, dur, onceki):
         if sf is None or sf['poly'].distance(r['poly']) > 200:
             sf = None
         asp.append(dict(r=r, saft=sf))
+    engel_p = [f['kutu'].buffer(22) for f in K.fx if f.get('kutu') is not None] + \
+              [Point(f['c']).buffer(24) for f in K.fx if f['oda'] is not None and f['kind'] != 'KOMBI'] + \
+              [daire_poly(ps['kolon'], 24) for ps in pisler if not ps.get('misafir')]
+    engel_u = unary_union(engel_p) if engel_p else Polygon()
+    for a_ in asp:
+        r = a_['r']
+        ic = r['poly'].buffer(-15, join_style=2)
+        if ic.is_empty:
+            ic = r['poly'].buffer(-8, join_style=2)
+        hedef = a_['saft']['c'] if a_['saft'] else tuple(r['poly'].centroid.coords[0])
+        x0, y0, x1, y1 = ic.bounds
+        aday = []
+        for yy in np.arange(y0, y1 + 0.1, 4.0):
+            for xx in np.arange(x0, x1 + 0.1, 4.0):
+                q = Point(xx, yy)
+                kare = q.buffer(13, cap_style=3)
+                if not ic.contains(q) or not r['poly'].contains(kare):
+                    continue
+                if kare.intersects(engel_u) or eng.carpar(kare):
+                    continue
+                aday.append((dist((xx, yy), hedef), (xx, yy)))
+        if not aday:
+            q = nearest_points(ic, Point(hedef))[0]
+            aday = [(0, (q.x, q.y))]
+        a_['p'] = min(aday)[1]
+        ekle_insert(msp, 'ROTAS-S2-ASPIRATOR', a_['p'], 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL')
+        eng.ekle_alan(Point(a_['p']).buffer(13, cap_style=3))
+        dur.adet['ROTAS-S2-ASPIRATOR'] += 1
     gruplar = defaultdict(list)
-    for a in asp:
-        gruplar[id(a['saft']) if a['saft'] else id(a)].append(a)
+    for a_ in asp:
+        gruplar[id(a_['saft']) if a_['saft'] else id(a_)].append(a_)
     aspirator = []
     for gl in gruplar.values():
-        debi = 80 * len(gl)
-        ana = max(gl, key=lambda a: a['r']['poly'].area)
-        sf = ana['saft']
-        if sf:
-            q = nearest_points(ana['r']['poly'].buffer(-16), Point(sf['c']))[0]
-            pa = (q.x, q.y)
-        else:
-            pa = tuple(ana['r']['poly'].representative_point().coords[0])
-        ekle_insert(msp, 'ROTAS-S2-ASPIRATOR', pa, 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL')
-        eng.ekle_alan(Point(pa).buffer(13, cap_style=3))
-        dur.adet['ROTAS-S2-ASPIRATOR'] += 1
-        aspirator.append(dict(r=ana['r'], p=pa, debi=debi, odalar=[a['r'] for a in gl], saft=sf))
+        ana = max(gl, key=lambda q: q['r']['poly'].area)
+        aspirator.append(dict(r=ana['r'], p=ana['p'], debi=80 * len(gl), odalar=[q['r'] for q in gl], saft=ana['saft'],
+                              semboller=[(q['r'], q['p']) for q in gl]))
     return dict(pisler=pisler, temiz=temizler, balkon=balkon_s, aspirator=aspirator, ek=ek)
+
+
+def aspirator_notu(msp, eng, K, a, dur):
+    """'Wc Aspiratörü / n m3/h-50 pa / Ø150 mm' (h 15, turuncu): önce kendi ıslak hacminin İÇİNDE boş yerde; sığmazsa
+    aynı dairenin bitişik mahallinde, ıslak hacim duvarının hemen yanında. Kılavuz ≤ 60 cm, yalnız iki mahalden geçer."""
+    r = a['r']
+    metin = 'Wc Aspiratörü\\P%d m3/h-50 pa\\PØ150 mm' % a['debi']
+    e = msp.add_mtext(metin, dxfattribs={'layer': 'ROTAS-SIHHI-HAVALANDIRMA-YAZI', 'char_height': 15.0,
+                                         'style': 'ROTAS-YAZI', 'attachment_point': 5, 'width': 0})
+    e.dxf.insert = (0.0, 0.0)
+    kut = yazi_kutulari(e)
+    if not kut:
+        msp.delete_entity(e)
+        return None
+    k0 = unary_union(kut).envelope
+    sym = Point(a['p']).buffer(13, cap_style=3)
+    diger_islak = unary_union([q['poly'] for q in K.rooms if q is not r and q['tip'] in ('islak', 'mutfak')]
+                              or [Polygon()])
+    adaylar = []
+    # (1) kendi mahalli
+    alanlar = [(0, r['poly'].buffer(-3, join_style=2))]
+    # (2) aynı dairenin bitişik kuru / hol mahalleri (ıslak hacim duvarına ≤ 25 cm)
+    for q in K.rooms:
+        if q is r or q['daire'] != r['daire'] or q['tip'] in ('islak', 'mutfak', 'ortak', 'balkon'):
+            continue
+        if q['poly'].distance(r['poly']) < 30:
+            alanlar.append((1, q['poly'].buffer(-3, join_style=2)))
+    for sira, alan in alanlar:
+        if alan.is_empty:
+            continue
+        x0, y0, x1, y1 = alan.bounds
+        for yy in np.arange(y0, y1 + 0.1, 5.0):
+            for xx in np.arange(x0, x1 + 0.1, 5.0):
+                kb = shapely_translate(k0, xx, yy)
+                if not alan.contains(kb):
+                    continue
+                d = kb.distance(sym)
+                if d > 60:
+                    continue
+                if sira == 1 and kb.distance(r['poly']) > 30:
+                    continue
+                adaylar.append((sira, d, xx, yy, kb))
+    adaylar.sort(key=lambda q: (q[0], q[1]))
+    for sira, d, xx, yy, kb in adaylar:
+        if eng.etiket_carpar(kb):
+            continue
+        kil = None
+        if d > 6:
+            q1, q2 = nearest_points(sym, kb)
+            kil = LineString([q1, q2])
+            if kil.length > 60 or kil.intersects(diger_islak) or eng.carpar(kil.buffer(0.3), cizgi_tol=1.0):
+                continue
+        e.dxf.insert = (xx, yy)
+        for pg in yazi_kutulari(e):
+            eng.ekle_alan(pg)
+        if kil is not None:
+            msp.add_line(kil.coords[0], kil.coords[-1], dxfattribs={'layer': L_KIL})
+            eng.ekle_cizgi(kil)
+        return e
+    msp.delete_entity(e)
+    dur.uyari.append('kat %s %s aspiratör yazısı yerleşmedi' % (K.k, r['name']))
+    return None
 
 
 def kat_etiketle(doc, eng, K, kat, dur):
     msp = doc.modelspace()
     islak_u = unary_union([r['poly'].buffer(-2) for r in K.rooms if r['tip'] in ('islak',)])
     n_ok = n_yok = 0
+    for a in kat['aspirator']:          # büyük yazılar önce
+        aspirator_notu(msp, eng, K, a, dur)
     # P balonları (ıslak hacim dışında, kılavuzlu)
-    for ps in kat['pisler']:
-        p, kil = balon_yeri(ps['kolon'], eng, islak_u)
+    kolon_bal = [(ps['no'], ps['kolon']) for ps in kat['pisler'] if not ps.get('misafir')]
+    kolon_bal += list(getattr(K, 'gecis_kolonlari', []))
+    gor = set()
+    for no, kc in kolon_bal:
+        if no in gor:
+            continue
+        gor.add(no)
+        ps = dict(no=no, kolon=kc)
+        p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=TASARIM['balon_ofset'].get(no))
         if p is None:
             p, kil = balon_yeri(ps['kolon'], eng, None, mesafeler=(55, 70, 85, 100, 120, 140))
         if p is None:
@@ -1665,39 +1969,13 @@ def kat_etiketle(doc, eng, K, kat, dur):
         eng.ekle_alan(daire_poly(p, 28.5))
         msp.add_line(kil.coords[0], kil.coords[-1], dxfattribs={'layer': L_KIL})
         eng.ekle_cizgi(kil)
-    # aspiratör yazısı (turuncu, 3 satır h 15)
-    for a in kat['aspirator']:
-        r = a['r']
-        metin = 'Wc Aspiratörü\\P%d m3/h-50 pa\\PØ150 mm' % a['debi']
-        mer = []
-        bnd = r['poly'].buffer(-30)
-        if not bnd.is_empty:
-            x0, y0, x1, y1 = bnd.bounds
-            for yy in np.linspace(y0, y1, 9):
-                for xx in np.linspace(x0, x1, 7):
-                    if bnd.contains(Point(xx, yy)):
-                        mer.append((xx, yy))
-        c = r['poly'].centroid
-        mer.sort(key=lambda q: dist(q, (c.x, c.y)))
-        e = yazi_yerlestir(msp, eng, metin, 15.0, 'ROTAS-SIHHI-HAVALANDIRMA-YAZI', mer)
-        if e is None:      # mahal dışı + kılavuz
-            dis_m = []
-            for dd in (110, 150, 190, 240, 290, 340, 400):
-                for kk in range(16):
-                    an = math.radians(22.5 * kk)
-                    dis_m.append((a['p'][0] + dd * math.cos(an), a['p'][1] + dd * math.sin(an)))
-            e = yazi_yerlestir(msp, eng, metin, 15.0, 'ROTAS-SIHHI-HAVALANDIRMA-YAZI', dis_m)
-            if e is not None:
-                kb = yazi_kutulari(e)[0]
-                q = nearest_points(kb, Point(a['p']))[0]
-                msp.add_line(a['p'], (q.x, q.y), dxfattribs={'layer': L_KIL})
-                eng.ekle_cizgi(LineString([a['p'], (q.x, q.y)]))
-        if e is None:
-            dur.uyari.append('kat %s %s aspiratör yazısı yerleşmedi' % (K.k, r['name']))
     # pis su etiketleri: her parça bir etiket (uzun parçalar önce)
     parcalar = []
     for ps in kat['pisler']:
         parcalar += pis_parcalar(ps)
+        if ps.get('misafir') and len(ps['baglanti']) > 1:
+            parcalar.append(dict(g=LineString(ps['baglanti']), sb=ps['bag_sb'], cap=pis_cap(ps['bag_sb'], ps['bag_wc']),
+                                 tur='bag'))
     parcalar = [p for p in parcalar if p['g'].length >= 10.0]      # < 10 cm parça (birleşim arası) etiketlenmez
     parcalar.sort(key=lambda p: -p['g'].length)
     for pc in parcalar:
@@ -1773,19 +2051,6 @@ def kat_etiketle(doc, eng, K, kat, dur):
             else:
                 n_ok += 1
         # daire girişi etiketi (G-H parçası): 1 1/4" / n MB
-    # EK makine yazıları
-    for f in kat['ek']:
-        if f['kind'] in ('CM', 'BM'):
-            ad = 'Ç.M.' if f['kind'] == 'CM' else 'B.M.'
-            mer = [(f['c'][0] + dx, f['c'][1] + dy) for dx, dy in ((0, 40), (0, -40), (55, 0), (-55, 0), (45, 45),
-                                                                     (-45, 45), (45, -45), (-45, -45), (0, 70), (0, -70))]
-            for dd in (35, 50, 65, 80, 100, 125, 150):
-                for kk in range(24):
-                    an = math.radians(15.0 * kk)
-                    mer.append((f['c'][0] + dd * math.cos(an), f['c'][1] + dd * math.sin(an)))
-            e = yazi_yerlestir(msp, eng, ad + ' (EK)', 10.0, 'ROTAS-SIHHI-CIHAZ-YAZI', mer)
-            if e is None:
-                dur.uyari.append('kat %s %s EK yazısı yerleşmedi' % (K.k, ad))
     log('  etiket: %d yerleşti, %d yerleşmedi' % (n_ok, n_yok))
 
 
@@ -1801,64 +2066,114 @@ def paftalar(doc, eng):
             eng.ekle_alan(pg)
 
 
-def lejant(doc, dur):
+def cati_plani(doc, eng, dur, Kz, depo_m3):
+    """ÇATI PLANI paftası (258656…260714): mimari çatı altlığı (kullanıcının çatı planı) + pis su kolonu havalık uçları
+    P1…P9, yağmur inişleri YB1…YB9 (kullanıcının çatı konumları), çatı tipi fanlar (havalandırma şaftları), eğim okları,
+    kullanım su deposu. Başlık 'ÇATI PLANI.........ÖLÇEK: 1 / 50'."""
     msp = doc.modelspace()
-    x0, x1 = LEJANT_PAFTA
+    x0, x1 = CATI_PAFTA
     msp.add_lwpolyline([(x0, PY0), (x1, PY0), (x1, PY1), (x0, PY1)], close=True, dxfattribs={'layer': 'ROTAS-PAFTA'})
-    t = msp.add_text('SIHHİ TESİSAT KAT PLANLARI — LEJANT', dxfattribs={'layer': 'ROTAS-LEJANT', 'height': 30.0,
-                                                                     'style': 'ROTAS-YAZI'})
-    t.dxf.insert = (x0 + 120, PY1 - 200)
-    y = PY1 - 300
-    satir = [
-        ('hat', L_PIS, 'PİS SU HATTI (PVC, döşemeden; Ø / SB etiketli)'),
-        ('hat', L_SOG, 'SOĞUK SU HATTI (PPRC / PEX)'),
-        ('hat', L_SIC, 'SICAK SU HATTI (kombiden, soğuğa 5 cm paralel)'),
-        ('hat', L_YAG, 'BALKON SÜZGECİ – YAĞMUR İNİŞİ HATTI'),
-        ('blok', 'ROTAS-S2-PIS-KOLON', 'PİS SU KOLONU (İNİŞ)'),
-        ('blok', 'ROTAS-S2-KOLON-NO', 'PİS SU KOLON NUMARASI (P1 ...)'),
-        ('blok', 'ROTAS-S2-KOLON-YAGMUR', 'YAĞMUR SUYU İNİŞİ'),
-        ('blok', 'ROTAS-S2-KOLON-NO-YAGMUR', 'YAĞMUR İNİŞİ NUMARASI (YB1 ...)'),
-        ('blok', 'ROTAS-S2-YER-SUZGECI', 'YER SÜZGECİ (ıslak hacim, pis su)'),
-        ('blok', 'ROTAS-S2-BALKON-SUZGECI', 'BALKON SÜZGECİ (yağmur inişine)'),
-        ('blok', 'ROTAS-S2-KURESEL-VANA', 'KÜRESEL VANA (ARA MUSLUK, armatür bağlantısı)'),
-        ('blok', 'ROTAS-S2-TEMIZ-GIRIS', 'DAİRE TEMİZ SU GİRİŞİ (sayaçlar kolon şemasında, zemin)'),
-        ('blok', 'ROTAS-S2-ASPIRATOR', 'WC ASPİRATÖRÜ (penceresiz ıslak hacim, şafta)'),
-        ('blok', 'ROTAS-S2-MAKINE-EK', 'ÇAMAŞIR / BULAŞIK MAKİNESİ BAĞLANTISI (mimaride yoksa EK)'),
-    ]
-    h = msp.add_text('SEMBOL', dxfattribs={'layer': 'ROTAS-LEJANT', 'height': 15.0, 'style': 'ROTAS-YAZI'})
-    h.dxf.insert = (x0 + 120, y + 40)
-    h = msp.add_text('AÇIKLAMA', dxfattribs={'layer': 'ROTAS-LEJANT', 'height': 15.0, 'style': 'ROTAS-YAZI'})
-    h.dxf.insert = (x0 + 330, y + 40)
-    h = msp.add_text('ADET', dxfattribs={'layer': 'ROTAS-LEJANT', 'height': 15.0, 'style': 'ROTAS-YAZI'})
-    h.dxf.insert = (x0 + 1500, y + 40)
-    for tur, ad, ack in satir:
-        if tur == 'hat':
-            msp.add_lwpolyline([(x0 + 120, y), (x0 + 280, y)], dxfattribs={'layer': ad})
+    e = msp.add_text('ÇATI PLANI.........ÖLÇEK: 1 / 50',
+                     dxfattribs={'layer': 'ROTAS-PAFTA-YAZI', 'height': 40.0, 'style': 'ROTAS-YAZI'})
+    e.dxf.insert = (x0 + 538.0, PY0 + 39.0)
+    cati = {k: (v[0], v[1]) for k, v in TASARIM['cati'].items()}
+    # çatı çerçevesinin zemine göre ötelemesi (kullanıcının P konumlarından)
+    dxs = [cati[k][0] - KOLON_SABIT[k][0] for k in KOLON_SABIT if k in cati]
+    dys = [cati[k][1] - KOLON_SABIT[k][1] for k in KOLON_SABIT if k in cati]
+    ox, oy = (sum(dxs) / len(dxs), sum(dys) / len(dys)) if dxs else (CATI_OFF, 0.0)
+    ybs = [v for k, v in cati.items() if k.startswith('YB')]
+    bx0, by0 = min(p[0] for p in ybs), min(p[1] for p in ybs)
+    bx1, by1 = max(p[0] for p in ybs), max(p[1] for p in ybs)
+    ic = box(bx0, by0, bx1, by1)
+    for no in sorted(cati, key=lambda k: (k[0] == 'Y', int(''.join(c for c in k if c.isdigit())))):
+        p = cati[no]
+        if no.startswith('P'):
+            ekle_insert(msp, 'ROTAS-S2-PIS-KOLON', p, 'ROTAS-SIHHI-SEMBOL')
+            msp.add_circle(p, 13.0, dxfattribs={'layer': 'ROTAS-SIHHI-SEMBOL'})        # havalık şapkası
+            eng.ekle_alan(daire_poly(p, 15))
+            q, kil = balon_yeri(p, eng, None, mesafeler=(45, 55, 70, 85))
+            if q is not None:
+                ekle_insert(msp, 'ROTAS-S2-KOLON-NO', q, 'ROTAS-SIHHI-KOLON-NO', attr={'NO': no})
+                eng.ekle_alan(daire_poly(q, 28.5))
+                msp.add_line(kil.coords[0], kil.coords[-1], dxfattribs={'layer': L_KIL})
         else:
-            attr = {'NO': 'P1'} if ad == 'ROTAS-S2-KOLON-NO' else ({'NO': 'YB1'} if ad == 'ROTAS-S2-KOLON-NO-YAGMUR' else None)
-            ekle_insert(msp, ad, (x0 + 200, y), 'ROTAS-LEJANT', attr=attr)
-            a = msp.add_text(str(dur.adet.get(ad, 0)), dxfattribs={'layer': 'ROTAS-LEJANT', 'height': 12.0,
-                                                                  'style': 'ROTAS-YAZI'})
-            a.dxf.insert = (x0 + 1500, y - 6)
-        t = msp.add_text(ack, dxfattribs={'layer': 'ROTAS-LEJANT', 'height': 12.0, 'style': 'ROTAS-YAZI'})
-        t.dxf.insert = (x0 + 330, y - 6)
-        y -= 80
-    y -= 40
-    notlar = [
-        'NOTLAR:',
-        '1. Pis su: kolon ıslak hacim köşesinde duvar yüzünden 8 cm; toplama hattı duvar dibinden, armatürler 45° + dik',
-        '   kısa branşmanla (dallı). Çap: ≤8 SB Ø50, 11-16 SB Ø70, klozet ve ≥21 SB Ø100 (SB: LV 2, WC 10, DUŞ 7, YS 2, ÇM/BM/EV 4).',
-        '2. Temiz su: daire girişi merdiven holünde kapı yanında; hol/koridorda koridor ortasından, ıslak hacimde mahal',
-        '   ortasından; sıcak su kombiden daire içinde, soğuğa 5 cm paralel. MB: LV 0,75/0,75 DUŞ 2,5/2,5 EV 1/1 WC 0,5',
-        '   ÇM 1,5 BM 1,5 KOMBİ 0,5. Çap: ≤1 MB 1/2", ≤2,5 MB 3/4", ≤8,5 MB 1", ≤12 MB 1 1/4".',
-        '3. Balkon süzgeçleri yalnız balkondaki yağmur inişine bağlanır (pis suya bağlanmaz).',
-        '4. Su sayaçları kolon şemasında zemin bandında, şebeke girişindedir (kat planında sayaç yoktur).',
-        '5. (EK) işaretli armatür / süzgeç mimaride yoktur, kural gereği eklenmiştir.',
-    ]
-    for n in notlar:
-        t = msp.add_text(n, dxfattribs={'layer': 'ROTAS-LEJANT', 'height': 12.0, 'style': 'ROTAS-YAZI'})
-        t.dxf.insert = (x0 + 120, y)
-        y -= 26
+            ekle_insert(msp, 'ROTAS-S2-KOLON-YAGMUR', p, 'ROTAS-SIHHI-SEMBOL')
+            eng.ekle_alan(daire_poly(p, 9))
+            q, kil = balon_yeri(p, eng, ic.buffer(-20), mesafeler=(40, 50, 60, 75))
+            if q is None:
+                q, kil = balon_yeri(p, eng, None, mesafeler=(40, 50, 60, 75))
+            if q is not None:
+                ekle_insert(msp, 'ROTAS-S2-KOLON-NO-YAGMUR', q, 'ROTAS-SIHHI-YAGMUR-NO', attr={'NO': no})
+                eng.ekle_alan(daire_poly(q, 28.5))
+                msp.add_line(kil.coords[0], kil.coords[-1], dxfattribs={'layer': L_KIL})
+    # çatı tipi fanlar: havalandırma şaftları (zemin katta tanınan şaftlar, çatı çerçevesine ötelenmiş)
+    for sf in Kz.saftlar:
+        c = (sf['c'][0] + ox, sf['c'][1] + oy)
+        msp.add_circle(c, 14.0, dxfattribs={'layer': 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL'})
+        msp.add_circle(c, 9.0, dxfattribs={'layer': 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL'})
+        for aci in (45, 135):
+            r_ = math.radians(aci)
+            msp.add_line((c[0] - 14 * math.cos(r_), c[1] - 14 * math.sin(r_)),
+                         (c[0] + 14 * math.cos(r_), c[1] + 14 * math.sin(r_)),
+                         dxfattribs={'layer': 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL'})
+        eng.ekle_alan(daire_poly(c, 15))
+        mer = [(c[0] + dx, c[1] + dy) for dx, dy in ((70, -10), (70, -40), (-70, -10), (70, 20), (-70, -40), (0, -55),
+                                                     (0, 45), (95, -10), (-95, -10))]
+        t = yazi_yerlestir(msp, eng, 'Çatı Tipi Fan\\PØ150 mm', 15.0, 'ROTAS-SIHHI-HAVALANDIRMA-YAZI', mer)
+        if t is not None:
+            q = nearest_points(unary_union(yazi_kutulari(t)), Point(c))[0]
+            if dist((q.x, q.y), c) > 16:
+                msp.add_line(c, (q.x, q.y), dxfattribs={'layer': L_KIL})
+    # eğim okları: her çatı yüzeyinde saçağa (yağmur oluğuna) doğru
+    cx, cy = (bx0 + bx1) / 2, (by0 + by1) / 2
+    for (px, py), (ux, uy) in (((cx, by0 + 230), (0, -1)), ((cx, by1 - 230), (0, 1)), ((bx0 + 230, cy - 250), (-1, 0)),
+                               ((bx1 - 230, cy + 250), (1, 0)), ((cx - 400, by0 + 230), (0, -1)),
+                               ((cx + 400, by1 - 230), (0, 1))):
+        a_ = (px - ux * 60, py - uy * 60)
+        b_ = (px + ux * 60, py + uy * 60)
+        if eng.carpar(LineString([a_, b_]).buffer(12)):
+            continue
+        msp.add_line(a_, b_, dxfattribs={'layer': 'ROTAS-SIHHI-CATI'})
+        nx_, ny_ = -uy, ux
+        msp.add_solid([b_, (b_[0] - ux * 20 + nx_ * 7, b_[1] - uy * 20 + ny_ * 7),
+                       (b_[0] - ux * 20 - nx_ * 7, b_[1] - uy * 20 - ny_ * 7)], dxfattribs={'layer': 'ROTAS-SIHHI-CATI'})
+        rot = 90.0 if ux == 0 else 0.0
+        t = msp.add_text('EĞİM', dxfattribs={'layer': 'ROTAS-SIHHI-CATI-YAZI', 'height': 12.0, 'style': 'ROTAS-YAZI',
+                                            'rotation': rot, 'width': 0.8})
+        t.set_placement((px + nx_ * 14, py + ny_ * 14), align=ezdxf.enums.TextEntityAlignment.MIDDLE_CENTER)
+        eng.ekle_alan(LineString([a_, b_]).buffer(14))
+    # kullanım su deposu (mimaride "SU DEPOSU" yazılı yer)
+    dep = None
+    for e in msp.query('TEXT MTEXT'):
+        if e.dxf.layer != 'ROTAS-MIMARI-YAZI':
+            continue
+        tx = e.dxf.text if e.dxftype() == 'TEXT' else e.plain_text()
+        if 'DEPO' in tx.upper() and x0 < e.dxf.insert[0] < x1:
+            dep = (e.dxf.insert[0], e.dxf.insert[1])
+            break
+    if dep is not None:
+        mer = [(dep[0] + dx, dep[1] + dy) for dx, dy in ((40, -70), (40, -95), (40, 60), (190, -10), (-150, -10))]
+        yazi_yerlestir(msp, eng, 'KULLANIM SU DEPOSU\\PV=%g m³' % depo_m3, 15.0, 'ROTAS-SIHHI-CIHAZ-YAZI', mer)
+    return dict(ofset=(ox, oy))
+
+
+def rogarlar_model(kolonlar):
+    """kullanıcının rögar ataması (R1<-P7,P9; R2<-P8; R3<-P2,P3,P5,P6; R4<-P1,P4) + PB; SB kümülatif"""
+    sb = {k['no']: k['sb_toplam'] for k in kolonlar}
+    adlar = sorted(TASARIM['rogar_atama'], key=lambda r: int(r[1:]))
+    out, kum = [], 0
+    for i, r in enumerate(adlar):
+        ks = TASARIM['rogar_atama'][r]
+        top = sum(sb.get(k, 0) for k in ks)
+        kum += top
+        xy = TASARIM['rogar_konum'][r]
+        out.append(dict(no=r, x=xy[0], y=xy[1], olcu='70x70 h:-70cm', kolonlar=ks,
+                        sonraki=adlar[i + 1] if i + 1 < len(adlar) else 'PB', cap='Ø150', egim='%1', sb=top,
+                        sb_kumulatif=kum))
+    xy = TASARIM['rogar_konum']['PB']
+    out.append(dict(no='PB', x=xy[0], y=xy[1], olcu='80x80 h:-80cm', kolonlar=[], sonraki=None, cap='Ø150', egim='%1',
+                    sb=0, sb_kumulatif=kum))
+    return out
 
 
 def model_yaz(Ks, katlar, dur):
@@ -1891,7 +2206,8 @@ def model_yaz(Ks, katlar, dur):
                          kolon=ps['no'] if ps else None)
                 a = next((a for a in kat['aspirator'] if r in a['odalar']), None)
                 if a:
-                    h['aspirator'] = dict(x=z(a['p'])[0], y=z(a['p'])[1], debi=80,
+                    sp = next((pp for rr, pp in a.get('semboller', []) if rr is r), a['p'])
+                    h['aspirator'] = dict(x=z(sp)[0], y=z(sp)[1], debi=80,
                                           saft=('Ş@%.0f,%.0f' % tuple(z(a['saft']['c']))) if a['saft'] else None)
                 ih.append(h)
             d['islak_hacimler'] = ih
@@ -1910,7 +2226,9 @@ def model_yaz(Ks, katlar, dur):
         wc = any('WC' in v for v in kv.get('armatur', {}).values())
         ki = sorted(KATLAR.index(k) for k in kv['katlar'])
         gecis = [i for i in range(len(KATLAR)) if i not in ki and ki and ki[0] < i < ki[-1]]   # bağlantısız geçtiği ara kat
-        kolonlar.append(dict(no=no, x=kv['x'], y=kv['y'], katlar=ki, gecis_katlari=gecis, rogar=None,
+        rg = next((r for r, ks in TASARIM['rogar_atama'].items() if no in ks), None)
+        gecis = [i for i in range(len(KATLAR)) if i not in ki and ki and i < ki[-1]]
+        kolonlar.append(dict(no=no, x=kv['x'], y=kv['y'], katlar=ki, gecis_katlari=gecis, rogar=rg,
                              sb_kat=sbk, sb_toplam=top, cap='Ø100' if (wc or top >= 21) else pis_cap(top, False),
                              mahal=kv['oda'], armatur_sirasi_sema=kv.get('armatur', {}).get(kv['katlar'][0], [])))
     m = dict(
@@ -1919,7 +2237,7 @@ def model_yaz(Ks, katlar, dur):
                    depo=dict(yer='çatı', hacim_m3=3.0 + 0.5 * max(0, len(daireler) - 10)), hidrofor=False,
                    kaynak='motor/sihhi2/plan.py', tarih=time.strftime('%d.%m.%Y %H:%M')),
         yuk_tablosu=dict(MB_S), yuk_tablosu_sicak=dict(MB_H), sb_tablosu=dict(SB), daireler=daireler, kolonlar=kolonlar,
-        rogarlar=[], yagmur=[dict(no=n, x=q[0], y=q[1], cap='Ø70') for n, q in sorted(dur.yb.items(), key=lambda q: int(q[0][2:]))],
+        rogarlar=rogarlar_model(kolonlar), yagmur=[dict(no=n, x=q[0], y=q[1], cap='Ø70') for n, q in sorted(dur.yb.items(), key=lambda q: int(q[0][2:]))],
         temiz_su=dict(sebeke=None, ana_sayac_cap=inc(sum(d.get('temiz_su_mb', 0) for d in daireler)),
                       daire_mb={d['no']: d.get('temiz_su_mb') for d in daireler},
                       daire_cap={d['no']: d.get('temiz_su_cap') for d in daireler}),
@@ -1957,6 +2275,7 @@ def main(argv):
         t1 = time.time()
         K = M2.Kat(A, k)
         K.kb = M2.MB.kat_analiz(A, M2.pencere(k), k)
+        kat_yasaklari(eng, K)
         log('kat %s mimari: %.1f s' % (k, time.time() - t1))
         katlar[k] = kat_ciz(doc, eng, K, dur, onceki)
         onceki = [(kv['x'], kv['y']) for kv in dur.kolonlar.values()]
@@ -1964,7 +2283,7 @@ def main(argv):
     Ks.sort(key=lambda K: KATLAR.index(K.k))
     for K in Ks:
         kat_etiketle(doc, eng, K, katlar[K.k], dur)
-    lejant(doc, dur)
+    cati_plani(doc, eng, dur, Ks[0], 3.0)
     m = model_yaz(Ks, katlar, dur)
     aud = doc.audit()
     doc.saveas(CIKIS_DXF)
