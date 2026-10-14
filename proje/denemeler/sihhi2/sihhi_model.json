@@ -19,7 +19,7 @@
   },
   "hidrofor": false,
   "kaynak": "motor/sihhi2/plan.py",
-  "tarih": "15.10.2026 01:24"
+  "tarih": "15.10.2026 01:29"
  },
  "yuk_tablosu": {
   "LV": 0.75,
@@ -8637,8 +8637,6 @@
   }
  ],
  "uyarilar": [
-  "kat 2 pis su etiketi yerleşmedi: Ø100 12 SB @ (257290, -442151)",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (257273, -442167)",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (256865, -441953)"
+  "kat 1 Ç.M. EK yazısı yerleşmedi"
  ]
 }

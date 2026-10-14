@@ -943,6 +943,9 @@ def temiz_su_daire(K, dno, fx, tohum):
         dk = ndi.distance_transform_edt(km) * g.res
         cost[km] = 8.0 + 0.5 * np.maximum(dk[km] - 15.0, 0.0)
     cost[kapi_m] = np.inf
+    if not K.kapi_u.is_empty:      # kapı kanadı süpürme alanı: hat kapı önünden/kanadından geçmesin
+        kk = (g.doldur(K.kapi_u.buffer(48)) > 0) & np.isfinite(cost)
+        cost[kk] += 30.0
     # ---- giriş: hol mahallinin ortak alana bakan DOLU duvarında, daire no yazısına (kapı önü) en yakın nokta
     hol = [r for r in izin if r['tip'] == 'hol']
     ortak = unary_union([r['poly'] for r in K.rooms if r['tip'] == 'ortak'] or [Polygon()])
@@ -1325,8 +1328,8 @@ def etiket_halka(msp, eng, m, satirlar, blok, katman, mesafeler=(35, 50, 70, 90,
     by0 = min(k.bounds[1] for k in kut); by1 = max(k.bounds[3] for k in kut)
     cx, cy = (bx0 + bx1) / 2, (by0 + by1) / 2
     for dd in mesafeler:
-        for k in range(16):
-            a = math.radians(22.5 * k + 5)
+        for k in range(24):
+            a = math.radians(15.0 * k + 5)
             p = (m[0] + dd * math.cos(a), m[1] + dd * math.sin(a))
             ins = (p[0] - cx, p[1] - cy)
             kutu = box(bx0 + ins[0] - 1, by0 + ins[1] - 1, bx1 + ins[0] + 1, by1 + ins[1] + 1)
@@ -1724,9 +1727,9 @@ def kat_etiketle(doc, eng, K, kat, dur):
             ad = 'Ç.M.' if f['kind'] == 'CM' else 'B.M.'
             mer = [(f['c'][0] + dx, f['c'][1] + dy) for dx, dy in ((0, 40), (0, -40), (55, 0), (-55, 0), (45, 45),
                                                                      (-45, 45), (45, -45), (-45, -45), (0, 70), (0, -70))]
-            for dd in (35, 50, 65, 80, 100):
-                for kk in range(16):
-                    an = math.radians(22.5 * kk)
+            for dd in (35, 50, 65, 80, 100, 125, 150):
+                for kk in range(24):
+                    an = math.radians(15.0 * kk)
                     mer.append((f['c'][0] + dd * math.cos(an), f['c'][1] + dd * math.sin(an)))
             e = yazi_yerlestir(msp, eng, ad + ' (EK)', 10.0, 'ROTAS-SIHHI-CIHAZ-YAZI', mer)
             if e is None:
