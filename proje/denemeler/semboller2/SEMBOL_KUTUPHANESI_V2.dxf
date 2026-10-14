@@ -493,7 +493,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461328.5709722224
+2461328.7405439815
   9
 $TDUCREATE
  40
@@ -501,7 +501,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461328.5709837964
+2461328.7405439815
   9
 $TDUUPDATE
  40
@@ -933,11 +933,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{BC16AD24-E9DD-41A9-97A4-7E8499F242AF}
+{B45F3C8D-69AF-465D-9AE4-7CB778EAF358}
   9
 $VERSIONGUID
   2
-{CC81D4B5-A1B6-42B5-9696-EC9F36AE80F8}
+{ACACEA17-3712-4F6C-ADE8-C89846FDD38B}
   9
 $EXTNAMES
 290
@@ -1327,9 +1327,9 @@ ISM
   0
 CLASS
   1
-LAYOUT
+ACDBPLACEHOLDER
   2
-AcDbLayout
+AcDbPlaceHolder
   3
 ObjectDBX Classes
  90
@@ -1343,9 +1343,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-ACDBPLACEHOLDER
+LAYOUT
   2
-AcDbPlaceHolder
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -39881,7 +39881,7 @@ AcDbText
  40
 9.0
   1
-Saf geometri (MTY bloğu yok). Blok içi katman 0 / BYLAYER: renk, sembolün konduğu ROTAS- katmanından gelir. Vana L=20 cm (1/50: 4 mm), numara yazısı 10 cm (1/50: 2 mm).
+Saf geometri. Blok içi katman 0 / BYLAYER: renk, sembolün konduğu ROTAS- katmanından gelir. Vana L=20 cm (1/50: 4 mm), numara yazısı 10 cm (1/50: 2 mm).
   7
 ROTAS
  41
@@ -48411,7 +48411,7 @@ AcDbText
  40
 9.0
   1
-Saf geometri (MTY bloğu yok). Blok içi katman 0 / BYLAYER: renk, sembolün konduğu ROTAS- katmanından gelir. Vana L=20 cm (1/50: 4 mm), numara yazısı 10 cm (1/50: 2 mm).
+Saf geometri. Blok içi katman 0 / BYLAYER: renk, sembolün konduğu ROTAS- katmanından gelir. Vana L=20 cm (1/50: 4 mm), numara yazısı 10 cm (1/50: 2 mm).
   7
 ROTAS
  41
@@ -50449,7 +50449,7 @@ AcDbText
  40
 9.0
   1
-Saf geometri (MTY bloğu yok). Blok içi katman 0 / BYLAYER: renk, sembolün konduğu ROTAS- katmanından gelir. Vana L=20 cm (1/50: 4 mm), numara yazısı 10 cm (1/50: 2 mm).
+Saf geometri. Blok içi katman 0 / BYLAYER: renk, sembolün konduğu ROTAS- katmanından gelir. Vana L=20 cm (1/50: 4 mm), numara yazısı 10 cm (1/50: 2 mm).
   7
 ROTAS
  41
@@ -57887,7 +57887,7 @@ AcDbText
  40
 9.0
   1
-Saf geometri (MTY bloğu yok). Blok içi katman 0 / BYLAYER: renk, sembolün konduğu ROTAS- katmanından gelir. Vana L=20 cm (1/50: 4 mm), numara yazısı 10 cm (1/50: 2 mm).
+Saf geometri. Blok içi katman 0 / BYLAYER: renk, sembolün konduğu ROTAS- katmanından gelir. Vana L=20 cm (1/50: 4 mm), numara yazısı 10 cm (1/50: 2 mm).
   7
 ROTAS
  41
@@ -63243,7 +63243,7 @@ AcDbText
  40
 9.0
   1
-Saf geometri (MTY bloğu yok). Blok içi katman 0 / BYLAYER: renk, sembolün konduğu ROTAS- katmanından gelir. Vana L=20 cm (1/50: 4 mm), numara yazısı 10 cm (1/50: 2 mm).
+Saf geometri. Blok içi katman 0 / BYLAYER: renk, sembolün konduğu ROTAS- katmanından gelir. Vana L=20 cm (1/50: 4 mm), numara yazısı 10 cm (1/50: 2 mm).
   7
 ROTAS
  41
@@ -67335,7 +67335,7 @@ AcDbText
  40
 22.0
   1
-ROTAŞ SEMBOL KÜTÜPHANESİ v2 — KOLON ŞEMASI ŞABLONLARI (YAN GÖRÜNÜŞ, MTY KOLON BLOKLARI YERİNE)
+ROTAŞ SEMBOL KÜTÜPHANESİ v2 — KOLON ŞEMASI ŞABLONLARI (YAN GÖRÜNÜŞ)
   7
 ROTAS
  41
@@ -78025,7 +78025,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-14T10:42:12.972005+00:00
+1.4.4 @ 2026-10-14T14:46:23.431144+00:00
   0
 VISUALSTYLE
   5
@@ -84587,7 +84587,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-14T10:42:13.161919+00:00
+1.4.4 @ 2026-10-14T14:46:23.593073+00:00
   0
 ENDSEC
   0

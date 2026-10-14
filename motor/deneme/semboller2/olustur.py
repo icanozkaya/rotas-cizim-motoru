@@ -36,7 +36,7 @@ def grup_paftasi(msp, g, x0, y0):
     W = W_NO + W_AD + W_G + W_B + W_A
     y = y0
     _m(msp, 'ROTAŞ SEMBOL KÜTÜPHANESİ v2 — ' + GRUP[g][0], (x0, y + 40), 22, S.LEJ_BAS, TA.MIDDLE_LEFT, 0.9)
-    _m(msp, 'Saf geometri (MTY bloğu yok). Blok içi katman 0 / BYLAYER: renk, sembolün konduğu ROTAS- katmanından gelir. '
+    _m(msp, 'Saf geometri. Blok içi katman 0 / BYLAYER: renk, sembolün konduğu ROTAS- katmanından gelir. '
             'Vana L=20 cm (1/50: 4 mm), numara yazısı 10 cm (1/50: 2 mm).', (x0, y + 14), 9)
     _S = S._kutu
     _S(msp, x0, y - 26, x0 + W, y)
@@ -99,7 +99,7 @@ def grup_paftasi(msp, g, x0, y0):
 
 def ks_paftasi(msp, x0, y0):
     """Kolon şeması şablonları: kat bandında yan görünüş, bağlantı noktaları renkli kısa saplamalarla."""
-    _m(msp, 'ROTAŞ SEMBOL KÜTÜPHANESİ v2 — KOLON ŞEMASI ŞABLONLARI (YAN GÖRÜNÜŞ, MTY KOLON BLOKLARI YERİNE)', (x0, y0 + 40), 22,
+    _m(msp, 'ROTAŞ SEMBOL KÜTÜPHANESİ v2 — KOLON ŞEMASI ŞABLONLARI (YAN GÖRÜNÜŞ)', (x0, y0 + 40), 22,
        S.LEJ_BAS, TA.MIDDLE_LEFT, 0.9)
     _m(msp, 'Orijin = armatür ekseni / döşeme çizgisi. Mavi saplama: soğuk su bağlantısı (SS), kırmızı kesikli: sıcak su (SC), '
             'mor: pis su (PS). Bağlantı noktaları baglanti(ins) ile alınır; boruyu şema çizen modül çizer.', (x0, y0 + 14), 9)
