@@ -634,3 +634,410 @@ def duvara_dayali_nokta(oda_poly, c, eksen=None, ic=10.0):
     q = nearest_points(ring, Point(c))[0]
     u = birim((q.x, q.y), c)
     return (q.x + u[0] * ic, q.y + u[1] * ic)
+
+
+def temiz_su_daire(K, dno, fx, tohum):
+    """daire temiz su ağacı. Dönüş: dict(soguk=[(p,q,mb)], sicak=[(p,q,mb)], giris=(G,H), musluk=[(p, kind)],
+    zincir=[dict(pts, mb_s, mb_h, ...)], kombi=p)"""
+    izin = [r for r in K.rooms if r['daire'] == dno and r['tip'] in ('hol', 'islak', 'mutfak')]
+    kombiler = [f for f in fx if f['kind'] == 'KOMBI']
+    for f in kombiler:
+        if f['oda'] is not None and f['oda'] not in izin:
+            izin.append(f['oda'])
+    ids = {r['i'] for r in izin}
+    yasak = [r for r in K.rooms if r['i'] not in ids]
+    U = unary_union([r['poly'] for r in izin])
+    w = U.buffer(80).bounds
+    g = Izgara5(w)
+    izin_m = g.doldur(unary_union([r['poly'].buffer(1) for r in izin])) > 0
+    yasak_m = g.doldur(unary_union([r['poly'].buffer(-3) for r in yasak])) > 0 if yasak else np.zeros_like(izin_m)
+    duvar_m = g.doldur(K.S) > 0
+    kapi_m = g.doldur(K.kapi_u.buffer(6)) > 0 if not K.kapi_u.is_empty else np.zeros_like(izin_m)
+    d = ndi.distance_transform_edt(izin_m) * g.res
+    cost = np.full(izin_m.shape, np.inf)
+    cost[izin_m] = 1.0 + 60.0 / (d[izin_m] + 3.0)
+    yakin = cv2.dilate(izin_m.astype(np.uint8), np.ones((17, 17), np.uint8)) > 0
+    dm = duvar_m & yakin & ~izin_m
+    cost[dm] = 25.0
+    cost[yasak_m & ~izin_m] = np.inf
+    cost[kapi_m] = np.inf
+    # ---- giriş: hol mahallinin ortak alana bakan DOLU duvarında, daire no yazısına (kapı önü) en yakın nokta
+    hol = [r for r in izin if r['tip'] == 'hol']
+    ortak = unary_union([r['poly'] for r in K.rooms if r['tip'] == 'ortak'] or [Polygon()])
+    G = H = None
+    if hol and tohum is not None and not ortak.is_empty:
+        h0 = min(hol, key=lambda r: r['poly'].distance(Point(tohum)))
+        ring = h0['poly'].exterior
+        aday, acik = [], []
+        for i in range(int(ring.length / 4)):
+            p = ring.interpolate(i * 4.0)
+            q = nearest_points(ortak, p)[0]
+            dd = p.distance(q)
+            if not (6 <= dd <= 50):
+                continue
+            seg = LineString([p, q])
+            kap = seg.intersection(K.S).length / max(seg.length, 1e-6)
+            if kap < 0.6:
+                acik.append((p.x, p.y))
+            elif kap > 0.9:
+                aday.append(((p.x, p.y), (q.x, q.y)))
+        aday = [(p, q) for p, q in aday if not acik or min(dist(p, a) for a in acik) >= 30]
+        aday = [(p, q) for p, q in aday if K.kapi_u.distance(Point(p)) >= 30]
+        if aday:
+            p, q = min(aday, key=lambda pq: dist(pq[1], tohum))
+            u = birim(q, p)
+            Hn = (p[0] + u[0] * 12, p[1] + u[1] * 12)
+            r_, c_ = g.rc(Hn)
+            H = g.xy(r_, c_)
+            if abs(u[0]) > abs(u[1]):
+                G = (q[0], H[1])
+            else:
+                G = (H[0], q[1])
+    if H is None:
+        h0 = hol[0] if hol else izin[0]
+        p = h0['poly'].representative_point()
+        r_, c_ = g.rc((p.x, p.y))
+        H = g.xy(r_, c_)
+        G = H
+    # ---- hedefler (armatür bağlantı noktaları)
+    hedef = {}
+    musluk = []
+    for f in fx:
+        k = f['kind']
+        if k not in MB_S or f['oda'] is None:
+            continue
+        tap = duvara_dayali_nokta(f['oda']['poly'], f['c'], f.get('eksen'), ic=10.0)
+        r_, c_ = g.rc(tap)
+        # sonlu maliyetli en yakın hücre
+        best = None
+        for dr in range(-4, 5):
+            for dc in range(-4, 5):
+                rr, cc = r_ + dr, c_ + dc
+                if 0 <= rr < g.H and 0 <= cc < g.W and cost[rr, cc] < np.inf:
+                    dd = dr * dr + dc * dc
+                    if best is None or dd < best[0]:
+                        best = (dd, rr, cc)
+        if best is None:
+            log('  ! D%s %s bağlantı noktası ulaşılamaz' % (dno, k))
+            continue
+        hedef[(best[1], best[2])] = f
+        musluk.append((g.xy(best[1], best[2]), f))
+        f['tap'] = g.xy(best[1], best[2])
+    kok = g.rc(H)
+    agac = {kok}
+    kenar = set()
+    kalan = dict(hedef)
+    hucre_f = {}
+    while kalan:
+        tm = np.zeros(cost.shape, np.uint8)
+        for (r, c) in agac:
+            tm[r, c] = 1
+        yak = (cv2.dilate(tm, np.ones((7, 7), np.uint8)) > 0) & (tm == 0)
+        ce = cost.copy()
+        ce[yak] += 12.0
+        anahtar, yol = dijkstra_agac(ce, agac, {k: v for k, v in kalan.items()})
+        if anahtar is None:
+            log('  ! D%s: %d hedefe yol bulunamadı' % (dno, len(kalan)))
+            break
+        hc = yol[0]
+        hucre_f[hc] = kalan.pop(hc)
+        for a, b in zip(yol[:-1], yol[1:]):
+            kenar.add((a, b) if a < b else (b, a))
+        agac.update(yol)
+        # aynı hücreye düşen başka hedef
+        for k2 in list(kalan):
+            if k2 in agac:
+                hucre_f[k2] = kalan.pop(k2)
+    import networkx as nx
+    T = nx.Graph()
+    T.add_node(kok)
+    T.add_edges_from(kenar)
+    # önemli düğümler: derece != 2, dönüş, hedef, kök
+    def onemli(v):
+        if v == kok or v in hucre_f or T.degree(v) != 2:
+            return True
+        a, b = list(T.neighbors(v))
+        return not (a[0] == b[0] or a[1] == b[1])
+    # kökten yönlendir
+    ebeveyn = {kok: None}
+    sira = list(nx.bfs_tree(T, kok))
+    for v in sira:
+        for u in T.neighbors(v):
+            if u not in ebeveyn:
+                ebeveyn[u] = v
+    # aşağı akış yükleri
+    alt_s, alt_h = defaultdict(float), defaultdict(float)
+    kombi_h = None
+    for hc, f in hucre_f.items():
+        if f['kind'] == 'KOMBI':
+            kombi_h = hc
+    for v in reversed(sira):
+        f = hucre_f.get(v)
+        if f is not None:
+            alt_s[v] += MB_S.get(f['kind'], 0.0)
+        p = ebeveyn[v]
+        if p is not None:
+            alt_s[p] += alt_s[v]
+    # sıcak alt ağaç: kombi -> sıcak armatürler
+    sicak_k = set()
+    sicak_mb = defaultdict(float)          # kenar -> sıcak yük (kombiden uzak taraftaki sıcak armatürler)
+    if kombi_h is not None:
+        for hc, f in hucre_f.items():
+            if f['kind'] in MB_H:
+                yol = nx.shortest_path(T, kombi_h, hc)
+                for a, b in zip(yol[:-1], yol[1:]):
+                    e = (a, b) if a < b else (b, a)
+                    sicak_k.add(e)
+                    sicak_mb[e] += MB_H[f['kind']]
+    # düz parçalar (önemli düğümler arası) -> soğuk / sıcak segmentleri
+    soguk, sicak = [], []
+    gorulen = set()
+    for v in T.nodes:
+        if not onemli(v):
+            continue
+        for u in T.neighbors(v):
+            e0 = (v, u) if v < u else (u, v)
+            if e0 in gorulen:
+                continue
+            zin = [v, u]
+            while not onemli(zin[-1]):
+                a, b = list(T.neighbors(zin[-1]))
+                nxt = a if a != zin[-2] else b
+                zin.append(nxt)
+            for a, b in zip(zin[:-1], zin[1:]):
+                gorulen.add((a, b) if a < b else (b, a))
+            # yük: zincirin aşağı ucu
+            a0, b0 = zin[0], zin[-1]
+            asagi = b0 if ebeveyn.get(b0) is not None and ebeveyn[b0] in zin else a0
+            mb_s = alt_s[asagi]
+            e1 = (zin[0], zin[1]) if zin[0] < zin[1] else (zin[1], zin[0])
+            p, q = g.xy(*zin[0]), g.xy(*zin[-1])
+            soguk.append(dict(p=p, q=q, mb=mb_s, hucre=(zin[0], zin[-1])))
+            if e1 in sicak_k:
+                sicak.append(dict(p=(p[0] + O_SICAK, p[1] + O_SICAK), q=(q[0] + O_SICAK, q[1] + O_SICAK),
+                                  mb=sicak_mb[e1], hucre=(zin[0], zin[-1])))
+    toplam = alt_s[kok]
+    # etiket zincirleri: dallanma düğümleri arası (dönüşler dahil)
+    def dal(v):
+        return v == kok or v in hucre_f or T.degree(v) != 2
+    zincirler = []
+    gor2 = set()
+    for v in T.nodes:
+        if not dal(v):
+            continue
+        for u in T.neighbors(v):
+            e0 = (v, u) if v < u else (u, v)
+            if e0 in gor2:
+                continue
+            zin = [v, u]
+            while not dal(zin[-1]):
+                a, b = list(T.neighbors(zin[-1]))
+                zin.append(a if a != zin[-2] else b)
+            for a, b in zip(zin[:-1], zin[1:]):
+                gor2.add((a, b) if a < b else (b, a))
+            a0, b0 = zin[0], zin[-1]
+            if ebeveyn.get(a0) == zin[1]:          # yönü kökten aşağı çevir
+                zin = zin[::-1]
+            e1 = (zin[0], zin[1]) if zin[0] < zin[1] else (zin[1], zin[0])
+            pts = temiz([g.xy(*c) for c in zin])
+            uc = hucre_f.get(zin[-1])
+            zincirler.append(dict(pts=pts, mb_s=alt_s[zin[-1]], mb_h=sicak_mb[e1] if e1 in sicak_k else 0.0,
+                                  sicak=e1 in sicak_k, kok=(zin[0] == kok), uc=uc,
+                                  bas=g.xy(*zin[0]), son=g.xy(*zin[-1])))
+    return dict(soguk=soguk, sicak=sicak, G=G, H=H, musluk=musluk, zincir=zincirler, toplam=toplam,
+                kombi=kombiler[0]['c'] if kombiler else None, izin=U)
+
+
+# ====================================================================== EK ARMATÜR (mimaride yoksa)
+def ek_nokta(oda, fx_oda, K, ofset, uzak, tercih, makine=False):
+    """oda halkası üzerinde (duvardan `ofset`), diğer armatürlere ≥ uzak, kapıya ≥ 50; `tercih` noktasına en yakın"""
+    hg = halka(oda['poly'], ofset)
+    if hg.is_empty:
+        return None
+    ring = hg.exterior
+    best = None
+    for i in range(int(ring.length / 5)):
+        p = ring.interpolate(i * 5.0)
+        pt = (p.x, p.y)
+        if any(dist(pt, f['c']) < uzak for f in fx_oda):
+            continue
+        if K.kapi_u.distance(p) < 50 or any(s['poly'].distance(p) < 20 for s in K.saftlar):
+            continue
+        if makine:
+            kare = Point(pt).buffer(28, cap_style=3)
+            if not oda['poly'].buffer(2).contains(kare):
+                continue
+        dd = dist(pt, tercih) if tercih else 0.0
+        if best is None or dd < best[0]:
+            best = (dd, pt)
+    return best[1] if best else None
+
+
+def ek_armaturler(K):
+    """her ıslak hacimde 1 süzgeç; her dairede ÇM ve BM (mimaride yoksa EK)"""
+    ekler = []
+    daireler = sorted({r['daire'] for r in K.rooms if r['daire'] is not None})
+    for r in K.rooms:
+        if r['tip'] not in ('islak', 'mutfak'):
+            continue
+        fo = [f for f in K.fx if f['oda'] is r]
+        if not any(f['kind'] == 'YS' for f in fo):
+            ref = next((f['c'] for f in fo if f['kind'] == 'DUS'), None) or \
+                  next((f['c'] for f in fo if f['kind'] in ('WC', 'EV', 'LV')), None)
+            p = ek_nokta(r, [f for f in fo if f['kind'] != 'KOMBI'], K, 15.0, 28.0, ref)
+            if p:
+                f = dict(kind='YS', c=p, oda=r, ek=True)
+                K.fx.append(f)
+                ekler.append(f)
+    for d in daireler:
+        fo = [f for f in K.fx if f['oda'] is not None and f['oda']['daire'] == d]
+        if not any(f['kind'] == 'CM' for f in fo):
+            banyolar = sorted([r for r in K.rooms if r['daire'] == d and r['tip'] == 'islak'],
+                              key=lambda r: -r['poly'].area)
+            for r in banyolar:
+                fr = [f for f in K.fx if f['oda'] is r]
+                ref = next((f['c'] for f in fr if f['kind'] in ('DUS', 'WC')), None)
+                p = ek_nokta(r, fr, K, 32.0, 48.0, ref, makine=True)
+                if p:
+                    f = dict(kind='CM', c=p, oda=r, ek=True)
+                    K.fx.append(f)
+                    ekler.append(f)
+                    break
+        if not any(f['kind'] == 'BM' for f in fo):
+            mut = [r for r in K.rooms if r['daire'] == d and r['tip'] == 'mutfak']
+            for r in mut:
+                fr = [f for f in K.fx if f['oda'] is r]
+                ev = next((f['c'] for f in fr if f['kind'] == 'EV'), None)
+                p = ek_nokta(r, fr, K, 32.0, 48.0, ev, makine=True)
+                if p:
+                    f = dict(kind='BM', c=p, oda=r, ek=True)
+                    K.fx.append(f)
+                    ekler.append(f)
+                    break
+    return ekler
+
+
+# ====================================================================== YERLEŞTİRME YARDIMCILARI
+def daire_poly(c, r, n=24):
+    return Point(c).buffer(r, resolution=max(4, n // 4))
+
+
+def balon_yeri(c, eng, yasak, r=27.5, mesafeler=(55, 70, 85, 100, 115), disarida=None):
+    for dd in mesafeler:
+        for k in range(16):
+            a = math.radians(22.5 * k + 11.25 * ((dd // 15) % 2))
+            p = (c[0] + dd * math.cos(a), c[1] + dd * math.sin(a))
+            pg = daire_poly(p, r + 1.0)
+            if yasak is not None and pg.intersects(yasak):
+                continue
+            if disarida is not None and not disarida.contains(Point(p)):
+                continue
+            if eng.carpar(pg):
+                continue
+            kil = LineString([(c[0] + 14 * math.cos(a), c[1] + 14 * math.sin(a)),
+                              (p[0] - r * math.cos(a), p[1] - r * math.sin(a))])
+            if eng.carpar(kil.buffer(0.5), cizgi_tol=0.5):
+                continue
+            return p, kil
+    return None, None
+
+
+def etiket_dene_pis(msp, eng, g, cap, sb, adaylar_t=(0.5, 0.38, 0.62, 0.26, 0.74, 0.15, 0.85)):
+    """pis su etiketi: hattın ÜZERİNDE (kanca ucu hatta), parça ortasında, hat yönünde döndürülmüş."""
+    L = g.length
+    if L < 1:
+        return None
+    for t in adaylar_t:
+        a = g.interpolate(t * L)
+        # yerel yön
+        t0, t1 = max(0, t * L - 1), min(L, t * L + 1)
+        p0, p1 = g.interpolate(t0), g.interpolate(t1)
+        ang = math.degrees(math.atan2(p1.y - p0.y, p1.x - p0.x))
+        if ang > 90.0001:
+            ang -= 180
+        elif ang <= -90:
+            ang += 180
+        for ad in ('ROTAS-S2-PS-CAP-U', 'ROTAS-S2-PS-CAP-A'):
+            e = ekle_insert(msp, ad, (a.x, a.y), L_PCAP, rot=ang, attr={'CAP': cap, 'SB': '%d SB' % sb})
+            kut = yazi_kutulari(e)
+            if kut and not any(eng.carpar(k) for k in kut):
+                for k in kut:
+                    eng.ekle_alan(k)
+                return e
+            msp.delete_entity(e)
+    return None
+
+
+def etiket_kilavuzlu(msp, eng, a, satirlar, blok, katman, yasak=None, hks=(14, 24, 34, 48, 64, 82, 104, 130),
+                     yatay_hat=True):
+    """yatay (dönmesiz) çok satırlı etiket: a (hat üstü nokta) -> kanca -> yazı bloğu. satirlar: attr sözlüğü"""
+    n = len(satirlar)
+    yuk = 15.0 * (n - 1) + ETIKET_H
+    for hk in hks:
+        for (sx, sy) in ((1, 1), (-1, 1), (1, -1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)):
+            if yatay_hat and sx != 0 and sy == 0:
+                continue
+            if not yatay_hat and sy != 0 and sx == 0:
+                continue
+            # kanca ucu
+            hx = a[0] + sx * (hk if not yatay_hat or sy == 0 else 0)
+            hy = a[1] + sy * (hk if yatay_hat or sx == 0 else 0)
+            if yatay_hat:          # yatay hat: kanca düşey, yazı kanca ucunun sağında/solunda
+                hx, hy = a[0], a[1] + sy * hk
+            else:                  # düşey hat: kanca yatay
+                hx, hy = a[0] + sx * hk, a[1] + sy * (hk * 0.5 if sy else 0)
+            e = ekle_insert(msp, blok, (0, 0), katman, attr=satirlar)
+            kut = yazi_kutulari(e)
+            if not kut:
+                msp.delete_entity(e)
+                return None
+            bx0 = min(k.bounds[0] for k in kut)
+            bx1 = max(k.bounds[2] for k in kut)
+            by0 = min(k.bounds[1] for k in kut)
+            by1 = max(k.bounds[3] for k in kut)
+            gen = bx1 - bx0
+            # yazı bloğunun konumu
+            if yatay_hat:
+                ix = hx + 2 if sx > 0 else hx - 2 - gen
+                iy = hy + 2 - by0 if sy > 0 else hy - 2 - by1
+            else:
+                ix = hx + 2 - bx0 if sx > 0 else hx - 2 - bx1
+                iy = hy - (by0 + by1) / 2.0
+            msp.delete_entity(e)
+            e = ekle_insert(msp, blok, (ix, iy), katman, attr=satirlar)
+            kut = yazi_kutulari(e)
+            kil = LineString([a, (hx, hy)])
+            if any(eng.carpar(k) for k in kut) or (hk > 40 and eng.carpar(kil.buffer(0.4), cizgi_tol=1.0)):
+                msp.delete_entity(e)
+                continue
+            if yasak is not None and any(k.intersects(yasak) for k in kut):
+                msp.delete_entity(e)
+                continue
+            for k in kut:
+                eng.ekle_alan(k)
+            # kanca: hat noktasından kanca ucuna + yazı altı çizgi
+            ux0 = min(k.bounds[0] for k in kut)
+            ux1 = max(k.bounds[2] for k in kut)
+            msp.add_lwpolyline([a, (hx, hy)], dxfattribs={'layer': katman})
+            if yatay_hat:
+                msp.add_line((hx, hy), (ux1 if sx > 0 else ux0, hy), dxfattribs={'layer': katman})
+            eng.ekle_cizgi(kil)
+            return e
+    return None
+
+
+def yazi_yerlestir(msp, eng, metin, h, katman, merkezler, renk=None, mtext=True, yasak=None):
+    """serbest yazı (MTEXT): verilen aday merkezlerden ilk çakışmasızı"""
+    for c in merkezler:
+        e = msp.add_mtext(metin, dxfattribs={'layer': katman, 'char_height': h, 'style': 'ROTAS-YAZI',
+                                             'attachment_point': 5, 'width': 0})
+        e.dxf.insert = (c[0], c[1])
+        if renk:
+            e.dxf.color = renk
+        kut = yazi_kutulari(e)
+        if kut and not any(eng.carpar(k) for k in kut) and (yasak is None or not any(k.intersects(yasak) for k in kut)):
+            for k in kut:
+                eng.ekle_alan(k)
+            return e
+        msp.delete_entity(e)
+    return None
