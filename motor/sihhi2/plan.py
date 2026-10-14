@@ -1908,7 +1908,9 @@ def model_yaz(Ks, katlar, dur):
         sbk = [kv['sb_kat'].get(k, 0) for k in KATLAR]
         top = sum(sbk)
         wc = any('WC' in v for v in kv.get('armatur', {}).values())
-        kolonlar.append(dict(no=no, x=kv['x'], y=kv['y'], katlar=[KATLAR.index(k) for k in kv['katlar']], rogar=None,
+        ki = sorted(KATLAR.index(k) for k in kv['katlar'])
+        gecis = [i for i in range(len(KATLAR)) if i not in ki and ki and ki[0] < i < ki[-1]]   # bağlantısız geçtiği ara kat
+        kolonlar.append(dict(no=no, x=kv['x'], y=kv['y'], katlar=ki, gecis_katlari=gecis, rogar=None,
                              sb_kat=sbk, sb_toplam=top, cap='Ø100' if (wc or top >= 21) else pis_cap(top, False),
                              mahal=kv['oda'], armatur_sirasi_sema=kv.get('armatur', {}).get(kv['katlar'][0], [])))
     m = dict(

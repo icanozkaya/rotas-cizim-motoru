@@ -19,7 +19,7 @@
   },
   "hidrofor": false,
   "kaynak": "motor/sihhi2/plan.py",
-  "tarih": "15.10.2026 01:38"
+  "tarih": "15.10.2026 01:42"
  },
  "yuk_tablosu": {
   "LV": 0.75,
@@ -8209,9 +8209,10 @@
    "y": -443084.0,
    "katlar": [
     0,
-    2,
-    1
+    1,
+    2
    ],
+   "gecis_katlari": [],
    "rogar": null,
    "sb_kat": [
     10,
@@ -8239,6 +8240,9 @@
     0,
     2
    ],
+   "gecis_katlari": [
+    1
+   ],
    "rogar": null,
    "sb_kat": [
     14,
@@ -8264,6 +8268,9 @@
    "katlar": [
     0,
     2
+   ],
+   "gecis_katlari": [
+    1
    ],
    "rogar": null,
    "sb_kat": [
@@ -8291,9 +8298,10 @@
    "y": -443356.0,
    "katlar": [
     0,
-    2,
-    1
+    1,
+    2
    ],
+   "gecis_katlari": [],
    "rogar": null,
    "sb_kat": [
     10,
@@ -8319,9 +8327,10 @@
    "y": -442806.0,
    "katlar": [
     0,
-    2,
-    1
+    1,
+    2
    ],
+   "gecis_katlari": [],
    "rogar": null,
    "sb_kat": [
     14,
@@ -8347,9 +8356,10 @@
    "y": -442404.0,
    "katlar": [
     0,
-    2,
-    1
+    1,
+    2
    ],
+   "gecis_katlari": [],
    "rogar": null,
    "sb_kat": [
     25,
@@ -8377,9 +8387,10 @@
    "y": -441826.0,
    "katlar": [
     0,
-    2,
-    1
+    1,
+    2
    ],
+   "gecis_katlari": [],
    "rogar": null,
    "sb_kat": [
     10,
@@ -8405,9 +8416,10 @@
    "y": -442176.0,
    "katlar": [
     0,
-    2,
-    1
+    1,
+    2
    ],
+   "gecis_katlari": [],
    "rogar": null,
    "sb_kat": [
     25,
@@ -8435,9 +8447,10 @@
    "y": -441985.0,
    "katlar": [
     0,
-    2,
-    1
+    1,
+    2
    ],
+   "gecis_katlari": [],
    "rogar": null,
    "sb_kat": [
     11,
@@ -8464,6 +8477,7 @@
    "katlar": [
     1
    ],
+   "gecis_katlari": [],
    "rogar": null,
    "sb_kat": [
     0,
@@ -8489,6 +8503,7 @@
    "katlar": [
     1
    ],
+   "gecis_katlari": [],
    "rogar": null,
    "sb_kat": [
     0,
