@@ -39,6 +39,20 @@ python3 emitp.py /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_SIH
 python3 pdfp.py  /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_ONIZLEME.pdf
 ```
 
+## Kalıcı kurallar — 14.10.2026 (B) revizyon talimatı (tam metin: `kutuphane/arastirma/KULLANICI_REVIZYON_TALIMATI_2026-10-14_B.md`)
+EN ÜST ÖNCELİK. Aşağıdaki tüm eski kurallarla (ör. "MTY blokları kullanılır", "kesişmede köprü", "hatlar duvar boyu") çelişirse BU LİSTE geçerlidir.
+- Kapsam yalnız mekanik + sıhhi; elektrik kalemi (kablo, sinyal hattı, elektrik tesisatı) çizilmez.
+- MTY BLOKLARI KULLANILMAZ (plan ve şemada). Tüm armatür, vana, çek valf, süzgeç, cihaz sembolleri saf geometriyle (LINE/CIRCLE/LWPOLYLINE/HATCH) kendi bloklarımızla çizilir; görünüş vanası kalıntısı olmaz.
+- Koridorda temiz su hatları duvar dibinden değil, KORİDOR ORTASINDAN; ıslak hacim içinde borular mahal ortasından ilerler. Ebeveyn banyosu beslemesi yatak odasından geçiyorsa oda içinde duvara yakın.
+- BORU ATLATMA (köprü/jumper) YOK: sıcak-soğuk ve pis su hatları birbirini kesmeyecek şekilde planlanır (paralel, temiz düzlem). Gönderilen hatalı örnek: `kutuphane/arastirma/geri_bildirim/`.
+- Pis su: ana kolona/şafta en kısa yoldan, 45° açık dirseklerle; seri/zincirleme değil DALLI (balık sırtı) bağlantı; kolonlar mekanik havalandırma şaftı içinden geçmez (tesisat ve havalandırma şaftı ayrı).
+- Balkon süzgeçleri iç mekân pis su hattına bağlanmaz (ayrı yağmur/atık hattı). Her ıslak hacimde (banyo, WC, mutfak) istisnasız 1 yer süzgeci.
+- Çamaşır makinesi pis/temiz su bağlantısı mimaride gösterildiği konumda.
+- Yangın: kolon hatlarında PURJÖR YOK. İtfaiye bağlantı ağzında çek valf akışı tesisata doğru; itfaiye bağlantısında KOLLEKTÖR. Sprinkler çalışma basıncı 9-10 bar aralığında tutulur. Pompa seçiminde "yetersiz" yazılmaz, hesaplanan debi ve basma (m³/h, mSS/bar) yazılır. Şemada boru çapları kademeli düşer (DN150'den aniden DN100'e düşüş yok).
+- WC/banyo mekanik havalandırma hatları KAT PLANLARINDA da gösterilir, sıhhi paftasında kalır, kolon şemasının sonunda çatı/fan çıkışıyla sonlanır.
+- MERKEZİ SİSTEM KESİTİ ve kazan dairesi yerleşimi: yalnız kullanıcının daha önce gönderdiği/onayladığı kesit ve yerleşim planı kullanılır; motorun ürettiği kazan dairesi plan/kesiti (`motor/deneme/kazan_dairesi/plan_kesit.py`) teslimde KULLANILMAZ.
+- Numara/etiketler ait oldukları sembolün yanında, birbirine binmeden (kazan dairesi geri bildirimi: V-21/V-10, TM-01/M-01 karışıklığı).
+
 ## Kalıcı kurallar — 14.10.2026 kullanıcı standart talimatı (tam metin: `kutuphane/arastirma/KULLANICI_STANDART_TALIMATI_2026-10-14.md`)
 Bu liste aşağıdaki eski kurallarla çelişirse BU LİSTE geçerlidir.
 - Katman (kalem) önekleri `ROTAS-` (eski `SCOTT-` kuralının yerine); paftalardaki mevcut ROTAS ayarı/kalemleri bozulmaz.
