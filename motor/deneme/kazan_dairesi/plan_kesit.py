@@ -13,6 +13,13 @@ duvar/döşeme ≥ 120 dk (EI 120); menfezler §5.4 (S_A = F·a·2,25·(ΣQ+70) 
 ve ana kesme vanası + selenoid kazan dairesi dışında; gaz alarm üst menfezden yüksekte.
 Birim cm; plan, kesit ve görünüş 1/50 (model uzayında gerçek ölçü).
 """
+# !!! TESLİMDE KULLANILMAZ (14.10.2026 (B) kullanıcı talimatı): merkezi sistem kesiti ve kazan dairesi yerleşimi için
+# yalnız kullanıcının daha önce gönderdiği / onayladığı kesit ve yerleşim planı kullanılır. Bu dosya arşiv amaçlıdır;
+# radyatör modülü vb. hiçbir yerden çağrılmaz. Elle çalıştırmak için ROTAS_PLAN_KESIT_ARSIV=1 ortam değişkeni gerekir.
+import os as _os
+if _os.environ.get('ROTAS_PLAN_KESIT_ARSIV') != '1':
+    raise ImportError('plan_kesit.py teslimde KULLANILMAZ (14.10.2026 B talimatı) – yalnız kullanıcının onaylı kesit/yerleşimi '
+                      'kullanılır. Arşiv çalıştırması için ROTAS_PLAN_KESIT_ARSIV=1.')
 import json
 import math
 import os

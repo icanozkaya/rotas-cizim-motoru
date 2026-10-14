@@ -1,4 +1,39 @@
-# Deneme modülü: radyator (radyatörlü ısıtma) — R2 KOLEKTÖRLÜ (14.10.2026)
+# Deneme modülü: radyator (radyatörlü ısıtma) — R3 (14.10.2026 (B) talimatı)
+
+## R3 değişiklikleri (R2'nin üzerine)
+- **MTY bloğu yok:** radyatör (plan + şema), termostatik vana, dönüş rakoru, havlupan, kolektör dolabı, kalorimetre,
+  küresel vana, pislik tutucu, boşaltma vanası, O.H.A.C, kolon (plan), kombi, mahal etiketi saf geometri `ROTAS-` blokları
+  (`geo.py`). `ciz.Cizim.blok` yalnız `geo.py` anahtarlarını kabul eder; `mtylib.py` artık bu modülce kullanılmaz
+  (wc_havalandirma modülü kullandığı için dosya silinmedi).
+- **Atlatma / köprü yok (kesişme 0):** kolon şeması merdiven düzenine çevrildi — her dairenin gidiş kolonu bir yanda,
+  dönüş kolonu öbür yanda, kat bağlantıları ikisinin arasında. Kolektör dolabında gidiş kolektörü üstte (ağızlar yukarı),
+  dönüş kolektörü altta (ağızlar aşağı); en uzak radyatör en dış döngü → devreler iç içe, kesişmesiz. KS dönüşü kolona
+  yakın noktadan aşağı inip radyatörlerin altından dönüş kolonuna gider. A dairesi aynalı: gidiş kolonları (K1, K2) ortada,
+  dönüş kolonları dışta. Bodrumda gidiş dağıtımı üstte, dönüş toplama altta, **kazan dairesi prensip şeması ikisinin
+  arasında** (`kazan_dairesi.ciz(gomulu=True)`). 1/10 kolektör/kalorimetre detayında gidiş-dönüş güzergâhı da kesişmesiz
+  kuruldu (köprü kodu çağrılmaz). Plan PEX devreleri R2'de de kesişmesizdi (ag.py denetimi), korunuyor.
+- **Elektrik kalemi yok:** kalorimetre sinyal (M-Bus) hattı planda, şemada ve detayda kaldırıldı (`ROTAS-ISITMA-SINYAL`
+  katmanı yok); not: "okuma bağlantısı elektrik projesindedir".
+- **Kazan bölgesinde `plan_kesit.py` kullanılmaz:** bodrumda yalnız prensip bağlantısı (kazan dairesi prensip şeması R2 +
+  cihaz listesi). Kazan dairesi cihaz numaraları XDATA ile aktarılır, etiket–sembol eşleşmesi %100.
+- Radyatör bilgisi (tip/boy/kapasite, mahal/no/sıcaklık, (kritik no) devre / yük / çap) şema radyatör gövdesinin içinde.
+
+**Çalıştırma**
+```
+python3 motor/deneme/radyator/calistir.py                 # merkezi → proje/denemeler/radyator/radyator_merkezi_R3.dxf
+python3 motor/deneme/radyator/calistir.py --sistem kombi  # kombi   → radyator_kombi_R3.dxf
+python3 motor/deneme/radyator/kontrol.py proje/denemeler/radyator/*_R3.dxf   # MTY 0, köprü 0, kesişme 0, etiket %100
+```
+Son denetim: merkezi ve kombi R3 — MTY 0, köprü 0, boru-boru kesişmesi 0, elektrik 0, kazan dairesi etiketi 68/68.
+"Diğer çakışma (bilgi)" satırındaki boru-sembol sayıları hat üstü sembollerin (maskeli vana/kalorimetre) ve dolap /
+detay çerçevelerinin boruyla temasıdır; kesişme değildir.
+
+**Sorulacaklar (R3):** A dairesinin aynalı çizilmesi (gidiş kolonları ortada) ve dönüşün radyatörlerin altından dönüş
+kolonuna gitmesi kesişmesizlik için seçildi — kullanıcının kolon şeması tarzına uygunluğu onaylatılmalı.
+
+---
+
+# (R2 açıklaması — tarihçe)
 
 **Ne yapar:** Kullanıcının ısı kaybı (`ik.xls`) ve radyatör seçim (`rad.xlsx`) dosyalarını `motor/izoder_rapor/oku.py` ile okur
 (radyatör seçimi DEĞİŞTİRİLMEZ). Temsili daire tipik planında (mimari yok) KOLEKTÖRLÜ dağıtım çizer ve hesaplar. Tek DXF (R2018):

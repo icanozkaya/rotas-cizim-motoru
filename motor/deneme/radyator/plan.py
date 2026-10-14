@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Radyatör tesisatı kat planı (R2, kolektörlü): temsili mimari (pencere/balkon kapısı, kapı kanadı, tefriş),
-kolektör dolabı, her radyatöre ayrı PEX gidiş-dönüş çifti (duvar boyu, kapıdan), MTY radyatör blokları,
+kolektör dolabı, her radyatöre ayrı PEX gidiş-dönüş çifti (duvar boyu, kapıdan), saf geometri radyatör blokları (R3),
 merkezi sistemde hol duvarında KALORİMETRE SETİ (küresel vana + pislik tutucu + kalorimetre + balans vanası + küresel vana),
 kombili sistemde mutfak dış duvarında kombi. Etiketler boş yere yerleşir (yazı altına maske)."""
 import math
@@ -14,12 +14,12 @@ import semb
 DIS = 25.0
 MIM, PEN, TEF = 'ROTAS-MIMARI-TEMSILI', 'ROTAS-MIMARI-PENCERE', 'ROTAS-MIMARI-TEFRIS'
 KOLK, SEM, SIN = 'ROTAS-ISITMA-KOLEKTOR', 'ROTAS-ISITMA-SEMBOL', 'ROTAS-ISITMA-SINYAL'
-SET_ELEMAN = [  # (gidiş sembolü, dönüş sembolü, numara) – kolondan daireye sırayla
-    ('kuresel_vana', 'kuresel_vana', '1'),
-    ('pislik_tutucu', None, '2'),
-    ('kalorimetre_sensor', 'kalorimetre_km', '3'),
+SET_ELEMAN = [  # (gidiş sembolü, dönüş sembolü, numara) – kolondan daireye sırayla (R3: saf geometri, geo.py)
+    ('r_kuresel_vana', 'r_kuresel_vana', '1'),
+    ('r_pislik_tutucu', None, '2'),
+    ('kalorimetre_sensor', 'r_kalorimetre_sag', '3'),
     (None, 'balans_vanasi', '4'),
-    ('kuresel_vana', 'kuresel_vana', '5'),
+    ('r_kuresel_vana', 'r_kuresel_vana', '5'),
 ]
 
 
@@ -169,9 +169,9 @@ def devre_cizgileri(dv):
     sx_sign = 1.0 if yon_vr * _dot(t, e) > 0 else -1.0
     if ban:
         ins = P_(a_v + yon_vr * 4.0 * s, CEK)
-        blok = dict(ad='MTY-RADYATOR Banyopan', p=ins, rot=rot, sx=sx_sign * s, sy=s)
+        blok = dict(ad='r_havlupan_plan', p=ins, rot=rot, sx=sx_sign * s, sy=s)
     else:
-        blok = dict(ad='MTY-RADYATOR Panel', p=P_(a_v, CEK), rot=rot, sx=sx_sign * s, sy=1.0)
+        blok = dict(ad='r_radyator_plan', p=P_(a_v, CEK), rot=rot, sx=sx_sign * s, sy=1.0)
     return g, d, blok
 
 
@@ -282,10 +282,10 @@ def cihazlar(cz, pl, dx, dy, P, kat_on):
         bes = pl['besleme']
         bg, bd = _ofs(bes, HF), _ofs(bes, -HF)
         xg, xd = bg[0][0], bd[0][0]
-        # kolon (gidiş + dönüş) – MTY-BORU KOLON
-        cz.blok('MTY-BORU KOLON', T((kx, ky)), 0.0, 0.6, 0.6, 'ROTAS-CIHAZ',
-                ozn={'K': 'K1' if not pl.get('ayna') else 'K2'}, ozn_h={'K': 12.0}, ozn_rot=0.0,
-                ozn_konum={'K': T((kx + (-45 if not pl.get('ayna') else 45), ky + 5))}, maske=True)
+        # kolon (gidiş dolu + dönüş boş daire) – saf geometri ROTAS-ISITMA-KOLON-PLAN, besleme ±HF eksenine göre döndürülür
+        a0 = math.degrees(math.atan2(bes[1][1] - bes[0][1], bes[1][0] - bes[0][0]))
+        cz.blok('r_kolon_plan', T((kx, ky)), a0, 1.0, 1.0, 'ROTAS-CIHAZ')
+        cz.yazi(T((kx + (-30 if not pl.get('ayna') else 30), ky + 5)), 'K1' if not pl.get('ayna') else 'K2', 12.0, 'ROTAS-CIHAZ')
         # kalorimetre dolabı (sıva altı, hol duvarı) + set
         y0, y1 = min(pl['set_y']) - 25, max(pl['set_y']) + 25
         x0, x1 = min(xg, xd) - 14, max(xg, xd) + 14
@@ -298,8 +298,6 @@ def cihazlar(cz, pl, dx, dy, P, kat_on):
                 cz.maske([T((xx - 7, yy - 8)), T((xx + 7, yy - 8)), T((xx + 7, yy + 8)), T((xx - 7, yy + 8))])
                 e = semb.ciz(cz.msp, sm, T((xx, yy)), rot=rot, olcek=0.6, kat=SEM)
                 cz.engel.append(sbox(*T((xx - 7, yy - 8)), *T((xx + 7, yy + 8))).exterior)
-            if sg == 'kalorimetre_sensor':
-                cz.pl([T((xg, yy)), T((xd, yy))], SIN, engel=False, ltscale=0.3)
         tx = x1 + 6 if not pl.get('ayna') else x0 - 6
         al = 'ML' if not pl.get('ayna') else 'MR'
         cz.yazi(T((tx, y1 - 6)), 'KS - KALORİMETRE SETİ', 7.0, 'ROTAS-CIHAZ', al=al)
@@ -311,10 +309,10 @@ def cihazlar(cz, pl, dx, dy, P, kat_on):
         kb = pl['kombi']
         p = kb['p']
         if kb.get('ayna'):
-            cz.blok('MTY-KOMBİ', T((p[0], p[1] + 30.0)), 180.0, 1.0, 1.0, 'ROTAS-CIHAZ')
+            cz.blok('r_kombi_plan', T((p[0], p[1] + 30.0)), 180.0, 1.0, 1.0, 'ROTAS-CIHAZ')
             tx, al = p[0] - 52 + 48, 'ML'
         else:
-            cz.blok('MTY-KOMBİ', T(p), 0.0, 1.0, 1.0, 'ROTAS-CIHAZ')
+            cz.blok('r_kombi_plan', T(p), 0.0, 1.0, 1.0, 'ROTAS-CIHAZ')
             tx, al = p[0] - 4, 'MR'
         cz.engel.append(sbox(*T((min(p[0], p[0] + 48) - (48 if kb.get('ayna') else 0), p[1])),
                              *T((max(p[0], p[0] + 48) - (48 if kb.get('ayna') else 0), p[1] + 30))).exterior)
@@ -347,7 +345,7 @@ def mahal_etiketleri(cz, pl, dx, dy, kat_on):
             best = (cx, cy, sbox(cx - w / 2 + dx, cy - 59 * s + dy, cx + w / 2 + dx, cy + 42 * s + dy))
         cx, cy, kb = best
         cz.maske(list(kb.exterior.coords)[:4])
-        cz.blok('MTY-RADYATOR MAHAL', (cx + dx, cy + dy), 0, s, s, 'ROTAS-MAHAL',
+        cz.blok('r_mahal', (cx + dx, cy + dy), 0, s, s, 'ROTAS-MAHAL',
                 ozn={'MAHAL_001': m['ad'], 'NO_001': f"{kat_on}{m['no']}", 'DERECE_001': f"{m['ti']:.0f}°C",
                      'ISIKAYBI_001': f"{m['q']:.0f} W", 'ALAN': ''})
         cz.yazilar.append(kb)

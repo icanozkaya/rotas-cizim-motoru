@@ -4,7 +4,7 @@ import math
 import ezdxf
 from ezdxf.enums import TextEntityAlignment as TA
 from shapely.geometry import LineString, Point, box as sbox, Polygon
-import mtylib
+import geo
 
 KAT = {  # ad: (renk, çizgi tipi)
     'ROTAS-ISITMA-GIDIS': (10, 'Continuous'), 'ROTAS-ISITMA-DONUS': (30, 'DASHED'), 'ROTAS-ISITMA-CAP': (41, 'Continuous'),
@@ -13,7 +13,7 @@ KAT = {  # ad: (renk, çizgi tipi)
     'ROTAS-SEMA': (8, 'Continuous'), 'ROTAS-KAT-BANDI': (8, 'Continuous'), 'ROTAS-TABLO': (7, 'Continuous'),
     'ROTAS-VANA': (1, 'Continuous'), 'ROTAS-CIHAZ': (135, 'Continuous'), 'ROTAS-KRITIK': (1, 'Continuous'),
     'ROTAS-MASKE': (7, 'Continuous'), 'ROTAS-DENEME': (1, 'Continuous'), 'ROTAS-PAFTA': (7, 'Continuous'),
-    'ROTAS-ISITMA-KOLEKTOR': (6, 'Continuous'), 'ROTAS-ISITMA-SINYAL': (3, 'DASHED'), 'ROTAS-ISITMA-SEMBOL': (1, 'Continuous'),
+    'ROTAS-ISITMA-KOLEKTOR': (6, 'Continuous'), 'ROTAS-ISITMA-SEMBOL': (1, 'Continuous'),
     'ROTAS-MIMARI-TEFRIS': (9, 'Continuous'), 'ROTAS-DETAY': (7, 'Continuous'),
 }
 GID, DON, CAPK = 'ROTAS-ISITMA-GIDIS', 'ROTAS-ISITMA-DONUS', 'ROTAS-ISITMA-CAP'
@@ -100,11 +100,39 @@ class Cizim:
                 hh = (ozn_h or {}).get(t, 8.0)
                 k = self.kutu_yazi(q, str(ozn.get(t, '')), hh, 'MC', 0.0, 1.0)
                 self.maske(k); self.yazilar.append(Polygon(k))
-        ad = mtylib.ic_blok(self.doc, anahtar, ic) if ic else mtylib.wblock(self.doc, anahtar)
-        return mtylib.ekle(self.msp, ad, p, rot, sx, sy, kat, ozn, ozn_h, ozn_rot, ozn_konum)
+        ad = geo.tanimla(self.doc, anahtar)          # R3: yalnız saf geometri ROTAS- blokları (MTY yok)
+        return ekle(self.msp, ad, p, rot, sx, sy, kat, ozn, ozn_h, ozn_rot, ozn_konum)
 
 
-# ------------------------------------------------------------------ köprü (kesişmede boru tek parça kalır)
+def ekle(msp, ad, p, rot=0.0, sx=1.0, sy=1.0, katman='0', ozn=None, ozn_h=None, ozn_rot=None, ozn_konum=None):
+    """INSERT + öznitelikler (ATTDEF konumundan; ozn_konum verilirse orta-orta hizalı elle konum)"""
+    doc = msp.doc
+    ins = msp.add_blockref(ad, (p[0], p[1]), dxfattribs={'layer': katman, 'rotation': rot, 'xscale': sx, 'yscale': sy})
+    if ozn:
+        m = ins.matrix44()
+        for a in doc.blocks.get(ad).query('ATTDEF'):
+            t = a.dxf.tag
+            if t not in ozn:
+                continue
+            at = ins.add_attrib(t, str(ozn[t]), (0, 0))
+            at.dxf.height = (ozn_h or {}).get(t, a.dxf.height * abs(sy))
+            at.dxf.layer = katman
+            if ozn_konum and t in ozn_konum:
+                q = ozn_konum[t]
+                at.dxf.insert = (q[0], q[1]); at.dxf.align_point = (q[0], q[1])
+                at.dxf.halign = 1; at.dxf.valign = 2
+            else:
+                at.dxf.insert = m.transform(a.dxf.insert)
+                if a.dxf.hasattr('align_point'):
+                    at.dxf.align_point = m.transform(a.dxf.align_point)
+                at.dxf.halign = a.dxf.get('halign', 0); at.dxf.valign = a.dxf.get('valign', 0)
+            at.dxf.rotation = (ozn_rot if ozn_rot is not None else rot + a.dxf.get('rotation', 0))
+            if 'ROTAS' in doc.styles:
+                at.dxf.style = 'ROTAS'
+    return ins
+
+
+# ------------------------------------------------------------------ köprü (R3: kullanılmaz; yalnız eski uyum için)
 def kopru_ekle(pts, kesenler, r=4.0, haric=()):
     """pts: polyline noktaları; kesenler: LineString listesi. Kesişme noktalarında yarım daire (bulge) köprü.
     Dönüş: [(x, y, 0, 0, bulge)] (LWPOLYLINE xyseb)"""

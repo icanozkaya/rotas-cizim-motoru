@@ -2,7 +2,8 @@
 """Radyatör modülünün sembol köprüsü: motor/deneme/semboller/sembol.py import edilir (dosyaya DOKUNULMAZ).
 - MTY'de bloğu olmayan semboller 03_SEMBOLLER.md geometrisiyle tanımlanır: BALANS VANASI, KALORİMETRE (debi ölçer +
   dönüş sıcaklık sensörü), GİDİŞ SICAKLIK SENSÖRÜ, KOLEKTÖR DOLABI (plan, n ağızlı), KOLEKTÖR (şema).
-- Çizimde kullanılan MTY / kazan dairesi blokları otomatik lejantın tanıması için çalışma anında SEMBOL kaydına eklenir."""
+- R3 (14.10.2026 B): MTY bloğu KULLANILMAZ; radyatör, termostatik vana, kolektör, kalorimetre, vana vb. saf geometri
+  (geo.py). Kazan dairesi blokları (bloklar_r2) lejant kaydına geo.py'de eklenir."""
 import os
 import sys
 import math
@@ -10,6 +11,7 @@ import math
 _KOK = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(_KOK, '..', 'semboller'))
 import sembol as S          # noqa: E402
+import geo                  # noqa: E402,F401  (R3 saf geometri blokları + lejant kaydı)
 
 L = S.L
 
@@ -48,20 +50,6 @@ EK = [
     ('balans_vanasi', ('ISITMA',), 'BALANS (DENGELEME) VANASI – ÖLÇÜM NİPELLİ', '03', g_balans, {}),
     ('kalorimetre_km', ('ISITMA',), 'KALORİMETRE (DEBİ ÖLÇER + DÖNÜŞ SENSÖRÜ)', '03', g_kalorimetre_km, {}),
     ('kalorimetre_sensor', ('ISITMA',), 'KALORİMETRE GİDİŞ SICAKLIK SENSÖRÜ', '03', g_sensor, {}),
-    ('radyator_kolon', ('ISITMA',), 'PANEL RADYATÖR (KOLON ŞEMASI)', 'MTY', 'RADYATOR TESISATI__KOLON ŞEMASI__MTY-RADYATOR KOLON', {}),
-    ('banyopan_plan', ('ISITMA',), 'HAVLUPAN (BANYOPAN) – PLAN', 'MTY', 'RADYATOR TESISATI__KAT PLANI__MTY-RADYATOR Banyopan', {}),
-    ('banyopan_kolon', ('ISITMA',), 'HAVLUPAN (BANYOPAN) – KOLON ŞEMASI', 'MTY',
-     'RADYATOR TESISATI__KOLON ŞEMASI__MTY-RADYATÖR BANYOPAN KOLON', {}),
-    ('isitma_kolonu', ('ISITMA',), 'ISITMA KOLONU (GİDİŞ + DÖNÜŞ)', 'MTY', 'RADYATOR TESISATI__KOLON ŞEMASI__MTY-BORU KOLON', {}),
-    ('ohac_kolon', ('ISITMA',), 'OTOMATİK HAVA ATMA CİHAZI (O.H.A.C)', 'MTY', 'RADYATOR TESISATI__VANALAR__MTY-O.H.A.C', {}),
-    ('hava_ayirici', ('ISITMA',), 'HAVA AYIRICI', 'MTY', 'x', {'blok': 'MTY-HAVA AYIRICI'}),
-    ('tortu_ayirici', ('ISITMA',), 'TORTU VE PİSLİK AYIRICI', 'MTY', 'x', {'blok': 'MTY-TORTU &PİSLİK AYIRICI'}),
-    ('denge_kabi_sema', ('ISITMA',), 'DENGE KABI (HİDROLİK AYIRICI)', 'MTY', 'x', {'blok': 'MTY-DENGE KABI ŞEMADA'}),
-    ('genlesme_tanki_kolon', ('ISITMA',), 'KAPALI GENLEŞME TANKI (MEMBRANLI)', 'MTY', 'x', {'blok': 'MTY-GENLEŞME TANKI KOLON'}),
-    ('kazan_duvar', ('ISITMA',), 'DUVAR TİPİ YOĞUŞMALI KAZAN', '03', None, {'blok': 'ROTAS-KAZAN-DUVAR'}),
-    ('selenoid_gaz', ('DOGALGAZ',), 'GAZ SELENOİD VANASI', '03', None, {'blok': 'ROTAS-SELENOID'}),
-    ('gaz_alarm', ('DOGALGAZ',), 'GAZ ALARM CİHAZI + CO DEDEKTÖRÜ', '03', None, {'blok': 'ROTAS-GAZ-ALARM'}),
-    ('ok_isareti', ('ISITMA',), 'AKIŞ YÖNÜ OKU', '03', None, {'blok': 'ROTAS-OK'}),
 ]
 
 
@@ -95,36 +83,6 @@ def kolektor_dolabi(doc, W, n):
         S.SEMBOL[key] = dict(ad=key, gruplar=('ISITMA',), aciklama=f'KOLEKTÖR DOLABI ({n} AĞIZLI GİDİŞ + DÖNÜŞ) – PLAN',
                              kaynak='03', src=None, ek={'blok': ad})
     return ad
-
-
-def kolektor_sema(doc, n, aralik, gen_bas=24.0):
-    """kolon şeması: kolektör dolabı görünüşü – üst gövde gidiş, alt gövde dönüş; ağızlar alt kenardan çıkar.
-    Gidiş ağzı (sağ) dönüş gövdesinin önünden geçer (gizli çizgi kuralı: gövde önünde kesik). Taban (0,0) = sol alt köşe."""
-    ad = f'ROTAS-KOLEKTOR-SEMA-{n}'
-    W = gen_bas + n * aralik + 10.0
-    Hd = 56.0
-    if ad in doc.blocks:
-        return ad, W, Hd, 40.0, 22.0
-    S.hazirla(doc)
-    b = doc.blocks.new(ad)
-    S._pl(b, [(0, 0), (W, 0), (W, Hd), (0, Hd)], True)                       # dolap
-    S._pl(b, [(3, 3), (W - 3, 3), (W - 3, Hd - 3), (3, Hd - 3)], True)
-    yg, yd = 40.0, 22.0                                                       # gövde eksenleri
-    for y in (yg, yd):
-        S._pl(b, [(10, y - 3), (W - 6, y - 3), (W - 6, y + 3), (10, y + 3)], True)
-    for i in range(n):
-        xd = gen_bas + i * aralik
-        xg = xd + 6.0
-        S._ln(b, (xd, yd - 3), (xd, 0))                     # dönüş ağzı
-        S._ln(b, (xg, yg - 3), (xg, yd + 3))                # gidiş ağzı (dönüş gövdesi önünde kesik)
-        S._ln(b, (xg, yd - 3), (xg, 0))
-        S._ci(b, (xg, yg - 9), 1.6)                         # gidiş debimetresi / ayar
-        S._ci(b, (xd, yd - 9), 1.6)                         # dönüş vanası
-    key = f'kolektor_sema_{n}'
-    if key not in S.SEMBOL:
-        S.SEMBOL[key] = dict(ad=key, gruplar=('ISITMA',), aciklama=f'KOLEKTÖR DOLABI ({n} AĞIZLI) – KOLON ŞEMASI',
-                             kaynak='03', src=None, ek={'blok': ad})
-    return ad, W, Hd, yg, yd
 
 
 def ciz(msp, ad, p, rot=0.0, olcek=1.0, kat='ROTAS-ISITMA-SEMBOL', no=None, sx=None):

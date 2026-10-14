@@ -91,7 +91,7 @@ def main():
     ly = -9000.0 - (1900.0 if P['sistem'] == 'merkezi' else 0.0) + 280.0
     cz.yazi((tx + 300.0, ly + 60.0), 'LEJANT VE SEMBOL ADET TABLOSU (çizimdeki bloklardan otomatik)', 30, 'ROTAS-BASLIK', maske=False)
     semb.lejant(cz.doc, tx + 200.0, ly)
-    yol = os.path.join(CIKTI, f'radyator_{P["sistem"]}_R2.dxf')
+    yol = os.path.join(CIKTI, f'radyator_{P["sistem"]}_R3.dxf')
     if os.path.exists(yol):
         os.remove(yol)
     cz.doc.saveas(yol)

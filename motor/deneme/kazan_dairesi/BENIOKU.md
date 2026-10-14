@@ -1,49 +1,57 @@
-# kazan_dairesi — parametrik KAZAN DAİRESİ PRENSİP ŞEMASI (deneme)
+# kazan_dairesi — parametrik KAZAN DAİRESİ PRENSİP ŞEMASI — R2 (14.10.2026 (B) talimatı)
 
-## Ne yapar
-JSON girdiden ölçeksiz kazan dairesi prensip şeması + cihaz listesi + notlar üretir (yalnız DXF, R2018/AC1032, birim cm).
-Akış: kaskad kazanlar (her kazanda emniyet ventili, termometre, manometre, otomatik purjör, kazan pompası, çek valf, vana)
-→ kazan gidiş kollektörü → hava ayırıcı → denge kabı → gidiş kollektörü → zon pompaları (asıl + yedek paralel bacak:
-vana-pompa-çek valf-vana, ortak pislik tutucu) → zon; dönüşler kesikli (DASHED) → dönüş kollektörü → denge kabı → tortu
-ayırıcı → kazan dönüş kollektörü. Kazan altı: yoğuşma (opsiyonel nötralizasyon), doğalgaz hattı (ana kesme vanası,
-selenoid + gaz/CO alarm, filtre, opsiyonel regülatör, manometre, kollektör vanası, kazan başına vana + esnek bağlantı),
-dönüş. Kapalı genleşme tankı dönüşe kilitlenebilir vanayla; sistem doldurma (vana, pislik tutucu, otomatik dolum, çek
-valf). Ortak baca kollektörü + baca. Opsiyonel boyler (şarj pompası, soğuk su + emniyet ventili, sıcak su, sirkülasyon).
+> **`plan_kesit.py` TESLİMDE KULLANILMAZ.** Merkezi sistem kesiti ve kazan dairesi yerleşimi için yalnız kullanıcının
+> daha önce gönderdiği / onayladığı kesit ve yerleşim planı kullanılır. `plan_kesit.py` arşivdir; içe aktarılırsa hata
+> verir (yalnız `ROTAS_PLAN_KESIT_ARSIV=1` ile elle çalışır). Radyatör modülü dahil hiçbir modül onu çağırmaz.
 
-- Semboller: kullanıcının MTY blokları gerçek blok olarak (patlatılmadan, iç katmanlarıyla) — küresel/kelebek vana,
-  çek valf, pislik tutucu, emniyet ventili, manometre, termometre, O.H.A.C, otomatik dolum, kilitlenebilir vana, esnek
-  bağlantı, denge kabı, hava ayırıcı, tortu ayırıcı, genleşme tankı. MTY'de olmayanlar 03_SEMBOLLER geometrisiyle blok:
-  ROTAS-KAZAN-DUVAR, ROTAS-POMPA (MTY pompa çiziminden), ROTAS-BOYLER, ROTAS-SELENOID, ROTAS-REGULATOR,
-  ROTAS-GAZ-ALARM, ROTAS-NOTRALIZASYON, ROTAS-OK. MTY 'CAP' özniteliği DN değeriyle doldurulur (gizli; MTY'de güncellenebilir).
-- DN65 ve üzeri vanalar kelebek, altı küresel (Aselsan notu). Çaplar: su v ≤ 1,0 m/s (≤DN50) / 1,5 m/s; gaz
-  Hu=9,59 kWh/m³, η=0,97, v ≤ 5-6 m/s (300 mbar regülatör öncesi 15 m/s) — ön boyut.
-- Numaralandırma: K, P, DK, HA, TA, GT, KL, BY, NU, B, EV, HP, M, TM, V, GF, GR, SV, GA; aynı tip+özellik ardışık
-  numaralı ve listede tek satır (NO | CİHAZ | TEKNİK ÖZELLİKLERİ, yangın pompa cihaz listesi tarzı).
-- Etiketler (V-01, DN..) boş yere otomatik yerleşir; yazı altına ROTAS-MASKE katmanında wipeout.
-- Kesişmeler köprülü (boru tek LWPOLYLINE, bulge yarım daire). Katmanlar ROTAS- önekli (MTY blok iç katmanları hariç).
+## R2 kuralları (kazan_dairesi.py)
+- **MTY bloğu yok.** Tüm semboller saf geometri `ROTAS-` blokları: `bloklar_r2.py` (küresel / kelebek vana, çek valf,
+  pislik tutucu, otomatik dolum, kilitli vana, esnek bağlantı, emniyet ventili, manometre, termometre, O.H.A.C, denge kabı,
+  hava ayırıcı, tortu ayırıcı, genleşme tankı, baca şapkası, kollektör) + `bloklar.kendi_bloklar` (kazan, pompa, selenoid,
+  regülatör, gaz alarm, boyler, nötralizasyon, ok). `motor/deneme/semboller2/` bu tarihte depoya işlenmemiş (yarım)
+  olduğundan kullanılmadı; hazır olunca `bloklar_r2.TANIM` onunla değiştirilebilir.
+- **Boru atlatma / köprü yok.** Ana hidrolik şemada yalnız iki toplayıcı vardır: kazan gidişleri üstte, dönüşleri altta.
+  Kaskadda kaçınılmaz görünen kesişmeler (baca, doğalgaz, yoğuşma) **ayrı bölgede** çizilir: kazanın altında GAZ ve
+  YOĞ., üstünde BACA bağlantı uçları (oklu kısa hat) bulunur; hatların kendisi alttaki **DOĞALGAZ BAĞLANTI ŞEMASI**
+  (giriş → ana vana → selenoid → filtre → [regülatör] → manometre → kollektör vanası → kazan başına vana + esnek bağlantı,
+  "K-01 KAZANINA"), **YOĞUŞMA DRENAJ ŞEMASI** (K-01..K-n → [nötralizasyon] → pis su) ve **BACA BAĞLANTI ŞEMASI**
+  (K-01..K-n → baca kollektörü → baca + şapka) bölgelerindedir. `Sema.kesisim_denetle()` her çalışmada boru-boru iç
+  kesişmesini sayar (0 olmalı).
+- **Numara–sembol eşleşmesi:** her numara bir kez yazılır ve kendi sembolünün sınır kutusuna en çok 18 cm uzakta, başka
+  hiçbir sembol kendi sembolünden 4 cm daha yakın olmayacak yere konur (bulunamazsa 28 cm / 2,5 cm). Numara DXF'te
+  sembol INSERT'ine XDATA olarak (`ROTAS`, `NO=V-01`) yazılır; `kontrol.py` bağımsız olarak "etiketin en yakın sembolü
+  kendi sembolü mü" testini yapar.
+- **Elektrik kalemi yok:** gaz alarmı – selenoid sinyal hattı çizilmez (cihazlar kalır, notta "elektrik projesinde").
+- Gömülü kullanım: `ciz(P, cikti, gomulu=True)` başlık / liste / notları çizmez, zon gidişini şemanın üstüne, zon dönüşünü
+  altına uzatır (`S.baglanti`), cihaz listesi `S.satir`, notlar `S.notlar` (radyatör kolon şeması bunu kullanır).
 
 ## Çalıştırma
 ```
-python3 kazan_dairesi.py ornekler/gungoren.json proje/denemeler/kazan_dairesi/GUNGOREN_KAZAN_DAIRESI_SEMA.dxf
-python3 kontrol.py <cikti.dxf>        # üst üste çizgi, köprüsüz kesişim, boru-sembol, yazı-çizgi, yazı-yazı
+python3 kazan_dairesi.py ornekler/gungoren.json ../../../proje/denemeler/kazan_dairesi/GUNGOREN_KAZAN_DAIRESI_SEMA_R2.dxf
+python3 kontrol.py <cikti.dxf>   # ÖZET: MTY 0, köprü 0, kesişme 0, etiket %100, elektrik 0 + çakışma dökümü
 python3 onizleme.py <cikti.dxf> <png> [x0,y0,x1,y1 dpi genişlik]   # yalnız kontrol için, depoya konmaz
 ```
+Son çıktılar: `GUNGOREN_KAZAN_DAIRESI_SEMA_R2.dxf` (5×110 kW, etiket 102/102), `KUCUK_2x110_KAZAN_DAIRESI_SEMA_R2.dxf`
+(2×110 kW + boyler + nötralizasyon, etiket 84/84); ikisinde de MTY 0, köprü 0, kesişme 0, çakışma yok.
+
 JSON alanları (bkz. `ornekler/`): proje, deneme, rejim{gidis,donus}, kazan{adet,kapasite_kw,tip,pompa{ad,debi,basma}},
 denge_kabi{cap}, genlesme{hacim_l,on_basinc,maks_bar}, emniyet{ventil_bar,ventil_cap},
 zonlar[{ad,aciklama,debi,basma,yedek,adet}], boyler{hacim_l,tip,cap,ev_bar,sarj_pompa{debi,basma}}|null,
 sirkulasyon{debi,basma,cap}|null, notralizasyon bool, baca{cap,tip},
 dogalgaz{vana,filtre,selenoid,alarm,regulator{giris,cikis}|null, kazan_cap,kollektor_cap,giris_cap}, doldurma, notlar[].
+(`plan` bloğu yalnız arşivdeki plan_kesit.py içindir; şema onu kullanmaz.)
 
-## Sınırlar
-- Yerden ısıtma karışım (3 yollu) vanalı zon, eşanjör, akümülasyon tankı, yumuşatma yok.
-- Kazan bloğu duvar tipi; döküm/yer tipi kazan (MTY 'aKAZAN ŞEMA.') seçeneği eklenmedi.
-- Baca kollektörü kazan gidiş kollektörünü, gaz/dönüş dişleri yoğuşma ve gaz kollektörlerini köprüyle keser
-  (tek sıra kaskadda kaçınılmaz).
+## Sınırlar / sorulacaklar
+- Baca, gaz ve yoğuşma ayrı bölgede (kazan numarasıyla eşlenmiş) gösterildi; kullanıcı bunları ana şemada görmek isterse
+  kesişmesiz çizim mümkün değildir (kaskadda her kazanın 5 bağlantısı vardır, yalnız 2'si toplayıcıyla kesişmesiz kalır).
+- Gaz alarm cihazı (dedektör) çizildi, kablosu çizilmedi — tamamen kaldırılması istenirse `dogalgaz.alarm=false`.
+- Yerden ısıtma karışım (3 yollu) vanalı zon, eşanjör, akümülasyon tankı, yumuşatma yok; kazan bloğu duvar tipi.
 - Hesap (genleşme hacmi, denge kabı çapı, baca) yapılmaz; değerler JSON'dan gelir.
+- R1 çıktıları (`*_SEMA.dxf`, `*_PLAN_KESIT.dxf`) depoda duruyor; **teslimde R2 şema kullanılır, PLAN_KESIT kullanılmaz.**
 
 ---
 
-# PLAN + KESİT A-A + GÖRÜNÜŞ B (`plan_kesit.py`, 14.10.2026)
+# (ARŞİV — TESLİMDE KULLANILMAZ) PLAN + KESİT A-A + GÖRÜNÜŞ B (`plan_kesit.py`, 14.10.2026)
 
 Kural: "tüm projelerde gerekli kesit ve görünüşler". Aynı JSON'a `plan` bloğu eklenir; tek DXF'te:
 1. **KAZAN DAİRESİ PLANI 1/50** — EI 120 taramalı duvarlar (oda poligonu + `duvar` kalınlığı), duvar tipi kaskad

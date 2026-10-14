@@ -1,27 +1,30 @@
 # -*- coding: utf-8 -*-
-"""KALORİFER TESİSAT PROJESİ KOLON ŞEMASI (R2, kolektörlü):
-- kat bantları (düşey 1/50), her daire: [kolon T → KALORİMETRE SETİ (1 küresel vana, 2 pislik tutucu, 3 kalorimetre,
-  4 balans vanası, 5 küresel vana)] veya [kombi] → KOLEKTÖR DOLABI → her radyatöre ayrı gidiş-dönüş (iç içe, kesişmesiz)
-- bodrumda KAZAN DAİRESİ PRENSİP ŞEMASI (motor/deneme/kazan_dairesi modülü import edilir, zon pompası çıkışı kolon
-  diplerine bağlanır), kolon diplerinde küresel vana + kosva, kolon başlarında O.H.A.C
+"""KALORİFER TESİSAT PROJESİ KOLON ŞEMASI (R3, kolektörlü — 14.10.2026 (B) talimatı):
+- MTY bloğu YOK (radyatör, termostatik vana, kolektör, kalorimetre, vanalar saf geometri: geo.py).
+- Boru atlatma / köprü YOK. Merdiven (ladder) düzeni: her dairenin GİDİŞ kolonu dairenin bir yanında, DÖNÜŞ kolonu
+  öbür yanında; kat bağlantıları iki kolon arasında kalır. Daire içi: kolon T → KALORİMETRE SETİ (gidiş + dönüş paralel)
+  → KOLEKTÖR DOLABI (gidiş kolektörü üstte, ağızlar yukarı; dönüş kolektörü altta, ağızlar aşağı) → her radyatöre iç içe
+  (en uzak radyatör en dış) gidiş-dönüş → dönüş, KS'nin önünden aşağı inip radyatörlerin altından dönüş kolonuna.
+  A dairesi aynalı (gidiş kolonları ortada, dönüş kolonları dışta); bodrumda gidiş dağıtımı üstte, dönüş toplama altta,
+  KAZAN DAİRESİ PRENSİP ŞEMASI (kazan_dairesi.ciz(gomulu=True)) ikisinin arasında → hiçbir hat kesişmez.
+- Kalorimetre sinyal hattı (elektrik) çizilmez. Kazan dairesi plan/kesiti (plan_kesit.py) KULLANILMAZ.
 - KESİT / GÖRÜNÜŞ detayı: kalorimetre dolabı + kolektör dolabı görünüşü ve A-A kesiti (1/10)."""
 import os
 import sys
 import math
-import json
 import tempfile
 from shapely.geometry import LineString, Polygon, box as sbox
 import ciz as C
 import semb
+import geo
 
 BANT = 300.0
 SLOT = 185.0
-RADY = 125.0
-KOLD = 14.0
-YC = 135.0                 # kolektör dolabı tabanı (bant tabanından)
+KOL_DX = 240.0             # gidiş kolonu → kolektör dolabı
 SET_X = [40.0, 80.0, 120.0, 160.0, 200.0]
-KOL_DX = 240.0             # kolon → kolektör dolabı
-SEM, SIN, KOLK = 'ROTAS-ISITMA-SEMBOL', 'ROTAS-ISITMA-SINYAL', 'ROTAS-ISITMA-KOLEKTOR'
+XK_DONUS = 20.0            # KS dönüşünün aşağı indiği nokta (gidiş kolonundan)
+Y = dict(hg=205.0, hd=185.0, yc=175.0, rad=170.0, U0=228.0, B0=152.0, adim=7.0, alt=70.0)   # bant tabanından
+SEM, KOLK = 'ROTAS-ISITMA-SEMBOL', 'ROTAS-ISITMA-KOLEKTOR'
 _KOK = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -41,7 +44,6 @@ class Sema:
         self.cz, self.P, self.M, self.A, self.pf, self.pomp = cz, P, M, A, pf, pomp
         self.h = Hatlar()
         self.etiket = []
-        self.kesen = []        # boru olmayan ama köprü gerektiren çizgiler (kolektör gövdesi yok – blok içinde)
 
     # ------------------------------------------------------------ sembol (boru üstünde, maskeli)
     def sembol(self, ad, p, rot=0.0, olcek=0.6, no=None):
@@ -52,213 +54,247 @@ class Sema:
         cz.maske([(p[0] - w / 2, p[1] - hh / 2), (p[0] + w / 2, p[1] - hh / 2), (p[0] + w / 2, p[1] + hh / 2), (p[0] - w / 2, p[1] + hh / 2)])
         semb.ciz(cz.msp, ad, p, rot=rot, olcek=olcek, kat=SEM, no=no)
 
-    # ------------------------------------------------------------ daire
-    def daire(self, kat, dad, xg, xd, yf, merkezi):
+    def nmaks(self):
+        n = 1
+        for k in self.M['katlar']:
+            if k['daireler']:
+                for dad in ('A', 'B'):
+                    n = max(n, len(self.pf(k, dad)['devreler']))
+        return n
+
+    def daire_genislik(self):
+        n = self.nmaks()
+        return KOL_DX + geo.kolektor_genislik(n) + 70.0 + (n - 1) * SLOT + geo.RAD_W + 60.0
+
+    # ------------------------------------------------------------ daire (s = +1: içerik sağda, s = -1: aynalı)
+    def daire(self, kat, dad, xg, xd, yf, merkezi, s):
         cz = self.cz
         pl = self.pf(kat, dad)
         dvs = pl['devreler']
         n = len(dvs)
         prc = {p['devre']: p for p in self.A.parcalar if p['kat'] == kat['kod'] and p['daire'] == dad and p['tur'] == 'devre'}
         gir = [p for p in self.A.parcalar if p['kat'] == kat['kod'] and p['daire'] == dad and p['tur'] == 'giris'][0]
-        ad, W, Hd, ygb, ydb = semb.kolektor_sema(cz.doc, n, 14.0)
-        xc0 = xg + KOL_DX
-        yc = yf + YC
-        hg, hd = yc + ygb, yc + ydb
-        cz.msp.add_blockref(ad, (xc0, yc), dxfattribs={'layer': KOLK})
-        cz.engel.append(sbox(xc0, yc, xc0 + W, yc + Hd + 10).exterior)
-        # besleme
+        ad, W = geo.kolektor_sema(cz.doc, n)
+        hg, hd, yc = yf + Y['hg'], yf + Y['hd'], yf + Y['yc']
+        xc0 = xg + s * KOL_DX
+        cz.msp.add_blockref(ad, (xc0, yc), dxfattribs={'layer': KOLK, 'xscale': s})
+        cz.engel.append(sbox(min(xc0, xc0 + s * W), yc, max(xc0, xc0 + s * W), yc + geo.KOL_H).exterior)
+        cz.yazi((xc0 + s * W / 2, yc + 20.0), f'KD ({n} AĞIZ)', 6.0, KOLK)
+        # besleme: gidiş kolondan T ile KS üzerinden kolektöre; dönüş kolektörden KS üzerinden, sonra aşağı inip
+        # radyatörlerin altından dönüş kolonuna (merkezi) / kombiye (kombi)
         self.h.G([(xg, hg), (xc0, hg)])
-        self.h.D([(xd, hd), (xc0, hd)])
         if merkezi:
-            for (sg, sd, no), x in zip([('kuresel_vana', 'kuresel_vana', '1'), ('pislik_tutucu', None, '2'),
-                                        ('kalorimetre_sensor', 'kalorimetre_km', '3'), (None, 'balans_vanasi', '4'),
-                                        ('kuresel_vana', 'kuresel_vana', '5')], SET_X):
+            xk = xg + s * XK_DONUS
+            self.h.D([(xc0, hd), (xk, hd), (xk, yf + Y['alt']), (xd, yf + Y['alt'])])
+            for (sg, sd, no), x in zip([('r_kuresel_vana', 'r_kuresel_vana', '1'), ('r_pislik_tutucu', None, '2'),
+                                        ('kalorimetre_sensor', 'r_kalorimetre_sag' if s > 0 else 'r_kalorimetre_sol', '3'),
+                                        (None, 'balans_vanasi', '4'), ('r_kuresel_vana', 'r_kuresel_vana', '5')], SET_X):
                 if sg:
-                    self.sembol(sg, (xg + x, hg), 0.0, 0.6, no)
+                    self.sembol(sg, (xg + s * x, hg), 0.0, 0.6, no)
                 if sd:
-                    self.sembol(sd, (xg + x, hd), 0.0, 0.6, None if sg else no)
-                if sg == 'kalorimetre_sensor':
-                    cz.pl([(xg + x, hg - 2), (xg + x, hd + 6)], SIN, engel=False, ltscale=0.3)
-            cz.yazi((xg + 120, hg + 22), 'KS - KALORİMETRE SETİ', 6.5, 'ROTAS-CIHAZ')
-        cz.yazi((xc0 + W / 2, yc + Hd + 7), f'KD - KOLEKTÖR DOLABI ({n} AĞIZ)', 6.0, KOLK)
-        kn = f"({gir['kno']}) " if gir.get('kno') else ''
-        cz.yazi((xg + 120, hd - 13), f"{kn}{gir['Q']:.0f}W-{gir['dn']}", 6.5, C.CAPK)
-        # devreler: en yakın radyatör en doğu ağız / en üst seviye
-        x_r0 = xc0 + W + 70.0
-        for j, dv in enumerate(dvs):
-            i = n - 1 - j                                     # ağız sırası (batıdan)
-            od = xc0 + 24.0 + i * 14.0
-            og = od + 6.0
-            Lc = yc - 14.0 - j * 12.0
-            xr = x_r0 + j * SLOT
-            by = yf + RADY - 15.0
-            self.h.G([(og, yc), (og, Lc + 3), (xr, Lc + 3), (xr, by + 57.5)])
-            self.h.D([(od, yc), (od, Lc - 3), (xr + 5, Lc - 3), (xr + 5, by + 22.5)])
-            self.radyator(dv['rad'], xr, by, dv['no'])
-            p = prc.get(dv['no'])
-            if p:
-                self.etiket.append((p, (xr, max(Lc + 3, yc - 2)), (xr, by + 57.5), True))
-        return x_r0 + n * SLOT
-
-    def radyator(self, r, xg, by, no):
-        bx = xg + 5.0
-        mm = r['m']
-        kap = f"{r['ver']:.0f} W"
-        if r['tip'] == 'Banyopan':
-            self.cz.blok('MTY-RADYATÖR BANYOPAN KOLON', (bx, by), 0, 1.0, 1.0, 'ROTAS-RADYATOR',
-                         ozn={'RAD_001': f"HAVLUPAN {r['boy'] * 1000:.0f} / {kap}", 'NO_001': f"{mm['no']}", 'DERECE_001': f"{mm['ti']:.0f}°C",
-                              'MAHAL_001': f"{mm['ad']} D{no}"},
-                         ozn_h={'RAD_001': 8.0, 'NO_001': 8.0, 'DERECE_001': 8.0, 'MAHAL_001': 8.0},
-                         ozn_konum={'RAD_001': (bx + 45, by + 152), 'MAHAL_001': (bx + 25, by + 165), 'NO_001': (bx + 75, by + 165),
-                                    'DERECE_001': (bx + 100, by + 165)}, maske=True)
+                    self.sembol(sd, (xg + s * x, hd), 0.0, 0.6, None if sg else no)
+            cz.yazi((xg + s * 120, hg + 22), 'KS - KALORİMETRE SETİ', 6.5, 'ROTAS-CIHAZ')
         else:
-            self.cz.blok('MTY-RADYATOR KOLON', (bx, by), 0, 1.0, 1.0, 'ROTAS-RADYATOR',
-                         ozn={'RAD_001': f"{r['model']}x{r['boy'] * 1000:.0f} / {kap}", 'NO_001': f"{mm['no']}",
-                              'DERECE_001': f"{mm['ti']:.0f}°C", 'MAHAL_001': f"{mm['ad']} D{no}"},
-                         ozn_h={'RAD_001': 8.0, 'NO_001': 8.0, 'DERECE_001': 8.0, 'MAHAL_001': 8.0},
-                         ozn_konum={'RAD_001': (bx + 79, by + 74), 'MAHAL_001': (bx + 55, by + 88), 'NO_001': (bx + 108, by + 88),
-                                    'DERECE_001': (bx + 130, by + 88)}, maske=True)
+            self.h.D([(xc0, hd), (xg, hd)])
+        kn = f"({gir['kno']}) " if gir.get('kno') else ''
+        cz.yazi((xg + s * 120, hd - 13), f"{kn}{gir['Q']:.0f}W-{gir['dn']}", 6.5, C.CAPK)
+        # devreler: j = 0 en yakın radyatör (en iç döngü), j = n-1 en uzak (en dış: en soldaki ağız, en üst/alt seviye)
+        x_r0 = xc0 + s * (W + 70.0)
+        for j, dv in enumerate(dvs):
+            k = n - 1 - j
+            ox = xc0 + s * (geo.KOL_X0 + k * geo.KOL_ADIM)
+            U = yf + Y['U0'] + j * Y['adim']
+            B = yf + Y['B0'] - j * Y['adim']
+            xr = x_r0 + s * j * SLOT
+            yr = yf + Y['rad']
+            self.h.G([(ox, yc + geo.KOL_H), (ox, U), (xr, U), (xr, yr + 50.0)])
+            self.h.D([(xr + s * geo.RAD_W, yr - 10.0), (xr + s * geo.RAD_W, B), (ox, B), (ox, yc)])
+            self.radyator(dv['rad'], xr, yr, dv['no'], s, prc.get(dv['no']))
+        return x_r0 + s * n * SLOT
+
+    def radyator(self, r, xr, yr, no, s, p):
+        cz = self.cz
+        mm = r['m']
+        ad = 'r_havlupan_sema' if r['tip'] == 'Banyopan' else 'r_radyator_sema'
+        cz.blok(ad, (xr, yr), 0.0, s, 1.0, 'ROTAS-RADYATOR')
+        cz.engel.append(sbox(min(xr, xr + s * geo.RAD_W), yr, max(xr, xr + s * geo.RAD_W), yr + geo.RAD_H).exterior)
+        cx = xr + s * geo.RAD_W / 2
+        t1 = (f"HAVLUPAN {r['boy'] * 1000:.0f} / {r['ver']:.0f} W" if r['tip'] == 'Banyopan'
+              else f"{r['model']}x{r['boy'] * 1000:.0f} / {r['ver']:.0f} W")
+        t2 = f"{mm['ad']} {mm['no']}  {mm['ti']:.0f}°C"
+        t3 = f"D{no}" + (f"  {p['Q']:.0f}W-{p['dn']}" if p else '')
+        if p and p.get('kno'):
+            t3 = f"({p['kno']}) " + t3
+        for t, dy, lay in ((t1, 27.0, 'ROTAS-RADYATOR'), (t2, 20.0, 'ROTAS-RADYATOR'), (t3, 13.0, C.CAPK)):
+            cz.yazi((cx, yr + dy), t, 5.2, lay, maske=False)
 
     # ------------------------------------------------------------ çizim
     def ciz(self, x0, y0):
         cz, P, M, A = self.cz, self.P, self.M, self.A
         katlar = M['katlar']
         merkezi = P['sistem'] == 'merkezi'
-        yf_of = {k['kod']: y0 + i * BANT for i, k in enumerate(katlar)}
-        XK = {'A': x0 + 400.0, 'B': x0 + 2900.0}
-        x_sag = x0 + 5400.0
+        dkat = [k for k in katlar if k['daireler']]
+        DW = self.daire_genislik()
+        if merkezi:
+            kd = kazan_semasi_hazirla(P, self.pomp)
+            self.kdh = kd
+            Hb = 110.0 + (kd['gidis'][1] - kd['donus'][1]) + 50.0
+            xdA = x0 + 100.0
+            xgA = xdA + DW
+            ox = xdA + 80.0 - kd['xmin']                     # KD sol kenarı A dönüş kolonunun sağında
+            gx = kd['gidis'][0] + ox
+            xgB = max(xgA + 300.0, gx + 150.0)
+            xgB = max(xgB, kd['xmax'] + ox + 80.0 - DW)
+            xdB = xgB + DW
+            XK = {'A': (xgA, xdA, -1), 'B': (xgB, xdB, 1)}
+            x_sag = xdB + 150.0
+        else:
+            Hb = BANT
+            XK = {'A': (x0 + 400.0, x0 + 400.0, 1), 'B': (x0 + 400.0 + DW + 300.0, x0 + 400.0 + DW + 300.0, 1)}
+            x_sag = XK['B'][0] + DW + 100.0
+        yf_of = {}
+        yy = y0
+        for i, k in enumerate(katlar):
+            yf_of[k['kod']] = yy
+            yy += Hb if i == 0 else BANT
         for k in katlar:
             yf = yf_of[k['kod']]
-            xb = x0
-            cz.pl([(xb, yf), (x_sag, yf)], 'ROTAS-KAT-BANDI', engel=False)
+            cz.pl([(x0, yf), (x_sag, yf)], 'ROTAS-KAT-BANDI', engel=False)
             kot = f"{k['kot']:+.2f}".replace('+0.00', '±0.00')
             cz.yazi((x0 + 15, yf + 12), f"{k['ad']}  {kot}", 14, 'ROTAS-KAT-BANDI', al='BL')
         ust = yf_of[katlar[-1]['kod']] + BANT
         cz.pl([(x0, ust), (x_sag, ust)], 'ROTAS-KAT-BANDI', engel=False)
         cz.yazi((x0 + 15, ust + 12), 'ÇATI', 14, 'ROTAS-KAT-BANDI', al='BL')
-        dkat = [k for k in katlar if k['daireler']]
         for k in dkat:
             yf = yf_of[k['kod']]
             for dad in ('A', 'B'):
-                if merkezi:
-                    xg, xd = XK[dad], XK[dad] - KOLD
-                else:
-                    xg, xd = self.kombi(XK[dad], yf, dad, k)
-                self.daire(k, dad, xg, xd, yf, merkezi)
-                cz.yazi((XK[dad] + 60.0, yf + 272.0), f"DAİRE {dad} – {k['ad']}", 10, 'ROTAS-YAZI', al='BL')
-        x_sol = x0
-        y_alt = y0 - 260
+                xg, xd, s = XK[dad]
+                if not merkezi:
+                    self.kombi(xg, yf)
+                self.daire(k, dad, xg, xd, yf, merkezi, s)
+                cz.yazi((xg + s * 60.0, yf + 283.0), f"DAİRE {dad} – {k['ad']}", 10, 'ROTAS-YAZI', al='BL' if s > 0 else 'BR')
+        y_alt = y0 - 60
         if merkezi:
-            x_sol = self.kazan_dairesi(x0, yf_of[katlar[0]['kod']], XK, dkat, yf_of)
-            y_alt = min(y_alt, self.kd['ymin'] - 60)
+            self.kazan_dairesi(XK, dkat, yf_of, ox, y0)
         self.hatlari_ciz()
         self.etiketler()
-        cz.yazi((x0 + 2700, ust + 150), 'KALORİFER TESİSAT PROJESİ KOLON ŞEMASI', 40, 'ROTAS-BASLIK')
-        cz.yazi((x0 + 2700, ust + 95), 'DENEME – Güngören B1 Blok verisi; kolektörlü dağıtım, mahal yerleşimi temsilî; düşey ölçek 1/50 '
+        xm = (x0 + x_sag) / 2
+        cz.yazi((xm, ust + 150), 'KALORİFER TESİSAT PROJESİ KOLON ŞEMASI', 40, 'ROTAS-BASLIK')
+        cz.yazi((xm, ust + 95), 'DENEME – Güngören B1 Blok verisi; kolektörlü dağıtım, mahal yerleşimi temsilî; düşey ölçek 1/50 '
                 '(kat yüksekliği 3,00 m), yataylar ölçeksiz', 16, 'ROTAS-DENEME')
         notlar = ['NOTLAR:',
-                  'Gidiş hattı sürekli (kırmızı), dönüş hattı kesikli (turuncu). Kesişmelerde dönüş hattı köprü ile geçer.',
+                  'Gidiş hattı sürekli (kırmızı), dönüş hattı kesikli (turuncu). Hatlar birbirini KESMEZ (atlatma / köprü yoktur).',
                   'Daire içi dağıtım KOLEKTÖRLÜDÜR: her radyatör kolektörden ayrı PE-Xc/Al/PE-X gidiş-dönüş hattı ile beslenir (D1…Dn).',
-                  'Hat etiketleri kümülatif ısı yükü ve boru çapıdır (ör. 1454W-Ø16x2); (n) kritik devre parça numarasıdır.',
+                  'Radyatör içindeki 3. satır devre numarası, kümülatif yük ve boru çapıdır (ör. D5 1454W-Ø16x2); (n) kritik devre parça no.',
                   f"Yük esası: {'seçilen radyatör kapasitesi' if P['yuk_esasi'] == 'radyator' else 'mahal ısı kaybı'}; rejim {M['tg']:.0f}/{M['td']:.0f} °C.",
                   'Her radyatör gidişinde termostatik radyatör vanası, dönüşünde ayar (dönüş) rakoru; kolektör ağızlarında debimetre ve vana.']
         if merkezi:
             notlar += ['Her daire girişinde KS – KALORİMETRE SETİ (hol sayaç dolabında): 1 küresel vana, 2 pislik tutucu, 3 kalorimetre '
-                       '(debi ölçer dönüşte + gidiş/dönüş sıcaklık sensörü, M-Bus), 4 balans vanası, 5 küresel vana.',
-                       'Kolonlar ve kazan dairesi siyah çelik (TS EN 10255 orta seri); kazan dairesi prensip şeması bodrum bandının solundadır.']
-        for i, s in enumerate(notlar):
-            cz.yazi((x0 + 20, y0 - 60 - i * 22), s, 12, 'ROTAS-YAZI', al='BL')
+                       '(debi ölçer dönüşte + gidiş/dönüş sıcaklık sensörü), 4 balans vanası, 5 küresel vana. Okuma (M-Bus) bağlantısı '
+                       'elektrik projesindedir; bu paftada elektrik kalemi çizilmez.',
+                       'Gidiş kolonları (K1, K2) ortada, dönüş kolonları dışta; bodrumda gidiş dağıtımı üstte, dönüş toplama altta, '
+                       'kazan dairesi prensip şeması ikisinin arasındadır. Kolonlar ve kazan dairesi siyah çelik (TS EN 10255).']
+        for i, s_ in enumerate(notlar):
+            cz.yazi((x0 + 20, y0 - 60 - i * 22), s_, 12, 'ROTAS-YAZI', al='BL')
+        y_alt = y0 - 60 - len(notlar) * 22 - 40
+        if merkezi:
+            sys.path.insert(0, os.path.join(_KOK, '..', 'kazan_dairesi'))
+            import kazan_dairesi as KD
+            xe, ye = KD.tablo_ciz(cz.msp, self.kdh['satir'], x0 + 20, y_alt - 20)
+            ye = KD.notlar_ciz(cz.msp, self.kdh['notlar'], xe + 80, y_alt - 40)
+            y_alt = min(ye, self._tablo_alt(x0)) - 60
         self.detay(x_sag + 250.0, ust + 50.0)
         xr = x_sag + 250.0 + 2350.0
-        cz.pl([(x_sol - 60, y_alt), (xr, y_alt), (xr, ust + 220),
-               (x_sol - 60, ust + 220)], 'ROTAS-PAFTA', w=2.0, kapali=True, engel=False)
+        cz.pl([(x0 - 60, y_alt), (xr, y_alt), (xr, ust + 220),
+               (x0 - 60, ust + 220)], 'ROTAS-PAFTA', w=2.0, kapali=True, engel=False)
         return xr
 
-    def kombi(self, xk, yf, dad, k):
-        cz = self.cz
-        yc = yf + YC
-        hg, hd = yc + 40.0, yc + 22.0
-        cz.blok('MTY-KOMBİ', (xk + 40.0, hd + 24.0), 180.0, 1.0, 1.0, 'ROTAS-CIHAZ')      # baca sola (dışarı)
-        cz.yazi((xk + 16.0, hd - 14.0), f"H. KOMBİ {self.P['kombi']['kapasite_kW']} kW", 7, 'ROTAS-CIHAZ')
-        cz.engel.append(sbox(xk - 60, hd - 6, xk + 40, hd + 24).exterior)
-        return xk + 40.0, xk + 40.0
+    def _tablo_alt(self, x0):
+        from ezdxf import bbox
+        es = [e for e in self.cz.msp if e.dxf.layer.startswith('ROTAS-HESAP-')]
+        b = bbox.extents(es, fast=True)
+        return b.extmin.y if b.has_data else 0.0
 
-    # ------------------------------------------------------------ kazan dairesi (kazan_dairesi modülü)
-    def kazan_dairesi(self, x0, yb, XK, dkat, yf_of):
-        cz, A, P = self.cz, self.A, self.P
-        yg, yd = yb + 230.0, yb + 70.0
-        kd = kazan_semasi_ekle(cz, P, self.pomp, x0 - 1500.0, yg - 569.0)
-        gx, gy = kd['gidis']
-        dx_, dy_ = kd['donus']
-        x_top = max(yf_of[k['kod']] for k in dkat) + YC + 40.0 + 45.0
-        # zon pompası çıkışı → gidiş dağıtım hattı (bodrum) → kolon dipleri
-        self.h.G([(gx, gy), (XK['B'], gy)])
-        xv = x0 - 120.0
-        self.h.D([(XK['B'] - KOLD, yd), (xv, yd), (xv, dy_), (dx_, dy_)])
+    def kombi(self, xg, yf):
+        cz = self.cz
+        cz.blok('r_kombi', (xg, yf + Y['yc']), 0.0, 1.0, 1.0, 'ROTAS-CIHAZ')
+        cz.yazi((xg - 23.0, yf + Y['yc'] - 20.0), f"H. KOMBİ {self.P['kombi']['kapasite_kW']} kW", 7, 'ROTAS-CIHAZ')
+        cz.engel.append(sbox(xg - 56, yf + Y['yc'] - 10, xg, yf + Y['yc'] + 50).exterior)
+
+    # ------------------------------------------------------------ bodrum: gidiş dağıtımı + kazan dairesi + dönüş toplama
+    def kazan_dairesi(self, XK, dkat, yf_of, ox, y0):
+        cz, A = self.cz, self.A
+        kd = self.kdh
+        oy = (y0 + 60.0) - kd['donus'][1]
+        kazan_semasi_aktar(cz, kd, ox, oy)
+        gx, gy = kd['gidis'][0] + ox, kd['gidis'][1] + oy
+        dx_, dy_ = kd['donus'][0] + ox, kd['donus'][1] + oy
+        xgA, xdA, _ = XK['A']
+        xgB, xdB, _ = XK['B']
+        self.h.G([(min(xgA, gx), gy), (max(xgB, gx), gy)])
+        self.h.D([(xdA, dy_), (xdB, dy_)])
+        katlar = self.M['katlar']
+        ust_kat = max(yf_of[k['kod']] for k in dkat)
+        y_ust = ust_kat + 262.0
         for i, dad in enumerate(('A', 'B')):
-            xg, xd = XK[dad], XK[dad] - KOLD
-            self.h.G([(xg, gy), (xg, x_top)])
-            self.h.D([(xd, yd), (xd, x_top - 18.0)])
-            cz.blok('MTY-O.H.A.C', (xg, x_top), 0, 0.6, 0.6, 'ROTAS-VANA')
-            cz.blok('MTY-O.H.A.C', (xd, x_top - 18.0), 0, 0.6, 0.6, 'ROTAS-VANA')
-            cz.blok('MTY-RADYATOR KOLON NO', (xg - 55, x_top + 30), 0, 0.8, 0.8, 'ROTAS-CIHAZ', ozn={'KNO': f'K{i + 1}'},
-                    ozn_konum={'KNO': (xg - 55, x_top + 30)}, ozn_h={'KNO': 16.0})
-            # kolon dibi: küresel vana + kosva (boşaltma)
-            self.sembol('kuresel_vana', (xg, gy + 30.0), 90.0, 0.6)
-            self.sembol('kuresel_vana', (xd, yd + 30.0), 90.0, 0.6)
-            for xx, yy in ((xg, gy + 12.0), (xd, yd + 12.0)):
-                cz.pl([(xx, yy), (xx + 22.0, yy)], C.DON if xx == xd else C.GID, w=1.0, engel=True)
-                self.sembol('bosaltma_vanasi', (xx + 18.0, yy), 0.0, 0.6)
-        cz.yazi((x0 - 1400.0, yg - 569.0 + 1010.0), 'BODRUM KAT – KAZAN DAİRESİ (PRENSİP ŞEMASI, kazan_dairesi modülü)', 22, 'ROTAS-KAT-BANDI', al='BL')
-        self.kd = kd
+            xg, xd, s = XK[dad]
+            self.h.G([(xg, gy), (xg, y_ust)])
+            self.h.D([(xd, dy_), (xd, y_ust)])
+            for xx in (xg, xd):
+                semb.ciz(cz.msp, 'r_ohac', (xx, y_ust), rot=0.0, olcek=1.0, kat='ROTAS-VANA')
+            cz.msp.add_circle((xg - s * 40.0, y_ust + 10.0), 14.0, dxfattribs={'layer': 'ROTAS-CIHAZ'})
+            cz.yazi((xg - s * 40.0, y_ust + 10.0), f'K{i + 1}', 12.0, 'ROTAS-CIHAZ', maske=False)
+            # kolon dipleri: küresel vana + boşaltma (gidişte dışa / ortaya, dönüşte dışa)
+            self.sembol('r_kuresel_vana', (xg, gy + 30.0), 90.0, 0.6)
+            self.sembol('r_kuresel_vana', (xd, dy_ + 30.0), 90.0, 0.6)
+            for xx, yy, lay, yon in ((xg, gy + 12.0, C.GID, -s), (xd, dy_ + 12.0, C.DON, s)):
+                cz.pl([(xx, yy), (xx + yon * 22.0, yy)], lay, w=1.0, engel=True)
+                semb.ciz(cz.msp, 'r_bosaltma', (xx + yon * 18.0, yy), rot=0.0 if yon > 0 else 180.0, olcek=0.6, kat=SEM)
+        cz.yazi((min(xgA, gx) + 20.0, gy + 40.0), 'BODRUM KAT – GİDİŞ DAĞITIMI (üst) / KAZAN DAİRESİ / DÖNÜŞ TOPLAMA (alt)',
+                16, 'ROTAS-KAT-BANDI', al='BL')
         self.kolon_parcalar = [p for p in A.parcalar if p['tur'] in ('kolon', 'kolon_dip', 'kazan')]
-        kk = [k['kod'] for k in self.M['katlar']]
+        kk = [k['kod'] for k in katlar]
         for p in self.kolon_parcalar:
             dad = p['daire']
             if p['tur'] == 'kazan':
-                self.etiket.append((p, (gx + 40, gy), (XK['A'] - 20, gy), False))
+                self.etiket.append((p, (gx, gy), (xgA, gy), False, 1))
             elif p['tur'] == 'kolon_dip':
-                self.etiket.append((p, (XK['A'] + 20, gy), (XK['B'] - 20, gy), False))
+                self.etiket.append((p, (gx, gy), (xgB, gy), False, 1))
             else:
+                xg, xd, s = XK[dad]
                 i_ = kk.index(p['kat'])
-                yt = yf_of[p['kat']] + YC + 40.0
-                yalt = yf_of[kk[i_ - 1]] + YC + 40.0 if kk[i_ - 1] in [k['kod'] for k in dkat] else gy + 40
-                self.etiket.append((p, (XK[dad], yalt), (XK[dad], yt), True))
-        return kd['xmin']
+                yt = yf_of[p['kat']] + Y['hg']
+                yalt = yf_of[kk[i_ - 1]] + Y['hg'] if kk[i_ - 1] in [k['kod'] for k in dkat] else gy + 45
+                self.etiket.append((p, (xg, yalt), (xg, yt), True, -s))
 
     def hatlari_ciz(self):
         cz = self.cz
         once = []
-        tum_g = [LineString(p) for p in self.h.g if len(p) > 1 and LineString(p).length > 0]
         for p in self.h.g:
             if len(p) > 1 and LineString(p).length > 0:
                 once.append(cz.pl(p, C.GID, w=1.0))
-        dl = [p for p in self.h.d if len(p) > 1 and LineString(p).length > 0]
-        for p in dl:
-            xy = C.kopru_ekle(p, tum_g, r=3.0)
-            xy = C.kopru_yon(xy, [LineString(q) for q in dl if q is not p] + tum_g)
-            once.append(cz.pl([tuple(q) for q in xy], C.DON, w=1.0, ltscale=12.0))
+        for p in self.h.d:
+            if len(p) > 1 and LineString(p).length > 0:
+                once.append(cz.pl(p, C.DON, w=1.0, ltscale=12.0))
         cz.once_ciz(once)
 
     def etiketler(self):
         cz = self.cz
         h = 6.5
-        for p, a, b, dikey in self.etiket:
+        for p, a, b, dikey, yon in self.etiket:
             txt = f"{p['Q']:.0f}W-{p['dn']}"
-            tw = len(txt) * h * 0.51 + 4
             kn = p.get('kno')
+            if kn:
+                txt = f"({kn}) " + txt
             if dikey:
-                x = a[0] - 6.0
                 ym = (a[1] + b[1]) / 2
-                cz.yazi((x, ym), txt, h, C.CAPK, al='BC', rot=90.0)
-                if kn:
-                    cz.yazi((x - 11, ym), f"({kn})", h + 1, 'ROTAS-KRITIK', al='BC', rot=90.0)
+                if yon < 0:
+                    cz.yazi((a[0] - 6.0, ym), txt, h, C.CAPK, al='BC', rot=90.0)
+                else:
+                    cz.yazi((a[0] + 6.0, ym), txt, h, C.CAPK, al='TC', rot=90.0)
             else:
                 xm = (a[0] + b[0]) / 2
-                y = a[1] + 6.0
-                cz.yazi((xm, y), txt, h, C.CAPK, al='BC')
-                if kn:
-                    cz.yazi((xm - tw / 2 - 4, y), f"({kn})", h + 1, 'ROTAS-KRITIK', al='BR')
+                cz.yazi((xm, a[1] + 6.0), txt, h, C.CAPK, al='BC')
 
     # ------------------------------------------------------------ kesit / görünüş detayı (1/10)
     def detay(self, x, y):
@@ -266,13 +302,13 @@ class Sema:
 
 
 # ====================================================================== kazan dairesi modülü bağlantısı
-def kazan_semasi_ekle(cz, P, pomp, ox, oy):
-    """motor/deneme/kazan_dairesi/kazan_dairesi.py ile şemayı üretir, model uzayına (ox, oy) ötelemesiyle aktarır.
-    Dönüş: zon gidiş çıkışı / dönüş girişi noktaları ve sol sınır."""
+def kazan_semasi_hazirla(P, pomp):
+    """motor/deneme/kazan_dairesi/kazan_dairesi.py ile şemayı GÖMÜLÜ modda üretir (plan_kesit KULLANILMAZ).
+    Dönüş: geçici DXF yolu, zon gidiş (üst uç) / dönüş (alt uç) noktaları ve sınır kutusu (KD koordinatı)."""
     sys.path.insert(0, os.path.join(_KOK, '..', 'kazan_dairesi'))
     import kazan_dairesi as KD
-    from ezdxf.addons import Importer
     import ezdxf
+    from ezdxf import bbox
     kp = P.get('kazan_dairesi', {})
     adet = int(kp.get('kazan_adet', 2))
     q = pomp['Q_W'] / 1000.0 * (1 + kp.get('kapasite_payi', 0.10))
@@ -294,10 +330,22 @@ def kazan_semasi_ekle(cz, P, pomp, ox, oy):
     }
     tmp = tempfile.mkdtemp(prefix='rad_kd_')
     yol = os.path.join(tmp, 'kd.dxf')
-    S = KD.ciz(J, yol)
-    gid = [b for b in S.borular if b['ok'] == 'son' and b['lay'] == KD.GID][0]['pts'][-1]
-    don = [b for b in S.borular if b['ok'] == 'bas' and b['lay'] == KD.DON][0]['pts'][-1]
+    S = KD.ciz(J, yol, gomulu=True)
     src = ezdxf.readfile(yol)
+    b = bbox.extents(src.modelspace(), fast=True)
+    return dict(yol=yol, gidis=S.baglanti['gidis'], donus=S.baglanti['donus'], xmin=b.extmin.x, xmax=b.extmax.x,
+                ymin=b.extmin.y, ymax=b.extmax.y, kw=kw, adet=adet, uyari=S.uyarilar, kesisim=len(S.kesisim),
+                satir=S.satir, notlar=S.notlar)
+
+
+def kazan_semasi_aktar(cz, kd, ox, oy):
+    """gömülü kazan dairesi şemasını (ox, oy) ötelemesiyle model uzayına aktarır (bloklar patlatılmaz, XDATA korunur)"""
+    from ezdxf.addons import Importer
+    import ezdxf
+    from ezdxf.math import Matrix44
+    if 'ROTAS' not in cz.doc.appids:
+        cz.doc.appids.new('ROTAS')
+    src = ezdxf.readfile(kd['yol'])
     im = Importer(src, cz.doc)
     for e in src.modelspace():
         if e.dxftype() == 'INSERT':
@@ -305,31 +353,24 @@ def kazan_semasi_ekle(cz, P, pomp, ox, oy):
     for lay in src.layers:
         if lay.dxf.name not in cz.doc.layers:
             im.import_table('layers', [lay.dxf.name])
-    ents = list(src.modelspace())
     once = {e.dxf.handle for e in cz.msp}
-    im.import_entities(ents, cz.msp)
+    kaynak = list(src.modelspace())
+    im.import_entities(kaynak, cz.msp)
     im.finalize()
-    from ezdxf.math import Matrix44
-    m = Matrix44.translate(ox, oy, 0)
     yeni = [e for e in cz.msp if e.dxf.handle not in once]
-    sil = []
-    for e in yeni:
+    for a, b in zip([e for e in kaynak if e.dxftype() == 'INSERT'], [e for e in yeni if e.dxftype() == 'INSERT']):
+        if a.has_xdata('ROTAS') and a.dxf.name == b.dxf.name:          # cihaz numarası eşleşmesi (XDATA) korunur
+            b.set_xdata('ROTAS', list(a.get_xdata('ROTAS')))
+    m = Matrix44.translate(ox, oy, 0)
+    for e in [e for e in cz.msp if e.dxf.handle not in once]:
         try:
             e.transform(m)
         except Exception:
             pass
-        if e.dxf.layer == 'ROTAS-PAFTA':
-            cz.msp.delete_entity(e)
-            continue
         if e.dxf.layer == '0':
             e.dxf.layer = 'ROTAS-ISITMA-YAZI'
-        if e.dxftype() in ('LWPOLYLINE', 'LINE') and e.dxf.layer in (C.DON, 'ROTAS-ISITMA-YOGUSMA', 'ROTAS-DOGALGAZ-SINYAL'):
+        if e.dxftype() in ('LWPOLYLINE', 'LINE') and e.dxf.layer in (C.DON, 'ROTAS-ISITMA-YOGUSMA'):
             e.dxf.ltscale = 8.0 * e.dxf.get('ltscale', 1.0)
-    from ezdxf import bbox
-    yeni = [e for e in yeni if e.is_alive]
-    bb = bbox.extents(yeni, fast=True)
-    return dict(gidis=(gid[0] + ox, gid[1] + oy), donus=(don[0] + ox, don[1] + oy), xmin=bb.extmin.x, ymin=bb.extmin.y,
-                kw=kw, adet=adet, uyari=S.uyarilar)
 
 
 # ====================================================================== detay: kolektör dolabı + kalorimetre seti görünüşü
@@ -367,28 +408,27 @@ def detay_ciz(cz, P, A, x, y):
         bx0, bx1, by0, by1 = 0.0, 50.0, 120.0, 220.0       # dolap: 50 × 100, alt kenar +80
         czp.pl([f(bx0, by0), f(bx1, by0), f(bx1, by1), f(bx0, by1)], DT, w=1.5, kapali=True, engel=False)
         czp.pl([f(bx0 + 2, by0 + 2), f(bx1 - 2, by0 + 2), f(bx1 - 2, by1 - 2), f(bx0 + 2, by1 - 2)], DT, kapali=True, engel=False)
-        gx, dx_ = 17.0, 33.0
-        g = [f(gx, 40), f(gx, by1 + 30), f(70, by1 + 30)]
-        d = [f(dx_, 40), f(dx_, by1 + 22), f(70, by1 + 22)]
+        # R3: gidiş sağda (x=33), dönüş solda (x=17) → kolektöre kadar hatlar paralel, kesişmesiz (atlatma yok)
+        gx, dx_ = 33.0, 17.0
+        g = [f(gx, 40), f(gx, by1 + 22), f(76, by1 + 22)]
+        d = [f(dx_, 40), f(dx_, by1 + 30), f(70, by1 + 30)]
         czp.pl(g, C.GID, w=2.0, engel=False); czp.pl(d, C.DON, w=2.0, ltscale=3.0, engel=False)
-        cz.yazi(f(gx - 3, 46), 'KOLONDAN (GİDİŞ)', 7, C.GID, al='BL', rot=90, maske=False)
-        cz.yazi(f(dx_ + 3, 46), 'KOLONA (DÖNÜŞ)', 7, C.DON, al='BR', rot=90, maske=False)
-        el = [('kuresel_vana', 'kuresel_vana', 135.0, '1'), ('pislik_tutucu', None, 155.0, '2'),
-              ('kalorimetre_sensor', 'kalorimetre_km', 175.0, '3'), (None, 'balans_vanasi', 195.0, '4'),
-              ('kuresel_vana', 'kuresel_vana', 212.0, '5')]
+        cz.yazi(f(gx + 4.6, 46), 'KOLONDAN (GİDİŞ)', 7, C.GID, al='BR', rot=90, maske=False)
+        cz.yazi(f(dx_ - 3, 46), 'KOLONA (DÖNÜŞ)', 7, C.DON, al='BR', rot=90, maske=False)
+        el = [('r_kuresel_vana', 'r_kuresel_vana', 135.0, '1'), ('r_pislik_tutucu', None, 155.0, '2'),
+              ('kalorimetre_sensor', 'r_kalorimetre_sag', 175.0, '3'), (None, 'balans_vanasi', 195.0, '4'),
+              ('r_kuresel_vana', 'r_kuresel_vana', 212.0, '5')]
         for sg, sd, yy, no in el:
             for sm, xx in ((sg, gx), (sd, dx_)):
                 if sm:
                     p = f(xx, yy)
                     cz.maske([(p[0] - 30, p[1] - 22), (p[0] + 30, p[1] - 22), (p[0] + 30, p[1] + 22), (p[0] - 30, p[1] + 22)])
                     semb.ciz(cz.msp, sm, p, rot=-90.0, olcek=2.2, kat=SEM)
-            if sg == 'kalorimetre_sensor':
-                czp.pl([f(gx + 2, yy), f(dx_ - 3, yy)], SIN, engel=False, ltscale=1.0)
             cz.yazi(f(bx0 - 6, yy), no, 10, DT, al='MR', maske=False)
         cz.yazi(f(25, by0 - 6), 'HOL – KALORİMETRE (SAYAÇ) DOLABI 50×100×15', 8, DT, maske=False)
         cz.yazi(f(25, by0 - 13), 'okuma kapağı ortak alana açılır', 7, DT, maske=False)
         lst += ['1  Küresel vana (tam geçişli, PN16) – daire girişi', '2  Pislik tutucu (Y tipi, paslanmaz elek)',
-                '3  Kalorimetre (ısı pay ölçer): ultrasonik debi ölçer DÖNÜŞTE + gidiş/dönüş Pt1000 sıcaklık sensörü, M-Bus',
+                '3  Kalorimetre (ısı pay ölçer): ultrasonik debi ölçer DÖNÜŞTE + gidiş/dönüş Pt1000 sıcaklık sensörü (okuma kablosu elektrik projesinde)',
                 '4  Balans (dengeleme) vanası – ölçüm nipelli, ön ayarlı', '5  Küresel vana – daire çıkışı',
                 'Dolaptan sonra hatlar daire kapısı eşiğinden şap içinde kolektör dolabına gider.']
         xk0 = 90.0
@@ -406,11 +446,11 @@ def detay_ciz(cz, P, A, x, y):
         czp.pl([f(kx0 + 6, yy - 1.5), f(kx1 - 6, yy - 1.5), f(kx1 - 6, yy + 1.5), f(kx0 + 6, yy + 1.5)], KOLK, kapali=True, engel=False)
     # besleme girişi (sol): gidiş üst gövdeye, dönüş alt gövdeye
     if merkezi:
-        czp.pl([f(70, by1 + 30), f(70, taban + 4), f(kx0 - 6, taban + 4), f(kx0 - 6, yg_), f(kx0 + 6, yg_)], C.GID, w=2.0, engel=False)
-        czp.pl([f(76, by1 + 22), f(76, taban + 6), f(kx0 - 2, taban + 6), f(kx0 - 2, yd_), f(kx0 + 6, yd_)], C.DON, w=2.0, ltscale=3.0, engel=False)
+        czp.pl([f(76, by1 + 22), f(76, taban + 4), f(kx0 - 6, taban + 4), f(kx0 - 6, yg_), f(kx0 + 6, yg_)], C.GID, w=2.0, engel=False)
+        czp.pl([f(70, by1 + 30), f(70, taban + 6), f(kx0 - 2, taban + 6), f(kx0 - 2, yd_), f(kx0 + 6, yd_)], C.DON, w=2.0, ltscale=3.0, engel=False)
     else:
-        czp.pl([f(kx0 - 6, 60), f(kx0 - 6, yg_), f(kx0 + 6, yg_)], C.GID, w=2.0, engel=False)
-        czp.pl([f(kx0 - 2, 60), f(kx0 - 2, yd_), f(kx0 + 6, yd_)], C.DON, w=2.0, ltscale=3.0, engel=False)
+        czp.pl([f(kx0 - 2, 60), f(kx0 - 2, yg_), f(kx0 + 6, yg_)], C.GID, w=2.0, engel=False)
+        czp.pl([f(kx0 - 6, 60), f(kx0 - 6, yd_), f(kx0 + 6, yd_)], C.DON, w=2.0, ltscale=3.0, engel=False)
     for i in range(n):
         xg_ = kx0 + 15.0 + i * 7.0
         xd2 = xg_ + 3.0
@@ -447,13 +487,10 @@ def detay_ciz(cz, P, A, x, y):
     # açıklama listesi
     lst += ['KD  Kolektör dolabı: paslanmaz kolektör, gidişte debimetre, dönüşte vana, uçlarda otomatik purjör + boşaltma.',
             'Radyatörlerde termostatik vana (gidiş) ve ayar rakoru (dönüş). Kolektör dolabı ile kalorimetre arası şap içinde izolasyonlu.']
-    gls = [LineString(p) for p, _ in GL]
-    for p, w in GL:
+    for p, w in GL:                      # R3: köprü yok (güzergâh kesişmesiz kuruldu)
         cz.pl(p, C.GID, w=w, engel=False)
     for p, w in DL:
-        xy = C.kopru_ekle(p, gls, r=6.0)
-        xy = C.kopru_yon(xy, gls)
-        cz.pl([tuple(q) for q in xy], C.DON, w=w, ltscale=3.0, engel=False)
+        cz.pl(p, C.DON, w=w, ltscale=3.0, engel=False)
     for i, s in enumerate(lst):
         cz.yazi((x, y - (taban + 30) * K - i * 20), s, 10, 'ROTAS-YAZI', al='BL', maske=False)
 
