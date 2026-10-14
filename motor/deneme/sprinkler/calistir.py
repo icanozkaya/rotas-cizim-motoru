@@ -17,6 +17,10 @@ def calistir(girdi, cikti, png=None):
     c, van = ciz(P, net, hes, cikti)
     rap = kontrol(cikti, P['dis_hat'], len(c.Z) + 1)      # +1: kolon (riser) etiketi
     rap['etiketsiz'] = c.etiketsiz
+    import rotas_sembol, kademe
+    rap['mty'] = rotas_sembol.mty_kontrol(cikti)
+    rap['kademe_ag'] = kademe.kontrol_ag(net, net['sema_dn']['zon'])
+    rap['HATA'] += len(rap['mty']) + len(rap['kademe_ag'])
     if png:
         onizle(cikti, png)
     return P, net, hes, rap

@@ -20,7 +20,10 @@ DUVAR_MIN = 10.0      # duvara en az (cm) — pratik (⚠)
 KOLON_PAY = 30.0      # başlık / branşman betonarme kolon yüzünden en az (cm) — kabul
 
 # README kalıcı kuralı (Aselsan 02-Yangın): başlık sayısı -> çap
-DN_TABLO = [(2, 25), (3, 32), (5, 40), (10, 50), (20, 65), (40, 80), (100, 100)]
+DN_TABLO = [(2, 25), (3, 32), (5, 40), (10, 50), (20, 65), (40, 80), (100, 100), (160, 125)]
+# R2 (14.10.2026 B): DN125 kademesi eklendi (NFPA OH çizelgesi 5" = 160 başlık); > 160 başlık DN150.
+# Standart kademe dizisi: şemada her ayrımda ana hat en fazla BİR kademe düşer (kademe.py).
+DN_SERI = [25, 32, 40, 50, 65, 80, 100, 125, 150, 200]
 
 
 def dn_sec(n):
@@ -31,11 +34,11 @@ def dn_sec(n):
 
 
 # TS EN 10255 orta seri iç çaplar (mm) — motor/voyap/hidro.py ile aynı
-IC_CAP = {25: 27.3, 32: 36.0, 40: 41.9, 50: 53.1, 65: 68.9, 80: 80.9, 100: 105.3, 150: 155.4}
+IC_CAP = {25: 27.3, 32: 36.0, 40: 41.9, 50: 53.1, 65: 68.9, 80: 80.9, 100: 105.3, 125: 130.0, 150: 155.4}   # 125: EN 10255 139,7x4,85 ⚠
 
 # Eşdeğer boy (m), C=120 — EN 12845 Tablo 38 (⚠ değerler standart metninden doğrulanmalı)
-ES_DIRSEK = {25: 0.76, 32: 1.0, 40: 1.2, 50: 1.5, 65: 1.9, 80: 2.4, 100: 3.0, 150: 4.3}
-ES_TE = {25: 1.5, 32: 2.1, 40: 2.4, 50: 3.0, 65: 3.9, 80: 4.8, 100: 6.1, 150: 8.6}
+ES_DIRSEK = {25: 0.76, 32: 1.0, 40: 1.2, 50: 1.5, 65: 1.9, 80: 2.4, 100: 3.0, 125: 3.7, 150: 4.3}   # 125 ara değer ⚠
+ES_TE = {25: 1.5, 32: 2.1, 40: 2.4, 50: 3.0, 65: 3.9, 80: 4.8, 100: 6.1, 125: 7.4, 150: 8.6}
 
 HW_C = 120.0
 V_MAX = 10.0          # m/s, boru (vana ve akış anahtarında 6 m/s)

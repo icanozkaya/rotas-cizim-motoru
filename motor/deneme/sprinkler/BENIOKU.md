@@ -47,3 +47,21 @@ Program sonuçların özetini ve kontrol raporunu yazdırır. Raporda `HATA: 0` 
 - Kapı kanadı yayını mahal besleme borusu planda keser (tavan seviyesinde normaldir). Kontrol yalnız boru, yazı ve kolon çakışmalarına bakar.
 - Pompa ve depo tek kat içindir; dolap/hidrant payı `ek_debi_lpm` ile verilir. Kat zon vana grubunda izlenebilir kelebek vana ve akış anahtarı plandadır; test-drenaj yalnız not olarak yazılır.
 - Önizlemede ezdxf/matplotlib sabit genişlikli polyline'ları kaybedebiliyor. Önizleme bu yüzden genişliği çizgi kalınlığına çevirir; DXF dosyası değişmez.
+
+## R2 revizyonu (14.10.2026 (B) talimatı)
+Çalıştırma: `python3 motor/deneme/sprinkler/dolap_calistir.py motor/deneme/sprinkler/ornek_girdi/<kat_ofis|otopark>_dolap.json`
+(çıktı `proje/denemeler/sprinkler/<ad>_plan_R2.dxf`, `<ad>_kolon_semasi_R2.dxf`; pompa grubu girdisi
+`motor/deneme/pompa_grubu/girdi/yangin_<ad>_R2.json` seçilen değerlerle yazılır). Yalnız sprinkler planı: `calistir.py ... *_sprinkler_R2.dxf`.
+
+| Konu | Ne değişti | Kontrol |
+|---|---|---|
+| Purjör | Kolon (SP-1, YG..) tepelerinde purjör YOK; kolon kör tapa ile biter. Ekipman listesi ve notlardan çıkarıldı. | şema `purjor` = [] |
+| İtfaiye bağlantısı | KOLLEKTÖRLÜ: 2 x DN65 storz (cephe) -> DN100 itfaiye kollektörü -> otomatik boşaltma -> çek valf -> izlenebilir kelebek -> basma kollektörü. Akış okları ve çek valf tesisata doğru. | `itfaiye_test.py` (öz test: `python3 itfaiye_test.py`; DXF'ten çek valf/ok/storz yönü) |
+| Pompa seçimi | `dolap.pompa_sec`: `calisma_basinci_bar=[9,10]` (dolap_kurallar). Hidrolik ihtiyaç < 9 bar ise 9 bar; aralıkta ise ihtiyaç; > 10 bar ise ihtiyaç + not. Debi 5 m³/h adımına yuvarlanır. Motor gücü η=0,65 +%10. En alt katta çalışma / kapalı vana (1,15·H) basıncı 12 bar ile karşılaştırılır; aşarsa basınç düşürücü notu. Dolap girişi > 9 bar ise dolap BDV notu. Tablolarda yalnız HESAPLANAN / SEÇİLEN debi (m³/h) ve basma (mSS, bar); "yeterli/yetersiz" yok. | şema `yetersiz_yazisi` = [] |
+| Kademeli çap | `kurallar.DN_TABLO`'ya DN125 (≤160 başlık) eklendi. `kademe.py`: kollektör -> SP kolonu -> zon -> kat ağı ana hattı her ayrımda en fazla bir standart kademe (150-125-100-80...). Plan ağında ana hat devamı da kademelendirilir (yan branşmanlar tablo çapında). | `kademe.kontrol_zincir`, `kademe.kontrol_ag` |
+| MTY yok | `rotas_sembol.py`: saf geometri ROTAS-SMB-* bloklar (LINE/CIRCLE/ARC/LWPOLYLINE/HATCH; yazı/öznitelik/iç blok yok). Planda izlenebilir kelebek de bu bloktur. Lejant `rotas_sembol.lejant`. | `rotas_sembol.mty_kontrol` (blok/katman/yazı/ham metin) |
+| Atlatma yok | `dolap.Rota`: sprinkler borusunun 8 cm yakını yasak hücre (köprü çizimi kaldırıldı). Kesişmesiz güzergâh yoksa dolabın yanına ayrı YG kolonu verilir. | `dolap_spr_kesisme` = [], `dolap_kopru_sayisi` = 0 |
+| Etiketler | Şema sembol kutuları yönlü (gerçek) kutu ile hesaplanır; V-/FS-/ÇV- numaraları sembol yanında, çakışma kontrolü. | şema `yazi_sembol` / `yazi_yazi` = [] |
+
+Sınır: `motor/deneme/semboller2/` (başka ajan) hazır olduğunda `rotas_sembol` API'si (`ciz`, `hat`, `blok_tanimla`, `lejant`) ona bağlanabilir;
+bu turda hazır değildi (BENIOKU yok), kendi saf geometri modülü kullanıldı.

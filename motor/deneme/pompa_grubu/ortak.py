@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """pompa_grubu ortak çizim çekirdeği (ezdxf, R2018, birim cm).
 
-- Katmanlar ROTAS- önekli; MTY blokları kullanıcının kütüphanesinden gerçek blok (INSERT + CAP özniteliği) olarak eklenir.
+- Katmanlar ROTAS- önekli. R2 (14.10.2026 B): MTY BLOĞU YOK — vana/armatür sembolleri saf geometri ROTAS-SMB- bloklarıdır
+  (motor/deneme/sprinkler/rotas_sembol.py, LINE/CIRCLE/ARC/LWPOLYLINE/HATCH). Elektrik kalemi (kablo/sinyal) çizilmez.
 - Görünüşte önde kalan nesne (ör. önden geçen emiş kollektörü) arkadakini örter: arkadaki çizgiler kırpılır
   (z sırası), böylece çizgiler üst üste binmez. Vana/blok konan borular blok boyunca kesilir.
 - Yazıların altına ROTAS-MASKE katmanında WIPEOUT konur; yazı/yazı ve yazı/blok çakışması denetlenir.
@@ -9,47 +10,37 @@
 import math, os, glob, sys
 import ezdxf
 from ezdxf.enums import TextEntityAlignment as TA
-from ezdxf.addons import Importer
 from shapely.geometry import LineString, Polygon, box as sbox, Point
 from shapely.ops import unary_union
 
 MOTOR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 if MOTOR not in sys.path:
     sys.path.insert(0, MOTOR)
-
-BLKDIR = '/tmp/claude-0/blk'
+_SPR = os.path.join(MOTOR, 'deneme', 'sprinkler')
+if _SPR not in sys.path:
+    sys.path.append(_SPR)                 # yalnız rotas_sembol için (sona eklenir: semboller.py ad çakışması olmasın)
+import rotas_sembol as RS                 # noqa: E402
 
 LAYERS = {
     'ROTAS-POMPA-EKIPMAN': (4, 'Continuous'), 'ROTAS-POMPA-GIZLI': (4, 'DASHED'), 'ROTAS-POMPA-KAIDE': (8, 'Continuous'),
     'ROTAS-TARAMA': (8, 'Continuous'), 'ROTAS-BETON': (7, 'Continuous'), 'ROTAS-SU-SEVIYE': (5, 'DASHED'),
     'ROTAS-YANGIN-BORU': (1, 'Continuous'), 'ROTAS-SOGUKSU-BORU': (5, 'Continuous'), 'ROTAS-PISSU-BORU': (6, 'Continuous'),
     'ROTAS-YAKIT-BORU': (30, 'Continuous'), 'ROTAS-EGZOZ': (8, 'Continuous'), 'ROTAS-DRENAJ-BORU': (140, 'DASHED'),
-    'ROTAS-ELEKTRIK': (6, 'DASHED'), 'ROTAS-VANA': (1, 'Continuous'), 'ROTAS-OLCU': (2, 'Continuous'),
+    'ROTAS-YANGIN-ITFAIYE': (1, 'Continuous'), 'ROTAS-YANGIN-ITFAIYE-SEMBOL': (1, 'Continuous'), 'ROTAS-VANA': (1, 'Continuous'), 'ROTAS-OLCU': (2, 'Continuous'),
     'ROTAS-KOT': (2, 'Continuous'), 'ROTAS-YAZI': (7, 'Continuous'), 'ROTAS-CAP': (3, 'Continuous'),
     'ROTAS-NUMARA': (1, 'Continuous'), 'ROTAS-TABLO': (7, 'Continuous'), 'ROTAS-BASLIK': (2, 'Continuous'),
     'ROTAS-CERCEVE': (4, 'Continuous'), 'ROTAS-MASKE': (7, 'Continuous'), 'ROTAS-NOT': (1, 'Continuous'),
 }
 EQ, GZ, KD, TR, BT, SV = 'ROTAS-POMPA-EKIPMAN', 'ROTAS-POMPA-GIZLI', 'ROTAS-POMPA-KAIDE', 'ROTAS-TARAMA', 'ROTAS-BETON', 'ROTAS-SU-SEVIYE'
 YB, SB, PB, YK, EG, DR, EL = ('ROTAS-YANGIN-BORU', 'ROTAS-SOGUKSU-BORU', 'ROTAS-PISSU-BORU', 'ROTAS-YAKIT-BORU',
-                              'ROTAS-EGZOZ', 'ROTAS-DRENAJ-BORU', 'ROTAS-ELEKTRIK')
+                              'ROTAS-EGZOZ', 'ROTAS-DRENAJ-BORU', None)      # EL: elektrik kalemi YOK (R2)
+IT, ITS = 'ROTAS-YANGIN-ITFAIYE', 'ROTAS-YANGIN-ITFAIYE-SEMBOL'
 VN, OL, KT, YZ, CP, NU, TB, BS, CR, MS, NT = ('ROTAS-VANA', 'ROTAS-OLCU', 'ROTAS-KOT', 'ROTAS-YAZI', 'ROTAS-CAP', 'ROTAS-NUMARA',
                                               'ROTAS-TABLO', 'ROTAS-BASLIK', 'ROTAS-CERCEVE', 'ROTAS-MASKE', 'ROTAS-NOT')
-BORU_LAY = {YB, SB, PB, YK, EG, DR}
+BORU_LAY = {YB, SB, PB, YK, EG, DR, IT}
 
-# MTY blok adı -> (kütüphane dosyası, boru ekseni boyunca yarı boy (blok ölçeği 1), eksen yönü 'x' / 'y')
-MTY = {
-    'MTY-KELEBEK VANA': ('SIHHI TESISAT__VANALAR__MTY-KELEBEK VANA', 10.0),
-    'MTY-IZLENEBILIR KELEBEK VANA': ('SIHHI TESISAT__VANALAR__MTY-IZLENEBILIR KELEBEK VANA', 10.7),
-    'MTY-CEKVALF VANA': ('SIHHI TESISAT__VANALAR__MTY-CEKVALF VANA', 10.0),
-    'MTY-KOMPANSATOR': ('SIHHI TESISAT__VANALAR__MTY-KOMPANSATOR', 30.0),
-    'MTY-MANOMETRE': ('SIHHI TESISAT__VANALAR__MTY-MANOMETRE', 0.0),
-    'MTY-PISLIK TUTUCU': ('SIHHI TESISAT__VANALAR__MTY-PISLIK TUTUCU', 10.0),
-    'MTY-KURESEL VANA': ('SIHHI TESISAT__VANALAR__MTY-KURESEL VANA', 10.0),
-    'MTY-ESNEK BAGLANTI': ('SIHHI TESISAT__VANALAR__MTY-ESNEK BAGLANTI', 10.8),
-    'MTY-O.H.A.C': ('RADYATOR TESISATI__VANALAR__MTY-O.H.A.C', 0.0),
-    'MTY-EMNİYET VENTİLİ': ('RADYATOR TESISATI__VANALAR__MTY-EMNİYET VENTİLİ', 0.0),
-    'MTY-GERI AKIS ONLEYICI': ('SIHHI TESISAT__VANALAR__MTY-GERI AKIS ONLEYICI', 10.0),
-}
+# R2: vana sembolleri rotas_sembol (saf geometri). Yarı boy (boru ekseni boyunca, ölçek 1) RS.TANIM'dan.
+VANA = {ad: RS.TANIM[ad][2] for ad in RS.TANIM}
 
 DN_OD = {15: 2.13, 20: 2.69, 25: 3.37, 32: 4.24, 40: 4.83, 50: 6.03, 65: 7.61, 80: 8.89, 100: 11.43, 125: 13.97,
          150: 16.83, 200: 21.91, 250: 27.3}
@@ -117,9 +108,11 @@ class Cizim:
 
     # ------------------------------------------------------------------ ilkel
     def L(self, a, b, lay=EQ, z=1, w=0.0):
+        assert lay is not None, 'elektrik kalemi (kablo/sinyal) çizilmez (R2)'
         self.G.append(dict(t='P', pts=[tuple(a), tuple(b)], lay=lay, z=z, closed=False, w=w))
 
     def PL(self, pts, lay=EQ, z=1, closed=False, w=0.0):
+        assert lay is not None, 'elektrik kalemi (kablo/sinyal) çizilmez (R2)'
         if len(pts) > 1:
             self.G.append(dict(t='P', pts=[tuple(p) for p in pts], lay=lay, z=z, closed=closed, w=w))
 
@@ -169,23 +162,12 @@ class Cizim:
         ls = LineString(pts)
         self.OCCLUDE(ls.buffer(DN_OD[dn] / 2 + 1.5, cap_style=2), z)
 
-    # ------------------------------------------------------------------ MTY blok
-    def _bdef(self, name):
-        if name in self._blk:
-            return
-        src = ezdxf.readfile(os.path.join(BLKDIR, MTY[name][0] + '.dxf'))
-        ents = [e for e in src.modelspace() if not (e.dxftype() == 'INSERT' and e.dxf.name not in src.blocks)]
-        blk = self.doc.blocks.new(name)
-        im = Importer(src, self.doc)
-        im.import_entities(ents, target_layout=blk)
-        im.finalize()
-        self._blk[name] = blk
-
-    def mty(self, name, p, rot=0.0, s=1.0, cap='', kes=True, z=5, sx=None):
-        """MTY bloğu (patlatılmaz). kes=True ise üzerindeki boru blok boyunca kesilir."""
-        self._bdef(name)
-        self.INS.append(dict(name=name, p=tuple(p), rot=rot, s=s, sx=sx if sx is not None else s, cap=cap))
-        hl = MTY[name][1] * abs(s)
+    # ------------------------------------------------------------------ vana / armatür (saf geometri blok)
+    def vana(self, ad, p, rot=0.0, s=1.0, cap='', kes=True, z=5, sx=None, lay=VN):
+        """ROTAS-SMB saf geometri sembolü (+X = boru/akış yönü). kes=True ise üzerindeki boru sembol boyunca kesilir."""
+        name = RS.blok_tanimla(self.doc, ad)
+        self.INS.append(dict(name=name, ad=ad, p=tuple(p), rot=rot, s=s, sx=sx if sx is not None else s, cap=cap, lay=lay))
+        hl = VANA[ad] * abs(s)
         if kes and hl > 0:
             a = math.radians(rot)
             d = (math.cos(a) * hl, math.sin(a) * hl)
@@ -379,11 +361,8 @@ class Cizim:
 
     def _write_ins(self):
         for b in self.INS:
-            r = self.msp.add_blockref(b['name'], b['p'], dxfattribs={'layer': VN, 'rotation': b['rot'],
+            r = self.msp.add_blockref(b['name'], b['p'], dxfattribs={'layer': b.get('lay', VN), 'rotation': b['rot'],
                                                                       'xscale': b['sx'], 'yscale': b['s']})
-            att = r.add_auto_attribs({'CAP': b['cap'] or 'DN'})
-            for a in r.attribs:
-                a.is_invisible = True       # çap blok özniteliğinde saklı (MTY'de güncellenebilir); görünür çap etiketi boru üzerinde
             b['ref'] = r
 
     def _write_text(self):

@@ -70,19 +70,18 @@ def ciz(g, yol):
     for xp, fl, xr, kab in risers:
         c.boru([fl, (xr, fl[1]), (xr, y_top), (XR + 30, y_top)], PB, dn)
         c.OCCLUDE(sbox(xr - 4, -1, xr + 4, 4), 6, 'boru_haric')
-        c.mty('MTY-CEKVALF VANA', (xr, 35), 90, 1.0, f'DN{dn}')
-        c.mty('MTY-KURESEL VANA', (xr, 70), 90, 1.0, f'DN{dn}')
-        c.L(kab, (kab[0], 4), EL, 3)
+        c.vana('cekvalf', (xr, 35), 90, 1.0, f'DN{dn}')
+        c.vana('kuresel', (xr, 70), 90, 1.0, f'DN{dn}')
     c.T(XR + 32, y_top, 'ZEMİN KOTU ÜZERİNDEN AYRI RÖGARA (R2)', th * 0.85, 'ML', lay=PB)
     # pano
     xpn = -tw - 160
     S.kirisli_doseme(c, xpn - 15, xpn, 0, 190)
     S.pano(c, xpn, 70, 40, 60, 'P', kaide=0)
     c.L((xpn, 70), (xpn + 40, 70), EQ, 1)
-    yk = 25
-    c.PL([(risers[0][3][0], 4), (risers[0][3][0], yk), (xpn + 30, yk), (xpn + 30, 70)], EL, 3)
-    for k, (xf, yy) in enumerate(zip(xfs, (y_alarm, y_start, y_stop))):
-        c.PL([(xf, yy + 7), (xf, 9 + 4 * k), (xpn + 8 + 7 * k, 9 + 4 * k), (xpn + 8 + 7 * k, 70)], EL, 3)
+    # R2: elektrik kalemi yok — pompa / flatör kabloları ve pano bağlantıları çizilmez (elektrik projesi)
+    for xf, yy in zip(xfs, (y_alarm, y_start, y_stop)):
+        c.L((xf, yy + 7), (xf, -4), EQ, 3)          # flatör askı halatı (kapak altındaki askı braketine)
+    c.L((4, -4), (28, -4), EQ, 3)
     # ---------------------------------------------------------------- etiketler, kot, ölçü
     def kt(v):
         return z0 + v
@@ -111,13 +110,13 @@ def ciz(g, yol):
     B = c.BALON
     xp, fl, xr, kab = risers[0]
     B(no('cukur', 'PİS SU ÇUKURU (BETONARME)', [f'iç {a:.0f}x{b:.0f}x{h:.0f} cm', 'su yalıtımlı', 'taban pompaya doğru eğimli']), (a - 10, -h + 6), (a + tw + 30, -h + 20))
-    B(no('kapak', 'SIZDIRMAZ ÇUKUR KAPAĞI', [f'{a + 10:.0f}x{b + 10:.0f} cm', 'köşebent çerçeveli, contalı', 'kablo ve boru geçişli']), (a / 2 + 15, 2), (60, 42))
+    B(no('kapak', 'SIZDIRMAZ ÇUKUR KAPAĞI', [f'{a + 10:.0f}x{b + 10:.0f} cm', 'köşebent çerçeveli, contalı', 'boru geçişli']), (a / 2 + 15, 2), (44, 42))
     B(no('pompa', 'DALGIÇ PİS SU POMPASI', [f'Q={tr(Q, 0)} m³/h', f'H={tr(H, 0)} mSS', f'P={tr(P["P"], 1)} kW', 'vortex çarklı', f'serbest geçiş ≥{P.get("serbest_gecis_mm", 50)} mm',
                                             f'{n} adet' + (' (asıl+yedek, sıralı)' if n > 1 else '')]), (xp + 6, -h + 40), (60, -22))
-    B(no('cek', 'ÇEK VALF (BİLYELİ, PİS SU TİPİ)', [f'DN{dn}', 'PN10', 'MTY-CEKVALF VANA']), (xr + 7, 35), (xr + 28, 40))
-    B(no('vana', 'KÜRESEL VANA (TAM GEÇİŞLİ)', [f'DN{dn}', 'PN16', 'MTY-KURESEL VANA']), (xr + 7, 70), (xr + 28, 75))
+    B(no('cek', 'ÇEK VALF (BİLYELİ, PİS SU TİPİ)', [f'DN{dn}', 'PN10']), (xr + 7, 35), (xr + 28, 40))
+    B(no('vana', 'KÜRESEL VANA (TAM GEÇİŞLİ)', [f'DN{dn}', 'PN16']), (xr + 7, 70), (xr + 28, 75))
     B(no('basma', 'BASMA HATTI', [f'DN{dn} galvaniz/PE100', f'v={tr(hiz(Q, dn))} m/s', 'ayrı rögara (R2)']), (xr + 40, y_top + 2), (xr + 40, y_top + 22))
-    B(no('flt', 'SEVİYE FLATÖRÜ', ['durdurma / çalıştırma / alarm', 'kablolu, armut tipi']), (xfs[1] + 4, y_start), (30, -18))
+    B(no('flt', 'SEVİYE FLATÖRÜ', ['durdurma / çalıştırma / alarm', 'armut tipi, kapak altı brakete asılı']), (xfs[1] + 4, y_start), (30, -18))
     B(no('giris', 'PİS SU GİRİŞ BORUSU', ['Ø100 PVC', 'bodrum ıslak hacimleri']), (-tw - 40, y_in + rP - 1), (-tw - 40, -60))
     B(no('pano', 'POMPA KUMANDA PANOSU', ['seviye kontrollü', 'yüksek seviye alarmı (sesli/ışıklı)', 'IP54', 'duvara monte']), (xpn + 20, 110), (xpn + 20, 150))
     # ---------------------------------------------------------------- başlık, tablo, notlar

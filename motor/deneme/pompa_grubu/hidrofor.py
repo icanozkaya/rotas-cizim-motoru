@@ -58,7 +58,7 @@ def ciz(g, yol):
     c.boru([(xf, yb + Hd + 4), (xf, h_max + 12)], SB, 32, z=5)
     S.samandira_vana(c, (xf, h_max + 8), kol=28)
     c.OCCLUDE(Point(xf - 36, h_max + 8 - 9.8 - 2).buffer(10), 2)
-    c.mty('MTY-KURESEL VANA', (xf, YT - 30), 90, 0.8, 'DN32')
+    c.vana('kuresel', (xf, YT - 30), 90, 0.8, 'DN32')
     c.T(xf + 6, YT + ts + 18, 'ŞEBEKEDEN DOLUM', th * 0.85, 'BL', lay=SB)
     yt = yb + Hd - 5
     c.boru([(x0 + 15, yt), (x0 - 50, yt), (x0 - 50, 22)], DR, 65, kalin=0.8)
@@ -66,7 +66,7 @@ def ciz(g, yol):
     S.huni(c, (x0 - 50, 8)); S.yer_suzgeci(c, x0 - 50, 0)
     c.boru([(x0 + 10, yb + 10), (x0 - 25, yb + 10), (x0 - 25, 2)], DR, 40, kalin=0.6)
     c.OCCLUDE(sbox(x0 - 3, yb + 6, x0 + 1, yb + 14), 5, 'boru_haric')
-    c.mty('MTY-KURESEL VANA', (x0 - 25, yb - 6), 90, 0.8, 'DN40')
+    c.vana('kuresel', (x0 - 25, yb - 6), 90, 0.8, 'DN40')
     S.yer_suzgeci(c, x0 - 25, 0)
     S.menhol(c, x0 + 40, yb + Hd + 4, 60)
     xh = x0 + 180
@@ -74,7 +74,7 @@ def ciz(g, yol):
     c.ARC((xh + 6, yb + Hd + 30), 6, 0, 180, EQ, 3)
     c.L((xh + 12, yb + Hd + 30), (xh + 12, yb + Hd + 26), EQ, 3)
     xfl = x1 - 60
-    c.L((xfl, yb + Hd + 2), (xfl, h_min + 12), EL, 3)
+    c.L((xfl, yb + Hd + 2), (xfl, h_min + 12), EQ, 3)          # flatör askı halatı (R2: kablo çizilmez)
     S.flator(c, (xfl, h_min + 12))
     # ---------------------------------------------------------------- emiş: depo çıkışı -> vana -> pislik tutucu -> kollektör (önde)
     y_s = yb + 20
@@ -83,8 +83,8 @@ def ciz(g, yol):
     c.boru_occ([(x1 + 2, y_s), (xs_son, y_s)], dn_s, 3)
     c.OCCLUDE(sbox(x1 - 1, y_s - 5, x1 + 3, y_s + 5), 5, 'boru_haric')
     c.RECT(xs_son + 1, y_s - DN_OD[dn_s] / 2 * 1.4, xs_son + 3, y_s + DN_OD[dn_s] / 2 * 1.4, EQ, 4)
-    c.mty('MTY-KURESEL VANA', (x1 + 22, y_s), 0, _s(dn_s), f'DN{dn_s}', z=6)
-    c.mty('MTY-PISLIK TUTUCU', (x1 + 50, y_s), 0, _s(dn_s), f'DN{dn_s}', z=6)
+    c.vana('kuresel', (x1 + 22, y_s), 0, _s(dn_s), f'DN{dn_s}', z=6)
+    c.vana('pislik_tutucu', (x1 + 50, y_s), 0, _s(dn_s), f'DN{dn_s}', z=6)
     # ---------------------------------------------------------------- pompalar
     kj = P.get('kaide_cm', 40)
     Hm, Dm, Bp = P.get('Hm', 85), P.get('Dm', 22), P.get('Bp', 25)
@@ -95,12 +95,12 @@ def ciz(g, yol):
         sI, bI = S.dikey_pompa(c, xc, 0, Hm, Dm, Bp, 14, dn_p, kaide=kj, kaide_gen=Bp + 30)
         xv = xc - 75; xr = xc + 30
         c.boru([(xv, y_s), (xv, sI[1]), sI], SB, dn_p)
-        c.mty('MTY-KURESEL VANA', (xc - 60, sI[1]), 0, _s(dn_p), f'DN{dn_p}')
-        c.mty('MTY-ESNEK BAGLANTI', (xc - 36, sI[1]), 0, _s(dn_p), f'DN{dn_p}')
+        c.vana('kuresel', (xc - 60, sI[1]), 0, _s(dn_p), f'DN{dn_p}')
+        c.vana('esnek', (xc - 36, sI[1]), 0, _s(dn_p), f'DN{dn_p}')
         c.boru([bI, (xr, bI[1]), (xr, y_kb)], SB, dn_p)
-        c.mty('MTY-ESNEK BAGLANTI', (xr, 80), 90, _s(dn_p), f'DN{dn_p}')
-        c.mty('MTY-CEKVALF VANA', (xr, 115), 90, _s(dn_p), f'DN{dn_p}')
-        c.mty('MTY-KURESEL VANA', (xr, 150), 90, _s(dn_p), f'DN{dn_p}')
+        c.vana('esnek', (xr, 80), 90, _s(dn_p), f'DN{dn_p}')
+        c.vana('cekvalf', (xr, 115), 90, _s(dn_p), f'DN{dn_p}')
+        c.vana('kuresel', (xr, 150), 90, _s(dn_p), f'DN{dn_p}')
         pomp.append((xc, xv, xr, sI))
     # ---------------------------------------------------------------- basma kollektörü, çıkış, membranlı tank, şalter, manometre
     xk0 = pomp[0][2] - 25
@@ -110,17 +110,17 @@ def ciz(g, yol):
     c.RECT(xk0 - 3, y_kb - DN_OD[dn_b] / 2 * 1.4, xk0 - 1, y_kb + DN_OD[dn_b] / 2 * 1.4, EQ, 4)
     c.boru([(x_cik, y_kb), (x_cik, YT + ts + 30)], SB, dn_b)
     c.OCCLUDE(sbox(x_cik - 5, YT, x_cik + 5, YT + ts), 5, 'boru_haric')
-    c.mty('MTY-KURESEL VANA', (x_cik, y_kb + 45), 90, _s(dn_b), f'DN{dn_b}')
+    c.vana('kuresel', (x_cik, y_kb + 45), 90, _s(dn_b), f'DN{dn_b}')
     c.T(x_cik + 8, YT + ts + 22, 'BİNA KULLANMA SUYU ŞEBEKESİNE', th * 0.85, 'ML', lay=SB)
     mt = S.membranli_tank(c, xm, 0, P.get('mtank_D', 45), P.get('mtank_H', 75))
     c.boru([(xm, y_kb), mt], SB, 25)
-    c.mty('MTY-KURESEL VANA', (xm, 120), 90, 0.8, 'DN25')
+    c.vana('kuresel', (xm, 120), 90, 0.8, 'DN25')
     xps = xk0 + 45
     c.boru([(xps, y_kb), (xps, y_kb + 22)], SB, 15, kalin=0)
-    c.mty('MTY-KURESEL VANA', (xps, y_kb + 14), 90, 0.5, 'DN15')
+    c.vana('kuresel', (xps, y_kb + 14), 90, 0.5, 'DN15')
     S.basinc_salteri(c, (xps, y_kb + 22))
     xmn = xk0 + 85
-    c.mty('MTY-MANOMETRE', (xmn, y_kb), 0, 1.0, kes=False)
+    c.vana('manometre', (xmn, y_kb), 0, 1.0, kes=False)
     # pano
     xp0 = xm + 45
     S.pano(c, xp0, 0, 60, 110, 'H', kaide=40)
@@ -160,20 +160,20 @@ def ciz(g, yol):
     B(no('hav', 'HAVALIK (SİNEK TELLİ, KAZ BOYNU)', ['DN50']), (xh + 6, yb + Hd + 36), (xh + 30, yb + Hd + 45))
     B(no('flt', 'KURU ÇALIŞMA KORUMA FLATÖRÜ', ['seviye düşünce pompaları durdurur', 'panoya bağlı']), (xfl, h_min + 5), (xfl - 30, h_min + 25))
     B(no('emk', 'EMİŞ KOLLEKTÖRÜ', [f'DN{dn_s}', f'v={tr(hiz(Q, dn_s))} m/s', 'kör flanşlı uç']), (x1 + 85, y_s - 4), (x1 + 85, y_s - 30))
-    B(no('kur', 'KÜRESEL VANA', ['DN15 - DN65', 'PN16', 'MTY-KURESEL VANA']), (x1 + 22, y_s + 5), (x1 + 22, y_s + 28))
-    B(no('pt', 'PİSLİK TUTUCU (Y TİPİ)', [f'DN{dn_s}', 'MTY-PISLIK TUTUCU']), (x1 + 50, y_s + 6), (x1 + 50, y_s + 28))
+    B(no('kur', 'KÜRESEL VANA', ['DN15 - DN65', 'PN16']), (x1 + 22, y_s + 5), (x1 + 22, y_s + 28))
+    B(no('pt', 'PİSLİK TUTUCU (Y TİPİ)', [f'DN{dn_s}']), (x1 + 50, y_s + 6), (x1 + 50, y_s + 28))
     B(no('pompa', 'HİDROFOR POMPASI (DİKEY ÇOK KADEMELİ)', [f'Q={tr(q1, 2)} m³/h', f'H={tr(P["H"], 0)} mSS', f'P={tr(P["P"], 1)} kW', '400V 50Hz',
                                                            f'{n - P.get("yedek", 1)} asıl + {P.get("yedek", 1)} yedek', 'frekans konvertörlü']), (pomp[0][0], 100), (pomp[0][0] - 40, 120))
     for xc, xv, xr, sI in pomp[1:]:
         B(N['pompa'], (xc, 100), (xc - 40, 120))
-    B(no('esnek', 'ESNEK BAĞLANTI (KAUÇUK KÖRÜKLÜ)', [f'DN{dn_p}', 'PN16', 'MTY-ESNEK BAGLANTI']), (pomp[0][0] - 36, pomp[0][3][1] + 6), (pomp[0][0] - 36, 85))
-    B(no('cek', 'ÇEK VALF', [f'DN{dn_p}', 'PN16', 'MTY-CEKVALF VANA']), (pomp[0][2] + 7, 115), (pomp[0][2] + 22, 125))
+    B(no('esnek', 'ESNEK BAĞLANTI (KAUÇUK KÖRÜKLÜ)', [f'DN{dn_p}', 'PN16']), (pomp[0][0] - 36, pomp[0][3][1] + 6), (pomp[0][0] - 36, 85))
+    B(no('cek', 'ÇEK VALF', [f'DN{dn_p}', 'PN16']), (pomp[0][2] + 7, 115), (pomp[0][2] + 22, 125))
     for xc, xv, xr, sI in pomp[1:]:
         B(N['cek'], (xr + 7, 115), (xr + 22, 125))
     B(no('bk', 'BASMA KOLLEKTÖRÜ', [f'DN{dn_b}', f'v={tr(hiz(Q, dn_b))} m/s']), (pomp[-1][2] + 20, y_kb + 3), (pomp[-1][2] + 20, y_kb + 25))
     B(no('mt', 'MEMBRANLI BASINÇ TANKI', [f'{P.get("mtank_L", 100)} L', '10 bar', 'gıdaya uygun membran']), (xm + 10, 50), (xm + 10, 98))
     B(no('ps', 'BASINÇ ŞALTERİ / TRANSMİTTER', [f'devreye {tr(PB_ - 0.5, 1)} bar / durur {tr(PB_, 1)} bar', 'küresel vanalı']), (xps + 5, y_kb + 34), (xps + 25, y_kb + 46))
-    B(no('mano', 'MANOMETRE (MUSLUKLU)', ['Ø100', '0-10 bar', 'MTY-MANOMETRE']), (xmn + 5, y_kb + 22), (xmn + 25, y_kb + 34))
+    B(no('mano', 'MANOMETRE (MUSLUKLU)', ['Ø100', '0-10 bar']), (xmn + 5, y_kb + 22), (xmn + 25, y_kb + 34))
     B(no('pano', 'HİDROFOR KUMANDA PANOSU', ['frekans konvertörlü', 'kuru çalışma koruması', 'sıralı/yedekli çalışma', 'IP54']), (xp0 + 30, 120), (xp0 + 30, 175))
     B(no('ys', 'YER SÜZGECİ (SİFONLU)', ['DN100']), (x0 - 50, -3), (x0 - 75, -12))
     B(N['ys'], (x0 - 25, -3), (x0 - 2, -12))
@@ -192,7 +192,7 @@ def ciz(g, yol):
         '4. Depoda kuru çalışma koruma flatörü bulunacak, su seviyesi düştüğünde pompalar pano üzerinden durdurulacaktır.',
         '5. Taşma ve boşaltma hatları açık uç bırakılmayacak, görünür akıtma ile yer süzgecine bağlanacaktır.',
         '6. Basınç şalteri ayar değerleri öneridir; en elverişsiz musluk basıncına göre devreye almada kesinleştirilecektir.',
-        '7. Tüm vanalar MTY blokları ile gösterilmiş olup çap bilgileri blok özniteliğinde (CAP) saklıdır.',
+        '7. Vana ve armatür sembolleri saf geometri ROTAS-SMB bloklarıdır; çaplar boru üzerindeki DN etiketlerindedir. Elektrik bağlantıları gösterilmez.',
     ]
     c.notlar(XL - 25 + th * 101 + th * 6, yb2, 'NOTLAR', notlar, th * 70)
     nuy = c.kaydet(yol)

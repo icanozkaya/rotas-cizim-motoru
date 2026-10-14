@@ -10,7 +10,7 @@ from shapely.geometry import box as sbox
 from shapely.ops import unary_union
 import networkx as nx
 from kurallar import SINIF
-from semboller import tanimla, OLCU
+from semboller import tanimla, OLCU, KELEBEK
 
 LAY = {
     'ROTAS-MIMARI-DUVAR': 8, 'ROTAS-MIMARI-KOLON': 8, 'ROTAS-MIMARI-KOLON-TARAMA': 9, 'ROTAS-MIMARI-KAPI': 8,
@@ -19,7 +19,7 @@ LAY = {
     'ROTAS-YANGIN-DUGUM': 3, 'ROTAS-YANGIN-TABLO': 7, 'ROTAS-YANGIN-YAZI': 7, 'ROTAS-YANGIN-MASKE': 7,
     'ROTAS-YANGIN-BASLIK': 7, 'ROTAS-YANGIN-LEJANT': 7, 'ROTAS-YANGIN-NOT': 1,
 }
-WD = {25: 0.0, 32: 0.0, 40: 1.5, 50: 2.0, 65: 2.5, 80: 3.0, 100: 4.0, 150: 5.0}   # VOYAP kalem genişlikleri
+WD = {25: 0.0, 32: 0.0, 40: 1.5, 50: 2.0, 65: 2.5, 80: 3.0, 100: 4.0, 125: 4.5, 150: 5.0}   # VOYAP kalem genişlikleri
 WF = 0.8              # yazı genişlik katsayısı
 
 
@@ -298,7 +298,7 @@ class Cizim:
         else:
             t1, t2 = L * 0.28, L * 0.62
         ang = math.degrees(math.atan2(uy, ux))
-        return [dict(blok='MTY-IZLENEBILIR KELEBEK VANA', p=(a[0] + ux * t1, a[1] + uy * t1), rot=ang, zid=z0,
+        return [dict(blok=KELEBEK, p=(a[0] + ux * t1, a[1] + uy * t1), rot=ang, zid=z0,
                      no='V-01', ad='İZLENEBİLİR KELEBEK VANA', dn=z['dn']),
                 dict(blok='ROTAS-AKIS-ANAHTARI', p=(a[0] + ux * t2, a[1] + uy * t2), rot=ang, zid=z0, no='FS-01',
                      ad='AKIŞ ANAHTARI', dn=z['dn'])]
@@ -306,8 +306,6 @@ class Cizim:
     def vanalar_ciz(self, vanalar):
         for v in vanalar:
             ins = self.msp.add_blockref(v['blok'], v['p'], dxfattribs={'layer': 'ROTAS-YANGIN-VANA', 'rotation': v['rot']})
-            if v['blok'].startswith('MTY-'):
-                ins.add_auto_attribs({'CAP': f"DN{v['dn']}"})
             k = OLCU[v['blok']]['kutu']
             c = math.cos(math.radians(v['rot']))
             s = math.sin(math.radians(v['rot']))
@@ -564,8 +562,8 @@ class Cizim:
             ('Alarm + zon vana kayıpları (kabul)', f"{fmt(o['dp_van'], 2)} bar"),
             ('Statik yükseklik (pompa ekseni → başlık)', f"{fmt(o['statik_m'], 1)} m = {fmt(o['stat'], 2)} bar"),
             ('Ek debi (dolap / hortum payı)', f"{fmt(o['ek'], 0)} l/dk"),
-            ('POMPA DEBİSİ', f"{fmt(o['Qp_m3h'], 1)} m³/h ({fmt(o['Qp'], 0)} l/dk)"),
-            ('POMPA BASMA YÜKSEKLİĞİ', f"{fmt(o['Pp'], 2)} bar = {fmt(o['Hp'], 1)} mSS"),
+            ('Sprinkler debisi - hesaplanan', f"{fmt(o['Qp_m3h'], 1)} m³/h ({fmt(o['Qp'], 0)} l/dk)"),
+            ('Sprinkler için pompa basıncı - hesaplanan', f"{fmt(o['Hp'], 1)} mSS = {fmt(o['Pp'], 2)} bar"),
             (f"Yangın suyu deposu ({o['sure']} dk, yalnız sprinkler)", f"{fmt(o['V'], 1)} m³"),
             ('En yüksek boru hızı', f"{fmt(o['vmax'], 2)} m/s {'≤' if o['v_ok'] else '>'} 10 m/s"),
             ('Hazen-Williams C / formül', '120 / p = 6,05·10⁵·Q^1,85 / (C^1,85·d^4,87)'),
@@ -615,10 +613,9 @@ class Cizim:
         yaz(bt); satir += 1
         self.PL([(x + 10, yc()), (x + 110, yc())], 'ROTAS-YANGIN-SPR-BORU', w=2.0)
         yaz('SPRİNKLER BORUSU (TS EN 10255 ORTA SERİ, KIRMIZI)'); satir += 1
-        self.msp.add_blockref('MTY-IZLENEBILIR KELEBEK VANA', (x + 60, yc()), dxfattribs={'layer': 'ROTAS-YANGIN-VANA'}) \
-            .add_auto_attribs({'CAP': ''})
-        self.PL([(x + 10, yc()), (x + 49.3, yc())], 'ROTAS-YANGIN-SPR-BORU')
-        self.PL([(x + 70.7, yc()), (x + 110, yc())], 'ROTAS-YANGIN-SPR-BORU')
+        self.msp.add_blockref(KELEBEK, (x + 60, yc()), dxfattribs={'layer': 'ROTAS-YANGIN-VANA'})
+        self.PL([(x + 10, yc()), (x + 50, yc())], 'ROTAS-YANGIN-SPR-BORU')
+        self.PL([(x + 70, yc()), (x + 110, yc())], 'ROTAS-YANGIN-SPR-BORU')
         yaz('İZLENEBİLİR KELEBEK VANA (V-..)'); satir += 1
         self.msp.add_blockref('ROTAS-AKIS-ANAHTARI', (x + 60, yc()), dxfattribs={'layer': 'ROTAS-YANGIN-VANA'})
         self.PL([(x + 10, yc()), (x + 43.7, yc())], 'ROTAS-YANGIN-SPR-BORU')
@@ -659,11 +656,11 @@ class Cizim:
             f"Sprinkler tesisatı BYKHY ve TS EN 12845'e göre {o['sinif']} tehlike sınıfı, {fmt(o['yog'], 1)} mm/dk yoğunluk ve {fmt(o['A'], 0)} m² işletme alanı ile yapılacaktır.",
             "Borular TS EN 10255 orta seri siyah çelik olacak, DN50 ve altı dişli, DN65 ve üstü kaynaklı veya yivli bağlantı ile yapılacaktır.",
             "Sprinkler başlıkları K80, 68 °C, standart tepkili olarak monte edilecektir.",
-            "Boru çapları ROTAŞ başlık sayısı tablosuna göre seçilmiş olup hidrolik hesap tablosu ile doğrulanacaktır.",
+            "Boru çapları ROTAŞ başlık sayısı tablosuna göre seçilmiş olup hidrolik hesap tablosu ile doğrulanacaktır; ana hat her ayrımda en fazla bir standart kademe düşer (DN150-125-100-80-65...).",
             "Kolon çıkışında izlenebilir kelebek vana, akış anahtarı ve DN32 test-drenaj vanası (kolon şemasında) yapılacaktır.",
             "Tesisat 15 bar basınçla 2 saat hidrostatik teste tabi tutulacaktır.",
             "Askı ve deprem destekleri TS EN 12845 ve NFPA 13'e uygun olarak yapılacaktır.",
-            "Pompa ve depo değerleri tek kat hesabıdır; bina geneli hesabı ile kesinleştirilecektir.",
+            "Pompa ve depo değerleri tek kat hesabıdır; pompa seçimi (sistem çalışma basıncı 9-10 bar) kolon şemasındaki pompa tablosundadır.",
         ]
         if self.P.get('deneme'):
             nt.append("DENEME: mimari yapaydır, hidrolik giriş değerleri örnektir; bu çizim uygulamada kullanılmayacaktır.")

@@ -1,45 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Semboller: önce kullanıcının MTY blok kütüphanesi (/tmp/claude-0/blk), yoksa Aselsan 02-Yangın lejant
-geometrisi (motor/voyap/asel_sym.pkl — yalnız OKUNUR) ve 03_SEMBOLLER.md tarifleri. Bloklar patlatılmaz."""
-import os, math, pickle, tarfile
-from ezdxf.addons.importer import Importer
-import ezdxf
+"""Semboller (R2, 14.10.2026 B): MTY bloğu KULLANILMAZ. Sprinkler başlığı ve akış anahtarı Aselsan 02-Yangın lejant
+geometrisinden (motor/voyap/asel_sym.pkl — yalnız OKUNUR) ROTAS- adlı saf geometri bloklar; izlenebilir kelebek vana
+rotas_sembol.py (saf geometri)."""
+import os, math, pickle
 
-BLK = '/tmp/claude-0/blk'
 DEPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..'))
-TAR = os.path.join(DEPO, 'kutuphane', 'ROTAS_2_MTY_BLOKLARI_2026-10-11.tar.xz')
 ASL_PKL = os.path.join(DEPO, 'motor', 'voyap', 'asel_sym.pkl')
 
-MTY_KELEBEK = 'SIHHI TESISAT__VANALAR__MTY-IZLENEBILIR KELEBEK VANA.dxf'
-
-
-def _mty_dosya(ad):
-    p = os.path.join(BLK, ad)
-    if os.path.exists(p):
-        return p
-    if os.path.exists(TAR):                  # kurulum yapılmamışsa kütüphaneden çıkar
-        with tarfile.open(TAR) as t:
-            for m in t.getmembers():
-                if m.name.endswith('/' + ad):
-                    m.name = ad
-                    t.extract(m, BLK)
-                    return p
-    return None
-
-
-def mty_blok(doc, blok_adi, dosya):
-    """MTY wblock dosyasının modelspace içeriğini aynı adlı blok olarak içe al (iç katmanlarıyla)"""
-    if blok_adi in doc.blocks:
-        return True
-    p = _mty_dosya(dosya)
-    if not p:
-        return False
-    s = ezdxf.readfile(p)
-    b = doc.blocks.new(blok_adi)
-    im = Importer(s, doc)
-    im.import_entities(s.modelspace(), target_layout=b)
-    im.finalize()
-    return True
+KELEBEK = 'ROTAS-SMB-IZLENEBILIR-KELEBEK'
 
 
 def _asl():
@@ -78,19 +46,14 @@ def tanimla(doc):
         h = b.add_hatch(dxfattribs={'layer': '0'})
         h.paths.add_polyline_path([(3 * math.cos(a / 8 * math.pi), 3 * math.sin(a / 8 * math.pi)) for a in range(16)],
                                   is_closed=True)
-    kel = mty_blok(doc, 'MTY-IZLENEBILIR KELEBEK VANA', MTY_KELEBEK)
-    if not kel and 'MTY-IZLENEBILIR KELEBEK VANA' not in doc.blocks:      # yedek: Aselsan lejantı
-        b = doc.blocks.new('MTY-IZLENEBILIR KELEBEK VANA')
-        for pr in A['İZLENEBİLİR KELEBEK VANA']['prim']:
-            if pr[0] == 'L':
-                b.add_line(pr[1][0], pr[1][1], dxfattribs={'layer': '0'})
-            elif pr[0] == 'P':
-                b.add_lwpolyline(pr[1], dxfattribs={'layer': '0'})
-    return dict(kelebek_mty=kel)
+    # R2: MTY bloğu YOK — izlenebilir kelebek vana saf geometri (rotas_sembol)
+    import rotas_sembol as RS
+    RS.blok_tanimla(doc, 'izlenebilir_kelebek')
+    return dict(kelebek_mty=False)
 
 
 # planda borunun kapladığı yarı boy (boru bu aralıkta kesilir) ve sembol kutusu (yarı genişlik, alt, üst) — cm
 OLCU = {
-    'MTY-IZLENEBILIR KELEBEK VANA': dict(yari=10.7, kutu=(-10.7, -5.1, 10.7, 13.9)),
+    KELEBEK: dict(yari=10.0, kutu=(-10.0, -7.0, 10.0, 19.0)),
     'ROTAS-AKIS-ANAHTARI': dict(yari=16.3, kutu=(-16.3, -11.1, 16.3, 29.1)),
 }

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Dolaplı planın bağımsız kontrolü (DXF dosyadan yeniden okunur). sprinkler kontrol.py'ye ek olarak:
-1) dolap borusu: betonarme kolon / duvar kesmez; sprinkler borusu ile üst üste binmez; kesişmeler yalnız köprüde
+1) dolap borusu: betonarme kolon / duvar kesmez; sprinkler borusu ile üst üste binmez ve KESİŞMEZ (R2: köprü/atlatma yok, kesişme 0)
 2) dolap gövdesi kolon ve kapı açıklığına binmez
 3) dolap yazıları (çap, YD no, YG balon, merdiven) diğer yazı / boru / başlık / duvar / dolap sembolü ile çakışmaz
 4) her dolap boru zincirinde DN etiketi
@@ -56,7 +56,8 @@ def kontrol_dolap(dosya, P, D, k):
     rap['dolap_boru_kolon'] = [round(g.intersection(kol).length, 1) for g, _, _ in dol if g.intersection(kol).length > 0.5]
     rap['dolap_boru_duvar'] = [(round(x.centroid.x), round(x.centroid.y)) for g, _, _ in dol for w in duv
                                for x in [g.intersection(w)] if not x.is_empty]
-    ust, kes = [], []
+    ust, kes, kes_spr = [], [], []
+    rap['dolap_kopru_sayisi'] = sum(len(k_) for _, _, k_ in dol)
     for i, (g, pts, kop) in enumerate(dol):
         for h, pts2, _ in spr:
             x = g.intersection(h.buffer(0.3))
@@ -66,8 +67,7 @@ def kontrol_dolap(dosya, P, D, k):
                 ust.append((i, round(x.length, 1)))
                 continue
             c = x.centroid
-            if not any(b.contains(c) for b in kop):
-                kes.append((round(c.x), round(c.y)))
+            kes_spr.append((round(c.x), round(c.y)))          # R2: köprü yok, her kesişme hatadır
         for j, (h, pts2, kop2) in enumerate(dol):
             if j <= i:
                 continue
@@ -86,6 +86,7 @@ def kontrol_dolap(dosya, P, D, k):
                     kes.append((round(c.x), round(c.y)))
     rap['dolap_boru_ust_uste'] = ust
     rap['dolap_boru_kopru_disi_kesisme'] = kes
+    rap['dolap_spr_kesisme'] = kes_spr
     # 2) dolap gövdeleri
     ins = [e for e in msp.query('INSERT') if e.dxf.name == 'ROTAS-YANGIN-DOLABI-PLAN' and ici(Point(e.dxf.insert.x, e.dxf.insert.y))]
     govde, orj = [], []
@@ -157,7 +158,8 @@ def kontrol_dolap(dosya, P, D, k):
     rap['dolap_arasi_max_m'] = round(max(nn), 1) if nn else 0.0
     hata = sum(len(rap[x]) for x in ('dolap_boru_kolon', 'dolap_boru_duvar', 'dolap_boru_ust_uste', 'dolap_boru_kopru_disi_kesisme',
                                        'dolap_kolon', 'dolap_kapi', 'dolap_yazi_yazi', 'dolap_yazi_boru', 'dolap_yazi_bas',
-                                       'dolap_yazi_duvar', 'yazi_dolap_sembol', 'boru_dolap_govde'))
+                                       'dolap_yazi_duvar', 'yazi_dolap_sembol', 'boru_dolap_govde', 'dolap_spr_kesisme'))
+    hata += rap['dolap_kopru_sayisi']
     if rap['dolap_dn_etiket'] < rap['dolap_boru_zinciri']:
         hata += 1
     if nn and max(nn) > amax + 1e-6:

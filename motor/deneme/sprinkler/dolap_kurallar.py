@@ -25,7 +25,16 @@ VARSAYILAN = dict(
     kapi_pay_cm=20.0,           # dolap gövdesi kapı açıklığından en az (cm)
     kolon_pay_cm=5.0,           # dolap gövdesi betonarme kolondan en az (cm)
     min_kazanc_m2=0.25,         # açgözlü seçimde bir dolabın en az yeni kapsaması
+    # R2 (14.10.2026 B) pompa seçimi
+    calisma_basinci_bar=[9.0, 10.0],   # sprinkler sistem çalışma basıncı hedef aralığı (kullanıcı talimatı)
+    sistem_max_bar=12.0,        # en alt katta sistem basıncı sınırı (TS EN 12845, 06 §3.3)       ✅
+    kapama_kat=1.15,            # kapalı vana (churn) basıncı ≈ 1,15·H (kabul; BYKHY Md.93 üst sınır %140) ⚠
+    debi_adim_m3h=5.0,          # seçilen debi: hesaplanan debinin üstündeki 5 m³/h katı (katalog adımı, kabul)
+    basma_adim_mss=1.0,         # seçilen basma: tam mSS'e yukarı yuvarlama
+    pompa_verim=0.65,           # motor gücü tahmini: η (kabul), motor payı +%10, standart motor kademesi
+    jokey_ek_bar=1.0,           # jokey pompa basıncı asıl pompadan ≈ 1 bar yüksek (06 §9.2)
 )
+MOTOR_KW = [1.5, 2.2, 3.0, 4.0, 5.5, 7.5, 11.0, 15.0, 18.5, 22.0, 30.0, 37.0, 45.0, 55.0, 75.0, 90.0, 110.0, 132.0]
 
 # sprinklerli binada dolap kolonu ile sprinkler kolonu ayrı tutulur (06 §5.2: 45 m aralıkta sprinkler branşmanından
 # beslenebilir; bu modül ayrı YG kolonu kullanır — daha güvenli seçenek)

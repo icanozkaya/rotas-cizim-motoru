@@ -32,8 +32,7 @@ def kontrol(dosya, plan_kutu, zincir_sayisi):
     ici = lambda g: g.intersects(box(px0 - 50, py0 - 50, px1 + 50, py1 + 50))
     # 1) katmanlar
     kullanilan = {e.dxf.layer for e in msp} | {e.dxf.layer for b in d.blocks for e in b}
-    rap['yanlis_katman'] = sorted(l for l in kullanilan if l not in ('0', 'Defpoints') and not l.startswith('ROTAS-')
-                                  and not l.startswith('MTY-'))
+    rap['yanlis_katman'] = sorted(l for l in kullanilan if l not in ('0', 'Defpoints') and not l.startswith('ROTAS-'))
     # 2) borular
     bor = []
     for e in msp.query('LWPOLYLINE[layer=="ROTAS-YANGIN-SPR-BORU"]'):

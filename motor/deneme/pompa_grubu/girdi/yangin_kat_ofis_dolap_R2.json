@@ -1,0 +1,51 @@
+{
+ "tip": "yangin",
+ "deneme": true,
+ "kaynak": "DENEME — YAPAY OFİS BİNASI (5 KAT, TİP KAT 30x20 m, OH1) - R2 pompa seçimi: hesaplanan 38,1 m³/h / 64,8 mSS, seçilen 40 m³/h / 92 mSS (9,02 bar)",
+ "olcek": 25,
+ "calisma_suresi_dk": 60,
+ "depo": {
+  "V_m3": 39,
+  "ic_genislik_cm": 600,
+  "ic_yukseklik_cm": 300,
+  "maks_su_cm": 270,
+  "duvar_cm": 30,
+  "doseme_cm": 25
+ },
+ "elektrikli": {
+  "Q": 40.0,
+  "H": 92.0,
+  "P": 18.5,
+  "rpm": 2900,
+  "A": 125,
+  "B": 54,
+  "Hm": 168.2,
+  "dn_emis_agzi": 100,
+  "dn_basma_agzi": 80
+ },
+ "dizel": {
+  "Q": 40.0,
+  "H": 92.0,
+  "P": 30.0,
+  "rpm": 2900,
+  "A": 157.6,
+  "B": 97.8,
+  "Hm": 179.5,
+  "yakit_L": 100
+ },
+ "jokey": {
+  "Q": 3,
+  "H": 103,
+  "P": 1.5,
+  "Hm": 91.3,
+  "Dm": 20,
+  "Bp": 25,
+  "mtank_L": 24,
+  "mtank_D": 36,
+  "mtank_H": 50
+ },
+ "oda_genislik_cm": 1400,
+ "oda_yukseklik_cm": 450,
+ "basma_kollektor_cm": 370,
+ "itfaiye": true
+}

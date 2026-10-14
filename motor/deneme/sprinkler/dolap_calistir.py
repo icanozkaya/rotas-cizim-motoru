@@ -7,6 +7,7 @@ Kullanım:
 Girdi (JSON): sprinkler_girdi (sprinkler modülü girdisi, göreli yol), merdivenler[], cikislar[], katlar[], pompa{},
 dolap{} (dolap_kurallar.VARSAYILAN'ı ezer), pompa_grubu_girdi (numara senkronu için)."""
 import copy
+import math
 import json
 import os
 import subprocess
@@ -25,7 +26,27 @@ import dolap_sema                            # noqa: E402
 DEPO = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
 
 
-def calistir(girdi, cikti_kok=None, png=None):
+def pompa_girdisi_yaz(D, gd, hd, ad):
+    """R2: pompa grubu kesiti girdisi, seçilen pompa değerleriyle (çalışma basıncı 9-10 bar) yazılır.
+    Pompa gövde ölçüleri (A, B, Hm) temel girdiden kalır (katalogla teyit)."""
+    if not D.get('pompa_grubu_girdi'):
+        return None
+    pgg = os.path.normpath(os.path.join(gd, D['pompa_grubu_girdi']))
+    g = json.load(open(pgg, encoding='utf-8'))
+    s = hd['sec']
+    g['elektrikli'].update(Q=s['Q_sec'], H=s['H_sec'], P=s['motor_kW'])
+    g['dizel'].update(Q=s['Q_sec'], H=s['H_sec'], P=s['dizel_kW'])
+    g['jokey'].update(H=s['H_jokey'])
+    g['depo']['V_m3'] = math.ceil(hd['V'])
+    g['itfaiye'] = True
+    g['kaynak'] = (f"{D.get('proje', ad)} - R2 pompa seçimi: hesaplanan {s['Q_hes']:.1f} m³/h / {s['H_hes']:.1f} mSS, "
+                   f"seçilen {s['Q_sec']:.0f} m³/h / {s['H_sec']:.0f} mSS ({s['P_sec']:.2f} bar)").replace('.', ',')
+    yol = os.path.join(DEPO, 'motor', 'deneme', 'pompa_grubu', 'girdi', f'yangin_{ad}_R2.json')
+    json.dump(g, open(yol, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    return yol
+
+
+def calistir(girdi, cikti_kok=None, png=None, rev='R2'):
     D = json.load(open(girdi, encoding='utf-8'))
     gd = os.path.dirname(os.path.abspath(girdi))
     P = json.load(open(os.path.join(gd, D['sprinkler_girdi']), encoding='utf-8'))
@@ -45,8 +66,9 @@ def calistir(girdi, cikti_kok=None, png=None):
     net = tasarla(P)
     hes = hesapla(net, P)
     cikti_kok = cikti_kok or os.path.join(DEPO, 'proje', 'denemeler', 'sprinkler', D.get('ad', 'dolap'))
-    plan = cikti_kok + '_plan.dxf'
-    sema = cikti_kok + '_kolon_semasi.dxf'
+    sf = ('_' + rev) if rev else ''
+    plan = cikti_kok + '_plan' + sf + '.dxf'
+    sema = cikti_kok + '_kolon_semasi' + sf + '.dxf'
     c, son = ciz_dolapli(P, D, k, net, hes, plan)
     hd = hidrolik(D, k, son['kolonlar'], son['T'], son['dolaplar'], hes['ozet'], P)
     tablolar_ve_kaydet(c, P, D, k, hes, net, son, hd, plan)
@@ -54,10 +76,15 @@ def calistir(girdi, cikti_kok=None, png=None):
     rap['etiketsiz'] = c.etiketsiz
     from dolap_kontrol import kontrol_dolap
     rd = kontrol_dolap(plan, P, D, k)
+    import rotas_sembol
+    import kademe
+    rap['mty'] = rotas_sembol.mty_kontrol(plan)
+    rap['kademe_ag'] = kademe.kontrol_ag(net, net['sema_dn']['zon'])
+    rap['HATA'] += len(rap['mty']) + len(rap['kademe_ag'])
     # pompa grubu numaraları (motor/deneme/pompa_grubu) — ayrı süreç
     liste, pg = [], None
     if D.get('pompa_grubu_girdi'):
-        pgg = os.path.normpath(os.path.join(gd, D['pompa_grubu_girdi']))
+        pgg = pompa_girdisi_yaz(D, gd, hd, D.get('ad', 'dolap'))
         pg = json.load(open(pgg, encoding='utf-8'))
         tmp = os.path.join(os.environ.get('TMPDIR', '/tmp'), '_dolap_pg_tmp.dxf')
         r = subprocess.run([sys.executable, os.path.join(HERE, 'dolap_pompa_no.py'), pgg, tmp], capture_output=True, text=True)
@@ -71,7 +98,7 @@ def calistir(girdi, cikti_kok=None, png=None):
         from calistir import onizle
         onizle(plan, png + '_plan.png')
         onizle(sema, png + '_sema.png')
-    return dict(P=P, D=D, k=k, hes=hes, son=son, hd=hd, rap=rap, rd=rd, rs=rs, plan=plan, sema=sema, sayim=sayim)
+    return dict(pgg=pgg if D.get('pompa_grubu_girdi') else None, net=net, P=P, D=D, k=k, hes=hes, son=son, hd=hd, rap=rap, rd=rd, rs=rs, plan=plan, sema=sema, sayim=sayim)
 
 
 if __name__ == '__main__':
@@ -87,6 +114,13 @@ if __name__ == '__main__':
     print(f"  pompa Q={hd['Qs']:.0f}+{hd['Qd']:.0f}={hd['Q']:.0f} l/dk ({hd['Q_m3h']:.1f} m³/h), P_spr={hd['P_spr']:.2f} bar, "
           f"P_dolap={hd['P_dolap']:.2f} bar -> H={hd['H']:.1f} mSS ({hd['yonetici']}), depo {hd['V']:.1f} m³, "
           f"alt dolap {hd['p_alt']:.1f} bar{' (BDV)' if hd['bdd'] else ''}")
+    sc = hd['sec']
+    print(f"  POMPA SEÇİMİ: hesaplanan {sc['Q_hes']:.1f} m³/h / {sc['H_hes']:.1f} mSS ({sc['P_hes']:.2f} bar) -> seçilen "
+          f"{sc['Q_sec']:.0f} m³/h / {sc['H_sec']:.0f} mSS ({sc['P_sec']:.2f} bar), {sc['motor_kW']} kW / dizel {sc['dizel_kW']} kW, "
+          f"jokey {sc['H_jokey']} mSS; en alt kat {sc['p_alt_cal']:.2f}/{sc['p_alt_kap']:.2f} bar (sınır {sc['p_max']}) "
+          f"{'BDV' if sc['bdv_sprinkler'] else ''}; {sc['durum']}")
+    print('  kademe zinciri:', R['net']['sema_dn'], 'değişen kenar', R['net'].get('kademe_degisen'))
+    print('  pompa grubu girdisi:', R['pgg'])
     print('  uyarılar:', s['uyari'])
     print('  sprinkler kontrol HATA:', R['rap']['HATA'], {x: v for x, v in R['rap'].items() if v and x not in ('HATA',)})
     print('  dolap kontrol:', R['rd'])

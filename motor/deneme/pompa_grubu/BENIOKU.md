@@ -52,3 +52,11 @@ python3 onizle.py <dxf> <png> [dpi] [x0 y0 x1 y1]   # yalnız kontrol amaçlı P
   (test değerleri için), çok farklı ölçülerde `girdi` dosyasıyla birlikte koddaki konumlar gözden geçirilmelidir.
 - EN 12845 emiş ağzı batma tablosu (`EN12845_BATMA`) teyit edilmelidir.
 - README katman öneki `SCOTT-`, deneme kuralları `ROTAS-` diyor; bu modül deneme kuralına uyar.
+
+## R2 revizyonu (14.10.2026 (B) talimatı)
+- **MTY bloğu yok**: `ortak.Cizim.vana(ad, ...)` saf geometri `ROTAS-SMB-*` blokları (`motor/deneme/sprinkler/rotas_sembol.py`) ekler; öznitelik yok, çap boru üstü etiketinde.
+- **Elektrik kalemi yok**: `ROTAS-ELEKTRIK` katmanı kaldırıldı (L/PL elektrik katmanı isterse hata verir). Pis su çukurunda pompa/flatör kabloları ve pano bağlantısı çizilmez; flatörler kapak altı brakete asılı. Panolar cihaz olarak kalır.
+- **Purjör yok**: basma kollektöründeki otomatik hava purjörü kaldırıldı.
+- **İtfaiye bağlantısı (girdi `itfaiye: true`)**: cepheden 2 x DN65 storz -> düşey DN100 itfaiye kollektörü (altında otomatik boşaltma DN25) -> çek valf -> izlenebilir kelebek -> tesisat çıkış hattı (pompa çek valflerinden sonra). Yön testi `calistir.py` içinde `itfaiye_test.kontrol` ile yapılır.
+- Çıktılar `*_R2.dxf`: `YANGIN_POMPA_GRUBU_KESITI_OFIS_R2.dxf` / `_OTOPARK_R2.dxf` (girdiler `girdi/yangin_<ad>_R2.json`, sprinkler `dolap_calistir.py` seçilen pompa değerleriyle yazar), `HIDROFOR_GRUBU_KESITI_R2.dxf`, `PIS_SU_POMPA_CUKURU_KESITI_R2.dxf`.
+- Pompa gövde ölçüleri (A, B, Hm) temel test girdisinden kalır; seçilen Q/H için katalogla teyit edilmelidir.

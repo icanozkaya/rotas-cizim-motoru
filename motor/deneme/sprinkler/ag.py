@@ -194,7 +194,15 @@ def tasarla(P):
         for m in mahaller:
             if m is not D:
                 raise ValueError('çok sıralı dağıtım mahallinde ek mahal beslemesi henüz desteklenmiyor')
-    return ag_kur(P, yer, hatlar, R, mahaller)
+    net = ag_kur(P, yer, hatlar, R, mahaller)
+    # R2: kademeli çap (kollektör -> kolon -> zon -> kat ağı ana hattı her ayrımda en fazla bir kademe)
+    import kademe
+    T_, R_ = net['T'], net['root']
+    kok_dn = max(T_[R_][c]['dn'] for c in T_.successors(R_))
+    z = kademe.sema_zinciri(P.get('hidrolik', {}).get('besleme_dn', 100), kok_dn)
+    net['kademe_degisen'] = kademe.uygula(net, z['zon'])
+    net['sema_dn'] = z
+    return net
 
 
 def ag_kur(P, yer, hatlar, R, mahaller):

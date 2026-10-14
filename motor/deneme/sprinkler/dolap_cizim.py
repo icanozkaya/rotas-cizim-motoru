@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Kat planı: sprinkler planı (cizim.Cizim) + yangın dolabı yerleşimi, YG kolonları, dolap besleme hattı (köprülü),
+"""Kat planı: sprinkler planı (cizim.Cizim) + yangın dolabı yerleşimi, YG kolonları, dolap besleme hattı (R2: köprüsüz, sprinkler borusunu kesmez),
 çap etiketleri, kapsama haritası (ayrı katmanlar), dolap tabloları, lejant ve notlar. Birim cm, 1/50, DXF R2018."""
 import math
 import os
@@ -21,7 +21,6 @@ LAY_D = {
     'ROTAS-YANGIN-DOLAP-ERISIM': 3, 'ROTAS-MIMARI-MERDIVEN': 8, 'ROTAS-YANGIN-DOLAP-TABLO': 7,
 }
 DOLAP_BLOK = 'yangin_dolabi_plan'
-KOPRU_R = 8.0
 
 
 class DolapCizim(Cizim):
@@ -220,32 +219,6 @@ class DolapCizim(Cizim):
         return hs
 
     # ---------------------------------------------------------------- dolap borusu (köprülü tek polyline)
-    def koprulu(self, pts, spr):
-        """pts dik açılı; sprinkler borusunu kestiği yerde yarım daire köprü (bulge) — boru tek parça kalır"""
-        out = []
-        for a, b in zip(pts[:-1], pts[1:]):
-            L = math.dist(a, b)
-            u = ((b[0] - a[0]) / L, (b[1] - a[1]) / L)
-            ks = []
-            for p, q in spr:
-                x = _kesisim(a, b, p, q)
-                if x is None:
-                    continue
-                t = math.dist(a, x)
-                if KOPRU_R + 2 < t < L - KOPRU_R - 2:
-                    ks.append(t)
-            ks.sort()
-            out.append((a[0], a[1], 0.0))
-            son = -1e9
-            for t in ks:
-                if t - son < 2 * KOPRU_R + 2:
-                    continue
-                out.append((a[0] + u[0] * (t - KOPRU_R), a[1] + u[1] * (t - KOPRU_R), 1.0))
-                out.append((a[0] + u[0] * (t + KOPRU_R), a[1] + u[1] * (t + KOPRU_R), 0.0))
-                son = t
-        out.append((pts[-1][0], pts[-1][1], 0.0))
-        return out
-
     def dolap_borulari(self, kolonlar, T, dolaplar, net):
         spr = []
         for zid, pp, dn in self.borular:
@@ -263,9 +236,8 @@ class DolapCizim(Cizim):
                 z['kolon'] = kc['ad']
                 Z.append(z)
         for z in Z:
-            v = self.koprulu(z['pts'], spr)
-            e = self.msp.add_lwpolyline([(x, y, 0, 0, b) for x, y, b in v], format='xyseb',
-                                        dxfattribs={'layer': 'ROTAS-YANGIN-DOLAP-BORU'})
+            # R2: köprü / atlatma YOK — güzergâh sprinkler borusunu kesmeyecek şekilde seçildi (dolap.Rota)
+            e = self.msp.add_lwpolyline(z['pts'], dxfattribs={'layer': 'ROTAS-YANGIN-DOLAP-BORU'})
             if WD.get(z['dn']):
                 e.dxf.const_width = WD[z['dn']]
             self.dolap_borular.append((z['id'], z['pts'], z['dn']))
@@ -380,11 +352,16 @@ class DolapCizim(Cizim):
             ('Statik yükseklik (pompa ekseni → dolap)', f"{fmt(hd['en']['stat'] * 10.2, 1)} m = {fmt(hd['en']['stat'], 2)} bar"),
             ('Dolap için pompa basıncı', f"{fmt(hd['P_dolap'], 2)} bar"),
             ('Sprinkler için pompa basıncı (Q toplam ile)', f"{fmt(hd['P_spr'], 2)} bar"),
-            ('POMPA DEBİSİ (sprinkler + dolap)', f"{fmt(hd['Qs'], 0)} + {fmt(hd['Qd'], 0)} = {fmt(hd['Q'], 0)} l/dk = {fmt(hd['Q_m3h'], 1)} m³/h"),
-            ('POMPA BASMA YÜKSEKLİĞİ', f"{fmt(hd['Pp'], 2)} bar = {fmt(hd['H'], 1)} mSS ({hd['yonetici']} belirleyici)"),
+            ('POMPA DEBİSİ - hesaplanan (sprinkler + dolap)', f"{fmt(hd['Qs'], 0)} + {fmt(hd['Qd'], 0)} = {fmt(hd['Q'], 0)} l/dk = {fmt(hd['Q_m3h'], 1)} m³/h"),
+            ('POMPA DEBİSİ - seçilen', f"{fmt(hd['sec']['Q_sec'], 0)} m³/h"),
+            ('POMPA BASMA - hesaplanan (hidrolik)', f"{fmt(hd['H'], 1)} mSS = {fmt(hd['Pp'], 2)} bar ({hd['yonetici']} belirleyici)"),
+            (f"POMPA BASMA - seçilen (çalışma basıncı {fmt(hd['sec']['aralik'][0], 0)}-{fmt(hd['sec']['aralik'][1], 0)} bar)",
+             f"{fmt(hd['sec']['H_sec'], 0)} mSS = {fmt(hd['sec']['P_sec'], 2)} bar"),
             (f"YANGIN SUYU DEPOSU ({hd['sure']} dk, sprinkler + dolap)", f"{fmt(hd['V'], 1)} m³"),
-            ('En alt dolapta kapalı vana basıncı (1,15·H)', f"{fmt(hd['p_alt'], 2)} bar " +
-             ('> 9 bar: BASINÇ DÜŞÜRÜCÜ' if hd['bdd'] else '≤ 9 bar (düşürücü gerekmez)')),
+            (f"En alt kat ({hd['sec']['alt_kat']}) çalışma / kapalı vana basıncı", f"{fmt(hd['sec']['p_alt_cal'], 2)} / {fmt(hd['sec']['p_alt_kap'], 2)} bar " +
+             (f"> {fmt(hd['sec']['p_max'], 0)} bar: BASINÇ DÜŞÜRÜCÜ" if hd['sec']['bdv_sprinkler'] else f"≤ {fmt(hd['sec']['p_max'], 0)} bar")),
+            (f"En alt dolapta kapalı vana basıncı ({fmt(k['kapama_kat'], 2)}·H seçilen)", f"{fmt(hd['p_alt'], 2)} bar " +
+             ('> 9 bar: DOLAP GİRİŞİNE BASINÇ DÜŞÜRÜCÜ' if hd['bdd'] else '≤ 9 bar (düşürücü gerekmez)')),
             ('Dolap kolonu hızı', f"{fmt(hd['v_kol'], 2)} m/s (DN{k['kolon_dn']}, {fmt(hd['Qd'], 0)} l/dk)"),
         ]
         return self.tablo(x, y, 'YANGIN DOLABI HESAP ÖZETİ (06_YANGIN §5, BYKHY Md. 92-94)',
@@ -429,7 +406,7 @@ class DolapCizim(Cizim):
         yaz('YANGIN DOLABI TS EN 671-1, Ø25 x 30 m (YD-..), gövde duvara')
         i += 1
         self.PL([(x + 10, yc()), (x + 110, yc())], 'ROTAS-YANGIN-DOLAP-BORU', w=2.0)
-        yaz('DOLAP BESLEME HATTI (DN50) / BAĞLANTI (DN32), KÖPRÜLÜ GEÇİŞ')
+        yaz('DOLAP BESLEME HATTI (DN50) / BAĞLANTI (DN32), SPRİNKLER BORUSUNU KESMEZ')
         i += 1
         self.msp.add_blockref('ROTAS-SPR-KOLON', (x + 35, yc()), dxfattribs={'layer': 'ROTAS-YANGIN-DOLAP-KOLON'})
         self.msp.add_circle((x + 85, yc()), 14, dxfattribs={'layer': 'ROTAS-YANGIN-DOLAP-KOLON'})
@@ -464,7 +441,7 @@ class DolapCizim(Cizim):
             f"Dolaplar merdiven (kat girişi) yanında ve koridorda, kaçış genişliğini daraltmayacak şekilde sıva altı / yarı gömme monte edilecektir; vana ekseni +{fmt(k['montaj_m'], 2)} m.",
             f"Sprinklerli binada dolaplar arası en fazla {fmt(k['aralik_sprinkler_m'], 0)} m'dir; dolaplar ayrı YG kolonlarından (DN{k['kolon_dn']}) beslenir, dolap bağlantısı DN{k['baglanti_dn']}.",
             f"Pompa debisine eşzamanlı {hd['ne']} dolap ({fmt(hd['Qd'], 0)} l/dk) eklenmiştir; eşzamanlı dolap sayısı BYKHY Ek-8/C ile teyit edilecektir.",
-            "Dolap besleme hattı sprinkler borusunu köprü ile geçer; borular betonarme kolon ve perdeyi kesmez.",
+            "Dolap besleme hattı güzergâhı sprinkler borularını kesmeyecek şekilde seçilmiştir (atlatma/köprü yoktur); borular betonarme kolon ve perdeyi kesmez.",
             "Lülede 9 bar'ı aşan katlarda dolap girişine basınç düşürücü konacaktır.",
             "Kat planı tip kattır; kolon şeması ve pompa bağlantısı ayrı paftadadır (*_dolap_kolon_semasi.dxf).",
         ]

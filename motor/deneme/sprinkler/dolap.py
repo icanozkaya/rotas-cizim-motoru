@@ -447,7 +447,8 @@ class Rota:
         for a, b in engel_seg:
             sp |= (XX >= min(a[0], b[0]) - 8) & (XX <= max(a[0], b[0]) + 8) & (YY >= min(a[1], b[1]) - 8) & \
                 (YY <= max(a[1], b[1]) + 8)
-        cost = cost + np.where(sp, 12.0, 0.0)
+        # R2 (14.10.2026 B): BORU ATLATMA YOK — sprinkler borusunun 8 cm yakınından geçiş (kesişme) yasak
+        self.ok &= ~sp
         self.cost = cost
         self.ag = np.zeros(XX.shape, bool)       # mevcut dolap besleme ağı (hedef)
 
@@ -613,7 +614,8 @@ def besleme_agi(pl, dolaplar, engeller):
     # kolonlar: merdiven tohumları; yoksa ilk dolap
     kok = [d for d in dolaplar if d['tohum']] or dolaplar[:1]
     kolonlar = []
-    for n, d in enumerate(kok):
+
+    def kolon_kur(d, n):
         sec = None
         for yon in sorted((1, -1), key=lambda y: (d['L'] - d['s']) if y > 0 else d['s']):     # köşeye yakın taraf önce
             for aci in (45.0, 55.0, 35.0, 25.0, 18.0):
@@ -627,9 +629,13 @@ def besleme_agi(pl, dolaplar, engeller):
             uyari.append(f"{d['no']}: kolon yeri bulunamadı, gövde önüne alındı")
             p = (d['o'][0], d['o'][1])
             sec = (p, 1)
-        d['kolon'] = f'YG{n + 1}'
+        d['kolon'] = f'YG{n}'
         d['baglanti_uc'] = uc(d, sec[1])
-        kolonlar.append(dict(ad=f'YG{n + 1}', p=sec[0], dolap=d['no'], dolaplar=[d['no']]))
+        kc = dict(ad=f'YG{n}', p=sec[0], dolap=d['no'], dolaplar=[d['no']])
+        kolonlar.append(kc)
+        return kc
+    for n, d in enumerate(kok):
+        kolon_kur(d, n + 1)
     T = nx.DiGraph()
     for kc in kolonlar:
         d = [x for x in dolaplar if x['no'] == kc['dolap']][0]
@@ -673,7 +679,12 @@ def besleme_agi(pl, dolaplar, engeller):
                     yol = (pts, on, yon)
                     break
                 if yol is None:
-                    uyari.append(f"{d['no']}: besleme güzergâhı bulunamadı")
+                    # R2: sprinkler borusunu kesmeyen güzergâh yok -> dolabın yanına ayrı YG kolonu (atlatma yapılmaz)
+                    kn = kolon_kur(d, len(kolonlar) + 1)
+                    T.add_edge(kn['p'], d['baglanti_uc'], dn=k['baglanti_dn'], tur='baglanti')
+                    T.nodes[d['baglanti_uc']]['dolap'] = d['no']
+                    T.nodes[kn['p']]['kolon'] = kn['ad']
+                    uyari.append(f"{d['no']}: sprinkler borusunu kesmeyen besleme güzergâhı yok, ayrı kolon {kn['ad']} verildi")
                     continue
                 pts, on, yon = yol
                 d['baglanti_uc'] = uc(d, yon)
@@ -715,6 +726,42 @@ def besleme_agi(pl, dolaplar, engeller):
         D[a][b]['n'] = sum(1 for x in alt if 'dolap' in D.nodes[x])
         D[a][b]['L'] = math.dist(a, b)
     return kolonlar, D, uyari
+
+
+def pompa_sec(Q_m3h, P_hes, k, z_p, katlar):
+    """R2 pompa seçimi (14.10.2026 B): sistem çalışma basıncı calisma_basinci_bar = [9, 10] aralığında.
+    Hidrolik ihtiyaç alt sınırdan küçükse basma yüksekliği alt sınırla (9 bar) seçilir; aralıkta ise ihtiyaç (yukarı
+    yuvarlanmış) alınır; üst sınırı aşarsa ihtiyaç alınır ve not düşülür. Seçilen debi hesaplanan debinin üstündeki
+    debi adımıdır. En alt katta (çalışma ve kapalı vana) basıncı sistem_max_bar (12) ile karşılaştırılır."""
+    from dolap_kurallar import MOTOR_KW
+    p0, p1 = k['calisma_basinci_bar']
+    H_hes = P_hes * 10.2
+    if P_hes <= p0:
+        H_sec = p0 * 10.2
+        durum = f"hidrolik ihtiyaç {P_hes:.2f} bar < {p0:g} bar: çalışma basıncı {p0:g} bar seçildi"
+    elif P_hes <= p1:
+        H_sec = H_hes
+        durum = f"hidrolik ihtiyaç {P_hes:.2f} bar, {p0:g}-{p1:g} bar aralığında"
+    else:
+        H_sec = H_hes
+        durum = f"hidrolik ihtiyaç {P_hes:.2f} bar > {p1:g} bar: basma yüksekliği hidrolik ihtiyaca göre"
+    ad = k['basma_adim_mss']
+    H_sec = math.ceil(H_sec / ad - 1e-9) * ad
+    qa = k['debi_adim_m3h']
+    Q_sec = max(qa, math.ceil(Q_m3h / qa - 1e-9) * qa)
+    P_sec = H_sec / 10.2
+    kw = 1000 * 9.81 * (Q_sec / 3600) * H_sec / k['pompa_verim'] / 1000 * 1.10
+    motor = next((m for m in MOTOR_KW if m >= kw), MOTOR_KW[-1])
+    dizel = next((m for m in MOTOR_KW if m >= motor * 1.2), MOTOR_KW[-1])
+    alt = min(katlar, key=lambda q: q['kot_m'])
+    z_alt = alt['kot_m']                                     # en alt kat döşemesi (en düşük nokta, kabul)
+    p_alt_cal = P_sec + (z_p - z_alt) / 10.2
+    p_alt_kap = k['kapama_kat'] * P_sec + (z_p - z_alt) / 10.2
+    bdv = p_alt_kap > k['sistem_max_bar'] + 1e-9
+    PJ = P_sec + k['jokey_ek_bar']
+    return dict(Q_hes=Q_m3h, Q_sec=Q_sec, H_hes=H_hes, P_hes=P_hes, H_sec=H_sec, P_sec=P_sec, durum=durum, motor_kW=motor,
+                dizel_kW=dizel, kw_hesap=kw, alt_kat=alt['ad'], p_alt_cal=p_alt_cal, p_alt_kap=p_alt_kap,
+                bdv_sprinkler=bdv, H_jokey=math.ceil(PJ * 10.2), P_jokey=PJ, aralik=(p0, p1), p_max=k['sistem_max_bar'])
 
 
 def _uzerinde(n, a, b):
@@ -774,9 +821,11 @@ def hidrolik(D, k, kolonlar, T, dolaplar, spr_ozet, P):
     Q = Qs + Qd
     # en alt kattaki dolapta kapalı vana basıncı (pompa kapama basıncı ≈ 1,15·H kabul)
     z_alt = alt['kot_m'] + k['montaj_m']
-    p_alt = 1.15 * Pp - (z_alt - z_p) / 10.2
+    sec = pompa_sec(Q * 0.06, Pp, k, z_p, katlar)
+    # R2: seçilen pompa basıncıyla (çalışma basıncı 9-10 bar) en alt dolapta kapalı vana basıncı
+    p_alt = k['kapama_kat'] * sec['P_sec'] - (z_alt - z_p) / 10.2
     v_kol = hiz(Qd, k['kolon_dn'])
     V = Q * k['sure_dk'] / 1000.0
-    return dict(ne=ne, Qd=Qd, Qs=Qs, Q=Q, Q_m3h=Q * 0.06, P_spr=P_spr, P_dolap=en['Pp'], Pp=Pp, H=H, en=en, satir=satir,
+    return dict(sec=sec, ne=ne, Qd=Qd, Qs=Qs, Q=Q, Q_m3h=Q * 0.06, P_spr=P_spr, P_dolap=en['Pp'], Pp=Pp, H=H, en=en, satir=satir,
                 p_alt=p_alt, bdd=p_alt > k['p_max_bar'], v_kol=v_kol, V=V, sure=k['sure_dk'], z_p=z_p, Lb=Lb, bdn=bdn,
                 yonetici='dolap' if en['Pp'] >= P_spr else 'sprinkler', n_kat=n_kat, n_dolap_bina=n_top)
