@@ -886,6 +886,53 @@ def dijkstra_agac(cost, agac, hedefler, donus=12.0):
     return None, None
 
 
+def _cizgi_hucreler(a, b):
+    """eksen paralel iki hücre arası hücreler (a dahil, b dahil)"""
+    (r0, c0), (r1, c1) = a, b
+    if r0 == r1:
+        st = 1 if c1 >= c0 else -1
+        return [(r0, c) for c in range(c0, c1 + st, st)]
+    st = 1 if r1 >= r0 else -1
+    return [(r, c0) for r in range(r0, r1 + st, st)]
+
+
+def merdiven_duzelt(yol, cost, agac, oran=1.6):
+    """ızgara yolundaki basamak (iki ardışık dönüş) parçalarını tek dönüşlü L ile değiştir (maliyet ≤ oran × eski)"""
+    def koseler(y):
+        k = [0]
+        for i in range(1, len(y) - 1):
+            a, b, c = y[i - 1], y[i], y[i + 1]
+            if (b[0] - a[0], b[1] - a[1]) != (c[0] - b[0], c[1] - b[1]):
+                k.append(i)
+        k.append(len(y) - 1)
+        return k
+    degisti = True
+    tur = 0
+    while degisti and tur < 50:
+        degisti = False
+        tur += 1
+        k = koseler(yol)
+        for j in range(len(k) - 3):
+            ia, id_ = k[j], k[j + 3]
+            A, D = yol[ia], yol[id_]
+            eski = yol[ia:id_ + 1]
+            m_eski = sum(cost[r, c] for r, c in eski[1:])
+            for ara in ((A[0], D[1]), (D[0], A[1])):
+                yeni = _cizgi_hucreler(A, ara) + _cizgi_hucreler(ara, D)[1:]
+                if any(not np.isfinite(cost[r, c]) for r, c in yeni):
+                    continue
+                if any(h in agac for h in yeni[:-1]):
+                    continue
+                m_yeni = sum(cost[r, c] for r, c in yeni[1:])
+                if m_yeni <= oran * m_eski:
+                    yol = yol[:ia] + yeni + yol[id_ + 1:]
+                    degisti = True
+                    break
+            if degisti:
+                break
+    return yol
+
+
 def duvara_dayali_nokta(oda_poly, c, eksen=None, ic=10.0):
     """armatürün bağlandığı duvar noktası (oda içinde duvardan `ic` cm)"""
     ring = oda_poly.exterior
@@ -941,7 +988,11 @@ def temiz_su_daire(K, dno, fx, tohum):
     if kuru:
         km = (g.doldur(unary_union([r['poly'].buffer(-3) for r in kuru])) > 0) & ~izin_m
         dk = ndi.distance_transform_edt(km) * g.res
-        cost[km] = 8.0 + 0.5 * np.maximum(dk[km] - 15.0, 0.0)
+        cost[km] = 3.0 + 0.3 * np.maximum(dk[km] - 15.0, 0.0)
+        yk = cv2.dilate(km.astype(np.uint8), np.ones((9, 9), np.uint8)) > 0     # kuru mahal duvarı (ara duvar geçişi)
+        dmk = duvar_m & yk & ~izin_m & ~np.isfinite(cost)
+        cost[dmk] = 25.0
+        cost[yasak_m & ~izin_m & ~km] = np.inf
     cost[kapi_m] = np.inf
     if not K.kapi_u.is_empty:      # kapı kanadı süpürme alanı: hat kapı önünden/kanadından geçmesin
         kk = (g.doldur(K.kapi_u.buffer(48)) > 0) & np.isfinite(cost)
@@ -1020,11 +1071,12 @@ def temiz_su_daire(K, dno, fx, tohum):
         yak = (cv2.dilate(tm, np.ones((7, 7), np.uint8)) > 0) & (tm == 0)
         ce = cost.copy()
         ce[yak] += 12.0
-        anahtar, yol = dijkstra_agac(ce, agac, {k: v for k, v in kalan.items()})
+        anahtar, yol = dijkstra_agac(ce, agac, {k: v for k, v in kalan.items()}, donus=30.0)
         if anahtar is None:
             log('  ! D%s: %d hedefe yol bulunamadı: %s' % (dno, len(kalan), ', '.join(
                 '%s/%s@%.0f,%.0f' % (f['kind'], f['oda']['name'], f['c'][0], f['c'][1]) for f in kalan.values())))
             break
+        yol = merdiven_duzelt(yol, cost, agac)
         hc = yol[0]
         hucre_f[hc] = kalan.pop(hc)
         for a, b in zip(yol[:-1], yol[1:]):

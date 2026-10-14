@@ -19,7 +19,7 @@
   },
   "hidrofor": false,
   "kaynak": "motor/sihhi2/plan.py",
-  "tarih": "15.10.2026 01:29"
+  "tarih": "15.10.2026 01:38"
  },
  "yuk_tablosu": {
   "LV": 0.75,
@@ -8636,7 +8636,5 @@
    "fan": "ÇATI TİPİ FAN 160 m3/h"
   }
  ],
- "uyarilar": [
-  "kat 1 Ç.M. EK yazısı yerleşmedi"
- ]
+ "uyarilar": []
 }
