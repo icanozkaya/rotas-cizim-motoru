@@ -1,0 +1,8 @@
+{
+  "_not": "DENEME örnek değerleri (otomatik lejant testi için). Gerçek projede adetler çizimden gelir.",
+  "dalgic_pompa_adedi": 2,
+  "sarkik_sprinkler_adedi": 6,
+  "dik_sprinkler_adedi": 4,
+  "difuzor_adedi": 3,
+  "radyator_grubu_adedi": 3
+}
