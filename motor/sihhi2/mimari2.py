@@ -231,10 +231,11 @@ class Kat:
         self.rooms = rooms
         self.bina = unary_union([r['poly'].buffer(30) for r in rooms if r['tip'] != 'balkon']).buffer(-10)
         self.yazilar = [((a[1][0][0], a[1][0][1]), a[2][0], a[2][1], a[2][2], a[1][1]) for a in self.R if a[0] == 'T']
+        self._kapilar()
+        self._daire_kapidan()
         self._armaturler()
         self._inisler()
         self._saftlar()
-        self._kapilar()
 
     # ---- armatürler: mimari.fixtures imzaları, mahal ataması YALNIZ poligon içi (+10 cm duvar payı)
     def _armaturler(self):
@@ -302,9 +303,62 @@ class Kat:
             a_ = math.hypot(cs[1][0] - cs[0][0], cs[1][1] - cs[0][1])
             b_ = math.hypot(cs[2][0] - cs[1][0], cs[2][1] - cs[1][1])
             kisa, uzun = min(a_, b_), max(a_, b_)
-            if 55 <= uzun <= 130 and kisa <= 45 and q.area > 0.6 * rr.area:
+            if 50 <= uzun <= 130 and kisa <= 50 and q.area > 0.35 * rr.area:
                 self.kapilar.append(q)
         self.kapi_u = unary_union(self.kapilar) if self.kapilar else Polygon()
+
+    def _daire_kapidan(self):
+        """daire ataması kapı komşuluğuyla: daire no yazısına en yakın (ortak olmayan) mahal girişi; kapılardan BFS,
+        ortak alandan geçilmez. Ulaşılamayanlar: yürüme mesafesi ataması (MB) korunur."""
+        import collections
+        n = len(self.rooms)
+        kom = collections.defaultdict(set)
+        self.kapi_oda = []
+        for q in self.kapilar:
+            yak = [r['i'] for r in self.rooms if r['poly'].distance(q) < 25]
+            self.kapi_oda.append(yak)
+            for a in yak:
+                for b in yak:
+                    if a != b:
+                        kom[a].add(b)
+        self.komsu = kom
+        yeni = {}
+        kuyruk = collections.deque()
+        for p, no in self.tohum:
+            aday = [r for r in self.rooms if r['tip'] not in ('ortak',) and r['poly'].distance(Point(p)) < 160]
+            # giriş: tohuma en yakın, bir ortak mahalle kapı komşusu olan mahal
+            aday2 = [r for r in aday if any(self.rooms[j]['tip'] == 'ortak' for j in kom[r['i']])] or aday
+            if not aday2:
+                continue
+            r0 = min(aday2, key=lambda r: r['poly'].distance(Point(p)))
+            if r0['i'] not in yeni:
+                yeni[r0['i']] = no
+                kuyruk.append(r0['i'])
+        while kuyruk:
+            i = kuyruk.popleft()
+            for j in kom[i]:
+                if j in yeni or self.rooms[j]['tip'] == 'ortak':
+                    continue
+                yeni[j] = yeni[i]
+                kuyruk.append(j)
+        for r in self.rooms:
+            if r['i'] in yeni:
+                r['daire_mb'] = r['daire']
+                r['daire'] = yeni[r['i']]
+        # kapısı tanınamayan mahal: kapıyla atanmış komşu mahallerden en uzun ortak duvarlı olanın dairesi
+        for r in self.rooms:
+            if r['i'] in yeni or r['tip'] == 'ortak':
+                continue
+            best, bl = None, 0.0
+            for q in self.rooms:
+                if q['i'] not in yeni:
+                    continue
+                L = r['poly'].buffer(18).intersection(q['poly'].buffer(18)).area / 36.0
+                if L > bl:
+                    best, bl = yeni[q['i']], L
+            if best is not None and bl > 40:
+                r['daire_mb'] = r['daire']
+                r['daire'] = best
 
     # ---- sorgular
     def oda(self, p, tipler=None):
