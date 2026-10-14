@@ -19,7 +19,7 @@
   },
   "hidrofor": false,
   "kaynak": "motor/sihhi2/plan.py",
-  "tarih": "15.10.2026 01:16"
+  "tarih": "15.10.2026 01:24"
  },
  "yuk_tablosu": {
   "LV": 0.75,
@@ -8637,46 +8637,8 @@
   }
  ],
  "uyarilar": [
-  "kat Z YB8 balonu yerleşmedi",
-  "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253183, -442166)",
-  "kat Z pis su etiketi yerleşmedi: Ø100 14 SB @ (253209, -442150)",
-  "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253612, -443179)",
-  "kat Z pis su etiketi yerleşmedi: Ø100 10 SB @ (253197, -442126)",
-  "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253743, -442415)",
-  "kat Z pis su etiketi yerleşmedi: Ø70 9 SB @ (252823, -441985)",
-  "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253736, -442796)",
-  "kat Z pis su etiketi yerleşmedi: Ø50 2 SB @ (253744, -442784)",
-  "kat Z pis su etiketi yerleşmedi: Ø50 2 SB @ (252808, -441979)",
-  "kat Z pis su etiketi yerleşmedi: Ø50 2 SB @ (253651, -443292)",
-  "kat Z pis su etiketi yerleşmedi: Ø50 2 SB @ (253481, -443294)",
-  "kat Z pis su etiketi yerleşmedi: Ø50 2 SB @ (253690, -441682)",
-  "kat 1 YB8 balonu yerleşmedi",
-  "kat 1 pis su etiketi yerleşmedi: Ø100 12 SB @ (255243, -442153)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255226, -442171)",
-  "kat 1 pis su etiketi yerleşmedi: Ø100 12 SB @ (255759, -442424)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 4 SB @ (255646, -443179)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 4 SB @ (254870, -441972)",
-  "kat 1 pis su etiketi yerleşmedi: Ø100 10 SB @ (255231, -442126)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 4 SB @ (255776, -442460)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255685, -443292)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255725, -441682)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255780, -442419)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255515, -443294)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 7 SB @ (255747, -442415)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255371, -442738)",
-  "kat 1 Ç.M. EK yazısı yerleşmedi",
-  "kat 2 YB8 balonu yerleşmedi",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (256931, -441967)",
   "kat 2 pis su etiketi yerleşmedi: Ø100 12 SB @ (257290, -442151)",
   "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (257273, -442167)",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 4 SB @ (257695, -443179)",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 4 SB @ (257825, -442415)",
-  "kat 2 pis su etiketi yerleşmedi: Ø100 10 SB @ (257279, -442126)",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 4 SB @ (257820, -442797)",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (257563, -443297)",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (257733, -443292)",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (256865, -441953)",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (257419, -442738)",
-  "kat 2 Ç.M. EK yazısı yerleşmedi"
+  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (256865, -441953)"
  ]
 }

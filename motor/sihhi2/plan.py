@@ -1210,7 +1210,7 @@ def daire_poly(c, r, n=24):
     return Point(c).buffer(r, resolution=max(4, n // 4))
 
 
-def balon_yeri(c, eng, yasak, r=27.5, mesafeler=(55, 70, 85, 100, 115), disarida=None):
+def balon_yeri(c, eng, yasak, r=27.5, mesafeler=(55, 70, 85, 100, 115), disarida=None, kil_tol=0.5):
     for dd in mesafeler:
         for k in range(16):
             a = math.radians(22.5 * k + 11.25 * ((dd // 15) % 2))
@@ -1224,7 +1224,7 @@ def balon_yeri(c, eng, yasak, r=27.5, mesafeler=(55, 70, 85, 100, 115), disarida
                 continue
             kil = LineString([(c[0] + 16 * math.cos(a), c[1] + 16 * math.sin(a)),
                               (p[0] - r * math.cos(a), p[1] - r * math.sin(a))])
-            if eng.carpar(kil.buffer(0.5), cizgi_tol=0.5):
+            if kil_tol is not None and eng.carpar(kil.buffer(0.5), cizgi_tol=kil_tol):
                 continue
             return p, kil
     return None, None
@@ -1314,7 +1314,7 @@ def etiket_kilavuzlu(msp, eng, a, satirlar, blok, katman, yasak=None, hks=(14, 2
     return None
 
 
-def etiket_halka(msp, eng, m, satirlar, blok, katman, mesafeler=(35, 50, 70, 90, 115, 140, 170, 210)):
+def etiket_halka(msp, eng, m, satirlar, blok, katman, mesafeler=(35, 50, 70, 90, 115, 140, 170, 210, 250, 300)):
     """kalabalıkta etiket dışarı: m (parça ortası) çevresinde halka araması, kılavuz çizgili (yazı yatay)"""
     e = ekle_insert(msp, blok, (0, 0), katman, attr=satirlar)
     kut = yazi_kutulari(e)
@@ -1334,7 +1334,8 @@ def etiket_halka(msp, eng, m, satirlar, blok, katman, mesafeler=(35, 50, 70, 90,
                 continue
             q = nearest_points(kutu.exterior, Point(m))[0]
             kil = LineString([m, (q.x, q.y)])
-            if eng.carpar(kil.buffer(0.3), cizgi_tol=99999):
+            kil_k = substring(kil, min(20.0, kil.length * 0.4), kil.length) if kil.length > 1 else kil
+            if eng.carpar(kil_k.buffer(0.3), cizgi_tol=99999):
                 continue
             e = ekle_insert(msp, blok, ins, katman, attr=satirlar)
             kut2 = yazi_kutulari(e)
@@ -1571,6 +1572,8 @@ def kat_etiketle(doc, eng, K, kat, dur):
         if p is None:
             p, kil = balon_yeri(ps['kolon'], eng, None, mesafeler=(55, 70, 85, 100, 120, 140))
         if p is None:
+            p, kil = balon_yeri(ps['kolon'], eng, islak_u, mesafeler=(55, 70, 85, 100, 120, 140, 165, 190), kil_tol=1e9)
+        if p is None:
             dur.uyari.append('kat %s %s balonu yerleşmedi' % (K.k, ps['no']))
             continue
         e = ekle_insert(msp, 'ROTAS-S2-KOLON-NO', p, 'ROTAS-SIHHI-KOLON-NO', attr={'NO': ps['no']})
@@ -1586,7 +1589,21 @@ def kat_etiketle(doc, eng, K, kat, dur):
         p, kil = balon_yeri(p0, eng, K.bina.buffer(5), mesafeler=(40, 52, 64, 76, 90, 110, 130))
         if p is None:
             p, kil = balon_yeri(p0, eng, islak_u, mesafeler=(40, 52, 64, 76, 90, 110, 130, 150))
+        if p is None:      # kılavuz hat kesebilir (yazı/sembol kesmez)
+            p, kil = balon_yeri(p0, eng, islak_u, mesafeler=(40, 52, 64, 76, 90, 110, 130, 150, 175, 200), kil_tol=1e9)
+        if p is None:      # son çare: kılavuz denetimsiz (yalnız balon dairesi boş yerde)
+            p, kil = balon_yeri(p0, eng, islak_u, mesafeler=(40, 52, 64, 76, 90, 110, 130), kil_tol=None)
         if p is None:
+            if os.environ.get('S2_DEBUG'):
+                from collections import Counter
+                cn = Counter()
+                for dd in (40, 64, 90, 130):
+                    for kk in range(16):
+                        a_ = math.radians(22.5 * kk)
+                        pp = (p0[0] + dd * math.cos(a_), p0[1] + dd * math.sin(a_))
+                        pg = daire_poly(pp, 28.5)
+                        cn['islak' if pg.intersects(islak_u) else ('engel' if eng.carpar(pg) else 'serbest')] += 1
+                log('  DEBUG %s %s %s' % (no, p0, dict(cn)))
             dur.uyari.append('kat %s %s balonu yerleşmedi' % (K.k, no))
             continue
         ekle_insert(msp, 'ROTAS-S2-KOLON-NO-YAGMUR', p, 'ROTAS-SIHHI-YAGMUR-NO', attr={'NO': no})
@@ -1634,6 +1651,12 @@ def kat_etiketle(doc, eng, K, kat, dur):
             # kalabalık: kılavuzla dışarı (parça ortasından)
             m = pc['g'].interpolate(0.5, normalized=True)
             e = etiket_halka(msp, eng, (m.x, m.y), {'C1': pc['cap'], 'M1': '%d SB' % pc['sb']}, 'ROTAS-S2-TS-CAP2', L_PCAP)
+            for tt in (0.3, 0.7, 0.15, 0.85):
+                if e is not None:
+                    break
+                m = pc['g'].interpolate(tt, normalized=True)
+                e = etiket_halka(msp, eng, (m.x, m.y), {'C1': pc['cap'], 'M1': '%d SB' % pc['sb']}, 'ROTAS-S2-TS-CAP2',
+                                 L_PCAP)
         if e is None:
             n_yok += 1
             dur.uyari.append('kat %s pis su etiketi yerleşmedi: %s %d SB @ (%.0f, %.0f)' % (
@@ -1701,6 +1724,10 @@ def kat_etiketle(doc, eng, K, kat, dur):
             ad = 'Ç.M.' if f['kind'] == 'CM' else 'B.M.'
             mer = [(f['c'][0] + dx, f['c'][1] + dy) for dx, dy in ((0, 40), (0, -40), (55, 0), (-55, 0), (45, 45),
                                                                      (-45, 45), (45, -45), (-45, -45), (0, 70), (0, -70))]
+            for dd in (35, 50, 65, 80, 100):
+                for kk in range(16):
+                    an = math.radians(22.5 * kk)
+                    mer.append((f['c'][0] + dd * math.cos(an), f['c'][1] + dd * math.sin(an)))
             e = yazi_yerlestir(msp, eng, ad + ' (EK)', 10.0, 'ROTAS-SIHHI-CIHAZ-YAZI', mer)
             if e is None:
                 dur.uyari.append('kat %s %s EK yazısı yerleşmedi' % (K.k, ad))
