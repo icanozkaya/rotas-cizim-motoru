@@ -39,6 +39,26 @@ python3 emitp.py /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_SIH
 python3 pdfp.py  /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_ONIZLEME.pdf
 ```
 
+## Kalıcı kurallar — 14.10.2026 kullanıcı standart talimatı (tam metin: `kutuphane/arastirma/KULLANICI_STANDART_TALIMATI_2026-10-14.md`)
+Bu liste aşağıdaki eski kurallarla çelişirse BU LİSTE geçerlidir.
+- Katman (kalem) önekleri `ROTAS-` (eski `SCOTT-` kuralının yerine); paftalardaki mevcut ROTAS ayarı/kalemleri bozulmaz.
+- Sıhhi: YB (temiz su) ve SB (pis su) yöntemi MTY ile birebir aynı (MB/inç'e geçilmez); yalnız görsel blok/sembol tasarımı güncellenebilir.
+- Balkon süzgeçleri WC/pis su hattına bağlanmaz; ayrı süzgeç/yağmur hattına.
+- Daire içinde sıcak ve soğuk su yan yana paralel gider.
+- Mimar göstermese de her dairede çamaşır makinesi ve bulaşık makinesi hattı eklenir.
+- YB/SB değerleri tam boru ekseni üzerine oturur; pis su kolon numaraları (PK-1...) kolon sembolünün hemen yanında, hiçbir çizgi/bloğa binmeden.
+- Kolon (taşıyıcı), asansör boşluğu ve şaftından hiçbir hat geçmez; enerji odası/şaftından ıslak hat geçmez.
+- Bina besleme ve kolektör hatları daire içinden geçmez; ana hatlar koridor/ortak alandan dairelere girer.
+- Dikey kolonlar mahal köşelerinden iner/çıkar; alt/üst kat planı farklıysa geçişler uyarlanır; tüm kolonlar numaralı.
+- Radyatör pencere altına (cam ölçüsüne dikkat); olmazsa en yakın boş duvara. Sistem kolektörlü dağıtıma uygun.
+- Merkezi ısıtmada (radyatör/yerden) daire girişlerinde kalorimetre (ısı pay ölçer) seti; kazan dairesi bağlantıları eksiksiz.
+- Yangın dolapları erişim mesafesine göre eksiksiz; pompa odası ve şema yönetmeliğe uygun.
+- Islak hacim mekanik havalandırması gerekiyorsa debi/basınç hesabı + havalandırma şeması.
+- Depo bodrumda ise hidrofor grubu; mimaride depo yeri yoksa çatıda depo varmış gibi kurgulanır.
+- Tüm projelerde (kat planları, kolon şemaları, kazan dairesi, pompa daireleri) gerekli kesit ve görünüşler bulunur.
+- Teslimde kullanılan tüm sembollerin lejantı + malzeme/armatür adet tablosu paftanın sonunda.
+- Kullanıcının verdiği ısı kaybı / yerden ısıtma hesapları ve proje kapağı paftanın SOL ALT köşesine düzenli yerleştirilir.
+
 ## Kalıcı kurallar (kullanıcı talimatları)
 - GENEL (13.10.2026, kullanıcı: "bir daha söyletme"): Her iş en son onaylanan sürümün üzerinden ve aynı tarzda yapılır (sıhhi = önceki onaylı sıhhi projeler / MTY bloklu kolon şeması; asansör = Korucuk onaylı seti; yangın = VOYAP yangın; ısıtma/yerden ısıtma = Emine Tunçel `p3/et.py` salyangoz + kapıdan geçen ayaklar). Kafaya göre yeni tarz, ayrı şema vb. yapılmaz.
 - Tüm dosyalarda katman (kalem) adları `SCOTT-` ile başlar (teslimde 0 ve Defpoints dışındaki bütün katmanlar SCOTT- önekli).

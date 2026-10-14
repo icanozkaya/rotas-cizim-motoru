@@ -14,3 +14,5 @@ Her deneme ajanı bunlara uyar:
    Claude-Session: https://claude.ai/code/session_01RwXcqZmf9VPBpDgb8LPkn3
    ```
 9. Rapor: ne çalıştı, ne çalışmadı, üretilen DXF yolları, kullanıcıya sorulması gereken kararlar.
+
+10. 14.10.2026 kullanıcı standart talimatı (README en üst kural bloğu) her modülde geçerlidir.
