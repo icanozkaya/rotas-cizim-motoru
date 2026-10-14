@@ -9,7 +9,7 @@ SIHHİ TESİSAT PROJESİ 1. sıra paftalarını `ornekler/ORNEK_DUZEN.md` sıras
 | 2 | YERLEŞİM PLANI ÖLÇEK: 1 / 250 + bilgi kutuları + alan hesabı | 1682 | 248360 | `antet.yerlesim_ciz` |
 | 3 | TEMEL PLANI.........ÖLÇEK: 1 / 50 | 2471 | 250042 | `NB_SIHHI_TEMEL.dxf` ya da yer tutucu |
 | 4 | ZEMİN / 1. / 2. KAT PLANI.........ÖLÇEK: 1 / 50 (+ plan.py lejant/çatı paftası 2058) | 2065 / 2039 / 2039 | 252513… | `NB_SIHHI_KAT_PLANLARI.dxf` (plan.py) |
-| 5 | AÇILIMLI KOLON ŞEMASI (+ rögar, yağmur şeması) | 7418 | 260714 | `NB_SIHHI_SEMA.dxf` (sema.py) ya da yer tutucu |
+| 5 | AÇILIMLI KOLON ŞEMASI (+ rögar, yağmur şeması; başlık/lejant yok, kullanıcınınki gibi) | 7418 | 260714 | `NB_SIHHI_SEMA.dxf` (sema.py) ya da yer tutucu |
 | 6 | WC havalandırma izometrisi (üst) + SIHHİ DETAYLAR 2000 × 1500 (alt) | 2065 | 268132 | `detay.detay_paftasi` |
 
 Başlıklar h 40, pafta solu + 538, alt çerçeveden 39 yukarı. Girdi DXF'inde `ROTAS-PAFTA` katmanında 2900 yükseklikli
@@ -38,6 +38,9 @@ Python: `pafta.birlestir(plan_dxf, sema_dxf, temel_dxf, cikti, bilgi=None, vaziy
   (`adet_say`: semboller2 `kullanim_say` + plan.py `ROTAS-S2-*` eşdeğerleri; kolon/YB numaraları farklı numara sayısıyla, lejant
   katmanları sayılmaz). Lejant hücresinde çizimde kullanılan blok (ör. `ROTAS-S2-YER-SUZGECI`) gösterilir. Montaj detayları
   saf geometri. WC izometrisi `motor/deneme/wc_havalandirma` (girdi yoksa `nb_algilanan.json` → `ornek_z2_9daire.json`).
+  **Şaft birleştirme** (`detay.saft_birlestir`, `pafta.py --saft "D3,D5,D8;D1,D2,D4,D6,D7,D9"`, varsayılan
+  `pafta.NB_SAFT_GRUPLARI`): kullanıcının iki şaftı — D3-5-8 240 m³/h, D1-2-4-6-7-9 480 m³/h; her daire o katta tek
+  aspiratör (80 m³/h-50 pa Ø150 mm). İzometride iç lejant ve proje/dosya adı satırı yok.
 
 ## Deneme sonucu (15.10.2026)
 `proje/denemeler/sihhi2/NB_SIHHI_PAFTA_DENEME.dxf`: 9 pafta, şerit 22845 × 2900; pafta x'leri referansla birebir.
