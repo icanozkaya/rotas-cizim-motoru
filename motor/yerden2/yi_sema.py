@@ -52,7 +52,7 @@ def panel(msp, Px, Y0, d):
     sap = [(Px + 8, Y0), (Px + 124, Y0), (Px + 124, Y0 + 20), (Px + 8, Y0 + 20)]
     _pl(msp, sap, DET, 8, True)
     h = msp.add_hatch(color=8, dxfattribs={'layer': DET})
-    h.set_pattern_fill('ANSI37', scale=0.5)
+    h.set_pattern_fill('AR-SAND', scale=0.15)
     h.paths.add_polyline_path(sap, is_closed=True)
     # döşeme üst çizgileri
     msp.add_line((Px - 20, Y0 + 60), (Px + 129, Y0 + 60), dxfattribs={'layer': DET, 'color': 7})

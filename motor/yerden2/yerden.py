@@ -231,7 +231,7 @@ def mimari_kopyala(doc):
 TUR_SIRA = {'mutfak': 0, 'oda': 1, 'hol': 2, 'banyo': 3}
 
 
-def kat_tasarla(k, yazi_kutulari, yasak_ek):
+def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
     K = MY.kat_oku(k)
     MY.yabanci_etiket_bol(K)
     w = M.win(k, 120.0)
@@ -247,7 +247,7 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek):
         eng = MY.engeller(K, r)
         H, R = MY.bolge(r, eng)
         kapi = MY.ana_kapi(K, r, tur)
-        d = T.oda_tasarla(r, H, R, kapi, yasak)
+        d = T.oda_tasarla(r, H, R, kapi, yasak, cep_ac)
         if d is None:
             log('UYARI: %s kat %s daire %s %s (%.2f m²): devre kurulamadı' % (k, r['name'], r['daire'], tur, r['area']))
             isitmasiz.append(dict(ad=r['name'], poly=r['poly'], tur='kurulamadi'))
@@ -459,6 +459,8 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument('--png', action='store_true', help='önizleme PNG + referansla yan yana')
     ap.add_argument('--ayaklar', action='store_true', help='kollektör ayakları (varsayılan kapalı: kullanıcı planda çizmiyor)')
+    ap.add_argument('--etiket-ust', action='store_true',
+                    help='devre etiketi için cep bırakma: tablo serpantin üstünde, altı maskeli (kullanıcının çizimi gibi)')
     ap.add_argument('--yenile', action='store_true', help='mimari önbelleğini yenile')
     a = ap.parse_args(argv)
     t0 = time.time()
@@ -471,7 +473,7 @@ def main(argv=None):
     kutular = mimari_kopyala(doc)
     KTS = []
     for k in KATLAR:
-        KT = kat_tasarla(k, kutular, [])
+        KT = kat_tasarla(k, kutular, [], cep_ac=not a.etiket_ust)
         n = sum(len(o['tasarim']['devreler']) for o in KT['odalar'])
         log('kat %s: %d ısıtılan mahal, %d devre' % (k, len(KT['odalar']), n))
         KTS.append(KT)

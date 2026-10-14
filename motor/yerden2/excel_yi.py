@@ -17,6 +17,7 @@ import shutil
 import openpyxl
 from openpyxl.utils import get_column_letter as CL
 
+BIRIM = 17.5      # W/m — şablonun "BİRİM VERİM" sütunu (M); Excel ısıl güçleri bununla (planda 35 W/m × L)
 KOK = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SABLON = KOK + '/sablon/ornek_yi.xlsx'
 CIKIS = KOK + '/proje/denemeler/yerden2/NB_YERDEN_ISITMA.xlsx'
@@ -117,7 +118,7 @@ def yaz(model, cikis=CIKIS):
             if k2 is not kat:
                 continue
             L = sum(c['L_m'] for c in m['devreler'])
-            W = sum(c['W'] for c in m['devreler'])
+            W = BIRIM * L
             v = {'A': m['zon'], 'B': '%s %s' % (dno, m['ad'].upper()), 'C': str(m['sic']), 'D': round(W, 1),
                  'E': 17.5, 'F': "='YERDEN ISITMA'!N%d" % r, 'G': round(L, 2), 'H': len(m['devreler']),
                  'I': 'ZEMİNDEN ISITMA'}
@@ -184,10 +185,11 @@ def yaz(model, cikis=CIKIS):
         maxdp = 0.0
         for dno, m, c, A in allc:
             C = CL(col)
-            debi, R, dps = dp_devre(c['W'], c['L_m'])
+            Wc = BIRIM * c['L_m']
+            debi, R, dps = dp_devre(Wc, c['L_m'])
             maxdp = max(maxdp, dps * 1.05)
             v = {7: c['no'], 8: m['zon'], 9: '%s %s' % (dno, m['ad']), 10: m['sic'],
-                 11: 6 if kat['kat'] == 'Z' else 20, 12: round(A, 2), 13: round(c['W'], 1),
+                 11: 6 if kat['kat'] == 'Z' else 20, 12: round(A, 2), 13: round(Wc, 1),
                  14: '=%s13/%s12' % (C, C), 15: 0.012, 16: 1, 17: '=%s12' % C, 18: '=%s13/%s17' % (C, C),
                  19: '=%s10+(%s14/8.92)^0.91' % (C, C), 20: 45, 21: '=%s20-%s10' % (C, C), 22: 15, 23: 40,
                  24: '=%s23-%s10' % (C, C), 25: '=2*(%s21-%s24)' % (C, C), 26: '=0.2*%s14' % C,
@@ -202,7 +204,7 @@ def yaz(model, cikis=CIKIS):
         for C in cols:
             stil(tpl_col[34], ws[C + '35'])
             ws[C + '35'] = '=MAX(%s34:%s34)-%s34' % (cols[0], cols[-1], C)
-        ws['E2'] = 'TOPLAM ISI = %.0f W' % sum(c['W'] for _, _, c, _ in allc)
+        ws['E2'] = 'TOPLAM ISI = %.0f W' % sum(BIRIM * c['L_m'] for _, _, c, _ in allc)
         ws['E3'] = 'MAX. BASINÇ KAYBI = %.0f Pa' % maxdp
         ws['C30'] = 'BAĞLANTI BORULARI'
         ws['D30'] = 'Kollektör ayakları planda çizilmedi (0)'
@@ -213,7 +215,7 @@ def yaz(model, cikis=CIKIS):
                 ws.cell(rr, cc).value = None
         ws['B41'] = 'Kombi gidiş suyu sıcaklığı 45 °C, dönüş 35 °C seçilmiştir.'
         ws['B42'] = 'Ortalama su sıcaklığı 40 °C alınmıştır.'
-        ws['B43'] = 'Alta geçen ısı 0,2 q" olarak alınmıştır.'
+        ws['B43'] = 'Alta geçen ısı 0,2 q" olarak alınmıştır. qh = 17,5 W/m × devre boyu (şablon birim verimi); ısı kaybı hesabı ayrıca yapılmalıdır.'
         ws['B44'] = 'R (Pa/m): PEX 16x2,0 (iç çap 12 mm), 40 °C su, Blasius / laminer bağıntısı; L = çizimdeki devre boyu.'
         ws['B46'] = 'Isıtma devrelerinin basıncı kollektördeki debimetreli reglaj vanası ile ayarlanmalıdır.'
         ws['A12'] = 6

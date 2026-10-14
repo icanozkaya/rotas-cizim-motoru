@@ -61,7 +61,7 @@ def kose_dene(R, kose, merkez, n_min):
     return dict(kose=kose, fr=fr, Rc=Rc, n=n, sonuc=r, maxL=L, toplam=top, uc=uc)
 
 
-def oda_tasarla(oda, H, R, kapi, yasak):
+def oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True):
     """oda: mahal kaydı; H: ısıtma alanı (duvar yüzü), R: boru ekseni bölgesi; kapi: (x, y) | None;
     yasak: etiket cebi için kaçınılacak alanlar (yazılar, etiketler) -> shapely geometri.
     Dönüş: dict | None"""
@@ -89,7 +89,7 @@ def oda_tasarla(oda, H, R, kapi, yasak):
     cepler_c = [None] * n
     cepler_w = [None] * n
     i0 = 0
-    for d, mm in enumerate(bolme):
+    for d, mm in enumerate(bolme if cep_ac else []):
         sat = ys[i0:i0 + mm]
         i0 += mm
         fx = r['x_f'] + S.AYAK_ARA * (n - 1 - d)
