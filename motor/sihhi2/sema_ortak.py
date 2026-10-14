@@ -147,7 +147,10 @@ def yiginlar(m):
             if not p:
                 continue
             tip = [a['tip'] for a in h.get('armaturler', [])]
-            if h.get('suzgec'):
+            sz = h.get('suzgec')
+            # kullanıcının şemasında süzgeç yalnız duşlu hacimlerde; mutfak / wc-lvb'ye kuralla eklenmiş (ek) süzgeç
+            # şemaya konmaz (SIHHI_ALTIN §3.4, §8: "wc-lvb ve mutfakta süzgeç yok")
+            if sz and not (sz.get('ek') and 'DUS' not in tip):
                 tip.append('YS')
             g = hedef.gruplar.get((d['kat'], p))
             if g is None:

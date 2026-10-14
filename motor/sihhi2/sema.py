@@ -236,7 +236,7 @@ def cerceve(C, m, L):
     yt = Y0 + n * H
     # kat çizgileri yağmur şeması bölmesinin sağ ucuna kadar sürer (new_block: 267499…268070, 571 cm)
     nyb = len(m.get('yagmur', []))
-    xr = max(x1 + 621.0, x1 + 86 + 60 * (nyb - 1) + 76) if nyb else x1 + 50
+    xr = max(x1 + 621.0, x1 + 86 + 60 * (nyb - 1) + 55) if nyb else x1 + 50
     L['x_bolme'] = xr
     for k in range(n + 1):
         C.hat([(X0 - 50, Y0 + k * H), (xr, Y0 + k * H)], 'ROTAS-SIHHI-SEMA-BANT')
@@ -537,7 +537,7 @@ def yagmur_ciz(C, m, L, yt):
             C.yazi(r.get('cap', 'Ø70'), (x + 10, yy - 4), 9.0, 'ROTAS-SIHHI-YAGMUR-CAP')
     if not xs:
         return
-    gx1 = max(x1 + 585, xs[-1] + 40)
+    gx1 = max(x1 + 585, xs[-1] + 19)
     C.hat([(x1 + 36, Y0 - 58), (gx1, Y0 - 58), (gx1, Y0 - 124), (x1 + 36, Y0 - 124), (x1 + 36, Y0 - 58)],
           'ROTAS-SIHHI-HESAP')
     C.yazi('YAĞMUR SUYU KANALINA GİDER', ((x1 + 36 + gx1) / 2, Y0 - 91), 20.0, L_YAZ, renk=3,
