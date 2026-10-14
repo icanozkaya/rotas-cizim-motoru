@@ -6,6 +6,7 @@ _KOK = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _KOK)
 import veri, ag, hesap, plan, sema, tablo
 import ciz as C
+import semb
 
 DEPO = os.path.abspath(os.path.join(_KOK, '..', '..', '..'))
 CIKTI = os.path.join(DEPO, 'proje', 'denemeler', 'radyator')
@@ -17,7 +18,9 @@ def plan_fabrikasi(P):
     def pf(k, dad):
         key = (k['veri'], dad)
         if key not in cache:
-            a = ag.daire_plani(k['daireler']['A'], P['sistem'])
+            a = ag.daire_plani(k['daireler']['A'], P['sistem'], P.get('mimari'))
+            if a['sorun']:
+                raise ValueError('güzergâh sorunu: ' + '; '.join(a['sorun']))
             cache[(k['veri'], 'A')] = a
             cache[(k['veri'], 'B')] = ag.aynala(a)
         return cache[key]
@@ -38,20 +41,21 @@ def kat_planlari(cz, P, M, A, pf, y0=0.0):
         pa, pb = pf(k, 'A'), pf(k, 'B')
         dx, dy = x + 300.0, y0 + 300.0
         plan.mimari(cz, [pa, pb], dx, dy, P['sistem'])
-        hatlar = {}
+        kayit = {}
         for dad, pl in (('A', pa), ('B', pb)):
-            hatlar[dad] = plan.borular(cz, pl, dx, dy, P['sistem'], dict(kat_on=KAT_ON[k['veri']]))
-        cihazlar(cz, P, [pa, pb], dx, dy, k, A)
-        # bu kat tipinin temsilci katı (ör. 1. normal) parçaları
-        kod = k['kod']
+            kayit[dad] = plan.borular(cz, pl, dx, dy, dict(kat_on=KAT_ON[k['veri']]))
         for dad, pl in (('A', pa), ('B', pb)):
-            prc = [p for p in A.parcalar if p['kat'] == kod and p['daire'] == dad]
-            plan.hat_etiketleri(cz, pl, hatlar[dad], prc, dx, dy, set())
+            plan.cihazlar(cz, pl, dx, dy, P, KAT_ON[k['veri']])
+        for dad, pl in (('A', pa), ('B', pb)):
+            plan.radyator_etiketleri(cz, pl, kayit[dad], dx, dy, KAT_ON[k['veri']])
+        for dad, pl in (('A', pa), ('B', pb)):
+            prc = [p for p in A.parcalar if p['kat'] == k['kod'] and p['daire'] == dad]
+            plan.devre_etiketleri(cz, pl, kayit[dad], prc, dx, dy)
         for dad, pl in (('A', pa), ('B', pb)):
             plan.mahal_etiketleri(cz, pl, dx, dy, KAT_ON[k['veri']])
-        # başlık
-        cz.yazi((dx + 1400, dy - 170), f"{ad[k['veri']]} RADYATÖR TESİSATI PLANI.........ÖLÇEK: 1 / 50", 30, 'ROTAS-BASLIK')
-        cz.yazi((dx + 1400, dy + 1130), 'DENEME – temsili mahal yerleşimi (mimari proje yok; mahaller daire tipik planı olarak temsil edilmiştir)',
+            plan.tefris_yazilari(cz, pl, dx, dy)
+        cz.yazi((dx + 1400, dy - 170), f"{ad[k['veri']]} RADYATÖR TESİSATI PLANI (KOLEKTÖRLÜ).........ÖLÇEK: 1 / 50", 30, 'ROTAS-BASLIK')
+        cz.yazi((dx + 1400, dy + 1130), 'DENEME – temsili mahal yerleşimi (mimari proje yok; pencere, kapı ve tefriş temsilîdir)',
                 16, 'ROTAS-DENEME')
         if k['veri'] == '1-2-3-4-5':
             cz.yazi((dx + 1400, dy - 215), 'Hat etiketleri 1. normal kat yüklerine göredir; diğer normal katlarda aynı yerleşim.', 11, 'ROTAS-YAZI')
@@ -62,36 +66,6 @@ def kat_planlari(cz, P, M, A, pf, y0=0.0):
 
 def pafta_cerceve(cz, x0, y0, x1, y1):
     cz.pl([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], 'ROTAS-PAFTA', w=2.0, kapali=True, engel=False)
-
-
-def cihazlar(cz, P, pls, dx, dy, k, A):
-    T = lambda p: (p[0] + dx, p[1] + dy)
-    if P['sistem'] == 'merkezi':
-        for i, pl in enumerate(pls):
-            kx, ky = pl['kok']
-            # kolon (gidiş + dönüş borusu) — MTY-BORU KOLON
-            rot = -90.0
-            cz.blok('MTY-BORU KOLON', T((kx - 5.0, ky + 5.0)), rot, 1.0, 1.0, 'ROTAS-CIHAZ', ozn={'K': f'K{i + 1}'},
-                    ozn_h={'K': 20.0}, ozn_rot=0.0)
-            # daire giriş vanaları (gidiş + dönüş) — MTY-KURESEL VANA
-            vx = (kx + ag.GEN) / 2 if i == 0 else (kx + ag.GENIS_TOP - ag.GEN) / 2
-            dn = 'DN20'
-            ust = [p for p in A.parcalar if p['kat'] == k['kod'] and p['daire'] == ('A' if i == 0 else 'B') and p['tur'] == 'daire']
-            if ust:
-                dn = ust[0]['dn']
-            for j, yy in enumerate((ky - ag.H, ky + ag.H)):
-                cz.blok('MTY-KURESEL VANA', T((vx, yy)), 0.0, 0.45, 0.45, 'ROTAS-VANA', ozn={'CAP': ''})
-            cz.yazi(T((vx, ky - 22)), f'V-{2 * i + 1:02d}/{2 * i + 2:02d}', 6, 'ROTAS-VANA')
-    else:
-        for i, pl in enumerate(pls):
-            kb = pl['kombi']
-            if kb.get('ayna'):
-                cz.blok('MTY-KOMBİ', T((kb['p'][0], kb['p'][1] + 30.0)), 180.0, 1.0, 1.0, 'ROTAS-CIHAZ')
-                tx = kb['p'][0] + 100
-            else:
-                cz.blok('MTY-KOMBİ', T(kb['p']), 0.0, 1.0, 1.0, 'ROTAS-CIHAZ')
-                tx = kb['p'][0] - 100
-            cz.yazi(T((tx, 120)), f"HERMETİK KOMBİ {P['kombi']['kapasite_kW']} kW", 8, 'ROTAS-CIHAZ')
 
 
 def main():
@@ -110,15 +84,21 @@ def main():
     os.makedirs(CIKTI, exist_ok=True)
     cz = C.Cizim()
     genislik = kat_planlari(cz, P, M, A, pf, 0.0)
-    sema.ciz(cz, P, M, A, pf, x0=0.0, y0=-4200.0)
-    tablo.ciz(cz, P, M, A, pomp, x0=0.0, y0=-9000.0)
-    yol = os.path.join(CIKTI, f'radyator_{P["sistem"]}.dxf')
+    sema.ciz(cz, P, M, A, pf, pomp, x0=2000.0, y0=-4200.0)
+    MZ = hesap.malzeme(A, P, M, pf)
+    tx, ty = tablo.ciz(cz, P, M, A, pomp, x0=0.0, y0=-9000.0 - (1900.0 if P['sistem'] == 'merkezi' else 0.0), pf=pf, MZ=MZ)
+    # pafta sonu: kullanılan sembollerin lejantı + adet tablosu (semboller modülü otomatik_lejant)
+    ly = -9000.0 - (1900.0 if P['sistem'] == 'merkezi' else 0.0) + 280.0
+    cz.yazi((tx + 300.0, ly + 60.0), 'LEJANT VE SEMBOL ADET TABLOSU (çizimdeki bloklardan otomatik)', 30, 'ROTAS-BASLIK', maske=False)
+    semb.lejant(cz.doc, tx + 200.0, ly)
+    yol = os.path.join(CIKTI, f'radyator_{P["sistem"]}_R2.dxf')
     if os.path.exists(yol):
         os.remove(yol)
     cz.doc.saveas(yol)
     print('yazıldı:', yol)
     print('pompa:', json.dumps({k: round(v, 3) for k, v in pomp.items()}, ensure_ascii=False))
     print('kritik:', [(p['kno'], p['ad'], p['kat'], p['daire'], p['dn']) for p in A.kritik])
+    print('malzeme:', json.dumps(MZ, ensure_ascii=False))
     return yol
 
 

@@ -13,6 +13,8 @@ KAT = {  # ad: (renk, çizgi tipi)
     'ROTAS-SEMA': (8, 'Continuous'), 'ROTAS-KAT-BANDI': (8, 'Continuous'), 'ROTAS-TABLO': (7, 'Continuous'),
     'ROTAS-VANA': (1, 'Continuous'), 'ROTAS-CIHAZ': (135, 'Continuous'), 'ROTAS-KRITIK': (1, 'Continuous'),
     'ROTAS-MASKE': (7, 'Continuous'), 'ROTAS-DENEME': (1, 'Continuous'), 'ROTAS-PAFTA': (7, 'Continuous'),
+    'ROTAS-ISITMA-KOLEKTOR': (6, 'Continuous'), 'ROTAS-ISITMA-SINYAL': (3, 'DASHED'), 'ROTAS-ISITMA-SEMBOL': (1, 'Continuous'),
+    'ROTAS-MIMARI-TEFRIS': (9, 'Continuous'), 'ROTAS-DETAY': (7, 'Continuous'),
 }
 GID, DON, CAPK = 'ROTAS-ISITMA-GIDIS', 'ROTAS-ISITMA-DONUS', 'ROTAS-ISITMA-CAP'
 YAZI, MSK = 'ROTAS-YAZI', 'ROTAS-MASKE'

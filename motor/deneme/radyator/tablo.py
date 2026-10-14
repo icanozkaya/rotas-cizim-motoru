@@ -42,7 +42,7 @@ def tablo(cz, x, y, baslik, sutunlar, satirlar, h=9.0, vurgu=None):
     return y1
 
 
-def ciz(cz, P, M, A, pomp, x0=0.0, y0=-9000.0):
+def ciz(cz, P, M, A, pomp, x0=0.0, y0=-9000.0, pf=None, MZ=None):
     y = y0
     cz.yazi((x0 + 1400, y + 230), 'ISITMA TESİSATI HESAPLARI – RADYATÖR SEÇİMİ, BORU ÇAPI VE POMPA', 40, 'ROTAS-BASLIK', maske=False)
     cz.yazi((x0 + 1400, y + 175), f"DENEME – {P['proje']['ad']} ({P['proje']['ilce']} / {P['proje']['il']}), sistem: "
@@ -75,7 +75,7 @@ def ciz(cz, P, M, A, pomp, x0=0.0, y0=-9000.0):
     kum = 0.0
     for p in A.kritik:
         kum += p['RL'] + p['Z']
-        hat = p['ad'] if p['tur'] not in ('daire', 'radyator') else f"{p['ad']} – {p['kat']} kat, daire {p['daire']}"
+        hat = p['ad'] if p['tur'] not in ('giris', 'devre') else f"{p['ad']} – {p['kat']} kat, daire {p['daire']}"
         rows2.append([str(p['kno']), hat[:58], _n(p['Q']), _n(p['Q'] * 0.859845), _n(p['L'], 2), f"{p['dn']} ({p['inc']})",
                       _n(p['w'], 2), _n(p['R'], 2), _n(p['RL'], 1), _n(p['sz'], 1), _n(p['Z'], 1), _n(p['RL'] + p['Z'], 1), _n(kum, 1)])
     rows2.append(['', 'KRİTİK DEVRE TOPLAMI ΣR·L + ΣZ', '', '', _n(sum(p['L'] for p in A.kritik), 2), '', '', '',
@@ -115,7 +115,41 @@ def ciz(cz, P, M, A, pomp, x0=0.0, y0=-9000.0):
           f'1) Seçilen radyatör kapasiteleri mahal ısı kayıplarının {min(oran):.1f}–{max(oran):.1f} katıdır (ör. normal kat salon 497 W kayba 2×1454 W). Seçim değiştirilmedi; boru çapı '
           + ('radyatör kapasitesine' if P['yuk_esasi'] == 'radyator' else 'ısı kaybına') + ' göre yapıldı.',
           '2) rad.xlsx antre t_i = 15 °C, ik.xls antre = 18 °C (ısı kaybı 18 °C ile hesaplanmış). ik.xls çatı katı oda başlıkları "Ç 11/Ç 12" iki kez geçiyor (rad.xlsx: Ç 13/14).',
-          '3) Mahal yerleşimi, boru güzergâhları ve uzunluklar TEMSİLÎDİR (mimari yok); gerçek planla boru boyları ve kritik devre değişir.']
+          '3) Mahal yerleşimi, pencere/tefriş, boru güzergâhları ve uzunluklar TEMSİLÎDİR (mimari yok); gerçek planla boru boyları ve kritik devre değişir.',
+          '4) Daire içi devreler PE-Xc/Al/PE-X (ε = 0,007 mm); kolon ve kazan dairesi siyah çelik. Kalorimetre ζ, balans vanası ζ parametredir (katalogla teyit).']
     for i, s in enumerate(uy):
         cz.yazi((x0, yy - i * 22), s, 12, 'ROTAS-DENEME' if i == 0 else 'ROTAS-YAZI', al='BL', maske=False)
-    cz.pl([(x0 - 60, yy - 120), (x2 + 1420, yy - 120), (x2 + 1420, y + 290), (x0 - 60, y + 290)], 'ROTAS-PAFTA', w=2.0, kapali=True, engel=False)
+    # 5) devre çizelgesi (1. normal kat, daire A – tipik)
+    k1 = [k for k in M['katlar'] if k['daireler']]
+    kt = k1[1] if len(k1) > 1 else k1[0]
+    sut5 = [('DEVRE', 55, 'C'), ('MAHAL', 150, 'L'), ('RADYATÖR', 150, 'L'), ('YERLEŞİM', 380, 'L'), ('Q (W)', 70, 'R'),
+            ('L g+d (m)', 75, 'R'), ('ÇAP', 75, 'C'), ('w (m/s)', 60, 'R'), ('R·L+Z (mmSS)', 95, 'R')]
+    rows5 = []
+    pl = pf(kt, 'A')
+    for dv in pl['devreler']:
+        p = [q for q in A.parcalar if q.get('devre') == dv['no'] and q['kat'] == kt['kod'] and q['daire'] == 'A'][0]
+        r = dv['rad']
+        rows5.append([f"D{dv['no']}", f"{r['m']['ad']} {r['m']['no']}", (f"{r['model']}x{r['boy'] * 1000:.0f}" if r['tip'] != 'Banyopan'
+                      else f"HAVLUPAN {r['boy'] * 1000:.0f}"), r['yer'][:62], _n(p['Q']), _n(p['L'], 2), p['dn'], _n(p['w'], 2),
+                      _n(p['RL'] + p['Z'], 1)])
+    g = [q for q in A.parcalar if q['tur'] == 'giris' and q['kat'] == kt['kod'] and q['daire'] == 'A'][0]
+    rows5.append(['GİRİŞ', 'kolektör besleme', '', g['ad'][:62], _n(g['Q']), _n(g['L'], 2), g['dn'], _n(g['w'], 2), _n(g['RL'] + g['Z'], 1)])
+    y5 = tablo(cz, x0, yy - 200, f"KOLEKTÖR DEVRE ÇİZELGESİ – {kt['ad']} DAİRE A (tipik; diğer katlar aynı yerleşim)", sut5, rows5, 9.0)
+    # 6) malzeme listesi
+    rows6 = []
+    for k_, v in sorted(MZ['radyator'].items()):
+        rows6.append([k_, 'adet', str(v)])
+    rows6.append(['Termostatik radyatör vanası + dönüş (ayar) rakoru', 'takım', str(MZ['n_rad'])])
+    for n_, v in sorted(MZ['kolektor'].items()):
+        rows6.append([f'Kolektör (paslanmaz, debimetreli) {n_} ağızlı + sıva altı kolektör dolabı', 'takım', str(v)])
+    if P['sistem'] == 'merkezi':
+        rows6.append(['Kalorimetre seti (küresel vana ×4, pislik tutucu, kalorimetre M-Bus, balans vanası)', 'takım', str(MZ['daire'])])
+        rows6.append(['Kalorimetre (sayaç) dolabı 50×100×15, hol duvarında', 'adet', str(MZ['daire'])])
+    else:
+        rows6.append([f"Hermetik kombi {P['kombi']['kapasite_kW']} kW + baca seti", 'adet', str(MZ['daire'])])
+    for k_, v in sorted(MZ['boru'].items()):
+        rows6.append([k_ + ' (gidiş + dönüş)', 'm', _n(v, 1)])
+    y6 = tablo(cz, x0, y5 - 120, 'MALZEME LİSTESİ (bina toplamı, temsili plan boylarıyla)', [('MALZEME', 760, 'L'), ('BİRİM', 80, 'C'),
+               ('MİKTAR', 120, 'R')], rows6, 9.0)
+    cz.pl([(x0 - 60, y6 - 120), (x2 + 1420, y6 - 120), (x2 + 1420, y + 290), (x0 - 60, y + 290)], 'ROTAS-PAFTA', w=2.0, kapali=True, engel=False)
+    return x2 + 1420, y6 - 120

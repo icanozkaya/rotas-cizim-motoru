@@ -1,19 +1,26 @@
 # -*- coding: utf-8 -*-
-"""Radyatör tesisatı kat planı (temsili mahal yerleşimi üzerinde): MTY radyatör blokları, gidiş-dönüş çifti duvar boyu,
-köprülü kesişmeler, kümülatif "Q W-DNxx" hat etiketleri (MTY-RADYATOR CAP)."""
+"""Radyatör tesisatı kat planı (R2, kolektörlü): temsili mimari (pencere/balkon kapısı, kapı kanadı, tefriş),
+kolektör dolabı, her radyatöre ayrı PEX gidiş-dönüş çifti (duvar boyu, kapıdan), MTY radyatör blokları,
+merkezi sistemde hol duvarında KALORİMETRE SETİ (küresel vana + pislik tutucu + kalorimetre + balans vanası + küresel vana),
+kombili sistemde mutfak dış duvarında kombi. Etiketler boş yere yerleşir (yazı altına maske)."""
 import math
-from shapely.geometry import LineString, Point, Polygon, box as sbox, MultiLineString
-from shapely.ops import unary_union, linemerge, substring
+from shapely.geometry import LineString, Point, Polygon, box as sbox
+from shapely.ops import unary_union, substring
 import ag
-from ag import OFF, H, CEK, GEN, DER, YA0, YA1
+from ag import GEN, DER, YA0, YA1, CEK, HP, HF
 import ciz as C
+import semb
 
-DIS = 25.0          # dış duvar kalınlığı
-
-
-def _yon(a, b):
-    L = math.dist(a, b)
-    return ((b[0] - a[0]) / L, (b[1] - a[1]) / L) if L > 1e-9 else (1.0, 0.0)
+DIS = 25.0
+MIM, PEN, TEF = 'ROTAS-MIMARI-TEMSILI', 'ROTAS-MIMARI-PENCERE', 'ROTAS-MIMARI-TEFRIS'
+KOLK, SEM, SIN = 'ROTAS-ISITMA-KOLEKTOR', 'ROTAS-ISITMA-SEMBOL', 'ROTAS-ISITMA-SINYAL'
+SET_ELEMAN = [  # (gidiş sembolü, dönüş sembolü, numara) – kolondan daireye sırayla
+    ('kuresel_vana', 'kuresel_vana', '1'),
+    ('pislik_tutucu', None, '2'),
+    ('kalorimetre_sensor', 'kalorimetre_km', '3'),
+    (None, 'balans_vanasi', '4'),
+    ('kuresel_vana', 'kuresel_vana', '5'),
+]
 
 
 def _okunur(th):
@@ -25,8 +32,6 @@ def _okunur(th):
 
 # ---------------------------------------------------------------------- mimari (temsili)
 def mimari(cz, pl_list, dx, dy, sistem):
-    msp = cz.msp
-    MIM, PEN = 'ROTAS-MIMARI-TEMSILI', 'ROTAS-MIMARI-PENCERE'
     T = lambda p: (p[0] + dx, p[1] + dy)
     dis = unary_union([sbox(0, 0, GEN, DER), sbox(GEN, YA0, ag.GENIS_TOP - GEN, DER), sbox(ag.GENIS_TOP - GEN, 0, ag.GENIS_TOP, DER)])
     hatlar = [LineString(list(dis.exterior.coords))]
@@ -40,29 +45,35 @@ def mimari(cz, pl_list, dx, dy, sistem):
     for pl in pl_list:
         for a, b, yy in pl['kapilar']:
             bosluk.append(sbox(a, yy - 1, b, yy + 1))
-        for a, b, yy in pl['pencereler']:
-            bosluk.append(sbox(a, yy - DIS - 2, b, yy + DIS + 2))
-    giris = (1340.0, 1460.0)                         # bina girişi (merdiven holü güney duvarı)
-    bosluk.append(sbox(giris[0], YA0 - 1, giris[1], YA0 + 1))
-    # daire giriş kapıları (hol → antre), kolonun üstünde
+        for o in pl['odalar']:
+            for p in o.get('pencere', []):
+                bosluk.append(sbox(p['a'], p['y'] - DIS - 2, p['b'], p['y'] + DIS + 2))
+    bosluk.append(sbox(1340.0, YA0 - 1, 1460.0, YA0 + 1))
     for x in (GEN, ag.GENIS_TOP - GEN):
         bosluk.append(sbox(x - 1, 480, x + 1, 570))
     ic = birlesik.difference(unary_union(bosluk))
-    dd = dis.buffer(DIS, join_style='mitre').exterior
-    dd = LineString(dd.coords).difference(unary_union(bosluk))
+    dd = LineString(dis.buffer(DIS, join_style='mitre').exterior.coords).difference(unary_union(bosluk))
     for g in [ic, dd]:
         for ls in getattr(g, 'geoms', [g]):
             if ls.length > 0.5:
-                cz.pl([T(p) for p in ls.coords], MIM, w=0.0, engel=False)
-    # pencereler (duvar kalınlığında 2 cam çizgisi + söve)
+                cz.pl([T(p) for p in ls.coords], MIM, engel=False)
     for pl in pl_list:
-        for a, b, yy in pl['pencereler']:
-            s = 1 if yy >= DER - 1 else -1
-            for f in (0.35, 0.65):
-                cz.pl([T((a, yy + s * DIS * f)), T((b, yy + s * DIS * f))], PEN, engel=False)
-            for x in (a, b):
-                cz.pl([T((x, yy)), T((x, yy + s * DIS))], PEN, engel=False)
-    # kapı kanadı + açılım yayı (oda içine)
+        for o in pl['odalar']:
+            for p in o.get('pencere', []):
+                a, b, yy = p['a'], p['b'], p['y']
+                s = 1 if yy >= DER - 1 else -1
+                for x in (a, b):
+                    cz.pl([T((x, yy)), T((x, yy + s * DIS))], PEN, engel=False)
+                if p['tip'] == 'P':
+                    for f in (0.35, 0.65):
+                        cz.pl([T((a, yy + s * DIS * f)), T((b, yy + s * DIS * f))], PEN, engel=False)
+                else:                                   # balkon kapısı: eşik + kanat
+                    cz.pl([T((a, yy + s * DIS * 0.5)), T((b, yy + s * DIS * 0.5))], PEN, engel=False)
+                    w = b - a
+                    arc = [T((a + w * math.sin(math.radians(90 * i / 12)), yy - s * w * math.cos(math.radians(90 * i / 12))))
+                           for i in range(13)]
+                    cz.pl([T((a, yy)), T((a, yy - s * w))] , MIM, engel=False)
+                    cz.pl(arc, MIM, engel=False)
     for pl in pl_list:
         for o in pl['odalar']:
             if not o.get('kapi'):
@@ -70,20 +81,24 @@ def mimari(cz, pl_list, dx, dy, sistem):
             a, b, yy = o['kapi']
             ic_yon = 1 if o['sira'] == 'N' else -1
             w = b - a
-            mente = a if o['sira'] == 'N' else b
-            karsi = b if o['sira'] == 'N' else a
+            mente = o['mente']
+            karsi = b if abs(mente - a) < 1e-6 else a
             cz.pl([T((mente, yy)), T((mente, yy + ic_yon * w))], MIM, engel=False)
             arc = []
             for i in range(13):
                 t = math.radians(90 * i / 12)
-                vx = (karsi - mente);
-                px = mente + vx * math.sin(t); py = yy + ic_yon * w * math.cos(t)
-                arc.append(T((px, py)))
+                arc.append(T((mente + (karsi - mente) * math.sin(t), yy + ic_yon * w * math.cos(t))))
             cz.pl(arc, MIM, engel=False)
-    for x in (GEN, ag.GENIS_TOP - GEN):            # daire kapısı (hol tarafına açılır)
+            for x0, y0, x1, y1, ad in o.get('tefris', []):
+                if ad == 'KOMBİ':
+                    continue
+                cz.pl([T((x0, y0)), T((x1, y0)), T((x1, y1)), T((x0, y1))], TEF, kapali=True, engel=False)
+        oa = [o for o in pl['odalar'] if o['sira'] == 'A'][0]
+        for x0, y0, x1, y1, ad in oa.get('tefris', []):
+            cz.pl([T((x0, y0)), T((x1, y0)), T((x1, y1)), T((x0, y1))], TEF, kapali=True, engel=False)
+    for x in (GEN, ag.GENIS_TOP - GEN):
         s = 1 if x == GEN else -1
         cz.pl([T((x, 570)), T((x + s * 90, 570))], MIM, engel=False)
-    # merdiven (temsili)
     mx0, mx1, my0, my1 = 1330.0, 1470.0, 640.0, 960.0
     cz.pl([T((mx0, my0)), T((mx1, my0)), T((mx1, my1)), T((mx0, my1))], MIM, kapali=True, engel=False)
     cz.pl([T((1400, my0)), T((1400, my1))], MIM, engel=False)
@@ -91,249 +106,222 @@ def mimari(cz, pl_list, dx, dy, sistem):
         yy = my0 + (my1 - my0) * k / 11
         cz.pl([T((mx0, yy)), T((1395, yy))], MIM, engel=False)
         cz.pl([T((1405, yy)), T((mx1, yy))], MIM, engel=False)
-    cz.yazi(T((1400, 600)), 'MERDİVEN HOLÜ', 9, 'ROTAS-MIMARI-TEMSILI', maske=True)
+    cz.yazi(T((1400, 610)), 'MERDİVEN HOLÜ', 9, MIM)
 
 
-# ---------------------------------------------------------------------- boru çiftleri
-class Boru:
-    def __init__(self):
-        self.g = []      # gidiş polylineları [(x,y)...]
-        self.d = []      # dönüş
-        self.tee_g = []  # T başlangıç noktaları (köprü dışı)
-
-
-def _ofset(ls, d):
-    return list(ls.offset_curve(d, join_style='mitre', mitre_limit=10).coords)
-
-
-def _baslangic(q, dirv, parent_line, maxlen=40.0):
-    """q noktasından geri (−dirv) doğrultuda ebeveyn hattı kes"""
-    ray = LineString([(q[0] - dirv[0] * maxlen, q[1] - dirv[1] * maxlen), (q[0] + dirv[0] * (2 * H + 1), q[1] + dirv[1] * (2 * H + 1))])
-    g = ray.intersection(parent_line)
-    if g.is_empty:
-        return None
-    parcalar = getattr(g, 'geoms', None) or [g]
-    noktalar, cizgi = [], []
-    for p in parcalar:
-        if p.geom_type == 'Point':
-            noktalar.append(p)
-        elif p.geom_type == 'LineString':
-            cizgi += [Point(c) for c in p.coords]
-    if cizgi:          # doğrusal çakışma: ileri yöndeki uç (köşe)
-        return max(cizgi, key=lambda p: (p.x - q[0]) * dirv[0] + (p.y - q[1]) * dirv[1])
-    if not noktalar:
-        return None
-    return min(noktalar, key=lambda p: p.distance(Point(q)))
-
-
-def rad_baglanti(r):
-    """radyatör bloğu yerleşimi ve bağlantı noktaları (vana ucu / rakor ucu), gidiş hangi uçtaysa vana orada"""
-    L = r['L']; ban = r['tip'] == 'Banyopan'
-    wy = r['duvar_y']; ic = r['ic']
-    return L, ban, wy, ic
-
-
-def borular(cz, pl, dx, dy, sistem, bilgi):
-    """daire boru çiftlerini çiz; radyatör bloklarını yerleştir. Dönüş: yol çizgi kayıtları (etiket için)"""
-    T = lambda p: (p[0] + dx, p[1] + dy)
-    yollar = pl['yollar']
-    hat = {}           # yol id -> {'g': coords, 'd': coords, 'gs': +1/-1}
-    sira = sorted(yollar, key=lambda y: (0 if y['ebeveyn'] is None else 1, y['id']))
-    islenen = set()
-    kuyruk = [y for y in yollar if y['ebeveyn'] is None]
-    order = []
-    while kuyruk:
-        y = kuyruk.pop(0); order.append(y)
-        kuyruk += [z for z in yollar if z['ebeveyn'] == y['id']]
-    damla_g, damla_d = [], []
-    rad_kayit = []
-    for y in order:
-        ls = y['ls']
-        adaylar = []
-        for gs in (1, -1):
-            g = _ofset(ls, gs * H); d = _ofset(ls, -gs * H)
-            if y['ebeveyn'] is None:
-                adaylar.append((0, gs, g, d)); break
-            par = hat[y['ebeveyn']]
-            ok = True; kes = 0; yeni = {}
-            for nm, cs, plin, other in (('g', g, par['g'], par['d']), ('d', d, par['d'], par['g'])):
-                dv = _yon(cs[0], cs[1])
-                p0 = _baslangic(cs[0], dv, LineString(plin))
-                if p0 is None:
-                    ok = False; break
-                ileri = (p0.x - cs[0][0]) * dv[0] + (p0.y - cs[0][1]) * dv[1]
-                if ileri > 0.01:
-                    yeni[nm] = [(p0.x, p0.y)] + cs[1:]
-                    ek = LineString([(p0.x, p0.y), (p0.x, p0.y)])
-                else:
-                    ek = LineString([(p0.x, p0.y), cs[0]])
-                    yeni[nm] = [(p0.x, p0.y)] + cs if ek.length > 0.01 else cs
-                if ek.length > 0.01 and ek.crosses(LineString(other)):
-                    kes += 1
-            if ok:
-                adaylar.append((kes, gs, yeni['g'], yeni['d']))
-        adaylar.sort(key=lambda t: t[0])
-        kes, gs, g, d = adaylar[0]
-        hat[y['id']] = dict(g=g, d=d, gs=gs)
-        # radyatör uçları
-        Ltop = ls.length
-        for r in y['rads']:
-            son = r['s_uzak'] >= Ltop - 1
-            wy, icy = r['duvar_y'], r['ic']
-            gL, dL = LineString(hat[y['id']]['g']), LineString(hat[y['id']]['d'])
-            # yakın uç noktasındaki iç/dış
-            pyak = (r['yakin'], wy + icy * OFF)
-            gd = abs(gL.interpolate(gL.project(Point(pyak))).y - wy)
-            dd_ = abs(dL.interpolate(dL.project(Point(pyak))).y - wy)
-            ic_hat = 'g' if gd < dd_ else 'd'
-            # vana ucu: gidiş iç hatsa yakın uç, değilse uzak uç
-            u = 1.0 if r['uzak'] > r['yakin'] else -1.0
-            if r['tip'] == 'Banyopan':
-                s = r['L'] / 32.0
-                yak_x = r['cx'] - u * 16.0 * s; uz_x = r['cx'] + u * 16.0 * s
-                bag_off_v = CEK + 3.0 * s; bag_off_r = CEK + 3.0 * s
-            else:
-                s = r['L'] / 100.0
-                yak_x = r['cx'] - u * 54.7 * s; uz_x = r['cx'] + u * 50.7 * s
-                bag_off_v = CEK + 12.0; bag_off_r = CEK + 7.3
-            vana_yakinda = (ic_hat == 'g')
-            # blok yerleşimi
-            th = 0.0 if icy > 0 else 180.0
-            if r['tip'] == 'Banyopan':
-                ins_x = r['cx'] - u * 12.0 * s if vana_yakinda else r['cx'] + u * 12.0 * s
-                dir_local = u if vana_yakinda else -u
-            else:
-                ins_x = yak_x if vana_yakinda else r['cx'] + u * 54.7 * s
-                dir_local = u if vana_yakinda else -u
-            world_x_of_local_x = 1.0 if th == 0 else -1.0
-            sx = s if dir_local * world_x_of_local_x > 0 else -s
-            ins = (ins_x, wy + icy * CEK)
-            r['_blok'] = dict(p=ins, th=th, sx=sx, sy=s if r['tip'] == 'Banyopan' else 1.0)
-            # bağlantı uçları (vana ucu = gidiş)
-            if vana_yakinda:
-                gx, gyo = (yak_x if r['tip'] != 'Banyopan' else yak_x), bag_off_v
-                dxx, dyo = uz_x, bag_off_r
-            else:
-                gx, gyo = (r['cx'] + u * 54.7 * s) if r['tip'] != 'Banyopan' else uz_x, bag_off_v
-                dxx, dyo = (r['cx'] - u * 50.7 * s) if r['tip'] != 'Banyopan' else yak_x, bag_off_r
-            for nm, bx, boff in (('g', gx, gyo), ('d', dxx, dyo)):
-                cs = hat[y['id']][nm]
-                L_ = LineString(cs)
-                yaklas = nm == ic_hat
-                if son and yaklas:
-                    # iç hat: bağlantı x'inde kes
-                    sp = L_.project(Point(bx, wy + icy * (OFF - H)))
-                    cs2 = list(substring(L_, 0, sp).coords)
-                    q = cs2[-1]
-                    cs2.append((bx, wy + icy * boff))
-                    hat[y['id']][nm] = _sade(cs2)
-                elif son:
-                    # dış hat: bağlantı x'ine kadar uzat/kes
-                    last = cs[-1]
-                    dv = _yon(cs[-2], cs[-1])
-                    yeni = list(cs[:-1]) + [(bx, last[1])] if abs(dv[1]) < 1e-6 else list(cs)
-                    yeni.append((bx, wy + icy * boff))
-                    hat[y['id']][nm] = _sade(yeni)
-                else:
-                    sp = L_.project(Point(bx, wy))
-                    q = L_.interpolate(sp)
-                    (damla_g if nm == 'g' else damla_d).append([(q.x, q.y), (bx, wy + icy * boff)])
-            rad_kayit.append(r)
-    # çiz: önce gidiş, sonra köprülü dönüş
-    tum_g = [LineString(h['g']) for h in hat.values()] + [LineString(p) for p in damla_g]
-    tum_d_pts = [h['d'] for h in hat.values()] + damla_d
-    for h in list(hat.values()):
-        cz.pl([T(p) for p in h['g']], C.GID, w=1.5)
-    for p in damla_g:
-        cz.pl([T(q) for q in p], C.GID, w=1.5)
-    for pts in tum_d_pts:
-        xy = C.kopru_ekle(pts, tum_g, r=4.0)
-        xy = C.kopru_yon(xy, [LineString(q) for q in tum_d_pts if q is not pts] + tum_g)
-        cz.pl([(T(q[:2])[0], T(q[:2])[1], 0, 0, q[4]) for q in xy], C.DON, w=1.5, ltscale=0.4)
-    # radyatör blokları
-    for r in rad_kayit:
-        b = r['_blok']
-        p = T(b['p'])
-        ad = 'MTY-RADYATOR Banyopan' if r['tip'] == 'Banyopan' else 'MTY-RADYATOR Panel'
-        mm = r['m']
-        etiket = (f"BANYOPAN {r['boy'] * 1000:.0f}  {r['ver']:.0f} W" if r['tip'] == 'Banyopan'
-                  else f"{r['model']}x{r['boy'] * 1000:.0f}  {r['ver']:.0f} W")
-        wy = r['duvar_y'] + dy; icy = r['ic']
-        cz.blok(ad, p, b['th'], b['sx'], b['sy'], 'ROTAS-RADYATOR', ozn={'RAD': etiket, 'NO': f"{bilgi['kat_on']}{mm['no']}"},
-                ozn_h={'RAD': 8.0, 'NO': 6.0}, ozn_rot=0.0,
-                ozn_konum={'RAD': (r['cx'] + dx, wy + icy * 50.0), 'NO': (r['cx'] + dx, wy + icy * 63.0)}, maske=True)
-    return hat
-
-
-def _sade(pts):
-    out = []
-    for p in pts:
-        if out and math.dist(out[-1], p) < 1e-6:
-            continue
-        out.append(p)
-    return out
-
-
-# ---------------------------------------------------------------------- etiketler
-def hat_etiketleri(cz, pl, hat, parcalar, dx, dy, kritik_ids):
-    """her daire parçasına MTY-RADYATOR CAP bloğu ile '2070W-DN15'"""
-    T = lambda p: (p[0] + dx, p[1] + dy)
-    h = 8.0
-    for p in parcalar:
-        if p['tur'] != 'daire':
-            continue
-        y = pl['yollar'][p['yol']]
-        ls = y['ls']
-        try:
-            sub = substring(ls, p['s0'], p['s1'])
-        except Exception:
-            continue
-        cs = list(sub.coords)
-        txt = f"{p['Q']:.0f}W-{p['dn']}"
-        tw = len(txt) * h * 0.60 * 0.85 + 6
-        segs = sorted(zip(cs[:-1], cs[1:]), key=lambda s: -math.dist(*s))
-        yerlesti = False
-        for a, b in segs[:4]:
-            Ls = math.dist(a, b)
-            if Ls < tw + 16:
+def tefris_yazilari(cz, pl, dx, dy):
+    for o in pl['odalar']:
+        for x0, y0, x1, y1, ad in o.get('tefris', []):
+            if ad == 'KOMBİ':
                 continue
-            ang = math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))
-            th = _okunur(ang)
-            u = (math.cos(math.radians(th)), math.sin(math.radians(th)))
-            n = (-u[1], u[0])
-            for f in (0.5, 0.35, 0.65, 0.2, 0.8):
-                c = (a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f)
-                for yon in (1, -1):
-                    # yazı tarafı: n*yon ; köken çift hattın o taraftaki çizgisinde
-                    o = (c[0] + n[0] * H * yon, c[1] + n[1] * H * yon)
-                    if yon == 1:
-                        k0 = (o[0] + u[0] * (-tw / 2) + n[0] * 2.0, o[1] + u[1] * (-tw / 2) + n[1] * 2.0)
-                    else:
-                        k0 = (o[0] + u[0] * (-tw / 2) - n[0] * (2.0 + h * 1.3), o[1] + u[1] * (-tw / 2) - n[1] * (2.0 + h * 1.3))
-                    kut = [k0, (k0[0] + u[0] * tw, k0[1] + u[1] * tw),
-                           (k0[0] + u[0] * tw + n[0] * h * 1.3, k0[1] + u[1] * tw + n[1] * h * 1.3),
-                           (k0[0] + n[0] * h * 1.3, k0[1] + n[1] * h * 1.3)]
-                    kutw = Polygon([T(q) for q in kut])
-                    if not cz.bos_mu(kutw):
-                        continue
-                    # blok: yön=+1 → dönüş th, köken o-u*tw/2 ; yön=-1 → aynalı değil, yazıyı alta: köken alt kenarda ve kanca yukarı
-                    if yon == 1:
-                        ins = (o[0] - u[0] * (tw / 2 - 3), o[1] - u[1] * (tw / 2 - 3))
-                        cz.maske([T(q) for q in kut])
-                        cz.blok('MTY-RADYATOR CAP', T(ins), th, 8.0, 8.0, C.CAPK, ozn={'SCCP_001': txt}, ozn_h={'SCCP_001': h})
-                    else:
-                        ins = (o[0] - u[0] * (tw / 2 - 3), o[1] - u[1] * (tw / 2 - 3))
-                        cz.maske([T(q) for q in kut])
-                        cz.blok('MTY-RADYATOR CAP', T(ins), th, 8.0, -8.0, C.CAPK, ozn={'SCCP_001': txt}, ozn_h={'SCCP_001': h},
-                                ozn_konum={'SCCP_001': T((k0[0] + u[0] * tw / 2 + n[0] * h * 0.65, k0[1] + u[1] * tw / 2 + n[1] * h * 0.65))})
-                    cz.yazilar.append(kutw)
-                    yerlesti = True
-                    break
-                if yerlesti:
-                    break
-            if yerlesti:
+            c = ((x0 + x1) / 2 + dx, (y0 + y1) / 2 + dy)
+            rot = 90.0 if (y1 - y0) > (x1 - x0) * 1.3 else 0.0
+            k = Polygon(cz.kutu_yazi(c, ad, 6.0, 'MC', rot))
+            if cz.bos_mu(k):
+                cz.yazi(c, ad, 6.0, TEF, rot=rot, maske=False, renk=8)
+
+
+# ---------------------------------------------------------------------- yardımcılar
+def _ofs(pts, d):
+    g = LineString(pts).offset_curve(d, join_style='mitre', mitre_limit=10)
+    return [tuple(p) for p in g.coords]
+
+
+def _dot(a, b):
+    return a[0] * b[0] + a[1] * b[1]
+
+
+def _rad_uclari(r):
+    """radyatörün bağlantı uçları: (vana_payı, rakor_payı, vana_b, rakor_b, banyopan_mi, ölçek)"""
+    L = r['L']
+    if r['tip'] == 'Banyopan':
+        s = L / 32.0
+        return 16.0 * s, 16.0 * s, CEK + 3.0 * s, CEK + 3.0 * s, True, s
+    s = L / 100.0
+    return 54.7 * s, 50.7 * s, CEK + 12.0, CEK + 7.3, False, s
+
+
+def devre_cizgileri(dv):
+    """devre ekseni → gidiş (sol ofset) / dönüş (sağ ofset) çizgileri, radyatör bağlantısı ve blok yerleşimi"""
+    r = dv['rad']
+    pts = dv['pts']
+    g, d = _ofs(pts, HP), _ofs(pts, -HP)
+    c, t, n = r['c'], r['t'], r['n']
+    a = lambda p: _dot((p[0] - c[0], p[1] - c[1]), t)
+    b = lambda p: _dot((p[0] - c[0], p[1] - c[1]), n)
+    u = 1.0 if a(pts[-1]) - a(pts[-2]) > 0 else -1.0                # son parçanın duvar boyu yönü
+    duvar_g = b(g[-1]) < b(d[-1])                                   # gidiş duvar tarafında mı
+    pv, pr, bv, br, ban, s = _rad_uclari(r)
+    vana_yakinda = duvar_g                                          # duvar tarafı = yakın uç
+    a_v = -u * pv if vana_yakinda else u * pv
+    a_r = u * pr if vana_yakinda else -u * pr
+    P_ = lambda aa, bb: (c[0] + aa * t[0] + bb * n[0], c[1] + aa * t[1] + bb * n[1])
+
+    def bagla(cs, aa, bb):
+        bl = b(cs[-1])
+        return cs[:-1] + [P_(aa, bl), P_(aa, bb)]
+    g = bagla(g, a_v , bv)
+    d = bagla(d, a_r, br)
+    # blok: yerel y → n, yerel x → e = rot90cw(n)
+    rot = math.degrees(math.atan2(n[1], n[0])) - 90.0
+    e = (n[1], -n[0])
+    yon_vr = 1.0 if a_r > a_v else -1.0                              # vanadan rakora t yönü
+    sx_sign = 1.0 if yon_vr * _dot(t, e) > 0 else -1.0
+    if ban:
+        ins = P_(a_v + yon_vr * 4.0 * s, CEK)
+        blok = dict(ad='MTY-RADYATOR Banyopan', p=ins, rot=rot, sx=sx_sign * s, sy=s)
+    else:
+        blok = dict(ad='MTY-RADYATOR Panel', p=P_(a_v, CEK), rot=rot, sx=sx_sign * s, sy=1.0)
+    return g, d, blok
+
+
+# ---------------------------------------------------------------------- boru + cihaz çizimi
+def borular(cz, pl, dx, dy, bilgi):
+    T = lambda p: (p[0] + dx, p[1] + dy)
+    kayit = {}
+    tum = []
+    for dv in pl['devreler']:
+        g, d, blok = devre_cizgileri(dv)
+        kayit[dv['no']] = dict(g=g, d=d, blok=blok, dv=dv)
+        tum += [g, d]
+    # besleme (kolon/kombi → kolektör)
+    bg, bd = _ofs(pl['besleme'], HF), _ofs(pl['besleme'], -HF)
+    kayit['besleme'] = dict(g=bg, d=bd)
+    for k, v in kayit.items():
+        cz.pl([T(p) for p in v['g']], C.GID, w=1.2 if k != 'besleme' else 1.6)
+        cz.pl([T(p) for p in v['d']], C.DON, w=1.2 if k != 'besleme' else 1.6, ltscale=0.4)
+    # kolektör dolabı
+    kk = pl['kolektor']
+    W = kk['x1'] - kk['x0']
+    ad = semb.kolektor_dolabi(cz.doc, W, kk['n'])
+    cz.msp.add_blockref(ad, T((kk['x0'], kk['y0'])), dxfattribs={'layer': KOLK})
+    cz.engel.append(sbox(*T((kk['x0'], kk['y0'])), *T((kk['x1'], kk['y1']))).exterior)
+    # radyatörler
+    for no, v in kayit.items():
+        if no == 'besleme':
+            continue
+        r = v['dv']['rad']; b = v['blok']
+        cz.blok(b['ad'], T(b['p']), b['rot'], b['sx'], b['sy'], 'ROTAS-RADYATOR')
+        cz.engel.append(LineString([T(p) for p in (v['g'][-1], v['d'][-1])]))
+    return kayit
+
+
+def radyator_etiketleri(cz, pl, kayit, dx, dy, kat_on):
+    """radyatör tipi/kapasite + mahal no + devre no: radyatörün oda tarafında boş yere (maske altı boru kesilmez)"""
+    for no, v in kayit.items():
+        if no == 'besleme':
+            continue
+        r = v['dv']['rad']
+        m = r['m']
+        t1 = (f"HAVLUPAN {r['boy'] * 1000:.0f} - {r['ver']:.0f} W" if r['tip'] == 'Banyopan'
+              else f"{r['model']}x{r['boy'] * 1000:.0f} - {r['ver']:.0f} W")
+        t2 = f"{kat_on}{m['no']}  D{no}"
+        c, t, n = r['c'], r['t'], r['n']
+        yer = None
+        for bb in (40, 58, 76, 95, 115, 140):
+            for aa in (0, -40, 40, -80, 80):
+                p1 = (c[0] + aa * t[0] + bb * n[0] + dx, c[1] + aa * t[1] + bb * n[1] + dy)
+                p2 = (p1[0], p1[1] - 11) if n[1] >= -0.5 else (p1[0], p1[1] + 11)
+                k1 = Polygon(cz.kutu_yazi(p1, t1, 7.0)); k2 = Polygon(cz.kutu_yazi(p2, t2, 6.0))
+                if cz.bos_mu(k1) and cz.bos_mu(k2):
+                    yer = (p1, p2); break
+            if yer:
                 break
-        p['_etiket'] = yerlesti
+        if yer is None:
+            p1 = (c[0] + 40 * n[0] + dx, c[1] + 40 * n[1] + dy); p2 = (p1[0], p1[1] - 11)
+            yer = (p1, p2)
+        cz.yazi(yer[0], t1, 7.0, 'ROTAS-RADYATOR')
+        cz.yazi(yer[1], t2, 6.0, 'ROTAS-RADYATOR')
+
+
+def devre_etiketleri(cz, pl, kayit, A_prc, dx, dy):
+    """her devreye bir 'D3 1454W-Ø16x2' etiketi (MTY-RADYATOR CAP), oda içindeki en uzun boş parçada"""
+    h = 7.0
+    T = lambda p: (p[0] + dx, p[1] + dy)
+    for no, v in kayit.items():
+        if no == 'besleme':
+            continue
+        prc = [p for p in A_prc if p.get('devre') == no]
+        if not prc:
+            continue
+        p = prc[0]
+        _etiket(cz, v['dv']['pts'], f"D{no} {p['Q']:.0f}W-{p['dn']}", h, T, HP, ilk=2)
+    pb = [p for p in A_prc if p['tur'] == 'giris']
+    if pb:
+        _etiket(cz, pl['besleme'], f"{pb[0]['Q']:.0f}W-{pb[0]['dn']}", 8.0, T, HF, ilk=0)
+
+
+def _etiket(cz, pts, txt, h, T, yari, ilk=0):
+    tw = len(txt) * h * 0.60 * 0.85 + 6
+    segs = list(zip(pts[:-1], pts[1:]))[ilk:]
+    segs = sorted(segs, key=lambda s: -math.dist(*s))
+    for a, b in segs[:6]:
+        Ls = math.dist(a, b)
+        if Ls < tw + 12:
+            continue
+        ang = math.degrees(math.atan2(b[1] - a[1], b[0] - a[0]))
+        th = _okunur(ang)
+        u = (math.cos(math.radians(th)), math.sin(math.radians(th)))
+        nn = (-u[1], u[0])
+        for f in (0.5, 0.3, 0.7, 0.15, 0.85):
+            cc = (a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f)
+            for yon in (1, -1):
+                o = (cc[0] + nn[0] * (yari + 2.0 + h * 0.75) * yon, cc[1] + nn[1] * (yari + 2.0 + h * 0.75) * yon)
+                k = Polygon(cz.kutu_yazi(T(o), txt, h, 'MC', th))
+                if not cz.bos_mu(k):
+                    continue
+                cz.yazi(T(o), txt, h, C.CAPK, rot=th)
+                return True
+    return False
+
+
+def cihazlar(cz, pl, dx, dy, P, kat_on):
+    T = lambda p: (p[0] + dx, p[1] + dy)
+    if pl['sistem'] == 'merkezi':
+        kx, ky = pl['kolon']
+        bes = pl['besleme']
+        bg, bd = _ofs(bes, HF), _ofs(bes, -HF)
+        xg, xd = bg[0][0], bd[0][0]
+        # kolon (gidiş + dönüş) – MTY-BORU KOLON
+        cz.blok('MTY-BORU KOLON', T((kx, ky)), 0.0, 0.6, 0.6, 'ROTAS-CIHAZ',
+                ozn={'K': 'K1' if not pl.get('ayna') else 'K2'}, ozn_h={'K': 12.0}, ozn_rot=0.0,
+                ozn_konum={'K': T((kx + (-45 if not pl.get('ayna') else 45), ky + 5))}, maske=True)
+        # kalorimetre dolabı (sıva altı, hol duvarı) + set
+        y0, y1 = min(pl['set_y']) - 25, max(pl['set_y']) + 25
+        x0, x1 = min(xg, xd) - 14, max(xg, xd) + 14
+        cz.pl([T((x0, y0)), T((x1, y0)), T((x1, y1)), T((x0, y1))], 'ROTAS-CIHAZ', kapali=True, engel=False)
+        for (sg, sd, no), yy in zip(SET_ELEMAN, pl['set_y']):
+            for sm, xx in ((sg, xg), (sd, xd)):
+                if not sm:
+                    continue
+                rot = -90.0
+                cz.maske([T((xx - 7, yy - 8)), T((xx + 7, yy - 8)), T((xx + 7, yy + 8)), T((xx - 7, yy + 8))])
+                e = semb.ciz(cz.msp, sm, T((xx, yy)), rot=rot, olcek=0.6, kat=SEM)
+                cz.engel.append(sbox(*T((xx - 7, yy - 8)), *T((xx + 7, yy + 8))).exterior)
+            if sg == 'kalorimetre_sensor':
+                cz.pl([T((xg, yy)), T((xd, yy))], SIN, engel=False, ltscale=0.3)
+        tx = x1 + 6 if not pl.get('ayna') else x0 - 6
+        al = 'ML' if not pl.get('ayna') else 'MR'
+        cz.yazi(T((tx, y1 - 6)), 'KS - KALORİMETRE SETİ', 7.0, 'ROTAS-CIHAZ', al=al)
+        cz.yazi(T((tx, y1 - 17)), '(SAYAÇ DOLABI, SIVA ALTI)', 6.0, 'ROTAS-CIHAZ', al=al)
+        for (sg, sd, no), yy in zip(SET_ELEMAN, pl['set_y']):
+            ad = {'1': 'KÜRESEL VANA', '2': 'PİSLİK TUTUCU', '3': 'KALORİMETRE', '4': 'BALANS VANASI', '5': 'KÜRESEL VANA'}[no]
+            cz.yazi(T((tx, yy)), f'{no}- {ad}', 5.5, 'ROTAS-CIHAZ', al=al)
+    else:
+        kb = pl['kombi']
+        p = kb['p']
+        if kb.get('ayna'):
+            cz.blok('MTY-KOMBİ', T((p[0], p[1] + 30.0)), 180.0, 1.0, 1.0, 'ROTAS-CIHAZ')
+            tx, al = p[0] - 52 + 48, 'ML'
+        else:
+            cz.blok('MTY-KOMBİ', T(p), 0.0, 1.0, 1.0, 'ROTAS-CIHAZ')
+            tx, al = p[0] - 4, 'MR'
+        cz.engel.append(sbox(*T((min(p[0], p[0] + 48) - (48 if kb.get('ayna') else 0), p[1])),
+                             *T((max(p[0], p[0] + 48) - (48 if kb.get('ayna') else 0), p[1] + 30))).exterior)
+        cz.yazi(T((tx, 28.0)), f"HERMETİK KOMBİ {P['kombi']['kapasite_kW']} kW", 7, 'ROTAS-CIHAZ', al=al)
+    kk = pl['kolektor']
+    cx = (kk['x0'] + kk['x1']) / 2
+    cz.yazi(T((cx, kk['y0'] - 14)), f"KD - KOLEKTÖR DOLABI {kk['n']} AĞIZ", 6.5, KOLK)
 
 
 def mahal_etiketleri(cz, pl, dx, dy, kat_on):
@@ -341,11 +329,11 @@ def mahal_etiketleri(cz, pl, dx, dy, kat_on):
         m = o['m']
         x0, y0, x1, y1 = o['r']
         s = 0.55 if o['sira'] == 'A' else 0.8
-        w, hh = 72 * s, 102 * s
+        w = 72 * s
         best = None
         cx0, cy0 = (x0 + x1) / 2, (y0 + y1) / 2
-        for ddx in [0, -60, 60, -120, 120, -180, 180, -240, 240, -300, 300]:
-            for ddy in [0, -40, 40, -80, 80]:
+        for ddx in [0, -60, 60, -120, 120, -180, 180, -240, 240, -300, 300, -360, 360]:
+            for ddy in [0, -40, 40, -80, 80, -120, 120]:
                 cx, cy = cx0 + ddx, cy0 + ddy
                 kb = sbox(cx - w / 2 + dx, cy - 59 * s + dy, cx + w / 2 + dx, cy + 42 * s + dy)
                 if kb.bounds[0] < x0 + dx + 5 or kb.bounds[2] > x1 + dx - 5 or kb.bounds[1] < y0 + dy + 5 or kb.bounds[3] > y1 + dy - 5:
@@ -356,8 +344,7 @@ def mahal_etiketleri(cz, pl, dx, dy, kat_on):
                 break
         if not best:
             cx, cy = cx0, cy0
-            kb = sbox(cx - w / 2 + dx, cy - 59 * s + dy, cx + w / 2 + dx, cy + 42 * s + dy)
-            best = (cx, cy, kb)
+            best = (cx, cy, sbox(cx - w / 2 + dx, cy - 59 * s + dy, cx + w / 2 + dx, cy + 42 * s + dy))
         cx, cy, kb = best
         cz.maske(list(kb.exterior.coords)[:4])
         cz.blok('MTY-RADYATOR MAHAL', (cx + dx, cy + dy), 0, s, s, 'ROTAS-MAHAL',

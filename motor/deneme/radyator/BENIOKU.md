@@ -1,35 +1,52 @@
-# Deneme modülü: radyator (radyatörlü çift borulu ısıtma)
+# Deneme modülü: radyator (radyatörlü ısıtma) — R2 KOLEKTÖRLÜ (14.10.2026)
 
-**Ne yapar:** Kullanıcının ısı kaybı (`ik.xls`) ve radyatör seçim (`rad.xlsx`) dosyalarını `motor/izoder_rapor/oku.py` ile okur;
-temsili daire tipik planı üzerinde radyatörleri pencere altına yerleştirir, gidiş-dönüş çiftini duvar boyunca kapılardan geçirerek çizer,
-parça parça kümülatif yük → boru çapı hesabı yapar, kritik devreyi ve pompayı bulur. Tek DXF (R2018) içinde:
+**Ne yapar:** Kullanıcının ısı kaybı (`ik.xls`) ve radyatör seçim (`rad.xlsx`) dosyalarını `motor/izoder_rapor/oku.py` ile okur
+(radyatör seçimi DEĞİŞTİRİLMEZ). Temsili daire tipik planında (mimari yok) KOLEKTÖRLÜ dağıtım çizer ve hesaplar. Tek DXF (R2018):
 
-1. Kat planları (ZEMİN, NORMAL 1-5 tipik, ÇATI) – 1/50, `MTY-RADYATOR Panel` / `MTY-RADYATOR Banyopan` (termostatik vana blok içinde),
-   `MTY-RADYATOR MAHAL` mahal etiketi, `MTY-RADYATOR CAP` hat etiketi "11216W-DN20", merkezi sistemde `MTY-BORU KOLON` (K1/K2) +
-   daire giriş `MTY-KURESEL VANA`; kombili sistemde `MTY-KOMBİ` (mutfak, dış cepheye bitişik, baca dışarı).
-2. KALORİFER TESİSAT PROJESİ KOLON ŞEMASI – kat bantları (düşey 1/50), `MTY-RADYATOR KOLON` / `MTY-RADYATÖR BANYOPAN KOLON` blokları
-   (mahal, no, sıcaklık, tip×boy / kapasite öznitelikli), gidiş sürekli / dönüş kesikli, kesişmelerde köprü, her parçada "Q W-DN",
-   kritik devre numaraları (1…n). Merkezi: bodrumda kazan (`aKAZAN.`), termometre, manometre, emniyet ventili, vanalar, pislik tutucu,
-   çek valf, sirkülasyon pompası (MTY'de temiz pompa bloğu yok → 03_SEMBOLLER geometrisi), genleşme tankı, kolon başlarında O.H.A.C.
-3. Hesap paftası – radyatör seçim çizelgesi, kritik devre boru çapı tablosu (parça, Q, L, çap, w, R, R·L, Σζ, Z, kümülatif),
-   Σζ dökümü, pompa (V = Q/20000 m³/h, H = (ΣRL+ΣZ)·1,1 + kazan dairesi payı), uyarılar.
+1. **Kat planları** (Z, NORMAL 1-5 tipik, Ç – 1/50)
+   - Temsili mimari: pencere / balkon kapısı (`parametre.json → mimari.pencere`), kapı kanadı, temsili tefriş (ince çizgi).
+   - **Radyatör yerleşimi:** önce pencere altı, cam ölçüsüne göre (radyatör boyu ≤ pencere genişliği − 10 cm, ortalanmış);
+     pencere yoksa / sığmıyorsa / dolu ise pencereye (antrede kolektöre) **en yakın boş duvar** — kapı + kapı açılım alanı,
+     tefriş, balkon kapısı, kolektör dolabı, köşe payı (50 cm) ve diğer radyatörler dışında. Seçim gerekçesi devre
+     çizelgesinde ("YERLEŞİM" sütunu).
+   - **Kolektör dolabı (KD)** antre duvarında, daire girişine yakın; ağız sayısı = radyatör sayısı (blok `ROTAS-KOLEKTOR-DOLABI-n`).
+   - **Her radyatöre ayrı PE-Xc/Al/PE-X gidiş-dönüş hattı** (eksen ±3 cm paralel): antrede şeritler, odaya kapıdan girip
+     duvar boyu; ilk biten devre duvara en yakın izde → devreler birbirini ve besleme hattını KESMEZ (kesişirse plan kurulmaz,
+     hata verir). Radyatör bağlantısı: gidiş termostatik vana ucunda, dönüş rakor ucunda (MTY Panel / Banyopan blokları).
+   - Merkezi: kolon hol köşesinde (`MTY-BORU KOLON`), hol duvarında sıva altı kalorimetre dolabında **KS – KALORİMETRE SETİ**
+     (1 küresel vana, 2 pislik tutucu, 3 kalorimetre: debi ölçer + dönüş sensörü dönüşte, gidiş sensörü gidişte, sinyal
+     kesikli, 4 balans vanası, 5 küresel vana) → daire kapısından KD'ye. Kombi: mutfak dış duvarında `MTY-KOMBİ`, baca dışarı → KD.
+   - Etiketler: radyatör tipi/kapasite + mahal no + devre no; devre "D3 1662W-Ø16x2"; besleme "11216W-Ø32x3"; mahal bloğu;
+     hepsi boş yere yerleşir (yazı altında maske).
+2. **Kolon şeması** (kat bantlı): her daire kolon T → KS seti (sembollerle, 1-5 numaralı) → `ROTAS-KOLEKTOR-SEMA-n` dolap
+   görünüşü → her radyatöre iç içe (kesişmesiz) ayrı gidiş-dönüş; kolon diplerinde küresel vana + boşaltma, başlarda O.H.A.C,
+   kritik devre (n) numaraları. Merkezi sistemde bodrum bandının solunda **KAZAN DAİRESİ PRENSİP ŞEMASI**
+   (`motor/deneme/kazan_dairesi/kazan_dairesi.py` import edilir; kazan adedi/kapasite, zon pompası debi/basma bu modülün
+   hesabından), zon pompası gidiş çıkışı ve dönüş girişi kolon diplerine bağlanır.
+   **KESİT/GÖRÜNÜŞ detayı (1/10):** kalorimetre (sayaç) dolabı görünüşü, kolektör dolabı görünüşü, A-A kesiti, açıklama listesi.
+3. **Hesap paftası:** radyatör seçim çizelgesi, kritik devre boru çapı tablosu + Σζ dökümü, pompa, KOLEKTÖR DEVRE ÇİZELGESİ
+   (tipik daire), MALZEME LİSTESİ (radyatör, vana takımı, kolektör (ağız sayısına göre), KS seti, dolaplar, boru metrajı).
+4. **Pafta sonu:** `motor/deneme/semboller/sembol.py → otomatik_lejant` ile kullanılan sembollerin lejantı + ADET tablosu
+   (MTY'de olmayan balans vanası, kalorimetre, sensör, kolektör dolabı `semb.py`'de 03_SEMBOLLER geometrisiyle tanımlanır ve
+   lejant kaydına çalışma anında eklenir; semboller modülünün dosyasına dokunulmaz).
+
+**Hidrolik:** çelik (kolon, kazan dairesi) TS EN 10255; daire içi PE-Xc/Al/PE-X (ε = 0,007 mm), Darcy-Weisbach + Colebrook,
+R ≤ 10 mmSS/m, w ≤ 0,6 m/s (PEX). ζ: kalorimetre 8, balans vanası 5, kolektör 1,5 (giriş/çıkış) – `parametre.json` (katalogla teyit).
 
 **Çalıştırma**
 ```
-python3 motor/deneme/radyator/calistir.py                 # parametre.json (sistem: merkezi)
-python3 motor/deneme/radyator/calistir.py --sistem kombi
-python3 motor/deneme/radyator/kontrol.py proje/denemeler/radyator/*.dxf   # üst üste binme / köprüsüz kesişme / katman denetimi
+python3 motor/deneme/radyator/calistir.py                 # merkezi  → proje/denemeler/radyator/radyator_merkezi_R2.dxf
+python3 motor/deneme/radyator/calistir.py --sistem kombi  # kombi    → radyator_kombi_R2.dxf
+python3 motor/deneme/radyator/kontrol.py proje/denemeler/radyator/*_R2.dxf
 ```
-Çıktılar: `proje/denemeler/radyator/radyator_merkezi.dxf`, `radyator_kombi.dxf`. MTY blokları `/tmp/claude-0/blk` (MTY_BLKDIR) içinden
-gerçek blok tanımı + öznitelik olarak alınır, patlatılmaz.
 
-**Dosyalar:** `veri.py` (okuma/model), `ag.py` (temsili plan + boru yolu ağacı), `hidrolik.py` (Darcy-Weisbach/Colebrook, çap seçimi),
-`hesap.py` (parça, yük, Σζ, kritik devre, pompa), `plan.py`, `sema.py`, `tablo.py` (çizim), `ciz.py` (ROTAS- katmanları, maske, köprü),
-`mtylib.py` (MTY WBLOCK DXF → blok), `parametre.json` (tasarım parametreleri; radyatör seçimi DEĞİL, o kullanıcının Excel'inden gelir).
+**Dosyalar:** `veri.py` (okuma), `ag.py` (temsili mimari, pencere/tefriş, radyatör yerleşimi, kolektör, devre güzergâhları,
+B dairesi aynası), `hidrolik.py` (çelik + PEX çap seçimi), `hesap.py` (ağaç, kritik devre, pompa, malzeme), `plan.py`,
+`sema.py` (kolon şeması + kazan dairesi bağlantısı + detay), `tablo.py`, `semb.py` (sembol köprüsü), `ciz.py`, `mtylib.py`.
 
-**Sınırlar**
-- Mimari yok: mahaller dikdörtgen temsili yerleşim (A dairesi + merdiven holü + aynalı B dairesi); boru boyları ve kritik devre buna göre.
-- Yük esası varsayılan `radyator` (seçilen radyatör kapasitesi); `isi_kaybi` seçilebilir. Radyatörler kayıpların 3,8–9,6 katı seçilmiş.
-- Radyatör boyu MTY bloğunun x ölçeği ile verilir (blok 100 cm tanımlı). Banyopan bloğunda termostatik vana çizimi yok.
-- Kazan dairesi hat boyları, kolon-kazan mesafesi parametredir (temsili). Kalorimetre/pay ölçer çizilmedi (MTY bloğu yok).
-- Katman öneki deneme kuralı gereği `ROTAS-` (README kalıcı kuralı `SCOTT-` diyor – teslimde karar verilmeli).
+**Sınırlar / sorulacaklar**
+- Mimari yok: pencere genişlikleri, balkon kapısı, tefriş TEMSİLÎ (parametre). Gerçek projede cam ölçüleri mimariden okunmalı.
+- Salonda 2. radyatör (pencere tek, balkon kapısının altına konmaz) en yakın boş duvara gitti — kullanıcı onayı.
+- Kalorimetre seti hol duvarındaki sayaç dolabında varsayıldı (okuma ortak alandan). Daire içinde istenirse yer değişir.
+- Plan sembol adedi lejantta plan + şema + detay INSERT'lerinin toplamıdır (malzeme adedi için MALZEME LİSTESİ esas).
+- R1 çıktıları (`radyator_merkezi.dxf`, `radyator_kombi.dxf`) depoda duruyor; R2 bunların yerine geçer.
