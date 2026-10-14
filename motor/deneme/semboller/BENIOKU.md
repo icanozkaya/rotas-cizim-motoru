@@ -1,7 +1,7 @@
 # semboller — birleşik mekanik tesisat sembol kütüphanesi (DENEME, 14.10.2026)
 
 ## Ne yapar
-- `sembol.py`: sıhhi, ısıtma, yangın, havalandırma ve doğalgaz için 136 sembolü (BLOCK) tanımlar ve çizer.
+- `sembol.py`: sıhhi, ısıtma, yangın, havalandırma ve doğalgaz için 134 sembolü (BLOCK) tanımlar ve çizer.
   - **MTY bloğu varsa o kullanılır.** Kaynaklar: `/tmp/claude-0/blk/*.dxf` (yoksa `kutuphane/ROTAS_2_MTY_BLOKLARI_*.tar.xz` açılır) ve VOYAP dosyasındaki MTY sprinkler blokları. Bloklar patlatılmaz, iç katmanları korunur. Dinamik bloktan kalan tanımsız `*U`/`*X` alt-INSERT'ler yalnız kaynak kopyada atlanır.
   - Yangın: Aselsan 02 lejantından çıkarılmış semboller (`motor/voyap/asel_sym.pkl`, salt okunur; VOYAP'ta kullanılan biçim).
   - Diğerleri: `kutuphane/arastirma/03_SEMBOLLER.md` geometrisi (L = 20 cm vana, B = 50 cm cihaz, havalandırma gerçek ölçü). Kutu veya daire ile temsili sembol yoktur.
