@@ -19,7 +19,7 @@
   },
   "hidrofor": false,
   "kaynak": "motor/sihhi2/plan.py",
-  "tarih": "15.10.2026 00:54"
+  "tarih": "15.10.2026 01:11"
  },
  "yuk_tablosu": {
   "LV": 0.75,
@@ -3871,7 +3871,7 @@
       "y": -442413.0,
       "ek": true
      },
-     "kolon": "P11"
+     "kolon": "P10"
     },
     {
      "ad": "banyo",
@@ -4080,7 +4080,7 @@
       "y": -442537.9,
       "ek": false
      },
-     "kolon": "P12",
+     "kolon": "P11",
      "aspirator": {
       "x": 253734.0,
       "y": -442696.0,
@@ -5088,7 +5088,7 @@
       "y": -441681.6,
       "ek": true
      },
-     "kolon": "P10"
+     "kolon": "P7"
     },
     {
      "ad": "wc-duş",
@@ -7993,7 +7993,7 @@
       "y": -441680.0,
       "ek": true
      },
-     "kolon": "P10"
+     "kolon": "P7"
     }
    ],
    "balkonlar": [
@@ -8376,18 +8376,22 @@
    "x": 253682.0,
    "y": -441826.0,
    "katlar": [
-    0
+    0,
+    2,
+    1
    ],
    "rogar": null,
    "sb_kat": [
     10,
-    0,
-    0
+    10,
+    10
    ],
-   "sb_toplam": 10,
-   "cap": "Ø70",
+   "sb_toplam": 30,
+   "cap": "Ø100",
    "mahal": {
-    "Z": "mutfak D3"
+    "Z": "mutfak D3",
+    "2": "mutfak D8",
+    "1": "mutfak D5"
    },
    "armatur_sirasi_sema": [
     "EV",
@@ -8397,8 +8401,8 @@
   },
   {
    "no": "P8",
-   "x": 253208.0,
-   "y": -442182.0,
+   "x": 253208.8,
+   "y": -442176.0,
    "katlar": [
     0,
     2,
@@ -8428,7 +8432,7 @@
   {
    "no": "P9",
    "x": 252834.0,
-   "y": -441984.0,
+   "y": -441985.0,
    "katlar": [
     0,
     2,
@@ -8455,32 +8459,6 @@
   },
   {
    "no": "P10",
-   "x": 253696.0,
-   "y": -441806.0,
-   "katlar": [
-    2,
-    1
-   ],
-   "rogar": null,
-   "sb_kat": [
-    0,
-    10,
-    10
-   ],
-   "sb_toplam": 20,
-   "cap": "Ø100",
-   "mahal": {
-    "2": "mutfak D8",
-    "1": "mutfak D5"
-   },
-   "armatur_sirasi_sema": [
-    "EV",
-    "YS",
-    "BM"
-   ]
-  },
-  {
-   "no": "P11",
    "x": 253708.0,
    "y": -442424.0,
    "katlar": [
@@ -8505,7 +8483,7 @@
    ]
   },
   {
-   "no": "P12",
+   "no": "P11",
    "x": 253782.0,
    "y": -442448.0,
    "katlar": [
@@ -8660,11 +8638,12 @@
  ],
  "uyarilar": [
   "kat Z YB8 balonu yerleşmedi",
-  "kat Z pis su etiketi yerleşmedi: Ø100 14 SB @ (253184, -442148)",
+  "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253183, -442166)",
+  "kat Z pis su etiketi yerleşmedi: Ø100 14 SB @ (253209, -442150)",
   "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253612, -443179)",
-  "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253171, -442166)",
+  "kat Z pis su etiketi yerleşmedi: Ø100 10 SB @ (253197, -442126)",
   "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253743, -442415)",
-  "kat Z pis su etiketi yerleşmedi: Ø70 9 SB @ (252823, -441984)",
+  "kat Z pis su etiketi yerleşmedi: Ø70 9 SB @ (252823, -441985)",
   "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253736, -442796)",
   "kat Z pis su etiketi yerleşmedi: Ø50 2 SB @ (253744, -442784)",
   "kat Z pis su etiketi yerleşmedi: Ø50 2 SB @ (252808, -441979)",
@@ -8672,31 +8651,30 @@
   "kat Z pis su etiketi yerleşmedi: Ø50 2 SB @ (253481, -443294)",
   "kat Z pis su etiketi yerleşmedi: Ø50 2 SB @ (253690, -441682)",
   "kat 1 YB8 balonu yerleşmedi",
-  "kat 1 pis su etiketi yerleşmedi: Ø100 12 SB @ (255218, -442150)",
+  "kat 1 pis su etiketi yerleşmedi: Ø100 12 SB @ (255243, -442153)",
+  "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255226, -442171)",
   "kat 1 pis su etiketi yerleşmedi: Ø100 12 SB @ (255759, -442424)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 4 SB @ (254869, -441968)",
   "kat 1 pis su etiketi yerleşmedi: Ø50 4 SB @ (255646, -443179)",
-  "kat 1 pis su etiketi yerleşmedi: Ø100 14 SB @ (255229, -442180)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (254880, -441950)",
+  "kat 1 pis su etiketi yerleşmedi: Ø50 4 SB @ (254870, -441972)",
+  "kat 1 pis su etiketi yerleşmedi: Ø100 10 SB @ (255231, -442126)",
   "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255685, -443292)",
   "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255725, -441682)",
   "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255780, -442419)",
-  "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255213, -442170)",
   "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255515, -443294)",
   "kat 1 pis su etiketi yerleşmedi: Ø50 7 SB @ (255747, -442415)",
   "kat 1 pis su etiketi yerleşmedi: Ø50 2 SB @ (255371, -442738)",
   "kat 1 Ç.M. EK yazısı yerleşmedi",
   "kat 2 YB8 balonu yerleşmedi",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (256930, -441962)",
-  "kat 2 pis su etiketi yerleşmedi: Ø100 12 SB @ (257266, -442150)",
+  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (256931, -441967)",
+  "kat 2 pis su etiketi yerleşmedi: Ø100 12 SB @ (257290, -442151)",
+  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (257273, -442167)",
   "kat 2 pis su etiketi yerleşmedi: Ø50 4 SB @ (257695, -443179)",
-  "kat 2 pis su etiketi yerleşmedi: Ø100 14 SB @ (257277, -442180)",
   "kat 2 pis su etiketi yerleşmedi: Ø50 4 SB @ (257825, -442415)",
+  "kat 2 pis su etiketi yerleşmedi: Ø100 10 SB @ (257279, -442126)",
   "kat 2 pis su etiketi yerleşmedi: Ø50 4 SB @ (257820, -442797)",
   "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (257563, -443297)",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (257261, -442170)",
   "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (257733, -443292)",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (256866, -441953)",
+  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (256865, -441953)",
   "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (257419, -442738)",
   "kat 2 Ç.M. EK yazısı yerleşmedi"
  ]

@@ -468,7 +468,20 @@ class PisOda:
 
 
 def pis_su_oda(K, oda, fx, kolon_onceki, yasak):
-    """kolon seçimi + kollar + branşmanlar. kolon_onceki: alt kattaki kolon noktaları (bu katın koordinatında)"""
+    """iki halka denenir: (1) eski mahal poligonu (mutfakta tezgâh altı +22), (2) armatür çentikleri kapatılmış poligon
+    (mutfakta tezgâh dahil, duvar dibine kadar). Doğrulanan en iyi puanlı sonuç."""
+    sonuclar = []
+    for p_ in _pis_poligonlar(K, oda):
+        r_ = _pis_su_halka(K, oda, fx, kolon_onceki, yasak, p_)
+        if r_ is not None:
+            sonuclar.append(r_)
+    if not sonuclar:
+        return None
+    iyi = [r_ for r_ in sonuclar if not r_.get('dogrulanmadi')]
+    return min(iyi or sonuclar, key=lambda r_: r_['puan'])
+
+
+def _pis_poligonlar(K, oda):
     poly = oda['poly']
     kb = getattr(K, 'kb', None)
     if kb is not None and oda['tip'] == 'mutfak':
@@ -481,6 +494,24 @@ def pis_su_oda(K, oda, fx, kolon_onceki, yasak):
                 yeni = max(yeni.geoms, key=lambda q: q.area)
             if not yeni.is_empty and yeni.area > 0.5 * poly.area:
                 poly = yeni
+    out = [poly]
+    # armatür kutusu çentiklerini kapat (oda poligonu armatür çizgilerinden kesiliyor): mitre kapanış
+    p0_ = oda['poly']
+    kap = p0_.buffer(55, join_style=2, mitre_limit=3.0).buffer(-55, join_style=2, mitre_limit=3.0)
+    diger = unary_union([r['poly'].buffer(-1) for r in K.rooms if r is not oda and r['poly'].area > 1.5e4]
+                        + [c.buffer(1) for c in K.cols])
+    kap = kap.difference(diger).intersection(p0_.buffer(70, join_style=2))
+    if kap.geom_type == 'MultiPolygon':
+        kap = max(kap.geoms, key=lambda q: q.area)
+    if not kap.is_empty:
+        kap = orto(Polygon(kap.exterior).simplify(3.0), tol=20.0)
+        if kap.area < 1.35 * p0_.area and kap.contains(p0_.representative_point()):
+            out.append(kap)
+    return out
+
+
+def _pis_su_halka(K, oda, fx, kolon_onceki, yasak, poly):
+    """kolon seçimi + kollar + branşmanlar (verilen mahal poligonunun halkasında)"""
     hg = halka(poly)
     ring = hg.exterior
     if not ring.is_ccw:
@@ -547,7 +578,7 @@ def pis_su_oda(K, oda, fx, kolon_onceki, yasak):
         if K.kapi_u.distance(pt) < 35:
             pu += 60
         if kolon_onceki and any(dist(p, q) < 25 for q in kolon_onceki):
-            pu -= 400
+            pu -= 400 + 4 * (25 - min(dist(p, q) for q in kolon_onceki))
         out.append((pu, s, p))
     if not out:
         return None
@@ -557,23 +588,36 @@ def pis_su_oda(K, oda, fx, kolon_onceki, yasak):
         if sonuc is None:
             continue
         kollar, br = sonuc
+        q = min(kolon_onceki, key=lambda q: dist(p0, q)) if kolon_onceki else None
+        if q is not None and 1.0 < dist(p0, q) < 25:
+            kollar, br, p0 = _ayak_ekle(oda, kollar, br, p0, q)
         if pis_dogrula(K, oda, kollar, br, p0):
-            q = min(kolon_onceki, key=lambda q: dist(p0, q)) if kolon_onceki else None
-            if q is not None and 1.0 < dist(p0, q) < 25:      # alt/üst kattaki kolon ekseni: kol başına kısa dik ayak
-                u = birim(q, p0)
-                if abs(u[0]) < 0.02 or abs(u[1]) < 0.02:
-                    for yon in list(kollar):
-                        kollar[yon] = LineString([q] + list(kollar[yon].coords))
-                    for b in br:
-                        if b['kol'] is None:
-                            b['pts'] = temiz(b['pts'][:-1] + [p0, q]) if b['pts'] else [q]
-                        else:
-                            b['t'] += dist(p0, q)
-                    p0 = q
             return dict(kolon=p0, kollar=kollar, br=br, ring=ring, oda=oda, puan=pu)
     pu, s0, p0 = out[0]
     kollar, br = _pis_kur(ring, fx, s0, p0)
     return dict(kolon=p0, kollar=kollar, br=br, ring=ring, oda=oda, puan=pu, dogrulanmadi=True)
+
+
+def _ayak_ekle(oda, kollar, br, p0, q):
+    """alt/üst kattaki kolon ekseni q: kol başına kısa dik (gerekirse L) ayak; kolon q'ya taşınır"""
+    u = birim(q, p0)
+    if abs(u[0]) < 0.02 or abs(u[1]) < 0.02:
+        ayak = [q]
+    else:
+        k1, k2 = (q[0], p0[1]), (p0[0], q[1])
+        kk = k1 if oda['poly'].buffer(6).contains(Point(k1)) else k2
+        ayak = [q, kk]
+    ek_boy = LineString(ayak + [p0]).length
+    kollar = {yon: LineString(temiz(ayak + list(kol.coords))) for yon, kol in kollar.items()}
+    br2 = []
+    for b in br:
+        b = dict(b)
+        if b['kol'] is None:
+            b['pts'] = temiz(b['pts'][:-1] + [p0] + ayak[::-1]) if b['pts'] else [q]
+        else:
+            b['t'] += ek_boy
+        br2.append(b)
+    return kollar, br2, q
 
 
 def pis_dogrula(K, oda, kollar, br, p0):
@@ -702,7 +746,8 @@ def _pis_kur(ring, fx, s0, p0):
                 kk = k1 if oda_poly_ic(k1) else k2
                 pts = [c, kk, Fq]
             elif h < 6.0 or t < 6.0:
-                Fq = izgara_noktasi(kol, t)
+                V = min(kol.coords, key=lambda v: dist(v, c))       # hat üstündeki armatür: köşe düğümüne bağla
+                Fq = tuple(V) if dist(V, c) < 15 else izgara_noktasi(kol, t)
                 tq = kol.project(Point(Fq))
                 pts = [c, Fq]
             else:
