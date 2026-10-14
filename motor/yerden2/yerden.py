@@ -386,6 +386,7 @@ def etiketle(msp, KT, tum_borular):
                 from shapely.ops import nearest_points
                 p = nearest_points(q.exterior, Point(ux, uy))[0]
                 msp.add_line((p.x, p.y), (ux, uy), dxfattribs={'layer': L_ET, 'color': 2})
+                yasak = yasak.union(LineString([(p.x, p.y), (ux, uy)]).buffer(3))
             ekle(msp, 'ROTAS-YI-ETIKET', (x0, y1), L_ET,
                  {'UZ': '%.2f m' % c['L_m'], 'AR': '15.0', 'YER': '%.1f W' % c['W'], 'NO1': str(c['no']),
                   'MAHAL': o['ad'], 'NO': o['zon'], 'DERECE': '%d%%%%DC' % o['sic'], 'ALAN': '%.2f' % o['alan'],

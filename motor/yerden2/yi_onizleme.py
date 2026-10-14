@@ -80,8 +80,8 @@ def ciz(dxf, KTS=None):
     import yi_sema as SE
     import ezdxf
     doc = ezdxf.readfile(dxf)
-    xs = [e.dxf.start[0] for e in doc.modelspace().query('LINE[layer=="ROTAS-SEMA-KAT-BANDI"]')]
-    x1 = max(xs) + 100 if xs else SE.X0 + 7000
+    xs = [p[0] for e in doc.modelspace().query('LWPOLYLINE[layer=="ROTAS-PAFTA"]') for p in e.get_points('xy')]
+    x1 = max(xs) + 20 if xs else SE.X0 + 7000
     kaydet(fig, ax, (SE.X0, SE.PY0, x1, SE.PY1), '%s/kolon_semasi.png' % CIKIS, 3000)
     kaydet(fig, ax, (SE.X0 + 60, SE.BANT0 - 200, SE.X0 + 2400, SE.BANT0 + 420), '%s/kolon_semasi_daire.png' % CIKIS, 2400)
     plt.close(fig)
