@@ -1,0 +1,58 @@
+{
+  "_not": "DENEME parametreleri — kapak değerleri örnektir, gerçek projede kullanıcıdan alınır.",
+  "giris": "proje/denemeler/uctan_uca/NB_SIHHI_DENEME.dxf",
+  "cikis": "proje/denemeler/pafta_bitir/NB_SIHHI_BITMIS_DENEME.dxf",
+  "kapak_cikis": "proje/denemeler/pafta_bitir/KAPAK_SIHHI_DENEME.dxf",
+  "ekler": [
+    {
+      "yol": "@KAPAK",
+      "baslik": "PROJE KAPAĞI (DENEME)",
+      "etiket": "KAPAK"
+    },
+    {
+      "yol": "proje/isitma_944_343/ISITMA_HESAPLARI_TABLOLAR.dxf",
+      "baslik": "ISI KAYBI HESAPLARI",
+      "etiket": "ISIKAYBI"
+    },
+    {
+      "yol": "proje/hesaplar_sema/HESAPLAR_SIHHI.dxf",
+      "baslik": "SIHHİ TESİSAT HESAPLARI",
+      "etiket": "SIHHIHESAP"
+    }
+  ],
+  "kapak_metin": {
+    "ABDULLAH BİRİNCİ VE HİSS.": "DENEME — YAPI SAHİBİ",
+    "ASANSÖR AVAN PROJESİ": "SIHHİ TESİSAT PROJESİ",
+    "MAKİNE DAİRELİ": "DENEME",
+    "--- BLOK": "Z+2 KONUT",
+    "Onayı (Elektrik M.)": "",
+    "HASAN DALDAL": "---",
+    "ELEKTRİK MÜHENDİSİ": "---",
+    "86554": "---",
+    "BEYAN YÜKÜ": "BAĞIMSIZ BÖLÜM",
+    "BEYAN HIZI": "KAT ADEDİ",
+    "SEYİR MESAFESİ": "SU KAYNAĞI",
+    "KAPI ÖLÇÜSÜ": "ATIK SU",
+    "KUYU ÖLÇÜSÜ": "SICAK SU",
+    "KABİN ÖLÇÜSÜ": "YAĞMUR SUYU",
+    "ASKI TİPİ": "",
+    "RAY KALINLIKLARI": "",
+    "DURAK SAYISI": "",
+    "TEPEKUM": "---",
+    "4904": "---",
+    "14": "---",
+    "4": "Z+2"
+  },
+  "kapak_konum": {
+    "790,1198": "9",
+    "790,1163": "Z+2",
+    "790,1128": "ŞEBEKE (SASKİ)",
+    "790,1093": "KANALİZASYON",
+    "790,1058": "KOMBİ",
+    "790,1023": "YB1-YB3",
+    "790,988": "",
+    "790,953": "",
+    "195,953": "",
+    "542,814": ""
+  }
+}
