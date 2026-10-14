@@ -1,0 +1,12 @@
+{
+  "tip": "hidrofor",
+  "deneme": true,
+  "kaynak": "görev test değerleri (Q=9,75 m³/h, H=45 mSS, 3,0 kW, depo 16 m³)",
+  "olcek": 25,
+  "depo": {"V_m3": 16, "panel_x": 4, "panel_z": 2, "kaide_cm": 20, "min_su_cm": 30},
+  "pompa": {"adet": 2, "yedek": 1, "Q": 9.75, "H": 45, "P": 3.0, "dn_agiz": 40, "Hm": 85, "Dm": 22, "Bp": 25, "kaide_cm": 40,
+            "mtank_L": 100, "mtank_D": 45, "mtank_H": 75},
+  "oda_sag_cm": 520,
+  "oda_yukseklik_cm": 300,
+  "basma_kollektor_cm": 200
+}

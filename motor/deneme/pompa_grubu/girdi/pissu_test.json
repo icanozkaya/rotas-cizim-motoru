@@ -1,0 +1,10 @@
+{
+  "tip": "pissu",
+  "deneme": true,
+  "kaynak": "görev test değerleri (Q=15 m³/h, H=7 mSS, 1,1 kW, çukur 80x80x100)",
+  "olcek": 20,
+  "doseme_kot_m": 0.0,
+  "cukur": {"a_cm": 80, "b_cm": 80, "h_cm": 100, "duvar_cm": 20, "taban_cm": 20, "doseme_cm": 20, "giris_derinlik_cm": 35},
+  "pompa": {"adet": 1, "Q": 15, "H": 7, "P": 1.1, "dn_basma": 50, "D": 22, "Hp": 48, "durma_yuk_cm": 22, "maks_kalkis_saat": 10, "serbest_gecis_mm": 50},
+  "basma_yatay_cm": 110
+}

@@ -1,0 +1,14 @@
+{
+  "tip": "yangin",
+  "deneme": true,
+  "kaynak": "proje/yangin/YANGIN_POMPA_CIHAZ_LISTESI.dxf (Q=81 m³/h, H=60 mSS, 22/30 kW, jokey 3 m³/h-70 mSS, depo 81 m³)",
+  "olcek": 25,
+  "calisma_suresi_dk": 60,
+  "depo": {"V_m3": 81, "ic_genislik_cm": 600, "ic_yukseklik_cm": 300, "maks_su_cm": 270, "duvar_cm": 30, "doseme_cm": 25},
+  "elektrikli": {"Q": 81, "H": 60, "P": 22, "rpm": 2900, "A": 125, "B": 54, "Hm": 168.2, "dn_emis_agzi": 100, "dn_basma_agzi": 80},
+  "dizel": {"Q": 81, "H": 60, "P": 30, "rpm": 2900, "A": 157.6, "B": 97.8, "Hm": 179.5, "yakit_L": 100},
+  "jokey": {"Q": 3, "H": 70, "P": 1.5, "Hm": 91.3, "Dm": 20, "Bp": 25, "mtank_L": 24, "mtank_D": 36, "mtank_H": 50},
+  "oda_genislik_cm": 1400,
+  "oda_yukseklik_cm": 450,
+  "basma_kollektor_cm": 370
+}
