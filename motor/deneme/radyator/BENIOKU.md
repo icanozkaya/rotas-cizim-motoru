@@ -7,8 +7,10 @@
   prensip bağlantısı (R2 şema, gömülü) kalır.
 - Kazan adedi / kapasitesi ve pompa debi / basma radyatör hesabından gelen AYNI JSON ile verilir (bu veride 2 × 85 kW,
   zon pompası P-01 asıl+yedek 6,6 m³/h – 1,7 mSS); kullanılan JSON `radyator_merkezi_R4_kazan_dairesi.json` olarak
-  yazılır (mimari yok → `plan` temsili oda 8,00 × 6,00 m). Numaralar `numara='R2'` ile gömülü şemayla aynı; çalıştırmada
-  cihaz listesi satır satır karşılaştırılır ("numara senkron: True").
+  yazılır (mimari yok → `plan` temsili oda 8,00 × 6,00 m). Numaralar onaylı numaralandırma (varsayılan) = gömülü şema
+  (kazan_dairesi R3); çalıştırmada cihaz listesi satır satır karşılaştırılır ("numara senkron: True").
+- 14.10.2026 (kazan dairesi R2): onaylı paftada MTY bloğu kalmadı (`ROTAS-KD-` sembolleri); `kontrol.py` bilgi satırı:
+  "ONAYLI KAZAN DAİRESİ paftası ... MTY blok 0".
 - `kontrol.py` onaylı paftayı (çerçeve XDATA `ONAYLI_KAZAN_DAIRESI`) ana denetimden ayırır (MTY/atlatma kuralı ona
   uygulanmaz) — ana denetim R3 ile aynı: MTY 0, köprü 0, kesişme 0, etiket 68/68, elektrik 0.
 - Kombi sistem değişmedi (`radyator_kombi_R3.dxf`).

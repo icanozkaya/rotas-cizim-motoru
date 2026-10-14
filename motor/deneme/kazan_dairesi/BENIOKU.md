@@ -1,6 +1,20 @@
 > **ONAYLI (14.10.2026 16:39):** Kullanıcı `plan_kesit.py` çıktısını (plan + kesit A-A + kısmi görünüş B) DOĞRU kazan
 > dairesi olarak onayladı: "her yerde bunu kullanacaksın". Aşağıdaki eski "teslimde kullanılmaz / arşiv" ifadeleri İPTALDİR.
 
+> **R2 — MTY TEMİZLİĞİ (14.10.2026, kullanıcı: "MTY temizle, her yere kendi lejantlarını yerleştir"):** onaylı paftadaki
+> bütün MTY blokları (14 tür; Güngören 75 + lejantta 13, Küçük 2×110 50 + lejantta 14 yerleşim) kendi saf geometri `ROTAS-KD-`
+> bloklarımızla değiştirildi (`bloklar_onayli.py` + veri `semboller_onayli_veri.py`). **Görünüş, yerleşim, renkler,
+> etiketler aynı**: eski/yeni DXF karşılaştırmasında tüm INSERT konum/dönüş/ölçekleri ve tüm etiket yazıları birebir aynı
+> (yalnız cihaz listesinde SV-01 / GA-01 özellik metni elektrik kalemi olmadan — şemayla aynı), PNG piksel farkı %0,02.
+> Lejant ve cihaz listesi kendi sembollerimizle. Çıktılar: `GUNGOREN_/KUCUK_2x110_KAZAN_DAIRESI_PLAN_KESIT_R2.dxf` —
+> MTY blok 0, MTY katman 0, MTY yazı 0; çalışma anında MTY dosyası (`/tmp/claude-0/blk`) okunmaz.
+> **Numara senkronu (R3):** onaylı paftanın numaralandırması ESAS. `kazan_dairesi.py` (prensip şeması) `numarala()`
+> içinde gaz cihaz vanası + esnek bağlantı V- sırasında kazan vanalarının hemen ardına alınır (`ONAYLI_V_SONRA`) →
+> şema numaraları onaylıyla rol bazında birebir aynı (Güngören/Küçük: rol farkı 0). `plan_kesit` numaraları ve cihaz
+> listesini bu şemadan alır: şema ve plan/kesit cihaz listeleri satır satır aynı (34/34, 42/42 = %100).
+> Şema çıktıları `*_SEMA_R3.dxf`: MTY 0, köprü 0, kesişme 0, etiket 102/102 ve 84/84 (%100), elektrik 0.
+> Eski `*_PLAN_KESIT.dxf` (MTY'li, R1) ve `*_SEMA_R2.dxf` (eski V- sırası) yalnız arşivdir; teslimde R2 / R3 kullanılır.
+
 # KAZAN DAİRESİ GEREKEN HER PROJEDE `onayli_kazan_dairesi()` KULLANILIR
 
 ```python
@@ -11,14 +25,18 @@ k = PK.onayli_kazan_dairesi(doc_veya_msp, girdi, x0, y0)   # girdi: dict | JSON 
 # k.yeniden_ad {'katman','blok','stil'}, k.girdi (plan dahil kullanılan JSON), k.numara
 ```
 - Plan 1/50 + KESİT A-A + KISMİ GÖRÜNÜŞ B + lejant + kontrol kutusu (menfez/kapı/bakım) + cihaz listesi + notlar tek
-  paftada, sol alt köşe (x0, y0). **Görünüş / tarz değiştirilmez**: semboller (MTY blokları dahil), köprülü atlatmalar,
-  renkler onaylı çizimdeki gibidir; MTY / atlatma kuralları ve `kontrol.py` etiket kuralı bu paftaya uygulanmaz.
+  paftada, sol alt köşe (x0, y0). **Görünüş / tarz değiştirilmez**: sembol biçimleri, köprülü atlatmalar, renkler
+  onaylı çizimdeki gibidir. Semboller R2'den itibaren MTY'siz `ROTAS-KD-` blokları (MTY 0); atlatma kuralı bu paftaya
+  uygulanmaz. Numara sembol INSERT'ine XDATA `NO=` olarak da yazılır (kontrol.py etiket eşleşmesi yalnız bilgi amaçlı:
+  onaylı etiket yerleşimi korunduğu için %53 / %72 çıkar).
 - Görünüşün tabanı `kazan_dairesi_r1.py`dir (onay anındaki şema modülü, git dc2bb3e, DONDURULMUŞ — değiştirmeyin).
+  `plan_kesit.Pafta` onun `Sema` sınıfını kullanır ama `__init__`'i kendisi kurar: semboller `bloklar_onayli.hazirla`
+  (MTY içe aktarımı yapan `bloklar.hazirla` çağrılmaz).
   `kazan_dairesi.py` R2'ye geçince `plan_kesit.py` kırılmıştı (Sema API değişti); R1 taban ile onaylı çıktılar birebir
   yeniden üretilir (`GUNGOREN_/KUCUK_2x110_KAZAN_DAIRESI_PLAN_KESIT.dxf`: 943/804 nesne, tüm öznitelikler aynı).
-- `numara='R2'` (API varsayılanı): K-, P-, V- ... numaraları teslimdeki R2 prensip şemasından (`kazan_dairesi.py`,
-  radyatör kolon şemasına gömülen dahil) rol eşlemesiyle alınır → şema ile senkron. `numara='R1'`: onay anındaki numaralar
-  (CLI varsayılanı; mevcut PLAN_KESIT dosyaları bununla aynı kalır).
+- Numaralar (API ve CLI varsayılanı `numara='ONAYLI'`; eski 'R1'/'R2' değerleri aynı sonucu verir): teslimdeki prensip
+  şemasından (`kazan_dairesi.py` R3, radyatör kolon şemasına gömülen dahil) rol eşlemesiyle alınır; R3 şema numaraları
+  onaylı numaralandırmayla aynı olduğundan pafta = onaylı çizim = şema.
 - JSON'da `plan` yoksa `varsayilan_plan()` temsili oda kurar (genişlik kazan adedine göre, sekonder kollektör sığmazsa
   bir kez genişletilir; kapı / alt menfez yazıları binmesin diye 200 cm aralık; ΣQ > 350 kW ise 2. kapı).
 - Çakışma yönetimi: hedefte aynı adlı katman farklı renk/çizgi tipindeyse `<ad>-KD`; aynı adlı blok farklı içerikteyse
@@ -29,10 +47,16 @@ k = PK.onayli_kazan_dairesi(doc_veya_msp, girdi, x0, y0)   # girdi: dict | JSON 
   dairesi plan / kesit / görünüşü çizilmez.
 
 ```
-python3 plan_kesit.py ornekler/gungoren.json ../../../proje/denemeler/kazan_dairesi/GUNGOREN_KAZAN_DAIRESI_PLAN_KESIT.dxf [png] [--numara R1|R2]
+python3 plan_kesit.py ornekler/gungoren.json ../../../proje/denemeler/kazan_dairesi/GUNGOREN_KAZAN_DAIRESI_PLAN_KESIT_R2.dxf [png]
+python3 kazan_dairesi.py ornekler/gungoren.json ../../../proje/denemeler/kazan_dairesi/GUNGOREN_KAZAN_DAIRESI_SEMA_R3.dxf
 ```
+`ROTAS-KD-` sembolleri: KURESEL-VANA, KELEBEK-VANA, CEKVALF, PISLIK-TUTUCU, KILITLI-VANA, ESNEK-BAGLANTI,
+EMNIYET-VENTILI, MANOMETRE, TERMOMETRE, PURJOR (O.H.A.C çizgi harf), DENGE-KABI-PLAN, GENLESME-TANKI-PLAN, BOYLER-PLAN,
+YER-SUZGECI. Blok içi katman 0, yalnız LINE/CIRCLE/ARC/LWPOLYLINE/HATCH + gizli CAP özniteliği; renkler onaylı görünüş
+korunsun diye nesne bazında sabit. `semboller_onayli_veri.py` onaylı çizimin sembol görünüşünden bir kez üretilmiş
+veridir (elle düzenlenmez). semboller2 (v2) bu paftada kullanılmadı: biçimleri onaylı görünüşten farklıdır.
 
-## Prensip şeması R2 ↔ onaylı plan_kesit numara eşleşmesi (14.10.2026 denetimi)
+## Prensip şeması R2 ↔ onaylı plan_kesit numara eşleşmesi (14.10.2026 denetimi) — R3 İLE ÇÖZÜLDÜ (yukarıya bakınız)
 Rol bazında (kazan, pompa, gidiş/dönüş vanası, zon vanası, gaz vanası ...) iki numaralandırma karşılaştırıldı:
 cihaz adı/özelliği tutarsızlığı **0**; K-, P-, DK-, HA-, TA-, GT-, KL-, B-, BY-, NU-, EV-, M-, TM-, HP-, GF-, GR-, SV-,
 GA- numaraları **aynı**. **V- numaraları FARKLI** (Güngören 40 rol, Küçük 2×110 35 rol): R2'de gaz hatları ayrı bölgeye

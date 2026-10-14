@@ -343,10 +343,10 @@ def kazan_semasi_hazirla(P, pomp):
 def kazan_dairesi_paftasi(cz, kd, x0, y0):
     """ONAYLI kazan dairesi paftası (plan + kesit A-A + kısmi görünüş + lejant + cihaz listesi) — plan_kesit.py
     onayli_kazan_dairesi() ile, kolon şemasına gömülü prensip şemasıyla AYNI JSON (kazan adedi/kapasitesi, pompa
-    debi/basma radyatör hesabından) ve AYNI numaralarla (numara='R2'). Dönüş: KapsamKutusu (.satir, .girdi ...)."""
+    debi/basma radyatör hesabından) ve AYNI numaralarla (onaylı numaralandırma = prensip şeması R3). Dönüş: KapsamKutusu (.satir, .girdi ...)."""
     sys.path.insert(0, os.path.join(_KOK, '..', 'kazan_dairesi'))
     import plan_kesit as PK
-    k = PK.onayli_kazan_dairesi(cz.doc, kd['J'], x0, y0, numara='R2')
+    k = PK.onayli_kazan_dairesi(cz.doc, kd['J'], x0, y0)          # varsayılan: onaylı numaralar, MTY'siz semboller
     sema_no = [(r[0], r[1]) for r in kd['satir']]
     pafta_no = [(r[0], r[1]) for r in k.satir]
     k.senkron = sema_no == pafta_no

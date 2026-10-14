@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """KAZAN DAİRESİ PLANI (1/50) + KESİT A-A + GÖRÜNÜŞ B (kazan duvarı) + lejant + cihaz listesi (deneme: kazan_dairesi).
 
-Kullanım:  python3 plan_kesit.py girdi.json cikti_PLAN_KESIT.dxf [onizleme.png] [--numara R1|R2]
+Kullanım:  python3 plan_kesit.py girdi.json cikti_PLAN_KESIT.dxf [onizleme.png]
 API (her projede):  onayli_kazan_dairesi(doc_veya_msp, girdi_json_veya_dict, x0, y0) -> kapsam kutusu
 
 Girdi: prensip şeması JSON'u (kazan_dairesi.py ile aynı) + "plan" bloğu (BENIOKU.md). Numaralar (K-, P-, V-, DK-, GT-,
@@ -15,6 +15,7 @@ ve ana kesme vanası + selenoid kazan dairesi dışında; gaz alarm üst menfezd
 Birim cm; plan, kesit ve görünüş 1/50 (model uzayında gerçek ölçü).
 """
 # ONAYLI (14.10.2026 16:39, kullanıcı): "BU KAZAN DAIRESI DOĞRU OLANDI ... HER YERDE BUNU KULLANACAKSIN".
+# R2 (14.10.2026): MTY bloğu yok — semboller bloklar_onayli.py (ROTAS-KD-), görünüş onaylıyla aynı.
 # Merkezi sistem kazan dairesi plan / kesit / kısmi görünüşü HER YERDE bu üretici ile çizilir; görünüşü değiştirilmez.
 import copy
 import importlib
@@ -24,18 +25,20 @@ import os
 import sys
 import tempfile
 
-from ezdxf.addons import Importer
-from ezdxf import recover
+import ezdxf
 from ezdxf.enums import TextEntityAlignment as TA
 from shapely.geometry import LineString, Polygon, box as sbox
 from shapely.geometry.polygon import orient
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import bloklar as BL            # noqa: E402
+import bloklar_onayli as BO     # noqa: E402  (R2: onaylı paftanın MTY'siz ROTAS-KD- sembolleri)
 import geometri as GM           # noqa: E402
 import kazan_dairesi_r1 as KD   # noqa: E402  (onaylı çizimin dondurulmuş tabanı — görünüş buradan)
 from kazan_dairesi_r1 import (GID, DON, GAZ, BACA, YOG, VANA, CIHAZ, POMPA, GAZS, KOL, YAZ, BAS, tr, dn_su, dn_gaz,  # noqa
                            dn_no)
+
+BL.YARIM.update(BO.YARIM)       # Sema.ekle boru kesme boyları (ROTAS-KD- semboller)
 
 # ----------------------------------------------------------------------------- ek katmanlar
 DUV, TAR, OLC, KOTL = 'ROTAS-MIMARI-DUVAR', 'ROTAS-MIMARI-TARAMA', 'ROTAS-OLCU', 'ROTAS-KOT'
@@ -50,14 +53,17 @@ KOLLEKTOR_YARI = 9.0
 
 
 # ============================================================================ şemadan numara haritası
-def sema_modulu(kaynak):
-    """numara kaynağı: 'R1' = onay anındaki şema (kazan_dairesi_r1), 'R2' = teslimdeki şema (kazan_dairesi.py)"""
-    return KD if str(kaynak).upper() == 'R1' else importlib.import_module('kazan_dairesi')
+def sema_modulu(kaynak='ONAYLI'):
+    """numara kaynağı: teslimdeki prensip şeması (kazan_dairesi.py, R3). R3'ten itibaren şema numaraları ONAYLI
+    plan / kesit numaralandırmasıyla rol bazında birebir aynıdır (kazan_dairesi.ONAYLI_V_SONRA); eski 'R1' / 'R2'
+    değerleri de aynı (onaylı) numaraları verir. Onay anındaki R1 şema modülü (MTY bloklu) artık çağrılmaz."""
+    return importlib.import_module('kazan_dairesi')
 
 
-def numara_haritasi(P, kaynak='R1'):
+def numara_haritasi(P, kaynak='ONAYLI'):
     """Prensip şemasını geçici dosyaya üretir; cihaz rollerine göre şema numaralarını döndürür.
-    kaynak='R2': numaralar teslimdeki R2 prensip şemasıyla (radyatör kolon şemasına gömülü olan dahil) aynı olur."""
+    Numaralar onaylı paftadakiyle ve teslimdeki prensip şemasıyla (radyatör kolon şemasına gömülü olan dahil) aynıdır;
+    cihaz listesi (satir) şemanınkiyle satır satır aynıdır."""
     fd, yol = tempfile.mkstemp(suffix='.dxf')
     os.close(fd)
     try:
@@ -129,22 +135,6 @@ def numara_haritasi(P, kaynak='R1'):
 
 
 # ============================================================================ yardımcılar
-def blok_al(doc, dosya, blok, yeni_ad=None):
-    BL.mty_hazirla()
-    ad = yeni_ad or blok
-    if ad in doc.blocks:
-        return ad
-    s = recover.readfile(os.path.join(BL.MTY_DIR, dosya))[0]
-    im = Importer(s, doc)
-    if blok is None:
-        hedef = doc.blocks.new(ad)
-        im.import_entities(s.modelspace(), target_layout=hedef)
-    else:
-        im.import_block(blok, rename=False)
-    im.finalize()
-    return ad
-
-
 def plan_bloklari(doc, g, d, h, rf):
     B = doc.blocks
     a = {'layer': '0'}
@@ -188,7 +178,17 @@ def plan_bloklari(doc, g, d, h, rf):
 # ============================================================================ çizim sınıfı
 class Pafta(KD.Sema):
     def __init__(self, P):
-        super().__init__(P)
+        # KD.Sema.__init__ ile aynı; yalnız semboller BO.hazirla (MTY'siz ROTAS-KD- blokları) ile kurulur
+        self.P = P
+        self.doc = ezdxf.new('R2018', setup=True)
+        self.doc.header['$INSUNITS'] = 5
+        self.doc.header['$LTSCALE'] = 8.0
+        self.doc.set_wipeout_variables(frame=0)
+        for ad, (renk, lt) in KD.KATMAN.items():
+            self.doc.layers.add(ad, color=renk, linetype=lt)
+        BO.hazirla(self.doc)
+        self.msp = self.doc.modelspace()
+        self.borular, self.cihazlar, self.serbest, self.uyarilar, self.kutular = [], [], [], [], []
         for ad, (renk, lt) in EK_KATMAN.items():
             if ad not in self.doc.layers:
                 self.doc.layers.add(ad, color=renk, linetype=lt)
@@ -325,7 +325,7 @@ def cap_cm(s, vars=30.0):
 
 
 # ============================================================================ ana kurgu
-def uret(P, cikti, numara='R1'):
+def uret(P, cikti, numara='ONAYLI'):
     """cikti=None: dosyaya yazmaz (API için); S.doc, S.kapsam, S.cerceve, S.satir, S.harita döner."""
     M, satir = numara_haritasi(P, numara)
     PL = P['plan']
@@ -356,7 +356,7 @@ def uret(P, cikti, numara='R1'):
     notr = P.get('notralizasyon')
 
     def vblok(dn):
-        return 'MTY-KELEBEK VANA' if dn_no(dn) >= 65 else 'MTY-KURESEL VANA'
+        return BO.KELEBEK if dn_no(dn) >= 65 else BO.KURESEL
 
     # ---------------------------------------------------------------- oda ve ölçüler
     oda = orient(Polygon(PL['oda']), 1.0)
@@ -418,11 +418,7 @@ def uret(P, cikti, numara='R1'):
 
     # ---------------------------------------------------------------- bloklar
     plan_bloklari(doc, g, d, h, rf)
-    B_DK = blok_al(doc, 'RADYATOR TESISATI__VANALAR__MTY-DENGE KABI.dxf', 'MTY-DENGE KABI PLAN')
-    B_GT = blok_al(doc, 'RADYATOR TESISATI__VANALAR__MTY-KAZAN VE KOMBİ PLAN KOLON.dxf', 'aGENLESME DEPOSU (PLAN-1)')
-    B_BY = blok_al(doc, 'RADYATOR TESISATI__VANALAR__MTY-BOYLER KAT- KOLON.dxf', 'BOYLER KAT PLANI')
-    B_YS = blok_al(doc, 'SIHHI TESISAT__KAT PLANI__YER SUZGECI DN1001.dxf', None, 'MTY-YER SUZGECI DN100')
-    BL.YARIM[B_DK] = 20.0
+    B_DK, B_GT, B_BY, B_YS = BO.DENGE_PLAN, BO.GT_PLAN, BO.BOYLER_PLAN, BO.YER_SUZGECI     # kendi bloklarımız (MTY yok)
 
     # ---------------------------------------------------------------- kapılar / menfezler / duvarlar
     alan = oda.area / 1e4
@@ -552,7 +548,7 @@ def uret(P, cikti, numara='R1'):
     # gaz başlığı + giriş
     xg_d = minx - t - 160
     g1 = S.hat(GAZ, [(xg_d, y_gz), (xL + ogz, y_gz)], dng, etiket=f'{dng} GAZ')
-    S.etiket(S.ekle(g1, (minx - t - 130, y_gz), 'MTY-KURESEL VANA', 'X', cap=dng_g, katman=GAZS), M['VGA'][0])
+    S.etiket(S.ekle(g1, (minx - t - 130, y_gz), BO.KURESEL, 'X', cap=dng_g, katman=GAZS), M['VGA'][0])
     if M['SV']:
         S.etiket(S.ekle(g1, (minx - t - 80, y_gz), 'ROTAS-SELENOID', 'X', katman=GAZS), M['SV'][0])
     S.yazi((minx - t - 105, y_gz + 48), 'KAZAN DAİRESİ DIŞI', 8, YAZ)
@@ -560,13 +556,13 @@ def uret(P, cikti, numara='R1'):
     S.yazi((xg_d - 6, y_gz - 13), '(SAYAÇ DIŞARIDA)', 7, YAZ, TA.MIDDLE_RIGHT)
     xi = minx + 30
     if M['GF']:
-        S.etiket(S.ekle(g1, (xi, y_gz), 'MTY-PISLIK TUTUCU', 'X', cap=dng_g, katman=GAZS), M['GF'][0])
+        S.etiket(S.ekle(g1, (xi, y_gz), BO.PISLIK, 'X', cap=dng_g, katman=GAZS), M['GF'][0])
     if reg and M['GR']:
         S.etiket(S.ekle(g1, (xi + 38, y_gz), 'ROTAS-REGULATOR', 'X', katman=GAZS), M['GR'][0])
     if M['MG']:
-        S.etiket(S.brans((xi + 80, y_gz), 'MTY-MANOMETRE', 90, 'X', cap='M'), M['MG'][0])
+        S.etiket(S.brans((xi + 80, y_gz), BO.MANOMETRE, 90, 'X', cap='M'), M['MG'][0])
     if M['VGK']:
-        S.etiket(S.ekle(g1, (xi + 112, y_gz), 'MTY-KURESEL VANA', 'X', cap=dng, katman=GAZS), M['VGK'][0])
+        S.etiket(S.ekle(g1, (xi + 112, y_gz), BO.KURESEL, 'X', cap=dng, katman=GAZS), M['VGK'][0])
     if M['GA']:
         S.etiket(S.blok('ROTAS-GAZ-ALARM', (minx + 25, Y_F - 90), 0, 1, 'X', None, (), None, GAZS,
                         tercih=[(0, -1), (1, 0)]), M['GA'][0])
@@ -586,7 +582,7 @@ def uret(P, cikti, numara='R1'):
     # genleşme tankı (dönüş başlığına, kilitlenebilir vana ile)
     y_gtc = y_d - 48 - 50.9 * s_gt
     gtp = S.hat(DON, [(x_gt, y_d), (x_gt, y_gtc + 50.9 * s_gt)], 'DN25', etiket='')
-    S.etiket(S.ekle(gtp, (x_gt, y_d - 22), 'MTY-KITLENEBILIR VANA', 'X', cap='DN25'), M['KIL'][0])
+    S.etiket(S.ekle(gtp, (x_gt, y_d - 22), BO.KILITLI, 'X', cap='DN25'), M['KIL'][0])
     c = S.blok(B_GT, (x_gt, y_gtc), 180, s_gt, 'X', None, (), None, CIHAZ, tercih=[(0, -1), (1, 0)],
                merkez=(x_gt, y_gtc), kutu=True)
     S.etiket(c, M['GT'][0])
@@ -610,21 +606,21 @@ def uret(P, cikti, numara='R1'):
             if z.get('yedek'):
                 tr_ = S.hat(GID, [(xz, s0), (xz, s0 - 75)], dn, etiket='')
                 S.etiket(S.ekle(tr_, (xz, s0 - 22), vblok(dn), 'X', cap=dn), Z['V'][0])
-                S.etiket(S.ekle(tr_, (xz, s0 - 50), 'MTY-PISLIK TUTUCU', 'X', cap=dn), Z['PT'])
+                S.etiket(S.ekle(tr_, (xz, s0 - 50), BO.PISLIK, 'X', cap=dn), Z['PT'])
                 for side, xl in ((0, xz - 35), (1, xz + 35)):
                     leg = S.hat(GID, [(xz, s0 - 75), (xl, s0 - 75), (xl, s0 - 225), (xz, s0 - 225)], dn, etiket='')
                     S.etiket(S.ekle(leg, (xl, s0 - 97), vblok(dn), 'X', cap=dn), Z['V'][1 + 2 * side])
                     S.etiket(S.ekle(leg, (xl, s0 - 130), 'ROTAS-POMPA', 'X', katman=POMPA), Z['P'][side])
-                    S.etiket(S.ekle(leg, (xl, s0 - 165), 'MTY-CEKVALF VANA', 'X', cap=dn), Z['CV'][side])
+                    S.etiket(S.ekle(leg, (xl, s0 - 165), BO.CEKVALF, 'X', cap=dn), Z['CV'][side])
                     S.etiket(S.ekle(leg, (xl, s0 - 200), vblok(dn), 'X', cap=dn), Z['V'][2 + 2 * side])
                 S.hat(GID, [(xz, s0 - 225), (xz, s0 - 275)], dn, ok='son', etiket='')
                 y_alt = s0 - 275
             else:
                 tr_ = S.hat(GID, [(xz, s0), (xz, s0 - 200)], dn, ok='son', etiket='')
                 S.etiket(S.ekle(tr_, (xz, s0 - 22), vblok(dn), 'X', cap=dn), Z['V'][0])
-                S.etiket(S.ekle(tr_, (xz, s0 - 50), 'MTY-PISLIK TUTUCU', 'X', cap=dn), Z['PT'])
+                S.etiket(S.ekle(tr_, (xz, s0 - 50), BO.PISLIK, 'X', cap=dn), Z['PT'])
                 S.etiket(S.ekle(tr_, (xz, s0 - 85), 'ROTAS-POMPA', 'X', katman=POMPA), Z['P'][0])
-                S.etiket(S.ekle(tr_, (xz, s0 - 118), 'MTY-CEKVALF VANA', 'X', cap=dn), Z['CV'][0])
+                S.etiket(S.ekle(tr_, (xz, s0 - 118), BO.CEKVALF, 'X', cap=dn), Z['CV'][0])
                 S.etiket(S.ekle(tr_, (xz, s0 - 150), vblok(dn), 'X', cap=dn), Z['V'][1])
                 y_alt = s0 - 200
             S.yazi((xz, y_alt - 14), f'{ad} GİDİŞ {dn}', 8, YAZ)
@@ -641,7 +637,7 @@ def uret(P, cikti, numara='R1'):
         bg = S.hat(GID, [(x_bg, s0), (x_bg, y_bc)], dnb, etiket='')
         S.etiket(S.ekle(bg, (x_bg, s0 - 22), vblok(dnb), 'X', cap=dnb), M['BOY']['V'][0])
         S.etiket(S.ekle(bg, (x_bg, s0 - 55), 'ROTAS-POMPA', 'X', katman=POMPA), M['PB'][0])
-        S.etiket(S.ekle(bg, (x_bg, s0 - 88), 'MTY-CEKVALF VANA', 'X', cap=dnb), M['BOY']['CV'])
+        S.etiket(S.ekle(bg, (x_bg, s0 - 88), BO.CEKVALF, 'X', cap=dnb), M['BOY']['CV'])
         S.etiket(S.ekle(bg, (x_bg, s0 - 120), vblok(dnb), 'X', cap=dnb), M['BOY']['V'][1])
         ycb = y_bc - 58.13 * s_by
         c = S.blok(B_BY, (x_bg, y_bc), 90, s_by, 'X', None, (), None, CIHAZ, tercih=[(-1, 0), (0, -1)],
@@ -793,19 +789,19 @@ def uret(P, cikti, numara='R1'):
         S.yazi(G_(x0 + g / 2, zb + h * 0.78), f'{tr(qk, 0)} kW', 7, YAZ, ic=True)
         # gidiş: EV + HP (üst), TM + M, pompa, çek valf, vana
         gd = S.hat(GID, [G_(x0 + ogd, zb), G_(x0 + ogd, z_g['gid'])], dn_k, etiket='')
-        S.etiket(S.brans(G_(x0 + ogd, zb - 10), 'MTY-EMNİYET VENTİLİ', 0, 'X', cap='DN25'), M['EVK'][i])
-        S.etiket(S.brans(G_(x0 + ogd, zb - 42), 'MTY-O.H.A.C', 0, 'X', cap='DN15', olcek=0.4), M['HP'][i])
-        S.etiket(S.brans(G_(x0 + ogd, zb - 12), 'MTY-TERMOMETRE', 180, 'X', cap='T'), M['TM'][i])
-        S.etiket(S.brans(G_(x0 + ogd, zb - 30), 'MTY-MANOMETRE', 180, 'X', cap='M'), M['MN'][i])
+        S.etiket(S.brans(G_(x0 + ogd, zb - 10), BO.EMNIYET, 0, 'X', cap='DN25'), M['EVK'][i])
+        S.etiket(S.brans(G_(x0 + ogd, zb - 42), BO.PURJOR, 0, 'X', cap='DN15', olcek=0.4), M['HP'][i])
+        S.etiket(S.brans(G_(x0 + ogd, zb - 12), BO.TERMOMETRE, 180, 'X', cap='T'), M['TM'][i])
+        S.etiket(S.brans(G_(x0 + ogd, zb - 30), BO.MANOMETRE, 180, 'X', cap='M'), M['MN'][i])
         if M['PK']:
             S.etiket(S.ekle(gd, G_(x0 + ogd, zb - 70), 'ROTAS-POMPA', 'X', katman=POMPA), M['PK'][i])
-            S.etiket(S.ekle(gd, G_(x0 + ogd, zb - 96), 'MTY-CEKVALF VANA', 'X', cap=dn_k), M['CV'][i])
+            S.etiket(S.ekle(gd, G_(x0 + ogd, zb - 96), BO.CEKVALF, 'X', cap=dn_k), M['CV'][i])
         S.etiket(S.ekle(gd, G_(x0 + ogd, zb - 120), vblok(dn_k), 'X', cap=dn_k), M['V_KAZAN_GID'][i])
         dd = S.hat(DON, [G_(x0 + odn, z_g['don']), G_(x0 + odn, zb)], dn_k, etiket='')
         S.etiket(S.ekle(dd, G_(x0 + odn, zb - 60), vblok(dn_k), 'X', cap=dn_k), M['V_KAZAN_DON'][i])
         gg = S.hat(GAZ, [G_(x0 + ogz, z_g['gaz']), G_(x0 + ogz, zb)], dng_k, etiket='')
-        S.etiket(S.ekle(gg, G_(x0 + ogz, zb - 30), 'MTY-KURESEL VANA', 'X', cap=dng_k, katman=GAZS), M['VGC'][i])
-        S.etiket(S.ekle(gg, G_(x0 + ogz, zb - 92), 'MTY-ESNEK BAGLANTI', 'X', cap=dng_k, katman=GAZS), M['ESN'][i])
+        S.etiket(S.ekle(gg, G_(x0 + ogz, zb - 30), BO.KURESEL, 'X', cap=dng_k, katman=GAZS), M['VGC'][i])
+        S.etiket(S.ekle(gg, G_(x0 + ogz, zb - 92), BO.ESNEK, 'X', cap=dng_k, katman=GAZS), M['ESN'][i])
         S.hat(YOG, [G_(x0 + oy, zb), G_(x0 + oy, z_g['yog'])], None, etiket='')
     # başlıklar
     S.hat(GID, [G_(xs[0] + ogd, z_g['gid']), G_(x_e - 25, z_g['gid'])], dn_p, ok='son', etiket=f'{dn_p} GİDİŞ')
@@ -855,6 +851,9 @@ def uret(P, cikti, numara='R1'):
     S.boru_ciz()
     S.cihazlar.sort(key=lambda c: 0 if c.get('sabit') else 1)     # sabit (kazan) numaraları önce yerleşir
     S.etiketle()
+    for c in S.cihazlar:                # R2: numara sembol INSERT'ine XDATA olarak da yazılır (kontrol.py eşleşmesi)
+        if c.get('ent') is not None and c.get('etiket'):
+            c['ent'].set_xdata('ROTAS', [(1000, 'NO=' + c['etiket'])])
     KD.HT, KD.HD = 8.0, 7.0
     LX = max(kes_bb[2], gor_bb[2]) + 120
     LY = plan_bb[3]
@@ -900,24 +899,24 @@ def lejant(S, x0, y0, reg, notr, boy, dn_p):
     m = S.msp
     sat = [('ROTAS-KAZAN-PLAN', 0.5, 'DUVAR TİPİ YOĞUŞMALI KAZAN (PLAN)'),
            ('ROTAS-POMPA', 1.0, 'SİRKÜLASYON POMPASI (OK AKIŞ YÖNÜ)'),
-           ('MTY-KURESEL VANA', 1.0, 'KÜRESEL VANA (DN50 VE ALTI)')]
+           (BO.KURESEL, 1.0, 'KÜRESEL VANA (DN50 VE ALTI)')]
     if dn_no(dn_p) >= 65:
-        sat.append(('MTY-KELEBEK VANA', 1.0, 'KELEBEK VANA (DN65 VE ÜZERİ)'))
-    sat += [('MTY-CEKVALF VANA', 1.0, 'ÇEK VALF'), ('MTY-PISLIK TUTUCU', 1.0, 'PİSLİK TUTUCU / GAZ FİLTRESİ'),
-            ('MTY-KITLENEBILIR VANA', 1.0, 'KİLİTLENEBİLİR (MÜHÜRLÜ) VANA'),
-            ('MTY-EMNİYET VENTİLİ', 0.75, 'EMNİYET VENTİLİ'), ('MTY-MANOMETRE', 0.9, 'MANOMETRE'),
-            ('MTY-TERMOMETRE', 0.9, 'TERMOMETRE'), ('MTY-O.H.A.C', 0.35, 'OTOMATİK HAVA PURJÖRÜ'),
-            ('MTY-ESNEK BAGLANTI', 1.0, 'ESNEK BAĞLANTI (GAZ)'), ('ROTAS-SELENOID', 1.0, 'GAZ SELENOİD VANASI')]
+        sat.append((BO.KELEBEK, 1.0, 'KELEBEK VANA (DN65 VE ÜZERİ)'))
+    sat += [(BO.CEKVALF, 1.0, 'ÇEK VALF'), (BO.PISLIK, 1.0, 'PİSLİK TUTUCU / GAZ FİLTRESİ'),
+            (BO.KILITLI, 1.0, 'KİLİTLENEBİLİR (MÜHÜRLÜ) VANA'),
+            (BO.EMNIYET, 0.75, 'EMNİYET VENTİLİ'), (BO.MANOMETRE, 0.9, 'MANOMETRE'),
+            (BO.TERMOMETRE, 0.9, 'TERMOMETRE'), (BO.PURJOR, 0.35, 'OTOMATİK HAVA PURJÖRÜ'),
+            (BO.ESNEK, 1.0, 'ESNEK BAĞLANTI (GAZ)'), ('ROTAS-SELENOID', 1.0, 'GAZ SELENOİD VANASI')]
     if reg:
         sat.append(('ROTAS-REGULATOR', 1.0, 'GAZ BASINÇ REGÜLATÖRÜ'))
     sat += [('ROTAS-GAZ-ALARM', 1.0, 'GAZ ALARM + CO DEDEKTÖRÜ (EX-PROOF)'),
-            ('MTY-DENGE KABI PLAN', 0.6, 'DENGE KABI / HAVA AYIRICI / TORTU AYIRICI (PLAN)'),
-            ('aGENLESME DEPOSU (PLAN-1)', 0.3, 'KAPALI GENLEŞME TANKI (PLAN)')]
+            (BO.DENGE_PLAN, 0.6, 'DENGE KABI / HAVA AYIRICI / TORTU AYIRICI (PLAN)'),
+            (BO.GT_PLAN, 0.3, 'KAPALI GENLEŞME TANKI (PLAN)')]
     if boy:
-        sat.append(('BOYLER KAT PLANI', 0.3, 'BOYLER (PLAN)'))
+        sat.append((BO.BOYLER_PLAN, 0.3, 'BOYLER (PLAN)'))
     if notr:
         sat.append(('ROTAS-NOTRALIZASYON', 0.35, 'NÖTRALİZASYON ÜNİTESİ'))
-    sat += [('MTY-YER SUZGECI DN100', 2.0, 'YER SÜZGECİ Ø100'), ('ROTAS-KOT', 1.0, 'KOT İŞARETİ')]
+    sat += [(BO.YER_SUZGECI, 2.0, 'YER SÜZGECİ Ø100'), ('ROTAS-KOT', 1.0, 'KOT İŞARETİ')]
     hat = [(GID, 'ISITMA GİDİŞ'), (DON, 'ISITMA DÖNÜŞ'), (GAZ, 'DOĞALGAZ'), (YOG, 'YOĞUŞMA SUYU'),
            (BACA, 'BACA / BACA KOLLEKTÖRÜ'), (KOL, 'KOLLEKTÖR'), (MENF, 'HAVALANDIRMA MENFEZİ (IZGARALI)'),
            (BAKIM, 'BAKIM / SERVİS ALANI'), (KESH, 'KESİT / GÖRÜNÜŞ HATTI'), (DUV, 'EI 120 DUVAR (TARAMALI)')]
@@ -984,7 +983,7 @@ def hesap_kutusu(S, x0, y0, QT, alan, gerek, var, formul, S_A, S_U, oran, ba, ha
 # ============================================================================ DIŞ API (her projede bu kullanılır)
 class KapsamKutusu(tuple):
     """(x0, y0, x1, y1) — ek bilgiler: .uyarilar, .satir (cihaz listesi), .harita (rol → numara),
-    .yeniden_ad {'katman': {}, 'blok': {}, 'stil': {}}, .girdi (kullanılan JSON, plan dahil), .numara ('R1'/'R2')"""
+    .yeniden_ad {'katman': {}, 'blok': {}, 'stil': {}}, .girdi (kullanılan JSON, plan dahil), .numara"""
     pass
 
 
@@ -1061,13 +1060,13 @@ def _insertler(doc):
         yield from b.query('INSERT')
 
 
-def onayli_kazan_dairesi(hedef, girdi, x0=0.0, y0=0.0, numara='R2', cerceve=True, ek='-KD'):
+def onayli_kazan_dairesi(hedef, girdi, x0=0.0, y0=0.0, numara='ONAYLI', cerceve=True, ek='-KD'):
     """ONAYLI kazan dairesi (plan 1/50 + kesit A-A + kısmi görünüş B + lejant + kontrol kutusu + cihaz listesi + notlar)
     paftasını hedef çizime, sol alt köşesi (x0, y0) olacak şekilde yerleştirir. Görünüş plan_kesit.uret ile birebir aynıdır.
 
     hedef  : ezdxf Drawing veya bir layout (modelspace / blok)
     girdi  : prensip şeması JSON'u (dict / dosya yolu / JSON metni). 'plan' yoksa temsili oda kurulur (varsayilan_plan).
-    numara : 'R2' (varsayılan) → numaralar teslimdeki R2 prensip şemasıyla aynı; 'R1' → onay anındaki numaralar.
+    numara : 'ONAYLI' (varsayılan; eski 'R1' / 'R2' de aynı sonucu verir) → onaylı paftanın numaraları = prensip şeması R3.
     cerceve: False ise dış ROTAS-PAFTA çerçevesi aktarılmaz.
     Çakışma yönetimi: hedefte aynı adlı katman farklı renk / çizgi tipindeyse kaynak katman '<ad>-KD' olur; aynı adlı blok
     farklı içerikteyse '<ad>-KD' adıyla aktarılır (aynıysa hedefteki kullanılır); ROTAS yazı stili fontu farklıysa
@@ -1173,7 +1172,7 @@ def onayli_kazan_dairesi(hedef, girdi, x0=0.0, y0=0.0, numara='R2', cerceve=True
 
 if __name__ == '__main__':
     arg = list(sys.argv[1:])
-    num = 'R1'
+    num = 'ONAYLI'
     if '--numara' in arg:
         i = arg.index('--numara')
         num = arg[i + 1]

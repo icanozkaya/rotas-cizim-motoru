@@ -51,7 +51,8 @@ BORU_KATMAN = {GID, DON, GAZ, BACA, YOG, SOG, SIC, SIR}
 HT, HD, HY = 8.0, 7.0, 9.0      # etiket (V-01), çap (DN), açıklama yazı yükseklikleri
 WF = 0.85                      # yazı genişlik faktörü
 SIRA = ['K', 'P', 'DK', 'HA', 'TA', 'GT', 'KL', 'BY', 'NU', 'B', 'EV', 'HP', 'M', 'TM', 'V', 'GF', 'GR', 'SV', 'GA']
-ETIKET_MAKS = 18.0             # etiket kutusu – kendi sembolü azami uzaklığı ("hemen yanında")
+ONAYLI_V_SONRA = ('DOĞALGAZ KÜRESEL VANASI (CİHAZ)', 'ESNEK BAĞLANTI (GAZ)')   # onaylı V- sırası (numarala)
+ETIKET_MAKS = 18.0            # etiket kutusu – kendi sembolü azami uzaklığı ("hemen yanında")
 ETIKET_PAY = 4.0               # başka sembol, kendi sembolünden en az bu kadar daha uzak olmalı
 
 # çelik boru (EN 10255 orta seri) iç çapları, mm
@@ -299,6 +300,15 @@ class Sema:
         ilk_ad = {}
         for i, c in enumerate(self.cihazlar):
             ilk_ad.setdefault((c['kod'], c['ad']), i)
+        # R3 (14.10.2026): ONAYLI plan / kesit / kısmi görünüş numaralandırması ESAS. Onaylı çizimde kazanın gaz cihaz
+        # vanası ve esnek bağlantısı V- sırasında kazan vanalarından hemen sonra gelir (R1 sırası); gaz hatları bu
+        # şemada ayrı bölgede (sonda) çizilse de numaralar onaylıyla aynı kalsın diye sıraları kazan vanasının ardına alınır.
+        kv = [c['ad'] for c in self.cihazlar if c['kod'] == 'V' and c['ad'] in ('KÜRESEL VANA', 'KELEBEK VANA')]
+        if kv:
+            a0 = ilk_ad[('V', kv[0])]
+            for j, ad in enumerate(ONAYLI_V_SONRA, 1):
+                if ('V', ad) in ilk_ad:
+                    ilk_ad[('V', ad)] = a0 + 0.1 * j
 
         def dn(k):
             for o in k[2]:
