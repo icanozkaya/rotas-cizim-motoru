@@ -93,16 +93,16 @@ def main():
     semb.lejant(cz.doc, tx + 200.0, ly)
     rev = 'R3'
     if P['sistem'] == 'merkezi':
-        # ONAYLI kazan dairesi paftası (plan + kesit + kısmi görünüş) — tüm çizimin sağına, kolon şeması tabanı hizasında
-        rev = 'R4'
+        # ONAYLI kazan dairesi paftası (plan + kesit + kısmi görünüş) — tüm çizimin sağına, kolon şeması tabanı hizasında.
+        # R5: kolon şemasında prensip şeması YOK (kullanıcı reddi); bodrum "KAZAN DAİRESİNE" okuyla bu paftaya bağlanır.
+        rev = 'R5'
         from ezdxf import bbox
         bb = bbox.extents(cz.msp, fast=True)
         kd = sm.kdh
         k = sema.kazan_dairesi_paftasi(cz, kd, bb.extmax.x + 500.0, -4260.0)
         with open(os.path.join(CIKTI, f'radyator_merkezi_{rev}_kazan_dairesi.json'), 'w', encoding='utf-8') as f:
             json.dump(k.girdi, f, ensure_ascii=False, indent=1)
-        print('kazan dairesi paftası:', [round(v) for v in k], 'numara senkron:', k.senkron,
-              f"{kd['adet']}×{kd['kw']:.0f} kW", 'yeniden ad:', k.yeniden_ad)
+        print('kazan dairesi paftası:', [round(v) for v in k], f"{kd['adet']}×{kd['kw']:.0f} kW", 'yeniden ad:', k.yeniden_ad)
         for u in k.uyarilar:
             print('  kazan dairesi:', u)
     yol = os.path.join(CIKTI, f'radyator_{P["sistem"]}_{rev}.dxf')

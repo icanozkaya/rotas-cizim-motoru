@@ -1,0 +1,112 @@
+{
+ "proje": "GÜNGÖREN B1 BLOK – MERKEZİ ISITMA KAZAN DAİRESİ",
+ "deneme": true,
+ "rejim": {
+  "gidis": 90,
+  "donus": 70
+ },
+ "kazan": {
+  "adet": 2,
+  "kapasite_kw": 85.0,
+  "tip": "Duvar tipi yoğuşmalı, doğalgaz yakıtlı",
+  "pompa": {
+   "ad": "P-K",
+   "debi": 3.7,
+   "basma": 4.0
+  }
+ },
+ "denge_kabi": {
+  "cap": "Ø200"
+ },
+ "genlesme": {
+  "hacim_l": 200,
+  "maks_bar": 6.0
+ },
+ "emniyet": {
+  "ventil_bar": 6.0,
+  "ventil_cap": "DN25"
+ },
+ "zonlar": [
+  {
+   "ad": "P-01",
+   "aciklama": "RADYATÖR DEVRESİ (K1-K2)",
+   "debi": 6.61,
+   "basma": 1.7,
+   "yedek": true,
+   "adet": 1
+  }
+ ],
+ "boyler": null,
+ "sirkulasyon": null,
+ "notralizasyon": false,
+ "baca": {
+  "cap": "Ø200",
+  "tip": "Paslanmaz çelik çift cidarlı"
+ },
+ "dogalgaz": {
+  "vana": true,
+  "filtre": true,
+  "selenoid": true,
+  "alarm": true,
+  "regulator": null
+ },
+ "doldurma": true,
+ "plan": {
+  "temsili": true,
+  "oda": [
+   [
+    0,
+    0
+   ],
+   [
+    800.0,
+    0
+   ],
+   [
+    800.0,
+    600.0
+   ],
+   [
+    0,
+    600.0
+   ]
+  ],
+  "duvar": 25,
+  "doseme": 30,
+  "ic_yukseklik": 350,
+  "kazan_olcu": {
+   "g": 60,
+   "d": 55,
+   "h": 100,
+   "ara": 40,
+   "alt_kot": 185,
+   "baca_cap": 16
+  },
+  "baca": [
+   40,
+   570.5
+  ],
+  "kapilar": [
+   {
+    "duvar": "alt",
+    "konum": 320,
+    "genislik": 100
+   }
+  ],
+  "menfez": {
+   "alt": {
+    "duvar": "alt",
+    "konum": 520.0,
+    "alt_kot": 15
+   },
+   "ust": {
+    "duvar": "ust",
+    "konum": 710.0,
+    "tavandan": 10
+   }
+  },
+  "menfez_F": 1.0,
+  "menfez_a": 1.2,
+  "ust_menfez_orani": 0.6
+ }
+}

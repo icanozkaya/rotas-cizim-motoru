@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""R3/R4 teslim denetimi (14.10.2026 (B) talimatı) — kazan_dairesi/kontrol.py ortak denetleyicisini kullanır:
+"""R3/R4/R5 teslim denetimi (14.10.2026 (B) talimatı) — kazan_dairesi/kontrol.py ortak denetleyicisini kullanır:
 MTY bloğu / katmanı 0, köprü (bulge) 0, boru-boru kesişmesi 0, etiket–sembol eşleşmesi %100 (kazan dairesi numaraları),
 elektrik (SINYAL) katmanı 0. Temsili mimari (ROTAS-MIMARI-*) çakışma sayımına girmez.
 R4: ONAYLI kazan dairesi paftası (plan_kesit.onayli_kazan_dairesi, çerçevesinde XDATA 'ONAYLI_KAZAN_DAIRESI') kullanıcı
 onaylı çizimdir; MTY / atlatma / etiket kuralları ona uygulanmaz → o bölge ana denetimden çıkarılır, ayrıca bilgi verilir.
-Kullanım: python3 kontrol.py proje/denemeler/radyator/*_R4.dxf"""
+Kullanım: python3 kontrol.py proje/denemeler/radyator/*_R5.dxf"""
 import os
 import sys
 import tempfile

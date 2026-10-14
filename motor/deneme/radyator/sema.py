@@ -5,14 +5,15 @@
   öbür yanında; kat bağlantıları iki kolon arasında kalır. Daire içi: kolon T → KALORİMETRE SETİ (gidiş + dönüş paralel)
   → KOLEKTÖR DOLABI (gidiş kolektörü üstte, ağızlar yukarı; dönüş kolektörü altta, ağızlar aşağı) → her radyatöre iç içe
   (en uzak radyatör en dış) gidiş-dönüş → dönüş, KS'nin önünden aşağı inip radyatörlerin altından dönüş kolonuna.
-  A dairesi aynalı (gidiş kolonları ortada, dönüş kolonları dışta); bodrumda gidiş dağıtımı üstte, dönüş toplama altta,
-  KAZAN DAİRESİ PRENSİP ŞEMASI (kazan_dairesi.ciz(gomulu=True)) ikisinin arasında → hiçbir hat kesişmez.
-- Kalorimetre sinyal hattı (elektrik) çizilmez. Kazan dairesi plan/kesiti (plan_kesit.py) KULLANILMAZ.
+  A dairesi aynalı (gidiş kolonları ortada, dönüş kolonları dışta); bodrumda gidiş dağıtımı üstte, dönüş toplama altta;
+  kolon dipleri ikisinin arasından "KAZAN DAİRESİNE" okuyla sonlanır → hiçbir hat kesişmez.
+- R5 (14.10.2026): kazan dairesi PRENSİP ŞEMASI kullanıcı tarafından REDDEDİLDİ — kolon şemasına gömülmez, cihaz listesi
+  de yok. Kazan dairesi yalnız ONAYLI plan/kesit/kısmi görünüş paftasıdır (kazan_dairesi_paftasi → plan_kesit.onayli_kazan_dairesi).
+- Kalorimetre sinyal hattı (elektrik) çizilmez.
 - KESİT / GÖRÜNÜŞ detayı: kalorimetre dolabı + kolektör dolabı görünüşü ve A-A kesiti (1/10)."""
 import os
 import sys
 import math
-import tempfile
 from shapely.geometry import LineString, Polygon, box as sbox
 import ciz as C
 import semb
@@ -25,6 +26,7 @@ SET_X = [40.0, 80.0, 120.0, 160.0, 200.0]
 XK_DONUS = 20.0            # KS dönüşünün aşağı indiği nokta (gidiş kolonundan)
 Y = dict(hg=205.0, hd=185.0, yc=175.0, rad=170.0, U0=228.0, B0=152.0, adim=7.0, alt=70.0)   # bant tabanından
 SEM, KOLK = 'ROTAS-ISITMA-SEMBOL', 'ROTAS-ISITMA-KOLEKTOR'
+KD_ARA = 1000.0            # R5: K1 ile K2 gidiş kolonu arası (KAZAN DAİRESİNE çıkışı + not)
 _KOK = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -136,15 +138,11 @@ class Sema:
         dkat = [k for k in katlar if k['daireler']]
         DW = self.daire_genislik()
         if merkezi:
-            kd = kazan_semasi_hazirla(P, self.pomp)
-            self.kdh = kd
-            Hb = 110.0 + (kd['gidis'][1] - kd['donus'][1]) + 50.0
+            self.kdh = kazan_girdisi(P, self.pomp)           # onaylı kazan dairesi paftasının JSON'u (prensip şeması YOK)
+            Hb = BANT
             xdA = x0 + 100.0
             xgA = xdA + DW
-            ox = xdA + 80.0 - kd['xmin']                     # KD sol kenarı A dönüş kolonunun sağında
-            gx = kd['gidis'][0] + ox
-            xgB = max(xgA + 300.0, gx + 150.0)
-            xgB = max(xgB, kd['xmax'] + ox + 80.0 - DW)
+            xgB = xgA + KD_ARA
             xdB = xgB + DW
             XK = {'A': (xgA, xdA, -1), 'B': (xgB, xdB, 1)}
             x_sag = xdB + 150.0
@@ -175,7 +173,7 @@ class Sema:
                 cz.yazi((xg + s * 60.0, yf + 283.0), f"DAİRE {dad} – {k['ad']}", 10, 'ROTAS-YAZI', al='BL' if s > 0 else 'BR')
         y_alt = y0 - 60
         if merkezi:
-            self.kazan_dairesi(XK, dkat, yf_of, ox, y0)
+            self.bodrum(XK, dkat, yf_of, y0)
         self.hatlari_ciz()
         self.etiketler()
         xm = (x0 + x_sag) / 2
@@ -192,19 +190,13 @@ class Sema:
             notlar += ['Her daire girişinde KS – KALORİMETRE SETİ (hol sayaç dolabında): 1 küresel vana, 2 pislik tutucu, 3 kalorimetre '
                        '(debi ölçer dönüşte + gidiş/dönüş sıcaklık sensörü), 4 balans vanası, 5 küresel vana. Okuma (M-Bus) bağlantısı '
                        'elektrik projesindedir; bu paftada elektrik kalemi çizilmez.',
-                       'Gidiş kolonları (K1, K2) ortada, dönüş kolonları dışta; bodrumda gidiş dağıtımı üstte, dönüş toplama altta, '
-                       'kazan dairesi prensip şeması ikisinin arasındadır. Kolonlar ve kazan dairesi siyah çelik (TS EN 10255).',
-                       'Kazan dairesi PLAN 1/50, KESİT A-A ve KISMİ GÖRÜNÜŞ B ayrı paftadadır (KAZAN DAİRESİ paftası); '
-                       'cihaz numaraları (K-, P-, V- ...) bu şemadaki numaralarla aynıdır.']
+                       'Gidiş kolonları (K1, K2) ortada, dönüş kolonları dışta; bodrumda gidiş dağıtımı üstte, dönüş toplama altta; '
+                       'ana gidiş ve dönüş hatları kazan dairesine bağlanır. Kolonlar siyah çelik (TS EN 10255).',
+                       'Kazan dairesi detayı için bkz. KAZAN DAİRESİ PLAN - KESİT paftası (plan 1/50, kesit A-A, kısmi görünüş B, '
+                       'cihaz listesi).']
         for i, s_ in enumerate(notlar):
             cz.yazi((x0 + 20, y0 - 60 - i * 22), s_, 12, 'ROTAS-YAZI', al='BL')
         y_alt = y0 - 60 - len(notlar) * 22 - 40
-        if merkezi:
-            sys.path.insert(0, os.path.join(_KOK, '..', 'kazan_dairesi'))
-            import kazan_dairesi as KD
-            xe, ye = KD.tablo_ciz(cz.msp, self.kdh['satir'], x0 + 20, y_alt - 20)
-            ye = KD.notlar_ciz(cz.msp, self.kdh['notlar'], xe + 80, y_alt - 40)
-            y_alt = min(ye, self._tablo_alt(x0)) - 60
         self.detay(x_sag + 250.0, ust + 50.0)
         xr = x_sag + 250.0 + 2350.0
         cz.pl([(x0 - 60, y_alt), (xr, y_alt), (xr, ust + 220),
@@ -223,18 +215,32 @@ class Sema:
         cz.yazi((xg - 23.0, yf + Y['yc'] - 20.0), f"H. KOMBİ {self.P['kombi']['kapasite_kW']} kW", 7, 'ROTAS-CIHAZ')
         cz.engel.append(sbox(xg - 56, yf + Y['yc'] - 10, xg, yf + Y['yc'] + 50).exterior)
 
-    # ------------------------------------------------------------ bodrum: gidiş dağıtımı + kazan dairesi + dönüş toplama
-    def kazan_dairesi(self, XK, dkat, yf_of, ox, y0):
+    # ------------------------------------------------------------ bodrum: gidiş dağıtımı + dönüş toplama → KAZAN DAİRESİNE
+    def bodrum(self, XK, dkat, yf_of, y0):
+        """R5: prensip şeması YOK. Gidiş dağıtımı (üst) K1-K2 gidiş kolon diplerini, dönüş toplama (alt) dönüş kolon
+        diplerini birleştirir; ana gidiş ve dönüş, iki hattın arasından sağa "KAZAN DAİRESİNE" okuyla sonlanır.
+        Gidiş inişi dönüş seviyesine, dönüş çıkışı gidiş seviyesine ulaşmaz → kesişme 0, atlatma yok."""
         cz, A = self.cz, self.A
-        kd = self.kdh
-        oy = (y0 + 60.0) - kd['donus'][1]
-        kazan_semasi_aktar(cz, kd, ox, oy)
-        gx, gy = kd['gidis'][0] + ox, kd['gidis'][1] + oy
-        dx_, dy_ = kd['donus'][0] + ox, kd['donus'][1] + oy
         xgA, xdA, _ = XK['A']
         xgB, xdB, _ = XK['B']
-        self.h.G([(min(xgA, gx), gy), (max(xgB, gx), gy)])
+        gy, dy_ = y0 + 210.0, y0 + 60.0
+        xm = xgA + 200.0                     # ana gidiş inişi
+        xm2 = xm + 40.0                      # ana dönüş çıkışı
+        xe = xm + 260.0                      # ok uçları
+        ya, yb = gy - 55.0, dy_ + 55.0
+        gx = xm
+        self.h.G([(xgA, gy), (xgB, gy)])
         self.h.D([(xdA, dy_), (xdB, dy_)])
+        self.h.G([(xm, gy), (xm, ya), (xe, ya)])
+        self.h.D([(xm2, dy_), (xm2, yb), (xe, yb)])
+        for yy, lay in ((ya, C.GID), (yb, C.DON)):     # ok (sembol katmanı: boru sayılmaz)
+            ok = cz.pl([(xe, yy, 9.0, 0.0, 0.0), (xe + 22.0, yy, 0.0, 0.0, 0.0)], SEM, engel=True)
+            ok.dxf.color = cz.doc.layers.get(lay).color          # ok rengi hattın rengiyle aynı
+        cz.yazi((xe + 32.0, (ya + yb) / 2.0), 'KAZAN DAİRESİNE', 12.0, 'ROTAS-CIHAZ', al='ML')
+        cz.yazi((xe - 40.0, ya + 8.0), 'GİDİŞ', 7.0, 'ROTAS-YAZI', al='BC')
+        cz.yazi((xe - 40.0, yb + 8.0), 'DÖNÜŞ', 7.0, 'ROTAS-YAZI', al='BC')
+        cz.yazi((xe + 32.0, yb - 28.0), 'KAZAN DAİRESİ DETAYI İÇİN BKZ. KAZAN DAİRESİ PLAN - KESİT PAFTASI', 8.0,
+                'ROTAS-YAZI', al='ML')
         katlar = self.M['katlar']
         ust_kat = max(yf_of[k['kod']] for k in dkat)
         y_ust = ust_kat + 262.0
@@ -252,14 +258,14 @@ class Sema:
             for xx, yy, lay, yon in ((xg, gy + 12.0, C.GID, -s), (xd, dy_ + 12.0, C.DON, s)):
                 cz.pl([(xx, yy), (xx + yon * 22.0, yy)], lay, w=1.0, engel=True)
                 semb.ciz(cz.msp, 'r_bosaltma', (xx + yon * 18.0, yy), rot=0.0 if yon > 0 else 180.0, olcek=0.6, kat=SEM)
-        cz.yazi((min(xgA, gx) + 20.0, gy + 40.0), 'BODRUM KAT – GİDİŞ DAĞITIMI (üst) / KAZAN DAİRESİ / DÖNÜŞ TOPLAMA (alt)',
+        cz.yazi((xgA + 20.0, gy + 40.0), 'BODRUM KAT – GİDİŞ DAĞITIMI (üst) / DÖNÜŞ TOPLAMA (alt)',
                 16, 'ROTAS-KAT-BANDI', al='BL')
         self.kolon_parcalar = [p for p in A.parcalar if p['tur'] in ('kolon', 'kolon_dip', 'kazan')]
         kk = [k['kod'] for k in katlar]
         for p in self.kolon_parcalar:
             dad = p['daire']
             if p['tur'] == 'kazan':
-                self.etiket.append((p, (gx, gy), (xgA, gy), False, 1))
+                self.etiket.append((p, (xm, ya), (xe - 80.0, ya), False, 1))
             elif p['tur'] == 'kolon_dip':
                 self.etiket.append((p, (gx, gy), (xgB, gy), False, 1))
             else:
@@ -303,14 +309,10 @@ class Sema:
         detay_ciz(self.cz, self.P, self.A, x, y)
 
 
-# ====================================================================== kazan dairesi modülü bağlantısı
-def kazan_semasi_hazirla(P, pomp):
-    """motor/deneme/kazan_dairesi/kazan_dairesi.py ile şemayı GÖMÜLÜ modda üretir (plan_kesit KULLANILMAZ).
-    Dönüş: geçici DXF yolu, zon gidiş (üst uç) / dönüş (alt uç) noktaları ve sınır kutusu (KD koordinatı)."""
-    sys.path.insert(0, os.path.join(_KOK, '..', 'kazan_dairesi'))
-    import kazan_dairesi as KD
-    import ezdxf
-    from ezdxf import bbox
+# ====================================================================== onaylı kazan dairesi paftası
+def kazan_girdisi(P, pomp):
+    """onaylı kazan dairesi paftasının JSON girdisi: kazan adedi/kapasitesi ve zon pompası debi/basma radyatör
+    hesabından (pomp). PRENSİP ŞEMASI ÇİZİLMEZ (14.10.2026 kullanıcı reddi)."""
     kp = P.get('kazan_dairesi', {})
     adet = int(kp.get('kazan_adet', 2))
     q = pomp['Q_W'] / 1000.0 * (1 + kp.get('kapasite_payi', 0.10))
@@ -330,64 +332,34 @@ def kazan_semasi_hazirla(P, pomp):
         'dogalgaz': {'vana': True, 'filtre': True, 'selenoid': True, 'alarm': True, 'regulator': None},
         'doldurma': True,
     }
-    tmp = tempfile.mkdtemp(prefix='rad_kd_')
-    yol = os.path.join(tmp, 'kd.dxf')
-    S = KD.ciz(J, yol, gomulu=True)
-    src = ezdxf.readfile(yol)
-    b = bbox.extents(src.modelspace(), fast=True)
-    return dict(yol=yol, gidis=S.baglanti['gidis'], donus=S.baglanti['donus'], xmin=b.extmin.x, xmax=b.extmax.x,
-                ymin=b.extmin.y, ymax=b.extmax.y, kw=kw, adet=adet, uyari=S.uyarilar, kesisim=len(S.kesisim),
-                satir=S.satir, notlar=S.notlar, J=J)
+    return dict(J=J, kw=kw, adet=adet)
 
 
 def kazan_dairesi_paftasi(cz, kd, x0, y0):
     """ONAYLI kazan dairesi paftası (plan + kesit A-A + kısmi görünüş + lejant + cihaz listesi) — plan_kesit.py
-    onayli_kazan_dairesi() ile, kolon şemasına gömülü prensip şemasıyla AYNI JSON (kazan adedi/kapasitesi, pompa
-    debi/basma radyatör hesabından) ve AYNI numaralarla (onaylı numaralandırma = prensip şeması R3). Dönüş: KapsamKutusu (.satir, .girdi ...)."""
+    onayli_kazan_dairesi() ile, radyatör hesabından gelen JSON (kazan_girdisi). Dönüş: KapsamKutusu (.satir, .girdi ...)."""
     sys.path.insert(0, os.path.join(_KOK, '..', 'kazan_dairesi'))
     import plan_kesit as PK
     k = PK.onayli_kazan_dairesi(cz.doc, kd['J'], x0, y0)          # varsayılan: onaylı numaralar, MTY'siz semboller
-    sema_no = [(r[0], r[1]) for r in kd['satir']]
-    pafta_no = [(r[0], r[1]) for r in k.satir]
-    k.senkron = sema_no == pafta_no
-    if not k.senkron:
-        k.uyarilar.append('UYARI: kazan dairesi paftası numaraları kolon şemasındakiyle aynı değil')
+    # prensip şeması teslimde yok → onaylı paftanın ona atıf yapan iki yazısı yalnız metin olarak düzeltilir
+    # (yerleşim / görünüş aynı; metinler kısalır)
+    for e in cz.msp.query('TEXT MTEXT'):
+        t = e.dxf.text if e.dxftype() == 'TEXT' else e.text
+        for eski, yeni in PRENSIP_ATIF.items():
+            if eski in t:
+                t = t.replace(eski, yeni)
+                if e.dxftype() == 'TEXT':
+                    e.dxf.text = t
+                else:
+                    e.text = t
     return k
 
 
-def kazan_semasi_aktar(cz, kd, ox, oy):
-    """gömülü kazan dairesi şemasını (ox, oy) ötelemesiyle model uzayına aktarır (bloklar patlatılmaz, XDATA korunur)"""
-    from ezdxf.addons import Importer
-    import ezdxf
-    from ezdxf.math import Matrix44
-    if 'ROTAS' not in cz.doc.appids:
-        cz.doc.appids.new('ROTAS')
-    src = ezdxf.readfile(kd['yol'])
-    im = Importer(src, cz.doc)
-    for e in src.modelspace():
-        if e.dxftype() == 'INSERT':
-            im.import_block(e.dxf.name, rename=False)
-    for lay in src.layers:
-        if lay.dxf.name not in cz.doc.layers:
-            im.import_table('layers', [lay.dxf.name])
-    once = {e.dxf.handle for e in cz.msp}
-    kaynak = list(src.modelspace())
-    im.import_entities(kaynak, cz.msp)
-    im.finalize()
-    yeni = [e for e in cz.msp if e.dxf.handle not in once]
-    for a, b in zip([e for e in kaynak if e.dxftype() == 'INSERT'], [e for e in yeni if e.dxftype() == 'INSERT']):
-        if a.has_xdata('ROTAS') and a.dxf.name == b.dxf.name:          # cihaz numarası eşleşmesi (XDATA) korunur
-            b.set_xdata('ROTAS', list(a.get_xdata('ROTAS')))
-    m = Matrix44.translate(ox, oy, 0)
-    for e in [e for e in cz.msp if e.dxf.handle not in once]:
-        try:
-            e.transform(m)
-        except Exception:
-            pass
-        if e.dxf.layer == '0':
-            e.dxf.layer = 'ROTAS-ISITMA-YAZI'
-        if e.dxftype() in ('LWPOLYLINE', 'LINE') and e.dxf.layer in (C.DON, 'ROTAS-ISITMA-YOGUSMA'):
-            e.dxf.ltscale = 8.0 * e.dxf.get('ltscale', 1.0)
+PRENSIP_ATIF = {
+    'KAZAN DAİRESİ CİHAZ LİSTESİ (PRENSİP ŞEMASI İLE AYNI NUMARALAR)': 'KAZAN DAİRESİ CİHAZ LİSTESİ',
+    'Numaralar prensip şeması ve cihaz listesi ile aynıdır; tüm vana/cihazlar şemada gösterilmiştir.':
+        'Numaralar plan, kesit ve cihaz listesinde aynıdır.',
+}
 
 
 # ====================================================================== detay: kolektör dolabı + kalorimetre seti görünüşü

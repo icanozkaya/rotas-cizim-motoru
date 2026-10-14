@@ -1,6 +1,25 @@
-# Deneme modülü: radyator (radyatörlü ısıtma) — R4 (merkezi) / R3 (kombi)
+# Deneme modülü: radyator (radyatörlü ısıtma) — R5 (merkezi) / R3 (kombi)
 
-## R4 (14.10.2026, kullanıcı onayı: kazan dairesi "her yerde bunu kullanacaksın")
+## R5 (14.10.2026, kullanıcı: kazan dairesi PRENSİP ŞEMASI REDDEDİLDİ)
+- Kolon şemasının bodrumuna gömülen kazan dairesi prensip şeması (`kazan_dairesi.ciz(gomulu=True)`) ve onun cihaz
+  listesi / notları TAMAMEN KALDIRILDI (`kazan_semasi_hazirla`, `kazan_semasi_aktar` silindi; `kazan_dairesi.py`
+  bu modülce hiç çağrılmaz). Bodrum (`Sema.bodrum`): gidiş dağıtımı üstte (K1–K2 gidiş kolon dipleri), dönüş toplama
+  altta (dönüş kolon dipleri, dışta); ana gidiş ve dönüş iki hattın arasından sağa çıkıp **"KAZAN DAİRESİNE"** okuyla
+  sonlanır + not **"KAZAN DAİRESİ DETAYI İÇİN BKZ. KAZAN DAİRESİ PLAN - KESİT PAFTASI"**. Gidiş inişi dönüş seviyesine,
+  dönüş çıkışı gidiş seviyesine ulaşmaz → boru kesişmesi 0, atlatma yok. K1–K2 arası `KD_ARA` = 1000.
+- Kazan dairesi yalnız sağdaki **ONAYLI** pafta (`kazan_dairesi_paftasi` → `plan_kesit.onayli_kazan_dairesi`), JSON
+  `kazan_girdisi(P, pomp)` ile radyatör hesabından (2 × 85 kW, zon pompası P-01 asıl+yedek 6,6 m³/h – 1,7 mSS); R4 ile
+  aynı JSON (`radyator_merkezi_R5_kazan_dairesi.json`, R4'tekiyle bayt bayt aynı). Onaylı paftanın prensip şemasına atıf
+  yapan iki yazısı yalnız metin olarak düzeltilir (`PRENSIP_ATIF`: cihaz listesi başlığı, not 9); yerleşim aynı.
+  DXF'te "PRENSİP" geçen yazı 0.
+- Çıktı `proje/denemeler/radyator/radyator_merkezi_R5.dxf`; R4 `proje/denemeler/_arsiv/radyator/` altında.
+- Denetim (`denetim/denetle.py --rapor-yok`): onaylı bölge dışında MTY 0, önek 0, köprü 0, kesişme 0, yazı 0, elektrik 0,
+  audit 0. Tek ✗ onaylı paftanın içindeki V-19 / V-24 maske teması (R4'te de aynı, onaylı yerleşim). `kontrol.py`:
+  MTY 0, köprü 0, kesişme 0, elektrik 0 (gömülü şema kalmadığı için etiket eşleşmesi 0/0).
+- Kombi çıktısında kazan dairesi yok → değişmedi (`radyator_kombi_R3.dxf`).
+
+
+## R4 (14.10.2026 — R5'te prensip şeması kaldırıldı; tarihçe) (kullanıcı onayı: kazan dairesi "her yerde bunu kullanacaksın")
 - Merkezi sistem çıktısı `proje/denemeler/radyator/radyator_merkezi_R4.dxf`: R3'ün tamamı + tüm çizimin sağında
   **ONAYLI KAZAN DAİRESİ paftası** (plan 1/50 + kesit A-A + kısmi görünüş B + lejant + kontroller + cihaz listesi)
   `kazan_dairesi/plan_kesit.onayli_kazan_dairesi()` ile (`sema.kazan_dairesi_paftasi`). Kolon şemasının bodrumundaki
