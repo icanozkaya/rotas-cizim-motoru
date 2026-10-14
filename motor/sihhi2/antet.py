@@ -303,6 +303,41 @@ def antet_ciz(msp, x0, y0, bilgi=None, baslik=None):
 
 
 # ============================================================================= yerleşim planı
+_ILKEL = ('LINE', 'LWPOLYLINE', 'POLYLINE', 'CIRCLE', 'ARC', 'ELLIPSE', 'SPLINE', 'TEXT', 'MTEXT', 'HATCH', 'SOLID', 'POINT')
+
+
+def _patlat(e, derin=0):
+    """INSERT / DIMENSION / LEADER → ilkel varlıklar (altlıkta yabancı blok, MTY bloğu kalmasın)."""
+    t = e.dxftype()
+    if t in _ILKEL:
+        return [e]
+    if t in ('INSERT', 'DIMENSION', 'LEADER', 'MLEADER', 'ATTRIB') and derin < 6:
+        out = []
+        try:
+            for v in e.virtual_entities():
+                out.extend(_patlat(v, derin + 1))
+        except Exception:
+            pass
+        if t == 'INSERT':
+            for a in getattr(e, 'attribs', []):
+                if not a.dxf.get('invisible', 0) and a.dxf.text.strip():
+                    try:
+                        out.append(_attrib_text(a))
+                    except Exception:
+                        pass
+        return [x for x in out if x is not None]
+    return []
+
+
+def _attrib_text(a):
+    from ezdxf.entities import Text
+    t = Text.new(dxfattribs={'text': a.dxf.text, 'insert': a.dxf.insert, 'height': a.dxf.height,
+                             'rotation': a.dxf.get('rotation', 0), 'halign': a.dxf.get('halign', 0),
+                             'valign': a.dxf.get('valign', 0), 'align_point': a.dxf.get('align_point', a.dxf.insert),
+                             'width': a.dxf.get('width', 1.0)})
+    return t
+
+
 def vaziyet_altlik(doc, kaynak_dxf, bolge, hedef, olcek=1.0, katman='ROTAS-MIMARI-VAZIYET', haric=(), kaynak_doc=None):
     """kaynak_dxf'in `bolge` (x1,y1,x2,y2) içindeki varlıklarını (merkezi bölgede olanlar; `haric` kutularındakiler
     atlanır) hedef belgeye kopyalar, bölge merkezini `hedef` noktasına taşır, `olcek` ile ölçekler; hepsi tek
@@ -323,9 +358,9 @@ def vaziyet_altlik(doc, kaynak_dxf, bolge, hedef, olcek=1.0, katman='ROTAS-MIMAR
             continue
         if any(hx1 <= cx <= hx2 and hy1 <= cy <= hy2 for hx1, hy1, hx2, hy2 in haric):
             continue
-        if e.dxftype() in ('WIPEOUT', 'IMAGE', 'VIEWPORT'):
+        if e.dxftype() in ('WIPEOUT', 'IMAGE', 'VIEWPORT', 'OLE2FRAME'):
             continue
-        secilen.append(e)
+        secilen.extend(_patlat(e))
     if not secilen:
         return 0
     msp = doc.modelspace()
@@ -334,6 +369,8 @@ def vaziyet_altlik(doc, kaynak_dxf, bolge, hedef, olcek=1.0, katman='ROTAS-MIMAR
     imp.import_entities(secilen, msp)
     imp.finalize()
     yeni = [e for e in msp if e.dxf.handle not in once]
+    if STIL not in doc.styles:
+        doc.styles.add(STIL, font='arial.ttf')
     if katman not in doc.layers:
         doc.layers.add(katman, color=8)
     mx, my = (x1 + x2) / 2, (y1 + y2) / 2
@@ -344,9 +381,8 @@ def vaziyet_altlik(doc, kaynak_dxf, bolge, hedef, olcek=1.0, katman='ROTAS-MIMAR
         except Exception:
             pass
         e.dxf.layer = katman
-        if e.dxftype() == 'INSERT':
-            for a in e.attribs:
-                a.dxf.layer = katman
+        if e.dxftype() in ('TEXT', 'MTEXT'):
+            e.dxf.style = STIL
         try:
             e.dxf.color = 256
         except Exception:
@@ -379,7 +415,10 @@ def kuzey_oku(c, x, y, boy=60.0, kat=None, kat_yazi=None):
 
 def yerlesim_ciz(msp, x0, y0, w=1682.0, h=SERIT_H, bilgi=None, vaziyet=None, bilgi_kutusu=True, olcek_yazi='1 / 250'):
     """Yerleşim planı paftası. (x0, y0) pafta sol altı. vaziyet: None (yer tutucu çerçeve) ya da
-    dict(dxf=yol, bolge=(x1,y1,x2,y2), olcek=1.0, haric=[(x1,y1,x2,y2),...], doc=ezdxf belgesi (isteğe bağlı)).
+    dict(dxf=yol, bolge=(x1,y1,x2,y2), olcek=1.0, haric=[(x1,y1,x2,y2),...], doc=ezdxf belgesi (isteğe bağlı),
+         orijin=(px, py)  → YERİNDE: bölge, kaynak paftanın sol altı (px, py) bu paftanın sol altına gelecek şekilde
+         ölçeksiz taşınır (kullanıcının kendi yerleşim paftası ör. new_block 248360/−444050); yoksa altlık bilgi
+         kutularının altındaki boş alana sığdırılır).
     Dönüş: dict(altlik_varlik=n)."""
     b = dict(BILGI_VARSAYILAN)
     b.update(bilgi or {})
@@ -427,6 +466,12 @@ def yerlesim_ciz(msp, x0, y0, w=1682.0, h=SERIT_H, bilgi=None, vaziyet=None, bil
     if vaziyet and os.path.exists(vaziyet.get('dxf', '')) or (vaziyet and vaziyet.get('doc') is not None):
         bx1, by1, bx2, by2 = vaziyet['bolge']
         s = vaziyet.get('olcek', 1.0)
+        if vaziyet.get('orijin'):
+            px, py = vaziyet['orijin']
+            n = vaziyet_altlik(msp.doc, vaziyet.get('dxf'), vaziyet['bolge'],
+                               (x0 + (bx1 + bx2) / 2 - px, y0 + (by1 + by2) / 2 - py), 1.0,
+                               vaziyet.get('katman', 'ROTAS-MIMARI-VAZIYET'), vaziyet.get('haric', ()), vaziyet.get('doc'))
+            return dict(altlik_varlik=n, yazilar=c.yazilar)
         # bölge hedef kutusuna sığsın (yalnız küçültme)
         s_fit = min((bol[2] - bol[0]) / max((bx2 - bx1) * s, 1e-6), (bol[3] - bol[1]) / max((by2 - by1) * s, 1e-6), 1.0)
         n = vaziyet_altlik(msp.doc, vaziyet.get('dxf'), vaziyet['bolge'], (x0 + cx, y0 + cy), s * s_fit,

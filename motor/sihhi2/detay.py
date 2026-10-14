@@ -116,6 +116,65 @@ def katmanlar(doc):
             doc.layers.add(ad, color=renk)
 
 
+# ============================================================================= adet + eşdeğer semboller
+# plan.py (sihhi2) kendi ROTAS-S2-* bloklarını kullanır; lejant satırı semboller2 adıyla tutulur, sayım ve lejant
+# görünümü için eşdeğeri kullanılır (lejantta çizimdeki sembolün aynısı).
+ESDEGER = {
+    'ROTAS-S2-KURESEL-VANA': 'ROTAS-SB-KURESEL-VANA',
+    'ROTAS-S2-PIS-KOLON': 'ROTAS-SB-KOLON-PIS',
+    'ROTAS-S2-YER-SUZGECI': 'ROTAS-SB-YER-SUZGECI',
+    'ROTAS-S2-BALKON-SUZGECI': 'ROTAS-SB-BALKON-SUZGECI',
+    'ROTAS-S2-KOLON-NO': 'ROTAS-SB-KOLON-NO',
+    'ROTAS-S2-KOLON-NO-YAGMUR': 'ROTAS-SB-KOLON-YAGMUR',
+    'ROTAS-S2-ASPIRATOR': 'ROTAS-HV-ASPIRATOR',
+}
+# numara balonu: adet = farklı numara sayısı (aynı kolon her katta tekrar eder)
+NUMARALI = {'ROTAS-SB-KOLON-NO', 'ROTAS-SB-KOLON-YAGMUR', 'ROTAS-SB-KOLON-TEMIZ'}
+_HARIC_KAT = ('ROTAS-LEJANT', 'ROTAS-DETAY', 'ROTAS-TABLO')
+
+
+def adet_say(doc):
+    """{semboller2 blok adı: adet} — modelspace INSERT'leri (lejant/detay katmanları hariç), ROTAS-S2 eşdeğerleri dahil.
+    Kolon/YB numara balonları farklı numara sayısıyla; pis su kolonu adedi = farklı P numarası (varsa)."""
+    adet, numara = {}, {}
+    for (_, n), v in S.kullanim_say(doc).items():
+        adet[n] = adet.get(n, 0) + v
+    for e in doc.modelspace().query('INSERT'):
+        if e.dxf.layer.startswith(_HARIC_KAT):
+            continue
+        ad = ESDEGER.get(e.dxf.name, e.dxf.name)
+        if ad in NUMARALI:
+            no = next((x.dxf.text.strip() for x in e.attribs if x.dxf.tag == 'NO' and x.dxf.text.strip()), None)
+            if no:
+                numara.setdefault(ad, set()).add(no)
+        if e.dxf.name in ESDEGER:
+            adet[ad] = adet.get(ad, 0) + 1
+    for ad, k in numara.items():
+        adet[ad] = len(k)
+    if numara.get('ROTAS-SB-KOLON-NO'):
+        adet['ROTAS-SB-KOLON-PIS'] = len(numara['ROTAS-SB-KOLON-NO'])
+    return adet
+
+
+def kullanilan_esdeger(doc, sem):
+    """sem (semboller2 adı) çizimde ROTAS-S2 eşdeğeriyle kullanılıyorsa o blok adı."""
+    for s2, sb in ESDEGER.items():
+        if sb == sem and s2 in doc.blocks and len(doc.modelspace().query('INSERT[name=="%s"]' % s2)):
+            return s2
+    return None
+
+
+def blok_hucre(msp, ad, cx, cy, gen, yuk, katman, buyut_max=2.0, pay=0.8):
+    """Herhangi bir bloğu hücreye sığdırarak ortalı koyar (ATTDEF hariç kapsam)."""
+    b = _bbox.extents([e for e in msp.doc.blocks.get(ad) if e.dxftype() != 'ATTDEF'], fast=True)
+    if not b.has_data:
+        return None
+    w, h = max(b.extmax.x - b.extmin.x, 1e-3), max(b.extmax.y - b.extmin.y, 1e-3)
+    s = min(gen * pay / w, yuk * pay / h, buyut_max)
+    mx, my = (b.extmin.x + b.extmax.x) / 2, (b.extmin.y + b.extmax.y) / 2
+    return msp.add_blockref(ad, (cx - mx * s, cy - my * s), dxfattribs={'layer': katman, 'xscale': s, 'yscale': s})
+
+
 # ============================================================================= tablo
 def tablo(c, x0, y_ust, basliklar, kolonlar, satirlar, rh=24.0, h_bas=12.0, h_sat=9.6, h_tit=11.1):
     """Referans tarzı tablo (sol üst x0, y_ust). Dönüş: alt y."""
@@ -179,8 +238,12 @@ def lejant(c, x0, y_ust, baslik, satirlar, adet, W_S=60.0, W_A=200.0, W_N=42.0, 
             ln = msp.add_line(c.p(x0 + 8, cy), c.p(x0 + W_S - 8, cy), dxfattribs={'layer': kat})
             ln.dxf.ltscale = 8.0
         elif sem:
-            S.ekle(msp.doc, [sem])
-            S.sembol_hucre(msp, sem, *c.p(x0 + W_S / 2, cy), W_S, rh, katman=S.LEJ_SEM, buyut_max=2.0)
+            esd = kullanilan_esdeger(msp.doc, sem)
+            if esd:                          # çizimde kullanılan sembolün AYNISI (ör. plan.py ROTAS-S2-* bloğu)
+                blok_hucre(msp, esd, *c.p(x0 + W_S / 2, cy), W_S, rh, katman=S.LEJ_SEM, buyut_max=2.0)
+            else:
+                S.ekle(msp.doc, [sem])
+                S.sembol_hucre(msp, sem, *c.p(x0 + W_S / 2, cy), W_S, rh, katman=S.LEJ_SEM, buyut_max=2.0)
             n = adet.get(sem, 0) if adet is not None else None
         c.text(ac, x0 + W_S + 5, cy, 8 if len(ac) <= 40 else 6.8, 'ML', KAT_TAB_Y, w=0.8)
         c.text('-' if not n else str(n), x0 + W_S + W_A + W_N / 2, cy, 8, 'MC', KAT_TAB_Y)
@@ -516,10 +579,7 @@ def sihhi_detaylar(msp, x0, y0, adet=None, cerceve=True):
     doc = msp.doc
     katmanlar(doc)
     if adet is None:
-        say = S.kullanim_say(doc)
-        adet = {}
-        for (_, n), v in say.items():
-            adet[n] = adet.get(n, 0) + v
+        adet = adet_say(doc)
     c = Ciz(msp, x0, y0, KAT, KAT_Y)
     if cerceve:
         c.rect(0, 0, DETAY_W, DETAY_H, KAT)
