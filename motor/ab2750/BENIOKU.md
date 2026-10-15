@@ -31,3 +31,12 @@ Girdi `/tmp/claude-0/ab/mim_fl.pkl` (yukarıdaki hazırlık) + `kat_A_B.json`. B
   semboller saf geometri (SHC, GSK, kovan, baca, aksiyel/kanal tipi fan); MTY bloğu yok.
 - Hesap tablosu `proje/isitma_944_343/SIGINAK_HAVALANDIRMA_HESABI.dxf` biçiminde (+ kişi/koruma satırları), kanal/menfez/fan basınç
   çizelgeleri, prensip kesit şeması (3 panel), lejant ve notlar bodrum pafta penceresinin solunda.
+
+## İLERLEME NOTU (15.10.2026 21:13 — kullanıcı "şimdilik durdur" dedi)
+Yapılanlar:
+- Mimari tanıma (`mimari.py`) + kat JSON'ları: 78 daire (A 48, B 30) mahal/daire/kapı/betonarme.
+- Sığınak havalandırması (duman tahliyeli) TAMAM: `proje/ab2750/AB2750_SIGINAK_HAVALANDIRMA.dxf`, `siginak_hav.py`
+  (net 235,04 m²; taze 2.900 / egzoz 2.610 / duman 7.500 m³/h). Kullanıcıya henüz gönderilmedi; açık soru: WC hücreleri net alana dahil mi.
+- `sihhi_mimari.py`: yarıda kalan sıhhi ajanının armatür/süzgeç/şaft tanıması (doğrulanmadı).
+Kalanlar: sıhhi (2 blok planlar + kolon şeması + altyapı/parsel bacası), ısı kaybı + yerden ısıtma hesapları (Excel),
+yerden ısıtma planları + şema, kazan dairesi (onaylı plan_kesit) + boyler + A→B blok besleme.
