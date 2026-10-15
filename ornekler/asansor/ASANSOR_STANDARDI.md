@@ -158,4 +158,5 @@ Yazı yükseklikleri: hesap 12, kat adı 16, pafta başlığı 18–29,5, antet 
 - Durak olmayan geçiş kotları (teras vb.) `gecis_kotlari: [[kot, 'TERAS ... (DURAK YOK)']]` ile kesitte gösterilir.
 - Teslim: kullanıcı tercihi - **yalnız DXF** (DWG ve önizleme PDF gönderilmez).
 - Birden çok bloklu projede her blok (bloğun ayrı çekirdeklerdeki asansörleri de) ayrı set olarak çizilir; aynı bloktaki asansörler için trafik blok toplamı ve `n_asansor` ile yapılır (`n_aciklama`). Kapı yönü `kapi_yonu`: '+y' / '-y' / '+x' / '-x'. Konum planında kuyu içindeki mimari çizim ve yazılar atlanır, asansör kapı yazısı 'K 90/210' olarak düzeltilir.
-- Kesit kuyudan geçmiyorsa kotlar mimarideki kot yazılarından, kuyu dibi/kuyu tavanı aynı projedeki kuyudan geçen kesitin detayından ölçülerek alınır ve notta "ölçülerek alındı, teyit" yazılır (ör. Karapınar 2750/7 B blok).
+- Kuyu dibi ve kuyu tavanı daima kuyudan geçen mimari kesitten ÖLÇÜLÜR: tüm kesitlerde (A-A, B-B, ...) 'ASANSÖR' yazısı ve kuyu duvarları aranır; başka bloktan/başka kuyudan TAHMİN EDİLMEZ (Karapınar 2750/7'de B blok B-B kesitinde vardı, ilk sette tahmin yanlış çıktı: kuyu dibi 1,80, kule döşemesi +10,95). Ancak hiçbir kesitte yoksa kullanıcıya sorulur.
+- Bina çatı döşemesi kesitte 'ÇATI DÖŞEMESİ' adıyla gösterilir ('son kat döşemesi' yazılmaz).

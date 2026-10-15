@@ -1186,7 +1186,7 @@ def ciz(K, cikis):
             c.P('SCOTT-DUVAR', [(xb, Z(zsk - 0.15)), (xb + 60, Z(zsk - 0.15)), (xb + 60, Z(zsk)), (xb, Z(zsk))])
             c.tara('SCOTT-TARAMA', xb, Z(zsk - 0.15), xb + 60, Z(zsk), 6)
             c.kot('SCOTT-KOT', xa - 70, Z(zsk), '+' + f(zsk), 2.0 * k)
-            c.T('SCOTT-BASLIK', (xa - 118, Z(zsk) + 30), 'SON KAT DÖŞEMESİ', 2.4 * k)
+            c.T('SCOTT-BASLIK', (xa - 118, Z(zsk) + 30), K.get('son_kat_adi', 'ÇATI DÖŞEMESİ'), 2.4 * k)
         if md:
             c.kot('SCOTT-KOT', xs0 - tw - 25, Z(tavan), '+' + f(tavan) + ' kuyu tavanı', 1.6 * k)
         else:

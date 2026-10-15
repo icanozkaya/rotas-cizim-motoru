@@ -16,11 +16,11 @@
  "kabin_gen": 120,
  "kabin_der": 150,
  "P_kabin": 550,
- "kuyu_dibi": 1.6,
- "son_doseme_alt": 12.65,
+ "kuyu_dibi": 1.8,
+ "son_doseme_alt": 10.95,
  "son_doseme_kalinlik_oneri": 15,
  "mimari_son_doseme_kalinlik": 15,
- "mimari_kuyu_dibi": "-0,85 (1,60 m - A blok kesitiyle aynı detay)",
+ "mimari_kuyu_dibi": "-1,05 (B-B kesitinden, 1,80 m - uygun)",
  "ana_durak_ustu": 2,
  "kat_adedi": 3,
  "kuyular": [
@@ -69,13 +69,13 @@
   "2. KAT (+6,75)"
  ],
  "seyir": 6.0,
- "kuyu_ustu": 5.9,
+ "kuyu_ustu": 4.2,
  "olcu_notlari": [
-  "B BLOK ASANSÖR: duraklar +0,75 / +3,75 / +6,75 (mimari kot yazıları), kat yüksekliği 3,00 m, seyir 6,00 m; çatı döşemesi +9,75 (durak değil).",
+  "B BLOK ASANSÖR: duraklar +0,75 / +3,75 / +6,75 (mimari B-B kesitinden ölçüldü), kat yüksekliği 3,00 m, seyir 6,00 m; çatı döşemesi +9,75 (durak değil).",
   "Kuyu 250 x 200 cm (yan perdeler 25 cm, arka tuğla 15 cm); arka kiriş izdüşümü 10 cm -> kiriş altı 190 cm (mimaride net 5,00 m²).",
   "Mimaride kat kapısı K 100/210 yazılmış: kat kapıları 90/210 olarak düzeltildi (ROTAŞ standardı).",
-  "B blok kesitleri asansör kuyusundan geçmiyor: kuyu dibi ve kuyu tavanı ÖLÇÜLEREK alındı -> kuyu dibi -0,85 (1,60 m, A blok bodrumsuz kuyu detayı ile aynı; temel alt -1,45).",
-  "Kuyu tavanı alt +12,65 (kule üst kotu +13,35 - A blok kule detayı 0,70); son durak +6,75 -> üst boşluk 5,90 m. Mimarca kesitle teyit edilmeli."
+  "Kuyu dibi (B-B kesitinden ölçüldü): -1,05 -> ilk durak +0,75 ile 1,80 m (imar min 1,40 m - uygun).",
+  "Kuyu tavanı (asansör kulesi döşemesi, B-B kesitinden ölçüldü) alt kotu +10,95, mimaride 15 cm; son durak +6,75 -> kuyu üst boşluğu 4,20 m (yeterli)."
  ],
  "koordinasyon": [
   "Asansör kuyusundan ve kuyu tavanından asansöre ait olmayan boru/kablo geçmez.",
