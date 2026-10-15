@@ -87,13 +87,13 @@ msp = doc.modelspace()
 doc.styles.add('ROTAS', font='arial.ttf')
 KATMAN = {
     'ROTAS-MIMARI': 8, 'ROTAS-MIMARI-KOLON': 8,
-    'ROTAS-HAV-TAZE-HAVA': 3, 'ROTAS-HAV-EGZOZ': 4, 'ROTAS-HAV-DUMAN': 1, 'ROTAS-HAV-CIHAZ': 6,
+    'ROTAS-HAV-TAZE-HAVA': 3, 'ROTAS-HAV-EGZOZ': 4, 'ROTAS-HAV-DUMAN': 1, 'ROTAS-HAV-DUMAN-GIZLI': 1, 'ROTAS-HAV-CIHAZ': 6,
     'ROTAS-HAV-MENFEZ': 7, 'ROTAS-HAV-GECIS': 2, 'ROTAS-HAV-BACA': 8, 'ROTAS-HAV-OK': 7, 'ROTAS-HAV-YAZI': 7,
     'ROTAS-HAV-SEMA': 7, 'ROTAS-HAV-KOT': 7, 'ROTAS-HAV-LEJANT': 7, 'ROTAS-HAV-NOT': 7, 'ROTAS-HAV-BASLIK': 7,
     'ROTAS-HESAP-CIZGI': 1, 'ROTAS-HESAP-YAZI': 7, 'ROTAS-HESAP-CERCEVE': 1,
 }
 for n, c in KATMAN.items():
-    doc.layers.add(n, color=c)
+    doc.layers.add(n, color=c, linetype='DASHED' if n.endswith('GIZLI') else 'Continuous')
 TAZE, EGZ, DUM, CHZ, MEN, GEC, BACA, OK, YAZI = ('ROTAS-HAV-TAZE-HAVA', 'ROTAS-HAV-EGZOZ', 'ROTAS-HAV-DUMAN',
                                                'ROTAS-HAV-CIHAZ', 'ROTAS-HAV-MENFEZ', 'ROTAS-HAV-GECIS',
                                                'ROTAS-HAV-BACA', 'ROTAS-HAV-OK', 'ROTAS-HAV-YAZI')
@@ -334,45 +334,171 @@ class Ag:
     def w(self, n):
         return self.olcu[n]['w'] / 10.0
 
-    def poligonlar(self):
-        """kanal gövdesi: kenar dikdörtgenleri + redüksiyon trapezleri + dirsek/T kare birleşimi"""
-        P = []
+    # ------------------------------------------------------------ özel parçalar (dirsek / pantolon / T / redüksiyon)
+    def _yon(self, a, b):
+        return birim(self.N[a], self.N[b])
+
+    def parca(self):
+        """kanal gövdesi + iç çizgiler.
+        dirsek  : R_iç = 0,5·w kavisli dirsek, w ≥ 25 cm'de yönlendirici kanat (bölme); yer yetmezse köşeli dirsek + kanat dizisi
+        pantolon: gövde iki kola ayrılır, ayrım noktasında AYIRICI BÖLME levhası; kollar kavisli, iç bölmeli
+        T dal   : yuvarlatılmış ağız (R = 0,5·w_dal) + ayar kanadı (splitter damper)
+        redüksiyon: 20 cm konik geçiş. her parça ucunda flanş çizgisi.
+        döner: (poligonlar, iç çizgiler, flanş çizgileri)"""
+        P = []; IC = []; FL_ = []
         TR = 20.0
+        te = {n: 0.0 for n in self.ebe}          # kenar (ebe->n) n ucundan kırpma (+ kısaltır, - uzatır)
+        ts = {n: 0.0 for n in self.ebe}          # kenar (ebe->n) ebe ucundan kırpma
+        red = {}                                 # n -> (ofs, w_önce) : kenar başında redüksiyon
+        self.tip = {}
+
+        def flans(p, d, w, ek=2.5):
+            n_ = dik(d)
+            FL_.append(LineString([add(p, n_, w / 2 + ek), add(p, n_, -w / 2 - ek)]))
+
+        def arc_pts(C, r, v0, v1, k=14):
+            out = []
+            for i in range(k + 1):
+                f = math.pi / 2 * i / k
+                v = (v0[0] * math.cos(f) + v1[0] * math.sin(f), v0[1] * math.cos(f) + v1[1] * math.sin(f))
+                out.append(add(C, v, r))
+            return out
+
+        def sektor(C, ri, ro, v0, v1):
+            return Polygon(arc_pts(C, ro, v0, v1) + arc_pts(C, ri, v0, v1)[::-1])
+
+        def ayni(d1, d2):
+            return abs(d1[0] - d2[0]) < 1e-6 and abs(d1[1] - d2[1]) < 1e-6
+
+        for n in self.N:
+            ch = self.cocuk[n]
+            if n == 'K' or n not in self.ebe:
+                continue
+            d = self._yon(self.ebe[n], n); W = self.w(n)
+            duz = [c for c in ch if ayni(self._yon(n, c), d)]
+            yan = [c for c in ch if c not in duz]
+            if not ch:
+                if n in self.ml:
+                    te[n] = -(self.ml[n] / 2 + 5)
+                self.tip[n] = 'uc'
+                continue
+            for c in duz:                                    # düz devam: dal varsa / menfez varsa redüksiyon sonra
+                if abs(self.w(c) - W) > 0.01:
+                    ofs = max([self.w(y) / 2 + 8 for y in yan] + [0.0])
+                    if n in self.ml:
+                        ofs = max(ofs, self.ml[n] / 2 + 5)
+                    red[c] = (ofs, W)
+            if len(yan) == 1 and not duz and abs(sum(x * y for x, y in zip(d, self._yon(n, yan[0])))) <= 0.05:   # ---- DİRSEK
+                c = yan[0]; u = self._yon(n, c); we = W
+                Lin = math.dist(self.N[self.ebe[n]], self.N[n]); Lout = math.dist(self.N[n], self.N[c])
+                ri = 0.5 * we
+                bos = min(Lin * (0.5 if self.ebe[n] != 'K' else 0.8), Lout * (0.5 if self.cocuk[c] else 0.8)) - we / 2
+                ri = max(0.0, min(ri, bos))
+                p = self.N[n]
+                if ri >= 0.25 * we:
+                    self.tip[n] = 'dirsek'
+                    m = we / 2 + ri
+                    C = add(add(p, d, -m), u, m)
+                    P.append(sektor(C, ri, ri + we, (-u[0], -u[1]), d))
+                    te[n] = m; ts[c] = m
+                    if we >= 25:
+                        nv = 2 if we >= 60 else 1
+                        for k in range(1, nv + 1):
+                            IC.append(LineString(arc_pts(C, ri + we * k / (nv + 1), (-u[0], -u[1]), d)))
+                    flans(add(p, d, -m), d, we); flans(add(p, u, m), u, we)
+                    if abs(self.w(c) - we) > 0.01:
+                        red[c] = (m, we)
+                else:                                        # köşeli dirsek + yönlendirici kanat dizisi
+                    self.tip[n] = 'kose'
+                    te[n] = -we / 2; ts[c] = -we / 2
+                    ic_k = add(add(p, d, -we / 2), u, we / 2); dis_k = add(add(p, d, we / 2), u, -we / 2)
+                    nv = max(2, int(we // 12))
+                    r = we / (nv + 1) * 0.75
+                    for k in range(1, nv + 1):
+                        f = k / (nv + 1)
+                        q = (ic_k[0] + (dis_k[0] - ic_k[0]) * f, ic_k[1] + (dis_k[1] - ic_k[1]) * f)
+                        st = add(add(q, d, -r / 2), u, -r / 2)
+                        C = add(st, u, r)
+                        IC.append(LineString(arc_pts(C, r, (-u[0], -u[1]), d, 8)))
+                    flans(add(p, d, -we / 2 - 2), d, we); flans(add(p, u, we / 2 + 2), u, we)
+                    if abs(self.w(c) - we) > 0.01:
+                        red[c] = (we / 2, we)
+            elif len(yan) == 2 and not duz:                  # ---- PANTOLON (gövde debi oranında iki kola bölünür)
+                self.tip[n] = 'pantolon'
+                cL, cR = yan; u = self._yon(n, cL)
+                qL, qR = self.Q[cL], self.Q[cR]
+                aL = min(max(12.0, round(W * qL / (qL + qR))), W - 12.0); aR = W - aL
+                p = self.N[n]
+                riL, riR = 0.5 * aL, 0.5 * aR
+                sCL = -riL - aL / 2; sCR = -riR - aR / 2
+                tc = W / 2 - aL
+                sm = min(sCL, sCR)
+                CL = add(add(p, d, sCL), u, W / 2 + riL)
+                CR = add(add(p, d, sCR), u, -(W / 2 + riR))
+                mu = (-u[0], -u[1])
+                P.append(sektor(CL, riL, riL + aL, mu, d))
+                P.append(sektor(CR, riR, riR + aR, u, d))
+                for (sC, t0, t1) in ((sCL, tc, W / 2), (sCR, -W / 2, tc)):
+                    if sC - sm > 0.01:
+                        a0 = add(add(p, d, sm), u, (t0 + t1) / 2); b0 = add(add(p, d, sC), u, (t0 + t1) / 2)
+                        P.append(rect(a0, b0, t1 - t0))
+                te[n] = -sm
+                ts[cL] = W / 2 + riL; ts[cR] = W / 2 + riR
+                if abs(self.w(cL) - aL) > 0.01:
+                    red[cL] = (ts[cL], aL)
+                if abs(self.w(cR) - aR) > 0.01:
+                    red[cR] = (ts[cR], aR)
+                # ayırıcı bölme levhası (gövde içine uzanır, ucunda ayar mafsalı) + kollarda yönlendirici kanat
+                Lb = min(0.9 * W, math.dist(self.N[self.ebe[n]], p) + sm - 15)
+                ust = sm - Lb
+                IC.append(LineString([add(add(p, d, ust), u, tc), add(add(p, d, sm), u, tc)]))
+                self.bolme = getattr(self, 'bolme', []) + [(add(add(p, d, ust + Lb * 0.4), u, tc), add(add(p, d, sm), u, tc))]
+                for C, ri, ww, v0 in ((CL, riL, aL, mu), (CR, riR, aR, u)):
+                    if ww >= 25:
+                        IC.append(LineString(arc_pts(C, ri + ww / 2, v0, d)))
+                flans(add(p, d, sm), d, W)
+                flans(add(p, u, W / 2 + riL), u, aL); flans(add(p, u, -(W / 2 + riR)), (-u[0], -u[1]), aR)
+            elif len(yan) == 1 and not duz and abs(sum(x * y for x, y in zip(d, self._yon(n, yan[0])))) > 0.05:   # ---- OFSET (45°)
+                self.tip[n] = 'ofset'
+                c = yan[0]; u = self._yon(n, c); p = self.N[n]
+                from shapely.ops import unary_union as _uu
+                P.append(_uu([rect(add(p, d, -2), p, W), rect(p, add(p, u, 2), self.w(c))]).convex_hull)
+                flans(add(p, d, -W * 0.45), d, W); flans(add(p, u, W * 0.45), u, self.w(c))
+            else:                                            # ---- T DAL (düz devam + yan dal)
+                for c in yan:
+                    self.tip[n] = 'T'
+                    u = self._yon(n, c); wb = self.w(c); p = self.N[n]
+                    ts[c] = W / 2
+                    rf = min(0.5 * wb, 25.0)
+                    # yuvarlatılmış ağız: kare - çeyrek daire (akış yukarısı tarafı)
+                    k0 = add(add(p, d, -wb / 2), u, W / 2)
+                    kare = Polygon([k0, add(k0, d, -rf), add(add(k0, d, -rf), u, rf), add(k0, u, rf)])
+                    P.append(kare.difference(Point(add(add(k0, d, -rf), u, rf)).buffer(rf, 32)))
+                    # ayar kanadı: dalın akış aşağısı köşesinde mafsal, gövdeye eğik uzanır
+                    h0 = add(add(p, d, wb / 2), u, W / 2)
+                    h1 = add(add(h0, d, -0.55 * wb), u, -min(0.45 * W, 0.5 * wb))
+                    IC.append(LineString([h0, h1]))
+                    flans(add(p, u, W / 2 + rf), u, wb)
+        # kenar gövdeleri
+        self.duz = {}
         for n, e in self.ebe.items():
             a, b = self.N[e], self.N[n]
-            w = self.w(n)
-            d = birim(a, b)
-            ch = self.cocuk[n]
-            # n düğümünde dirsek/T varsa uzat
-            duz = [c for c in ch if abs(birim(b, self.N[c])[0] - d[0]) < 1e-6 and abs(birim(b, self.N[c])[1] - d[1]) < 1e-6]
-            if ch and not duz:                   # dirsek / yalnız dik dallı T: dalın dış yüzüne kadar uzat
-                eb = max(self.w(c) for c in ch) / 2
-            elif len(ch) > 1:
-                eb = w / 2
-            else:
-                eb = 0.0
-            if not ch and n in self.ml:          # uç menfezi: kanal menfezin ötesine 5 cm uzar
-                eb = max(eb, self.ml[n] / 2 + 5)
-            sa = 0.0
-            if e in self.ebe:      # ebeveyn kenarı ile aynı doğrultudaysa redüksiyon
-                pa = self.N[self.ebe[e]]
-                dp = birim(pa, a)
-                if abs(dp[0] - d[0]) < 1e-6 and abs(dp[1] - d[1]) < 1e-6:
-                    we = self.w(e)
-                    sib = self.cocuk[e]
-                    ofs = we / 2 if len(sib) > 1 else 0.0
-                    if e in self.ml:                 # menfez boyunca geniş kesit sürer, redüksiyon menfezden sonra
-                        ofs = max(ofs, self.ml[e] / 2 + 5)
-                    if abs(we - w) > 0.01:
-                        t0 = add(a, d, ofs); t1 = add(a, d, ofs + TR)
-                        if ofs > 0:
-                            P.append(rect(a, t0, we))
-                        P.append(trap(t0, we, t1, w))
-                        P.append(rect(t1, b, w, 0, eb))
-                        continue
-            P.append(rect(a, b, w, sa, eb))
-        return P
-
+            d = birim(a, b); w = self.w(n)
+            a2 = add(a, d, ts[n]); b2 = add(b, d, -te[n])
+            if n in red:
+                ofs, w0 = red[n]
+                s0 = max(ofs, ts[n])
+                t0 = add(a, d, s0); t1 = add(a, d, s0 + TR)
+                if s0 > ts[n] + 0.01:
+                    P.append(rect(a2, t0, w0))
+                P.append(trap(t0, w0, t1, w))
+                flans(t1, d, w)
+                a2 = t1
+            if math.dist(a, b2) - math.dist(a, a2) < -0.5:
+                print('UYARI parça sığmıyor', self.tur, e, n, round(math.dist(a, b), 1), round(ts[n], 1), round(te[n], 1))
+            P.append(rect(a2, b2, w))
+            self.duz[n] = (a2, b2)
+        return P, IC, FL_
 
 def menfez_yan(ag, nm, taraf, q, no):
     """kanal yanağı menfezi: kanal yanağına dayalı 3 kenar + kanatlar + hava yönü okları"""
@@ -550,37 +676,43 @@ def shc(c, Wx, Wy, lay=CHZ):
 q_th, q_eg, q_dt = R['qsec'], R['qeg'], R['qdts']
 n_tm, n_em, n_dm = 10, 6, 6
 TAZE_Q = q_th / n_tm; EGZ_Q = q_eg / n_em; DUM_Q = q_dt / n_dm
+S, N_, E, W_ = (0, -1), (0, 1), (1, 0), (-1, 0)
 
-# ---- taze hava (üfleme) ağı: cihaz çıkışı kuzey kanadında, gövde x=23785 güneye, L1 y=-33110 doğu-batı, E2 x=24560
-X_T = 23785; Y_L1 = -33110; X_E2 = 24560
+# ---- ORTAK ÇIKIŞ (KURANGLEZ): üç perde geçişi kuzey perdesinde yan yana (iç yüz -32354, dış yüz -32280)
+#      TAZE x=23785 (kolon 23631-23894 arası)  |  kolon 23894-24069  |  DUMAN x=24135  |  EGZOZ x=24245
+Y_IC, Y_DIS = -32354, -32280
+X_T, X_D, X_G = 23785, 24135, 24245
+Y_L1 = -33110; X_E2 = 24560          # taze dağıtım kolu + doğu inişi
+Y_L2 = -33330; X_E1 = 24300          # duman dağıtım kolu + doğu inişi
+X_DI = 24050                         # duman ana inişi (kolon 23884-23994 ile hol 24158 arası)
+X_EI = 24130                         # egzoz ana inişi
+Y_EG = -33050; X_EGD = 24615; Y_E = -34480
+
+# ---- taze hava (üfleme): SHC çıkışı -> gövde güneye -> PANTOLON (L1) -> batı kol + doğu kol -> E2 inişi
 SHC_C = (X_T, -32437); SHC_W, SHC_D = 160, 70
 ta = Ag('taze', (X_T, SHC_C[1] - SHC_D / 2 + 4))
-nA = ta.yol('K', (X_T, -32620))
-nB = ta.yol(nA, (X_T, Y_L1))
-ta.yol(nA, (24130, -32620))
+nB = ta.yol('K', (X_T, Y_L1))
 ta.yol(nB, (23420, Y_L1))
 ta.yol(nB, (X_E2, Y_L1), (X_E2, -34330))
-S, N_, E, W_ = (0, -1), (0, 1), (1, 0), (-1, 0)
-for p, t in [((23990, -32620), S), ((24130, -32620), S), ((23600, Y_L1), S), ((23420, Y_L1), S),
-             ((24080, Y_L1), S), ((24360, Y_L1), S), ((X_E2, -33480), W_), ((X_E2, -33780), W_),
+for p, t in [((X_T, -32640), W_), ((X_T, -32840), W_), ((23600, Y_L1), S), ((23420, Y_L1), S),
+             ((24180, Y_L1), S), ((24380, Y_L1), S), ((X_E2, -33480), W_), ((X_E2, -33780), W_),
              ((X_E2, -34040), W_), ((X_E2, -34330), W_)]:
     ta.menfez_ekle(p, t, TAZE_Q)
 
-# ---- duman egzoz ağı: fan batı perdesi önünde, L2 y=-33330, E1 x=24230
-Y_L2 = -33330; X_E1 = 24230; DF_C = (23452, Y_L2)
-du = Ag('duman', (DF_C[0] + 50, Y_L2))
-d1 = du.yol('K', (X_E1, Y_L2))
-du.yol(d1, (X_E1, -34230))
-for p, t in [((23640, Y_L2), S), ((23880, Y_L2), S), ((24090, Y_L2), S),
+# ---- duman egzoz: GSK-2 -> köşeli (kanatlı) iki dirsek -> DTF-1 (kanal üstünde, kuzeye basar) -> iniş -> PANTOLON (L2)
+DF_C = (X_DI, -32665)
+du = Ag('duman', (X_D, -32398))
+d1 = du.yol('K', (X_D, -32470), (X_DI, -32470 - (X_D - X_DI)), (X_DI, Y_L2))
+du.yol(d1, (23560, Y_L2))
+du.yol(d1, (X_E1, Y_L2), (X_E1, -34230))
+for p, t in [((23800, Y_L2), S), ((23560, Y_L2), S), ((24185, Y_L2), S),
              ((X_E1, -33620), E), ((X_E1, -33950), E), ((X_E1, -34230), E)]:
     du.menfez_ekle(p, t, DUM_Q)
 
-# ---- egzoz ağı: fan doğu perdesi önünde (y=-34480), WC/mutfak nişi önüne
-Y_E = -34480; EF_C = (24540, Y_E)
-eg = Ag('egzoz', (EF_C[0] - 50, Y_E))
-e1 = eg.yol('K', (24040, Y_E))
-e2 = eg.yol(e1, (24040, -34900))
-eg.yol(e2, (24450, -34900))
+# ---- egzoz: GSK-3 -> EF-1 (kanal tipi) -> dirsekler -> hol önünden doğuya -> doğu perdesi boyunca güneye -> WC / mutfak nişi
+EF_C = (X_G, -32510)
+eg = Ag('egzoz', (X_G, -32436))
+eg.yol('K', (X_G, -32610), (X_EI, -32610), (X_EI, Y_EG), (X_EGD, Y_EG), (X_EGD, Y_E), (24040, Y_E), (24040, -34900), (24450, -34900))
 for p, t in [((24360, Y_E), S), ((24040, -34680), W_), ((24040, -34800), E),
              ((24170, -34900), N_), ((24320, -34900), N_), ((24450, -34900), S)]:
     eg.menfez_ekle(p, t, EGZ_Q)
@@ -590,63 +722,104 @@ for ag in (ta, du, eg):
 
 # ---- bileşen gövdeleri (kanal çizgileri bunların içinde silinir)
 GOVDE = []
-# taze hava girişi: kuzey perde (iç yüz -32354, dış yüz -32280)
-gth_b, gth_h, _ = R['gth']
-k_th = kovan_ciz((X_T, -32354), (X_T, -32280), gth_b)
+gth_b, gth_h, _ = R['gth']; gdt_b, gdt_h, _ = R['gdt']; geg_b, geg_h, _ = R['geg']
+k_th = kovan_ciz((X_T, Y_IC), (X_T, Y_DIS), gth_b)
 gsk_th = gsk((X_T, -32380), (0, -1), gth_b)
 shc_g = shc(SHC_C, SHC_W, SHC_D)
-baca_th = baca_ciz((X_T, -32280 + 45), gth_b + 30, 70)
-GOVDE += [k_th, gsk_th, shc_g]
-# taze hava giriş bağlantısı (kovan -> klape -> cihaz): kanal parçaları
+k_dt = kovan_ciz((X_D, Y_IC), (X_D, Y_DIS), gdt_b)
+gsk_dt = gsk((X_D, -32380), (0, 1), gdt_b)
+fan_dt = fan_aksiyel(DF_C, (0, 1), 44)
+k_eg = kovan_ciz((X_G, Y_IC), (X_G, Y_DIS), geg_b)
+gsk_eg = gsk((X_G, -32420), (0, 1), geg_b)
+fan_eg = fan_kanal(EF_C, (0, 1), 100, 70)
+GOVDE += [k_th, gsk_th, shc_g, k_dt, gsk_dt, fan_dt, k_eg, gsk_eg, fan_eg]
+# kovan -> klape -> cihaz/kanal bağlantı parçaları
 bag_th = [rect((X_T, -32350), (X_T, -32370), gth_b), rect((X_T, -32390), (X_T, -32404), gth_b * 0.8)]
+bag_dt = [rect((X_D, -32350), (X_D, -32370), gdt_b), trap((X_D, -32394), gdt_b, (X_D, -32414), du.w(du.cocuk['K'][0]))]
+bag_eg = [rect((X_G, -32350), (X_G, -32410), geg_b), trap((X_G, -32434), geg_b, (X_G, -32446), eg.w(eg.cocuk['K'][0]))]
 
-# duman: batı duvarı iç yüz 23310, dış yüz 23236
-gdt_b, gdt_h, _ = R['gdt']
-k_dt = kovan_ciz((23310, Y_L2), (23236, Y_L2), gdt_b)
-gsk_dt = gsk((23345, Y_L2), (-1, 0), gdt_b)
-fan_dt = fan_aksiyel(DF_C, (-1, 0), 44)
-baca_dt = baca_ciz((23236 - 55, Y_L2), 90, gdt_b + 30)
-GOVDE += [k_dt, gsk_dt, fan_dt]
-bag_dt = [rect((23305, Y_L2), (23340, Y_L2), gdt_b), trap((23359, Y_L2), gdt_b * 0.85, (23400, Y_L2), du.w(d1) + 4)]
 
-# egzoz: doğu duvarı iç yüz 24652, dış yüz 24726
-geg_b, geg_h, _ = R['geg']
-k_eg = kovan_ciz((24652, Y_E), (24726, Y_E), geg_b)
-gsk_eg = gsk((24617, Y_E), (1, 0), geg_b)
-fan_eg = fan_kanal(EF_C, (1, 0), 100, 70)
-baca_eg = baca_ciz((24726 + 50, Y_E), 80, geg_b + 30)
-GOVDE += [k_eg, gsk_eg, fan_eg]
-bag_eg = [rect((24585, Y_E), (24610, Y_E), geg_b * 0.8), rect((24625, Y_E), (24657, Y_E), geg_b)]
+# ---- ORTAK KURANGLEZ (bölmeli dış hava bacası): kuzey perdesine bitişik, iç derinlik 110 cm
+KR = dict(x0=23615, x1=24312, y0=Y_DIS, y1=-32150, t=20, bt=12)
+KR_BOLME = [(23955, 23955 + 15), (24200, 24210)]           # taze | duman | egzoz arası betonarme bölmeler
+KR_HUCRE = {'taze': (KR['x0'] + KR['t'], KR_BOLME[0][0]), 'duman': (KR_BOLME[0][1], KR_BOLME[1][0]),
+            'egzoz': (KR_BOLME[1][1], KR['x1'] - KR['t'])}
 
+
+def kuranglez():
+    x0, x1, y0, y1, t = KR['x0'], KR['x1'], KR['y0'], KR['y1'], KR['t']
+    yi = y1 - t
+    PL([(x0, y0), (x0, y1), (x1, y1), (x1, y0)], BACA)                    # dış yüz (bina perdesine açık U)
+    PL([(x0 + t, y0), (x0 + t, yi), (x1 - t, yi), (x1 - t, y0)], BACA)    # iç yüz
+    for a_, b_ in KR_BOLME:
+        L((a_, y0), (a_, yi), BACA); L((b_, y0), (b_, yi), BACA)
+    # betonarme tarama (duvar kalınlığında eğik çizgiler)
+    k = x0 + 6
+    while k + t < x1 - 2:
+        L((k, yi), (k + t, y1), BACA); k += 30
+    for xa, xb in [(x0, x0 + t), (x1 - t, x1)] + KR_BOLME:
+        yy = y0 + 10
+        while yy < yi - 6:
+            L((xa, yy), (xb, min(yy + (xb - xa), yi)), BACA); yy += 25
+    # emiş hücresi: ızgara (kuzey bandında), atış hücreleri: panjur kanatları
+    xa, xb = KR_HUCRE['taze']
+    xx = xa + 6
+    while xx < xb - 3:
+        L((xx, yi - 4), (xx, yi - 26), BACA); xx += 8
+    L((xa, yi - 30), (xb, yi - 30), BACA)
+    for hc in ('duman', 'egzoz'):
+        xa, xb = KR_HUCRE[hc]
+        L((xa, yi - 30), (xb, yi - 30), BACA)
+        yy = yi - 6
+        while yy > yi - 28:
+            L((xa + 4, yy), (xb - 4, yy - 3), BACA); yy -= 6
+    adet('baca')
+    return box(x0, y0, x1, y1)
+
+
+kr_g = kuranglez()
 GOVDE_U = unary_union(GOVDE)
 
 
-def ag_ciz(ag, ekler=()):
-    P = ag.poligonlar() + list(ekler)
-    # kök: fan/cihaz gövdesine 6 cm uzat
+def ag_ciz(ag, ekler=(), alt=None):
+    """kanalı çiz; alt verilirse o gövdeler (üstten geçen kanallar) içindeki çizgiler GİZLİ (kesikli) katmana"""
+    P, IC, FLN = ag.parca()
+    P = P + list(ekler)
     k = ag.N['K']; c0 = ag.cocuk['K'][0]
     d = birim(k, ag.N[c0])
     P.append(rect(add(k, d, -8), k, ag.w(c0)))
     U = unary_union(P).buffer(0)
     cizgi = U.boundary.difference(GOVDE_U.buffer(0.01))
+    ic = unary_union(IC + FLN).difference(GOVDE_U.buffer(0.01)) if IC or FLN else GeometryCollection()
+    if alt is not None:
+        gz = cizgi.intersection(alt.buffer(-0.01)); cizgi = cizgi.difference(alt.buffer(-0.01))
+        gz2 = ic.intersection(alt.buffer(-0.01)); ic = ic.difference(alt.buffer(-0.01))
+        for g_ in (gz, gz2):
+            for x in (g_.geoms if hasattr(g_, 'geoms') else [g_]):
+                if x.geom_type == 'LineString' and x.length > 0.3:
+                    e = msp.add_lwpolyline(list(x.coords), dxfattribs={'layer': ag.c['lay'] + '-GIZLI', 'ltscale': 0.6})
+                    CIZ.append((x, ag.c['lay'] + '-GIZLI'))
     geom(cizgi, ag.c['lay'])
+    geom(ic, ag.c['lay'])
     ag.U = U
-    # akış okları
-    for n, e in ag.ebe.items():
-        a, b = ag.N[e], ag.N[n]
+    # akış okları: düz kısım ortasında
+    for n, (a, b) in ag.duz.items():
         Lk = math.dist(a, b)
-        if Lk < 70:
+        if Lk < 60:
             continue
         dd = birim(a, b)
         if ag.c['ters']:
             dd = (-dd[0], -dd[1])
-        ok_dolu(add(a, birim(a, b), Lk * 0.3), dd, min(14, ag.w(n) * 0.6))
+        m = add(a, birim(a, b), Lk * 0.5)
+        if ag.menfez and any(math.dist(m, ag.N[mm[0]]) < ag.ml[mm[0]] / 2 + 12 for mm in ag.menfez):
+            m = add(a, birim(a, b), Lk * 0.25)
+        ok_dolu(m, dd, min(14, ag.w(n) * 0.6))
     return U
 
 
 U_ta = ag_ciz(ta, bag_th)
-U_du = ag_ciz(du, bag_dt)
 U_eg = ag_ciz(eg, bag_eg)
+U_du = ag_ciz(du, bag_dt, alt=U_ta)
 
 MENFEZLER = []
 for ag in (ta, du, eg):
@@ -769,27 +942,43 @@ for ag, m in MENFEZLER:
     onc = [add(m['p'], m['n'], 22), add(add(m['p'], m['n'], 22), m['d'], 30), add(add(m['p'], m['n'], 22), m['d'], -30)]
     etiket(m['p'], satir, 7.5, YAZI, oncelik=onc, alan=SIG_ALAN.buffer(-1), haric=m['govde'])
 
-# cihaz / fan / geçiş etiketleri (sığınak dışına da çıkabilir)
-CEVRE = box(22950, -35400, 25150, -32150)
-etiket((SHC_C[0] + SHC_W / 2 + 22, SHC_C[1] + 5), ['SHC-1 SIĞINAK HAVALANDIRMA CİHAZI', 'EL + MOTOR TAHRİKLİ, KUM/TOZ FİLTRELİ',
+# cihaz / fan / geçiş etiketleri (bina dışı boş alanlara kılavuzla)
+CEVRE = box(22950, -35400, 25150, -32020)
+etiket((SHC_C[0] - SHC_W / 2, SHC_C[1]), ['SHC-1 SIĞINAK HAVALANDIRMA CİHAZI', 'EL + MOTOR TAHRİKLİ, KUM/TOZ FİLTRELİ',
                                     f"NORMAL {tr(q_th, 0)} m³/h / KORUMA {tr(R['qkor'], 0)} m³/h"], 8.0, CHZ,
-       oncelik=[(24140, -32470), (24140, -32490)], alan=SIG_ALAN.buffer(-1), haric=shc_g, rmax=400)
-etiket((X_T + gth_b / 2 + 5, -32330), [f"TAZE HAVA PERDE GEÇİŞİ {gth_b}x{gth_h} cm", 'ÇELİK KOVAN + GAZ SIZDIRMAZ KLAPE GSK-1'],
-       8.0, GEC, oncelik=[(24140, -32395), (24140, -32405)], alan=CEVRE, haric=k_th.union(gsk_th), rmax=400)
-etiket((X_T + gth_b / 2 + 15, -32235), ['TAZE HAVA EMİŞ BACASI (DIŞ)', 'EMİŞ AĞZI +0,50 m IZGARALI'], 8.0, BACA,
-       oncelik=[(24020, -32225)], alan=CEVRE, haric=baca_th)
-etiket((DF_C[0], DF_C[1] + 50), ['DTF-1 DUMAN TAHLİYE FANI', f"{tr(q_dt, 0)} m³/h F400 (400°C/2 saat)"], 8.5, CHZ,
-       oncelik=[(23470, -33180), (23480, -33160)], alan=SIG_ALAN.buffer(-1), haric=fan_dt)
-etiket((23229, Y_L2 + gdt_b / 2 - 5), [f"DUMAN PERDE GEÇİŞİ {gdt_b}x{gdt_h} cm", 'ÇELİK KOVAN + GSK-2'], 8.0, GEC,
-       oncelik=[(23075, -33200), (23075, -33180), (23075, -33160)], alan=CEVRE, haric=k_dt, rmax=400)
-etiket((23181, Y_L2 - gdt_b / 2 - 15), ['DUMAN ATIŞ BACASI (DIŞ)', 'ATIŞ AĞZI +2,50 m PANJURLU'], 8.0, BACA,
-       oncelik=[(23075, -33470), (23075, -33490)], alan=CEVRE, haric=baca_dt)
-etiket((EF_C[0] - 30, EF_C[1] - 35), ['EF-1 KANAL TİPİ EGZOZ FANI', f"{tr(q_eg, 0)} m³/h"], 8.5, CHZ,
-       oncelik=[(24420, -34650), (24400, -34680), (24420, -34700)], alan=SIG_ALAN.buffer(-1), haric=fan_eg, rmax=400)
-etiket((24731, Y_E + geg_b / 2 - 5), [f"EGZOZ PERDE GEÇİŞİ {geg_b}x{geg_h} cm", 'ÇELİK KOVAN + GSK-3'], 8.0, GEC,
-       oncelik=[(24900, -34390), (24900, -34370)], alan=CEVRE, haric=k_eg, rmax=400)
-etiket((24776, Y_E - geg_b / 2 - 15), ['EGZOZ ATIŞ BACASI (DIŞ)', 'ATIŞ AĞZI +2,50 m'], 7.5, BACA,
-       oncelik=[(24890, -34580)], alan=CEVRE, haric=baca_eg)
+       oncelik=[(23440, -32470), (23440, -32500)], alan=CEVRE, haric=shc_g, rmax=500)
+etiket((X_T - gth_b / 2 - 4, -32380), ['GSK-1 GAZ SIZDIRMAZ KLAPE', 'TAZE HAVA GEÇİŞİ ' + f"{gth_b}x{gth_h} cm"], 8.0, GEC,
+       oncelik=[(23440, -32370), (23440, -32350)], alan=CEVRE, haric=k_th.union(gsk_th), rmax=500)
+etiket((DF_C[0] - 48, DF_C[1] - 20), ['DTF-1 DUMAN TAHLİYE FANI', f"{tr(q_dt, 0)} m³/h — F400", '(400°C / 2 saat)'], 7.0, CHZ,
+       oncelik=[(23895, -32720), (23895, -32740)], alan=SIG_ALAN.buffer(-1), haric=fan_dt, rmax=300)
+etiket((X_D - gdt_b / 2 - 4, -32385), ['GSK-2', f"{gdt_b}x{gdt_h} cm"], 7.0, GEC,
+       oncelik=[(23925, -32410), (23925, -32430)], alan=SIG_ALAN.buffer(-1), haric=k_dt.union(gsk_dt), rmax=200)
+etiket((EF_C[0] + 35, EF_C[1]), ['EF-1 KANAL TİPİ EGZOZ FANI', f"{tr(q_eg, 0)} m³/h"], 8.0, CHZ,
+       oncelik=[(24640, -32520), (24640, -32540)], alan=CEVRE, haric=fan_eg, rmax=500)
+etiket((X_G + 38, -32420), ['GSK-3 GAZ SIZDIRMAZ KLAPE', f"EGZOZ GEÇİŞİ {geg_b}x{geg_h} cm"], 8.0, GEC,
+       oncelik=[(24640, -32420), (24640, -32400)], alan=CEVRE, haric=k_eg.union(gsk_eg), rmax=500)
+# kesişme notu
+_kes = U_du.intersection(U_ta)
+if not _kes.is_empty:
+    cc = _kes.centroid
+    etiket((cc.x + 30, cc.y), ['DUMAN KANALI TAZE HAVA KANALININ', 'ALTINDAN GEÇER (KESİKLİ GÖSTERİLDİ)'], 7.0, DUM,
+           oncelik=[(cc.x + 140, cc.y + 40)], alan=SIG_ALAN.buffer(-1), haric=U_du, rmax=300)
+# pantolon bölme notları
+for ag in (ta, du):
+    for (pa, pb) in getattr(ag, 'bolme', []):
+        etiket(pa, ['PANTOLON — AYIRICI BÖLME LEVHASI'], 6.5, ag.c['lay'], alan=SIG_ALAN.buffer(-1), haric=ag.U, rmax=260)
+# kuranglez hücre yazıları
+yk = KR['y0'] + 32
+for hc, sat in (('taze', ['TAZE HAVA EMİŞ', f"GEÇİŞ {gth_b}x{gth_h} — GSK-1", '+0,50 IZGARALI']),
+                ('duman', ['DUMAN ATIŞ', f"GEÇİŞ {gdt_b}x{gdt_h} — GSK-2", '+2,50 PANJURLU']),
+                ('egzoz', ['EGZOZ ATIŞ', f"{geg_b}x{geg_h} GSK-3", '+2,50 PANJ.'])):
+    xa, xb = KR_HUCRE[hc]
+    hh = 6.0 if hc == 'egzoz' else 7.0
+    xc = (xa + xb) / 2 if hc != 'taze' else (X_T + gth_b / 2 + xb) / 2
+    for i, st in enumerate(sat):
+        TXT((xc, yk + 40 - i * hh * 1.6), st, hh, BACA, TA.MIDDLE_CENTER)
+TXT(((KR['x0'] + KR['x1']) / 2, KR['y1'] + 34), 'ORTAK KURANGLEZ — BÖLMELİ DIŞ HAVA BACASI (iç derinlik 110 cm)', 9.0, BACA, TA.MIDDLE_CENTER)
+TXT(((KR['x0'] + KR['x1']) / 2, KR['y1'] + 18), 'emiş ve atış hücreleri tavana kadar betonarme bölme ile ayrılır; atış ağızları emişten 2,00 m yüksek', 7.0, BACA, TA.MIDDLE_CENTER)
 
 # plan başlığı
 TXT((23600, -35370), 'A BLOK BODRUM KAT SIĞINAK HAVALANDIRMA PLANI', 20, 'ROTAS-HAV-BASLIK', TA.MIDDLE_LEFT)
@@ -820,7 +1009,8 @@ def kritik(ag, sabit):
         e = ag.ebe[x]
         if e in ag.ebe:
             d0 = birim(ag.N[ag.ebe[e]], ag.N[e]); d1_ = birim(ag.N[e], ag.N[x])
-            z = 0.3 if abs(d0[0] * d1_[0] + d0[1] * d1_[1]) < 0.5 else (0.3 if len(ag.cocuk[e]) == 1 else 0.4)
+            ZT = {'dirsek': 0.20, 'kose': 0.25, 'ofset': 0.15, 'pantolon': 0.35, 'T': 0.40}
+            z = ZT.get(ag.tip.get(e), 0.10) if abs(d0[0] * d1_[0] + d0[1] * d1_[1]) < 0.99 else (0.10 if len(ag.cocuk[e]) == 1 else 0.15)
             yer += z * RHO * v * v / 2
     v0 = K.surtunme(ag.Q[ag.cocuk['K'][0]], ag.olcu[ag.cocuk['K'][0]]['w'], ag.olcu[ag.cocuk['K'][0]]['h'])[0]
     yer += 0.5 * RHO * v0 * v0 / 2
@@ -1099,7 +1289,7 @@ def sema(x0, y0):
     S_T((xr + 120, kanal_y - wt / 2 - 52), f"TAZE HAVA MENFEZLERİ ({n_tm} AD. x {tr(TAZE_Q, 0)} m³/h)", 9, MEN)
     S_T((xw + 36, ys + hh / 2 + 40), f"PERDE GEÇİŞİ {R['gth'][0]}x{R['gth'][1]} cm", 8, GEC)
     S_T((xw + 36, ys + hh / 2 + 26), 'ÇELİK KOVAN + GSK-1', 8, GEC)
-    S_T((xw - 70, G + 105), 'TAZE HAVA EMİŞ BACASI', 9, BACA, TA.MIDDLE_CENTER)
+    S_T((xw - 70, G + 118), 'ORTAK KURANGLEZ', 9, BACA, TA.MIDDLE_CENTER); S_T((xw - 70, G + 102), 'TAZE EMİŞ HÜCRESİ', 9, BACA, TA.MIDDLE_CENTER)
     kot(xw - 130, G, '±0,00 DIŞ ZEMİN (KABUL)', False)
     kot(xw - 130, G + 50, '+0,50 EMİŞ AĞZI', False)
     kot(xw - 130, ys - 10, '-0,70 PERDE GEÇİŞİ EKSENİ', False)
@@ -1147,7 +1337,7 @@ def sema(x0, y0):
         S_T((bx + 140, kanal_y - hk / 2 - 52), f"{ad} MENFEZLERİ ({n_em if lay == EGZ else n_dm} AD. x {tr(EGZ_Q if lay == EGZ else DUM_Q, 0)} m³/h)", 9, MEN)
         S_T((wx - 10, ys - gh / 2 - 30), f"PERDE GEÇİŞİ {gg[0]}x{gg[1]} cm", 8, GEC, TA.MIDDLE_RIGHT)
         S_T((wx - 10, ys - gh / 2 - 44), f"ÇELİK KOVAN + {kod}", 8, GEC, TA.MIDDLE_RIGHT)
-        S_T((xs1 + 20, ust + 40), f"{ad} ATIŞ BACASI", 9, BACA, TA.MIDDLE_LEFT)
+        S_T((xs1 + 20, ust + 56), "ORTAK KURANGLEZ", 9, BACA, TA.MIDDLE_LEFT); S_T((xs1 + 20, ust + 40), f"{ad} ATIŞ HÜCRESİ", 9, BACA, TA.MIDDLE_LEFT)
         kot(xs1 + 20, ust, '+2,50 ATIŞ AĞZI', True)
         kot(xs1 + 60, G, '±0,00 DIŞ ZEMİN', True)
         kot(bx + 20, y0, '-2,20', True)
@@ -1182,7 +1372,14 @@ def lejant(x, y):
         (lambda yy: (S_box(x + 20, yy - 12, x + 60, yy + 12, GEC), S_L((x + 22, yy + 9), (x + 58, yy + 9), GEC), S_L((x + 22, yy - 9), (x + 58, yy - 9), GEC)),
          f"PERDE GEÇİŞİ ÇELİK KOVAN (ölçü yazılı) — {ADET.get('kovan', 0)} AD."),
         (lambda yy: (S_box(x + 20, yy - 15, x + 60, yy + 15, BACA), S_L((x + 20, yy - 15), (x + 60, yy + 15), BACA), S_L((x + 20, yy + 15), (x + 60, yy - 15), BACA)),
-         f"DIŞ HAVA BACASI (emiş / atış) — {ADET.get('baca', 0)} AD."),
+         'ORTAK KURANGLEZ (bölmeli: taze emiş | duman atış | egzoz atış) — 1 AD.'),
+        (lambda yy: (S_L((x + 5, yy + 12), (x + 40, yy + 12), TAZE), S_L((x + 5, yy - 12), (x + 40, yy - 12), TAZE),
+                     S_L((x + 40, yy), (x + 75, yy), TAZE), S_L((x + 22, yy + 12), (x + 22, yy - 12), TAZE)),
+         'PANTOLON AYRIM — AYIRICI BÖLME LEVHALI'),
+        (lambda yy: (msp.add_arc((x + 10, yy + 20), 20, 270, 360, dxfattribs={'layer': TAZE}), msp.add_arc((x + 10, yy + 20), 32, 270, 360, dxfattribs={'layer': TAZE}),
+                     msp.add_arc((x + 10, yy + 20), 8, 270, 360, dxfattribs={'layer': TAZE})), 'KAVİSLİ DİRSEK — YÖNLENDİRİCİ KANATLI'),
+        (lambda yy: (S_L((x + 10, yy), (x + 70, yy), 'ROTAS-HAV-DUMAN-GIZLI'), S_L((x + 10, yy + 8), (x + 70, yy + 8), 'ROTAS-HAV-DUMAN-GIZLI')),
+         'ALTTAN GEÇEN KANAL (KESİKLİ)'),
         (lambda yy: s_ok((x + 40, yy), (1, 0), 14), 'HAVA AKIŞ YÖNÜ'),
     ]
     for f_, s in ogeler:
@@ -1195,7 +1392,8 @@ def lejant(x, y):
 NOTLAR = [
     "Sığınak havalandırması Sığınak Yönetmeliği'ne göre normal havalandırma (4 hava değişimi) ve koruma havalandırması (filtreli) olarak yapılacaktır.",
     "Sığınak havalandırma cihazı el + elektrik motoru tahrikli, toz (G4) ve kum filtreli, by-pass damperli olarak temin edilecektir.",
-    "Taze hava emiş bacası ile egzoz ve duman atış bacaları farklı cephelerde, emiş ağzı dış zeminden en az +0,50 m yüksekte ızgaralı yapılacaktır.",
+    "Tüm dış hava bağlantıları kuzey perdesinde YAN YANA tek ortak kuranglezden alınır/verilir; emiş hücresi atış hücrelerinden tavana kadar betonarme bölme ile ayrılır (detay B-B, A-A).",
+    "Taze hava emiş ağzı +0,50 m ızgaralı; duman ve egzoz atış hücreleri +2,50 m'ye yükseltilir, panjurları emişten uzağa (dışa) bakar. Her hücre tabanına Ø100 süzgeç konur.",
     "Perde geçişlerinde betonarme dökülmeden önce plandaki ölçülerde çelik kovan yerleştirilecek, kovanlar perdeye ankrajlı ve su/gaz sızdırmaz yapılacaktır.",
     "Her perde geçişine sığınak iç tarafında el kumandalı gaz sızdırmaz klape (GSK) takılacaktır.",
     "Duman tahliye fanı EN 12101-3 F400 (400 °C / 2 saat) sınıfında olacak ve yangın algılama sistemi ile otomatik devreye girecektir.",
@@ -1205,6 +1403,8 @@ NOTLAR = [
     "Menfezler ayar damperli (OBD) olacak ve devreye almada plandaki debilere göre ayarlanacaktır.",
     "Fan ve cihaz elektrik beslemeleri jeneratör destekli olarak elektrik projesine göre yapılacaktır.",
     "Egzoz ve duman atış ağızları komşu pencere ve kapılardan en az 3,00 m uzakta, dış zeminden +2,50 m yükseklikte panjurlu olarak yapılacaktır.",
+    "Dirsekler R iç = 0,5·W kavisli ve yönlendirici kanatlı; yer olmayan yerde köşeli dirsek kanat dizili; pantolon ayrımlarda AYIRICI BÖLME levhası, T dallarda ayar kanadı (özel parça detayları).",
+    "Duman kanalı taze hava dağıtım kanalının altından geçer (planda kesikli); kesişme bölgesinde iki kanal arası en az 5 cm boşluk bırakılır.",
 ]
 
 
@@ -1229,6 +1429,274 @@ def menfez_satirlari():
         m = ms[0]
         rows.append([f"{m['no'][:2]}-1 … {m['no'][:2]}-{len(ms)}", ad, f"{m['mw']}x{m['mh']}", str(len(ms)), tr(m['q'], 0), tr(m['v'], 2)])
     return rows
+
+
+
+# ============================================================== DETAYLAR: KURANGLEZ GÖRÜNÜŞ / KESİT + KANAL ÖZEL PARÇALARI (1/20)
+KD = 2.5                     # plan 1/50 -> detay 1/20
+
+
+def S_tarama(x0, y0, x1, y1, ad=12, lay=BACA):
+    """betonarme kesit: kutu + eğik tarama (kutu içine kırpılır)"""
+    S_box(x0, y0, x1, y1, lay)
+    b = box(x0, y0, x1, y1)
+    k = -(y1 - y0)
+    while k < (x1 - x0):
+        ln = LineString([(x0 + k, y0), (x0 + k + (y1 - y0), y1)]).intersection(b)
+        if ln.geom_type == 'LineString' and ln.length > 1:
+            S_L(ln.coords[0], ln.coords[-1], lay)
+        k += ad
+
+
+def S_klavuz(a, b, s, h=8.0, lay='ROTAS-HAV-SEMA', sag=True):
+    S_L(a, b, lay); S_C(a, 1.6, lay)
+    S_T((b[0] + (4 if sag else -4), b[1]), s, h, lay, TA.MIDDLE_LEFT if sag else TA.MIDDLE_RIGHT)
+
+
+def kuranglez_gorunus(x0, yg):
+    """B-B görünüşü: kuranglez içinden bina perdesine bakış. x plan koordinatı x KD, yg = ±0,00 dış zemin"""
+    X = lambda x: x0 + (x - KR['x0']) * KD
+    Y = lambda kot: yg + kot * KD            # kot cm
+    S_T((x0, Y(300)), 'KURANGLEZ (ORTAK DIŞ HAVA BACASI) B-B GÖRÜNÜŞÜ — 1/20', 16, 'ROTAS-HAV-BASLIK')
+    S_T((x0, Y(285)), 'üç perde geçişi yan yana; emiş hücresi atış hücrelerinden tavana kadar betonarme bölme ile ayrılır', 9, SL)
+    alt = -130
+    # zemin
+    s_toprak(X(KR['x0']) - 120, X(KR['x0']), Y(0)); s_toprak(X(KR['x1']), X(KR['x1']) + 120, Y(0))
+    S_L((X(KR['x0']) - 120, Y(0)), (X(KR['x1']) + 120, Y(0)))
+    # yan duvarlar + bölmeler (kesit)
+    S_tarama(X(KR['x0']), Y(alt - 20), X(KR['x0'] + KR['t']), Y(50))
+    S_tarama(X(KR['x1'] - KR['t']), Y(alt - 20), X(KR['x1']), Y(250))
+    S_tarama(X(KR['x0']), Y(alt - 20), X(KR['x1']), Y(alt))                         # taban
+    S_tarama(X(KR_BOLME[0][0]), Y(alt), X(KR_BOLME[0][1]), Y(250))
+    S_tarama(X(KR_BOLME[1][0]), Y(alt), X(KR_BOLME[1][1]), Y(250))
+    # bina perdesi görünüşü (arka plan) + perde geçişleri
+    for xc, (b_, h_), ad, kod in ((X_T, R['gth'][:2], 'TAZE HAVA', 'GSK-1'), (X_D, R['gdt'][:2], 'DUMAN', 'GSK-2'),
+                                  (X_G, R['geg'][:2], 'EGZOZ', 'GSK-3')):
+        xa, xb = X(xc - b_ / 2), X(xc + b_ / 2); ya, yb_ = Y(-70 - h_ / 2), Y(-70 + h_ / 2)
+        S_box(xa, ya, xb, yb_, GEC); S_box(xa + 5, ya + 5, xb - 5, yb_ - 5, GEC)
+        S_L((xa + 5, ya + 5), (xb - 5, yb_ - 5), GEC); S_L((xa + 5, yb_ - 5), (xb - 5, ya + 5), GEC)
+        S_T(((xa + xb) / 2, ya - 14), f"{ad} GEÇİŞİ {b_}x{h_}", 7.5, GEC, TA.MIDDLE_CENTER)
+        S_T(((xa + xb) / 2, ya - 26), f"çelik kovan + {kod}", 7, GEC, TA.MIDDLE_CENTER)
+    # taze hücre: +0,50 ızgara
+    xa, xb = X(KR_HUCRE['taze'][0]), X(KR_HUCRE['taze'][1])
+    S_box(xa, Y(42), xb, Y(50), BACA)
+    xx = xa + 6
+    while xx < xb - 4:
+        S_L((xx, Y(42)), (xx, Y(50)), BACA); xx += 10
+    S_T(((xa + xb) / 2, Y(64)), 'TAZE HAVA EMİŞ — IZGARA +0,50', 9, BACA, TA.MIDDLE_CENTER)
+    for kk in (0, 1):
+        s_ok(((xa + xb) / 2 - 60 + kk * 120, Y(85)), (0, -1), 14, BACA)
+    # atış hücreleri: +2,50'ye yükselen baca, panjur + şapka
+    for hc, ad in (('duman', 'DUMAN ATIŞ'), ('egzoz', 'EGZOZ ATIŞ')):
+        xa, xb = X(KR_HUCRE[hc][0]), X(KR_HUCRE[hc][1])
+        if hc == 'duman':
+            S_L((xa, Y(50)), (xa, Y(250)), BACA)
+        yy = Y(185)
+        while yy < Y(245):
+            S_L((xa + 4, yy), (xb - 4, yy + 8), BACA); yy += 12
+        S_PL([(X(KR_BOLME[0][0]) - 12, Y(262)), (X(KR['x1']) + 12, Y(262)), (X(KR['x1']) + 12, Y(256)),
+              (X(KR_BOLME[0][0]) - 12, Y(256))], BACA, True)
+        S_T(((xa + xb) / 2, Y(165)), ad, 8.5 if hc == 'duman' else 7, BACA, TA.MIDDLE_CENTER)
+        S_T(((xa + xb) / 2, Y(152)), 'PANJUR +2,50', 7.5 if hc == 'duman' else 6, BACA, TA.MIDDLE_CENTER)
+        s_ok(((xa + xb) / 2, Y(120)), (0, 1), 14, BACA)
+    S_L((X(KR_BOLME[0][0]), Y(250)), (X(KR['x1']), Y(250)), BACA)
+    # drenaj
+    for hc in ('taze', 'duman', 'egzoz'):
+        xc = (X(KR_HUCRE[hc][0]) + X(KR_HUCRE[hc][1])) / 2
+        S_C((xc, Y(alt) + 6), 5, BACA)
+    S_T((X(KR['x0']) + 70, Y(alt) + 20), 'her hücre tabanında Ø100 süzgeç → drenaj', 7, BACA)
+    kot(X(KR['x0']) - 30, Y(0), '±0,00 DIŞ ZEMİN', False)
+    kot(X(KR['x0']) - 30, Y(50), '+0,50 EMİŞ IZGARASI', False)
+    kot(X(KR['x1']) + 30, Y(250), '+2,50 ATIŞ AĞZI', True)
+    kot(X(KR['x1']) + 30, Y(-70), '-0,70 GEÇİŞ EKSENİ', True)
+    kot(X(KR['x1']) + 30, Y(alt), '-1,30 KURANGLEZ TABANI', True)
+    # ölçüler
+    for (a_, b_), s_ in (((KR['x0'] + KR['t'], KR_BOLME[0][0]), 'EMİŞ'), ((KR_BOLME[0][1], KR_BOLME[1][0]), 'DUMAN'),
+                         ((KR_BOLME[1][1], KR['x1'] - KR['t']), 'EGZOZ')):
+        yy = Y(alt - 20) - 40
+        S_L((X(a_), yy), (X(b_), yy), SL); S_L((X(a_), yy - 5), (X(a_), yy + 5), SL); S_L((X(b_), yy - 5), (X(b_), yy + 5), SL)
+        S_T(((X(a_) + X(b_)) / 2, yy + 9), f"{s_} {b_ - a_:.0f}", 7, SL, TA.MIDDLE_CENTER)
+    return X(KR['x1']) + 200
+
+
+def kuranglez_kesit(x0, yg):
+    """A-A kesiti (duman hücresinden): sığınak içi -> perde -> kuranglez -> +2,50 atış. yatay: kuzey sağda"""
+    Xs = lambda d: x0 + d * KD        # d: perde iç yüzünden kuzeye mesafe (cm)
+    Y = lambda kot: yg + kot * KD
+    S_T((x0 - 150 * KD, Y(300)), 'KURANGLEZ A-A KESİTİ (DUMAN HÜCRESİ) — 1/20', 16, 'ROTAS-HAV-BASLIK')
+    t_perde = Y_DIS - Y_IC             # 74
+    ic = KR['y1'] - KR['t'] - Y_DIS     # 110
+    S_tarama(Xs(0), Y(-250), Xs(t_perde), Y(-70 - 40))           # perde (geçiş altı)
+    S_tarama(Xs(0), Y(-70 + 40), Xs(t_perde), Y(80))             # perde (geçiş üstü)
+    S_tarama(Xs(-150), Y(80 - 15), Xs(t_perde), Y(80))           # döşeme
+    S_tarama(Xs(t_perde + ic), Y(-150), Xs(t_perde + ic + KR['t']), Y(180))     # kuranglez dış duvarı (panjur boşluğu altı)
+    S_tarama(Xs(t_perde + ic), Y(245), Xs(t_perde + ic + KR['t']), Y(256))      # panjur üstü hatıl
+    S_tarama(Xs(t_perde), Y(-150), Xs(t_perde + ic + KR['t']), Y(-130))       # taban
+    S_L((Xs(-150), Y(-220)), (Xs(0), Y(-220)), SL)
+    s_toprak(Xs(t_perde + ic + KR['t']), Xs(t_perde + ic + KR['t']) + 140, Y(0))
+    # kovan + GSK + kanal + fan
+    S_box(Xs(-5), Y(-110), Xs(t_perde + 5), Y(-30), GEC)
+    S_box(Xs(-40), Y(-114), Xs(-12), Y(-26), CHZ); S_L((Xs(-30), Y(-108)), (Xs(-22), Y(-32)), CHZ)
+    S_T((Xs(-26), Y(-128)), 'GSK-2', 7.5, CHZ, TA.MIDDLE_CENTER)
+    S_L((Xs(-12), Y(-110)), (Xs(-12), Y(-30)), DUM)
+    S_PL([(Xs(-40), Y(-110)), (Xs(-60), Y(-90)), (Xs(-150), Y(-90))], DUM); S_PL([(Xs(-40), Y(-30)), (Xs(-60), Y(-40)), (Xs(-150), Y(-40))], DUM)
+    s_ok((Xs(-100), Y(-65)), (1, 0), 14, DUM); s_ok((Xs(t_perde + 40), Y(-65)), (1, 0), 14, DUM)
+    S_T((Xs(-150), Y(-30)), "DUMAN KANALI (fan DTF-1'den)", 8, DUM)
+    # atış bacası yükselişi + panjur + şapka
+    xa, xb = Xs(t_perde), Xs(t_perde + ic)
+    yy = Y(185)
+    while yy < Y(240):
+        S_L((xb + 4, yy + 12), (xb + KR['t'] * KD - 4, yy), BACA); yy += 12
+    S_L((xb, Y(180)), (xb, Y(245)), BACA); S_L((xb + KR['t'] * KD, Y(180)), (xb + KR['t'] * KD, Y(245)), BACA)
+    S_L((xa, Y(80)), (xa, Y(256)), BACA)
+    S_PL([(xa - 12, Y(262)), (xb + KR['t'] * KD + 12, Y(262)), (xb + KR['t'] * KD + 12, Y(256)), (xa - 12, Y(256))], BACA, True)
+    s_ok(((xa + xb) / 2, Y(120)), (0, 1), 14, BACA); s_ok((xb + 25, Y(215)), (1, 0), 14, BACA)
+    S_T((xb + KR['t'] * KD + 20, Y(215)), 'PANJUR (dışa, emişten uzağa bakar)', 8, BACA)
+    S_T(((xa + xb) / 2, Y(-150) - 20), f"KURANGLEZ İÇ DERİNLİK {ic:.0f} cm", 8, SL, TA.MIDDLE_CENTER)
+    S_T((Xs(t_perde / 2), Y(-250) - 20), 'BETONARME PERDE', 8, SL, TA.MIDDLE_CENTER)
+    kot(Xs(-150) + 20, Y(80), '+0,80', True); kot(Xs(-150) + 20, Y(-220), '-2,20 SIĞINAK', True)
+    kot(xb + KR['t'] * KD + 40, Y(0), '±0,00', True); kot(xb + KR['t'] * KD + 40, Y(250), '+2,50', True)
+
+
+def detay_parca(cx, cy, baslik, kur, notlar_):
+    """kanal özel parça detayı (1/20). kur(ag) ağacı kurar; ağ ölçüleri elle verilir"""
+    S_T((cx - 330, cy + 300), baslik, 12, 'ROTAS-HAV-BASLIK')
+    ag, ekle = kur()
+    P, IC, FLN = ag.parca()
+    U = unary_union(P).buffer(0)
+    for g_ in [U.boundary] + IC + FLN:
+        for x in (g_.geoms if hasattr(g_, 'geoms') else [g_]):
+            if x.geom_type == 'LineString':
+                S_PL(list(x.coords), ag.c['lay'])
+            elif x.geom_type == 'LinearRing':
+                S_PL(list(x.coords), ag.c['lay'])
+    for f_ in ekle:
+        f_(ag)
+    yy = cy - 250
+    for s_ in notlar_:
+        S_T((cx - 330, yy), s_, 7.5, SL); yy -= 13
+
+
+def mini(tur, kok, kenar, gen):
+    """kenar: [(ebe, ad, nokta)], gen: {ad: genişlik cm (detay ölçeğinde gerçek x KD)}"""
+    ag = Ag(tur, kok)
+    for e_, nm, p_ in kenar:
+        ag.N[nm] = p_; ag.cocuk[nm] = []; ag.cocuk[e_].append(nm); ag.ebe[nm] = e_
+    ag.olcu = {n: {'w': int(gen[n] * 10), 'h': 0} for n in ag.ebe}
+    ag.ml = {}
+    Q = {}
+
+    def f(n):
+        Q[n] = gen.get(n, 1) ** 2 if not ag.cocuk[n] else sum(f(c) for c in ag.cocuk[n])
+        return Q[n]
+    f('K'); ag.Q = Q
+    return ag
+
+
+def detaylar(x0, y0):
+    S_T((x0, y0 + 60), 'KANAL ÖZEL PARÇA DETAYLARI — 1/20 (ölçüler mm, plan ölçüleri ile uygulanır)', 16, 'ROTAS-HAV-BASLIK')
+    C = [(x0 + 380, y0 - 340), (x0 + 1180, y0 - 340), (x0 + 1980, y0 - 340),
+         (x0 + 380, y0 - 1000), (x0 + 1180, y0 - 1000), (x0 + 1980, y0 - 1000)]
+    w = lambda mm: mm / 10 * KD
+    # 1) pantolon (duman L2): 850 gövde -> 400 / 600 kollar
+    cx, cy = C[0]
+
+    def k1():
+        ag = mini('duman', (cx, cy + 260), [('K', 'a', (cx, cy)), ('a', 'b', (cx - 300, cy)), ('a', 'c', (cx + 300, cy))],
+                  {'a': w(850), 'b': w(400), 'c': w(600)})
+        ag.Q = {'K': 3, 'a': 3, 'b': 1, 'c': 2}
+
+        def e(ag_):
+            (pa, pb) = ag_.bolme[-1]
+            S_klavuz(pb, (cx + 150, cy + 215), 'AYIRICI BÖLME LEVHASI (1,0 mm galv., gövdeye 0,9·W uzanır)', 7.5)
+            S_klavuz((pa[0], (pa[1] + pb[1]) / 2 + 20), (cx - 330, cy + 250), 'ayar mafsalı', 7.5, sag=True)
+            S_C((pa[0], (pa[1] + pb[1]) / 2 + 20), 3, SL)
+            S_klavuz((cx - 120, cy - 30), (cx - 300, cy - 120), 'YÖNLENDİRİCİ KANAT (kol ≥ 250 mm)', 7.5)
+            S_klavuz((cx + 240, cy + 60), (cx + 120, cy + 140), 'FLANŞLI BAĞLANTI', 7.5)
+            S_T((cx, cy + 280), '850x500', 8, DUM, TA.MIDDLE_CENTER)
+            S_T((cx - 300, cy - 50), '400x500', 8, DUM, TA.MIDDLE_CENTER); S_T((cx + 300, cy - 50), '600x500', 8, DUM, TA.MIDDLE_CENTER)
+        return ag, [e]
+    detay_parca(cx, cy, '1) PANTOLON — AYIRICI BÖLMELİ Y AYRIM', k1,
+                ['Gövde, kol debileri oranında iki kanala bölünür (bölme levhası ayrım noktasından gövdeye uzanır).',
+                 'Kollar R iç = 0,5·W kavisli; kol genişliği ≥ 250 mm ise kanal ortasında yönlendirici kanat.',
+                 'Kol ölçüsüne geçiş, dirsek çıkışında 200 mm konik redüksiyonla yapılır.'])
+    # 2) kavisli dirsek
+    cx, cy = C[1]
+
+    def k2():
+        ag = mini('egzoz', (cx - 200, cy + 230), [('K', 'a', (cx - 200, cy - 60)), ('a', 'b', (cx + 300, cy - 60))], {'a': w(600), 'b': w(600)})
+
+        def e(ag_):
+            S_klavuz((cx - 170, cy - 20), (cx - 40, cy + 120), 'YÖNLENDİRİCİ KANATLAR (2 ad., W ≥ 600 mm)', 7.5)
+            S_klavuz((cx - 275, cy - 60), (cx - 340, cy - 170), 'R iç = 0,5·W', 7.5, sag=True)
+            S_T((cx - 200, cy + 250), '600x400', 8, EGZ, TA.MIDDLE_CENTER)
+        return ag, [e]
+    detay_parca(cx, cy, '2) KAVİSLİ DİRSEK — KANATLI', k2,
+                ['Dirsek iç yarıçapı 0,5·W, dış yarıçapı 1,5·W; kanatlar eş aralıklı ve dirsekle eş merkezli.',
+                 'Kanatlar 1,0 mm galvaniz sac, iki uçtan perçinli.'])
+    # 3) köşeli dirsek + kanat dizisi
+    cx, cy = C[2]
+
+    def k3():
+        ag = mini('duman', (cx - 150, cy + 230), [('K', 'a', (cx - 150, cy - 60)), ('a', 'b', (cx + 40, cy - 60)), ('b', 'c', (cx + 250, cy - 60))],
+                  {'a': w(850), 'b': w(850), 'c': w(850)})
+
+        def e(ag_):
+            S_klavuz((cx - 150, cy - 60), (cx + 30, cy + 150), 'KANAT DİZİSİ (turning vane, köşegen boyunca)', 7.5)
+            S_T((cx - 150, cy + 250), '850x500', 8, DUM, TA.MIDDLE_CENTER)
+        return ag, [e]
+    detay_parca(cx, cy, '3) KÖŞELİ DİRSEK — KANAT DİZİLİ', k3,
+                ['Kavisli dirsek için yer yetmeyen büyük kesitlerde kullanılır;', 'kanatlar köşegen üzerinde 12 cm aralıkla dizilir.'])
+    # 4) T dal: yuvarlatılmış ağız + ayar kanadı + redüksiyon
+    cx, cy = C[3]
+
+    def k4():
+        ag = mini('taze', (cx - 330, cy), [('K', 'a', (cx - 30, cy)), ('a', 'b', (cx + 300, cy)), ('a', 'c', (cx - 30, cy + 230))],
+                  {'a': w(400), 'b': w(300), 'c': w(250)})
+
+        def e(ag_):
+            S_klavuz((cx + 20, cy + 15), (cx + 120, cy + 150), 'AYAR KANADI (splitter damper, mafsallı)', 7.5)
+            S_klavuz((cx - 65, cy + 60), (cx - 330, cy + 150), 'YUVARLATILMIŞ AĞIZ R = 0,5·w dal', 7.5)
+            S_klavuz((cx + 120, cy + 30), (cx + 160, cy - 110), 'KONİK REDÜKSİYON 200 mm', 7.5)
+            S_T((cx - 250, cy - 50), '400x400', 8, TAZE, TA.MIDDLE_CENTER); S_T((cx + 250, cy - 50), '300x300', 8, TAZE, TA.MIDDLE_CENTER)
+        return ag, [e]
+    detay_parca(cx, cy, '4) T DAL — YUVARLATILMIŞ AĞIZ + AYAR KANADI', k4,
+                ['Dal ağzı akış yukarısı tarafında yuvarlatılır; ayar kanadı dalın akış aşağısı köşesine mafsallanır.',
+                 'Gövde redüksiyonu dal ağzından sonra yapılır.'])
+    # 5) ofset
+    cx, cy = C[4]
+
+    def k5():
+        ag = mini('duman', (cx - 120, cy + 230), [('K', 'a', (cx - 120, cy + 90)), ('a', 'b', (cx + 90, cy - 120)), ('b', 'c', (cx + 90, cy - 260))],
+                  {'a': w(850), 'b': w(850), 'c': w(850)})
+
+        def e(ag_):
+            S_klavuz((cx - 20, cy - 15), (cx + 160, cy + 120), '45° OFSET PARÇASI', 7.5)
+        return ag, [e]
+    detay_parca(cx, cy, '5) OFSET (45°) — DUMAN ÇIKIŞI', k5, ['GSK-2 çıkışından fan hattına kaydırma; iki adet 45° kırım, flanşlı.'])
+    # 6) menfez bağlantısı (kanal yanağı)
+    cx, cy = C[5]
+    S_T((cx - 330, cy + 300), '6) KANAL YANAĞI MENFEZİ', 12, 'ROTAS-HAV-BASLIK')
+    W6 = w(300)
+    S_L((cx - 300, cy + W6 / 2), (cx + 300, cy + W6 / 2), TAZE); S_L((cx - 300, cy - W6 / 2), (cx + 300, cy - W6 / 2), TAZE)
+    ml = w(300); mh = 30
+    S_PL([(cx - ml / 2, cy - W6 / 2), (cx - ml / 2, cy - W6 / 2 - mh), (cx + ml / 2, cy - W6 / 2 - mh), (cx + ml / 2, cy - W6 / 2)], MEN)
+    k = cx - ml / 2 + 8
+    while k < cx + ml / 2 - 6:
+        S_L((k, cy - W6 / 2 - 4), (k + 8, cy - W6 / 2 - mh + 4), MEN); k += 12
+    for f_ in (-0.25, 0.25):
+        s_ok((cx + ml * f_, cy - W6 / 2 - mh - 30), (0, -1), 14, MEN)
+    S_klavuz((cx + ml / 2, cy - W6 / 2 - 15), (cx + 140, cy - 150), 'ÇİFT SIRA AYARLI MENFEZ + OBD DAMPER', 7.5)
+    S_klavuz((cx - 200, cy + W6 / 2), (cx - 250, cy + 150), 'kanal yanağına flanşlı montaj', 7.5)
+    yy = cy - 250
+    for s_ in ['Menfez ölçüsü planda yazılıdır (ör. 300x200); yüz hızı taze/egzoz 2,0 m/s, duman 3,0 m/s.',
+               'Duman menfezleri çelik, sabit kanatlı (F400 hatta uygun) yapılır.']:
+        S_T((cx - 330, yy), s_, 7.5, SL); yy -= 13
+
+
+x_det = kuranglez_gorunus(17150, -34650)
+kuranglez_kesit(x_det + 420, -34650)
+detaylar(20350, -34060)
 
 
 y_t = tablo(18900, y_nt - 30, 'MENFEZ ÇİZELGESİ', ['NO', 'MENFEZ', 'ÖLÇÜ (mm)', 'ADET', 'DEBİ (m³/h)', 'v (m/s)'],
@@ -1280,7 +1748,7 @@ print('tablo alt y:', yb, y_t3, 'şema sağ x:', x_sema_son, 'lejant/not:', y_lj
 # ============================================================== KONTROL
 def kontrol():
     rap = []
-    PLAN = box(22900, -35420, 25150, -32150)
+    PLAN = box(22900, -35420, 25150, -32020)
     biz = [(g, l) for g, l in CIZ if g.intersects(PLAN)]
     # 1) betonarme kolon/perde kesişimi (perde geçiş kovanları hariç: bilinçli geçiş)
     kanal_g = [ag.U for ag in (ta, du, eg)]
@@ -1348,7 +1816,8 @@ def kontrol():
                 acik.append((ag.tur, ag.N[n]))
     rap.append(f'boşta kanal ucu: {len(acik)} {acik}')
     # 6) ağlar arası kanal kesişmesi
-    rap.append('ağlar arası kanal kesişmesi: ' + str(sum(1 for a in (U_ta, U_du, U_eg) for b in (U_ta, U_du, U_eg) if a is not b and a.intersects(b)) // 2))
+    rap.append('ağlar arası kanal kesişmesi: ' + str([(x, y) for x, y, a, b in (('taze', 'duman', U_ta, U_du), ('taze', 'egzoz', U_ta, U_eg), ('duman', 'egzoz', U_du, U_eg))
+                                                     if a.intersection(b).area > 1]) + ' (beklenen: yalnız taze-duman, bilinçli alttan geçiş)')
     # 7) hesap tekrarı
     A = R['A']; V = A * 3.0
     c = dict(qth=math.ceil(V * 4 / 100) * 100, qeg=math.ceil(V * 4 / 100) * 100 * 0.9, qdt=math.ceil(V * 10 / 500) * 500)
