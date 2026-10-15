@@ -1,0 +1,68 @@
+{
+ "proje": "4 × 115 kW MERKEZİ SİSTEM KAZAN DAİRESİ",
+ "deneme": false,
+ "rejim": {
+  "gidis": 90,
+  "donus": 70
+ },
+ "kazan": {
+  "adet": 4,
+  "kapasite_kw": 115,
+  "tip": "Duvar tipi yoğuşmalı, doğalgaz yakıtlı",
+  "pompa": {
+   "ad": "IP-1",
+   "debi": 5.0,
+   "basma": 5.0
+  }
+ },
+ "denge_kabi": {
+  "cap": "Ø300"
+ },
+ "genlesme": {
+  "hacim_l": 500,
+  "on_basinc": 1.5,
+  "maks_bar": 3.0
+ },
+ "emniyet": {
+  "ventil_bar": 3.0,
+  "ventil_cap": "DN40"
+ },
+ "zonlar": [
+  {
+   "ad": "IP-2",
+   "aciklama": "ISITMA DEVRESİ",
+   "debi": 19.8,
+   "basma": 8.0,
+   "yedek": true,
+   "adet": 1
+  }
+ ],
+ "boyler": {
+  "hacim_l": 1000,
+  "tip": "Serpantinli, emaye kaplamalı",
+  "cap": "DN40",
+  "ev_bar": 6.0,
+  "sarj_pompa": {
+   "debi": 6.0,
+   "basma": 5.0
+  }
+ },
+ "sirkulasyon": {
+  "debi": 1.5,
+  "basma": 3.0,
+  "cap": "DN25"
+ },
+ "notralizasyon": true,
+ "baca": {
+  "cap": "Ø250",
+  "tip": "Paslanmaz çelik çift cidarlı"
+ },
+ "dogalgaz": {
+  "vana": true,
+  "filtre": true,
+  "selenoid": true,
+  "alarm": true,
+  "regulator": null
+ },
+ "doldurma": true
+}
