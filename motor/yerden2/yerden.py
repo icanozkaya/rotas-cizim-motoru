@@ -311,30 +311,52 @@ def ayaklari_kur(k, K, odalar, yasak):
             log('UYARI: kat %s D%d: hol yok, ayak çizilmedi' % (k, dno))
             continue
         kb = kombiler.get(dno)
-        yedek = {id(o): (o['H'], o['tasarim'], o.get('ek_eng')) for o in od}
-        n_ek = {}
-        for tur in range(3):
-            D_ = A.Daire(K, dno, od, hol, kb, None, yasak)
-            sonuc = D_.coz()
-            for u in D_.uyari:
-                log('UYARI: kat %s %s' % (k, u))
-            if sonuc is None:
+        import copy
+        yedek = {id(o): (o['H'], copy.deepcopy(o['tasarim']), o.get('ek_eng'), o.get('ayak_sira')) for o in od}
+
+        def geri_yukle():
+            for o in od:
+                o['H'], o['tasarim'], o['ek_eng'], o['ayak_sira'] = (yedek[id(o)][0], copy.deepcopy(yedek[id(o)][1]),
+                                                                     yedek[id(o)][2], yedek[id(o)][3])
+        en = None
+        for ks in range(3):                     # kollektör yeri adayları (tam bağlanan ilk aday)
+            geri_yukle()
+            n_ek = {}
+            for tur in range(3):
+                D_ = A.Daire(K, dno, od, hol, kb, None, yasak, kol_sira=ks)
+                sonuc = D_.coz()
+                if sonuc is None:
+                    break
+                for a in sonuc['ayaklar']:
+                    a['c']['ayak_g'] = a['g'][0]
+                    a['c']['ayak_d'] = a['d'][0]
+                    a['c']['agiz'] = (a['g'][1], a['d'][1])
+                    a['c']['L_serp'] = S.uzunluk(a['c']['pts'])
+                    a['c']['L'] = S.uzunluk(tam_devre(a['c']))
+                asan = [o for o in od if any(c['L'] > A.MAX_L for c in o['tasarim']['devreler'])]
+                if not asan:
+                    break
+                for o in asan:
+                    n_ek[id(o)] = len(o['tasarim']['devreler']) + 1
+                    log('kat %s %s: ayaklarla devre > 80 m -> %d devre' % (k, o['ad'], n_ek[id(o)]))
+                    y = A.yeniden_kur(o, o.get('ek_eng'), o['kapi'], yasak, kapi_zorla=True, n_min=n_ek[id(o)])
+                    if y is not None:
+                        o['H'], o['tasarim'] = y['H'], y['tasarim']
+            n_tum = sum(len(o['tasarim']['devreler']) for o in od)
+            n_bag = sum(1 for o in od for c in o['tasarim']['devreler'] if c.get('ayak_g'))
+            kombi_ok = sonuc is not None and (kb is None or sonuc.get('kombi_hat'))
+            puan = (n_bag - n_tum) * 10 + (0 if kombi_ok else -5) if sonuc is not None else -999
+            if en is None or puan > en[0]:
+                en = (puan, ks, copy.deepcopy([(o['H'], o['tasarim'], o.get('ek_eng')) for o in od]), sonuc,
+                      list(D_.uyari))
+            if puan == 0:
                 break
-            for a in sonuc['ayaklar']:
-                a['c']['ayak_g'] = a['g'][0]
-                a['c']['ayak_d'] = a['d'][0]
-                a['c']['agiz'] = (a['g'][1], a['d'][1])
-                a['c']['L_serp'] = S.uzunluk(a['c']['pts'])
-                a['c']['L'] = S.uzunluk(tam_devre(a['c']))
-            asan = [o for o in od if any(c['L'] > A.MAX_L for c in o['tasarim']['devreler'])]
-            if not asan:
-                break
-            for o in asan:
-                n_ek[id(o)] = len(o['tasarim']['devreler']) + 1
-                log('kat %s %s: ayaklarla devre > 80 m -> %d devre' % (k, o['ad'], n_ek[id(o)]))
-                y = A.yeniden_kur(o, o.get('ek_eng'), o['kapi'], yasak, kapi_zorla=True, n_min=n_ek[id(o)])
-                if y is not None:
-                    o['H'], o['tasarim'] = y['H'], y['tasarim']
+            log('kat %s D%d: kollektör adayı %d eksik (%d/%d), sonraki aday' % (k, dno, ks, n_bag, n_tum))
+        puan, ks, tas, sonuc, uyari = en
+        for o, (H_, t_, e_) in zip(od, tas):
+            o['H'], o['tasarim'], o['ek_eng'] = H_, t_, e_
+        for u in uyari:
+            log('UYARI: kat %s %s' % (k, u))
         out[dno] = sonuc
         n = sum(len(o['tasarim']['devreler']) for o in od)
         na = sum(1 for o in od for c in o['tasarim']['devreler'] if c.get('ayak_g'))
@@ -689,14 +711,23 @@ def etiketle(msp, KT, tum_borular):
     for o in KT['odalar']:
         en_iyi = None
         # iki sıra da denenir: önce eksik etiket, sonra (Ek) en küçük ölçek en büyük olan (yazı h 10'a yakın)
-        for sira in ('mahal_once', 'devre_once'):
-            r = _oda_etiket_yerleri(o, yasak, mim, sira, KT.get('yazi_u'))
-            olc = [k for c_, q_, (rt_, k) in r[1]] + [r[0][1]]
-            r = r + ((r[3], -min(olc), -sum(olc)),)
-            if en_iyi is None or r[4] < en_iyi[4]:
-                en_iyi = r
+        # önce ayak demeti / kombi hattı da yasak (boru maskelenmesin); yer yoksa yalnız eski yasak
+        ay = KT.get('ayak_yasak')
+        for yz in ([yasak.union(ay), yasak] if ay is not None and not ay.is_empty else [yasak]):
+            for sira in ('mahal_once', 'devre_once'):
+                r = _oda_etiket_yerleri(o, yz, mim, sira, KT.get('yazi_u'))
+                olc = [k for c_, q_, (rt_, k) in r[1]] + [r[0][1]]
+                r = r + ((r[3] + (0 if yz is yasak else 0), -min(olc), -sum(olc)),)
+                if en_iyi is None or r[4] < en_iyi[4]:
+                    en_iyi = r
+            if en_iyi is not None and en_iyi[3] == 0 and en_iyi[0][0] is not None:
+                break
         en_iyi = en_iyi[:4]
+        yasak_once = yasak
         (mq, mk), dv, yasak, eksik = en_iyi
+        if ay is not None and not ay.is_empty:
+            kut = [q for c_, q, r_ in dv] + ([mq] if mq is not None else [])
+            yasak = unary_union([yasak_once] + [q.buffer(5) for q in kut])
         if mq is None:
             say['mahal_yok'] += 1
             log('UYARI: mahal etiketi yeri yok: %s' % o['zon'])
@@ -809,9 +840,10 @@ def kollektor_ciz(msp, KT, engel_tum):
         h = 2 * 10 + 10
         hol = next(o for o in od if o['tur'] == 'hol')
         mer = ((p0[0] + p1[0]) / 2 + ic[0] * 45, (p0[1] + p1[1]) / 2 + ic[1] * 45)
-        b = _yazi_yeri(mer, w, h, engel_tum, hol['poly'].buffer(-3))
+        b = _yazi_yeri(mer, w, h, engel_tum, hol['poly'].buffer(-3), adim=5.0, r_max=500.0)
         if b is None:
-            b = _yazi_yeri(mer, w, h, engel_tum, hol['poly'].buffer(150))
+            b = _yazi_yeri(mer, w, h, engel_tum, unary_union([o['poly'] for o in od]).buffer(-3), adim=5.0,
+                           r_max=500.0)
         if b is not None:
             x0, y0, x1, y1 = b.bounds
             _yazi(msp, s1, (x0 + 3, y1 - 12), 10, 41, katman=L_CAP)
@@ -909,6 +941,13 @@ def main(argv=None):
                        and son.get('kombi_hat') for h in (son['kombi_hat']['gidis'], son['kombi_hat']['donus'])])
     for KT in KTS:
         kollektor_ciz(msp, KT, unary_union([tum, KT['yazi_u']]))
+        # etiketler ayak demeti / kombi hattı üstüne (maskeyle boruyu kapatarak) konmasın: önce boş yer aranır
+        ayak_hat = [LineString([p[:2] for p in tam_devre(c)]).difference(S.cizgi(c['pts']).buffer(1))
+                    for o in KT['odalar'] for c in o['tasarim']['devreler'] if c.get('ayak_g')]
+        ayak_hat += [LineString(h) for son in (KT.get('kollektorler') or {}).values() if son and son.get('kombi_hat')
+                     for h in (son['kombi_hat']['gidis'], son['kombi_hat']['donus'])]
+        if ayak_hat:
+            KT['ayak_yasak'] = unary_union([g.buffer(4) for g in ayak_hat if not g.is_empty])
     for KT in KTS:
         KT['mimari'] = mimari_cizgi(KT['K'])
         KT['etiket_sayim'] = etiketle(msp, KT, tum)

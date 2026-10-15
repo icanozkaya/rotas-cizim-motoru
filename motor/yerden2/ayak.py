@@ -333,7 +333,7 @@ def _kenarlar(P):
         yield a, b, L
 
 
-def kollektor_yeri(K, hol, odalar, kapi_polys, n_agiz, kombi, yedek=0):
+def kollektor_yeri(K, hol, odalar, kapi_polys, n_agiz, kombi, yedek=0, sira=0):
     """-> dict(kutu, yuz (2 nokta), ic (birim normal), slotlar [(x, y)], merkez) | None"""
     P = hol['poly']
     gen = 2 * KOL_PAY + RES * (2 * n_agiz - 1)
@@ -345,6 +345,7 @@ def kollektor_yeri(K, hol, odalar, kapi_polys, n_agiz, kombi, yedek=0):
         for c in o['tasarim']['devreler']:
             hedef.append(c['pts'][0][:2])
     best = None
+    adaylar = []
     for a, b, L in _kenarlar(P):
         if L < gen + 10:
             continue
@@ -379,11 +380,17 @@ def kollektor_yeri(K, hol, odalar, kapi_polys, n_agiz, kombi, yedek=0):
             puan = sum(abs(h[0] - cx) + abs(h[1] - cy) for h in hedef)
             if kombi:
                 puan += 0.5 * (abs(kombi[0] - cx) + abs(kombi[1] - cy))
-            if best is None or puan < best[0]:
-                best = (puan, kutu, (k0, k1), (nxv, nyv), (cx, cy), (ux, uy))
+            adaylar.append((puan, kutu, (k0, k1), (nxv, nyv), (cx, cy), (ux, uy)))
             t += 10
-    if best is None:
+    # birbirinden ≥ 120 cm uzak adaylar, puan sırasıyla; sira'ıncısı
+    adaylar.sort(key=lambda q: q[0])
+    secili = []
+    for q in adaylar:
+        if all(math.hypot(q[4][0] - r[4][0], q[4][1] - r[4][1]) >= 120 for r in secili):
+            secili.append(q)
+    if sira >= len(secili):
         return None
+    best = secili[sira]
     _, kutu, yuz, ic, mer, u = best
     d0 = KOL_DERIN + RES          # ağız düğümü duvardan 15
     slotlar = []
@@ -427,7 +434,8 @@ def yeniden_kur(o, ek, kapi, yasak, kapi_zorla=True, hedef_L=None, n_min=None):
 
 # ====================================================================== daire çözümü
 class Daire:
-    def __init__(self, K, dno, odalar, hol, kombi, diger_serp, yasak):
+    def __init__(self, K, dno, odalar, hol, kombi, diger_serp, yasak, kol_sira=0):
+        self.kol_sira = kol_sira
         self.K = K
         self.dno = dno
         self.odalar = odalar            # bu dairenin ısıtılan mahalleri (o dict'leri; o['r'], o['eng'] var)
@@ -538,7 +546,7 @@ class Daire:
         """-> dict(kollektor, kombi_hat, ayaklar) ; mahallerin tasarımlarını yerinde günceller"""
         n = sum(len(o['tasarim']['devreler']) for o in self.odalar)
         hk = self.hol_kapilari()
-        kol = kollektor_yeri(self.K, self.hol, self.odalar, hk, n + 2, self.kombi, YEDEK)    # +kombi +hol; iki yanda yedek
+        kol = kollektor_yeri(self.K, self.hol, self.odalar, hk, n + 2, self.kombi, YEDEK, self.kol_sira)    # +kombi +hol; iki yanda yedek
         if kol is None:
             self.uyari.append('D%d: kollektör yeri bulunamadı' % self.dno)
             return None
@@ -663,6 +671,14 @@ class Daire:
             return False
         if getattr(self, 'kombi_hat', None):
             ka = next((a for a in self.ayaklar if a['c'] is self.kombi_c), None)
+            if ka is None:
+                # son çare: öbürleri sabitken kombi çifti herhangi bir boş ağız çiftine
+                c = self.kombi_c
+                bos = [s_ for s_ in range(len(self.slot_ij)) if s_ not in self.slot_sahip]
+                r = self.cift(c['pts'][0][:2], c['pts'][-1][:2], self.kombi_taban() & ~self.dolu, bos, None, 'y', 'y')
+                if r is not None:
+                    ka = dict(o=self.kombi_o, c=c, g=(r['g'], r['slot'][0]), d=(r['d'], r['slot'][1]), dugum=r['dugum'])
+                    self.uyari = [u for u in self.uyari if 'KOMBİ' not in u]
             if ka is None:
                 self.uyari.append('D%d: kombi hattı kollektöre bağlanamadı' % self.dno)
                 self.kombi_hat = None
@@ -906,6 +922,34 @@ class Daire:
                 self.dolu[q] = True
         return dict(g=ga, d=gb, slot=(sa, sb), dugum=nod)
 
+    def cift_c(self, c, ser_taban, slot_izin, ucuz=None, **kw):
+        """devre için çift yönlendirme; mahal içi kısmı (kapı eşiğine kadar) erişim denetiminde sabitlenmişse
+        hol kısmı eşikten başlar, sonra birleştirilir"""
+        oa = c.get('oda_ayak')
+        if not oa:
+            return self.cift(c['pts'][0][:2], c['pts'][-1][:2], ser_taban, slot_izin, ucuz,
+                             self.uc_yonu(c, True), self.uc_yonu(c, False), **kw)
+        G = self.G
+        ser = ser_taban.copy()
+        for q in oa['dugum']:
+            if 0 <= q[0] < G.nx and 0 <= q[1] < G.ny:
+                ser[q] = False
+        a0, b0 = oa['ga'][-1], oa['gb'][-1]
+        for q in (G.ij(*a0), G.ij(*b0)):
+            ser[q] = True
+        r = self.cift(a0, b0, ser, slot_izin, ucuz, oa['yon_a'], oa['yon_b'], **kw)
+        if r is None:
+            return None
+        r = dict(r)
+        r['g'] = sade(oa['ga'][:-1] + r['g'])
+        r['d'] = sade(oa['gb'][:-1] + r['d'])
+        r['dugum'] = list(r['dugum']) + [q for q in oa['dugum'] if 0 <= q[0] < G.nx and 0 <= q[1] < G.ny]
+        if kw.get('isaretle', True):
+            for q in oa['dugum']:
+                if 0 <= q[0] < G.nx and 0 <= q[1] < G.ny:
+                    self.dolu[q] = True
+        return r
+
     def _uc_bag(self, E, p, yon):
         """uç E -> ızgara noktası p: dik köşe (uç doğrultusunda önce)"""
         if abs(p[0] - E[0]) < 0.3 or abs(p[1] - E[1]) < 0.3:
@@ -954,16 +998,49 @@ class Daire:
         sl = list(self.kombi_slot)
         ucuz = np.zeros_like(serb)
         for o in transit:
-            ucuz |= G.maske(o['poly'].difference(o['H'].buffer(-5)))
+            # tezgâh / dolap altı (ısıtılmayan tefriş) ucuz: kombi hattı mutfağı tezgâh boyunca geçer
+            if o.get('eng') is not None and not o['eng'].is_empty:
+                ucuz |= G.maske(o['eng'].buffer(12).intersection(o['poly']))
         i0, j0 = G.ij(kx, ky)
         E0, E1 = G.xy(i0 + 1, j0), G.xy(i0 - 1, j0)
         for e in (E0, E1):
             serb[G.ij(*e)] = True
-        r = self.cift(E0, E1, serb, sl, ucuz, 'y', 'y')
-        if r is None:
-            r = self.cift(E1, E0, serb, sl, ucuz, 'y', 'y')
+        # kapı / geçiş eşiğinin mutfak devresi uçlarına yakın yarısı kombi hattına kapalı (mutfak devresi
+        # kapıdan o yarıdan çıkar; kombi öbür yarıdan geçer)
+        ceza = None
+        serb_tum = serb.copy()
+        for o in transit:
+            kp = self.kapi_poly(o)
+            uc = [c['pts'][k][:2] for c in o['tasarim']['devreler'] for k in (0, -1)]
+            if kp is None or not uc:
+                continue
+            es = self.esik(kp, o)
+            x0, y0, x1, y1 = es.bounds
+            mx = sum(u[0] for u in uc) / len(uc)
+            my = sum(u[1] for u in uc) / len(uc)
+            kx0, ky0, kx1, ky1 = kp.bounds
+            dikey_uzanti = (y1 - y0) > (ky1 - ky0) + 10       # eşik hol tarafına dikey uzanıyorsa duvar yatay
+            if dikey_uzanti or ((x1 - x0) >= (y1 - y0) and not (x1 - x0) > (kx1 - kx0) + 10):
+                # kombi uçların geniş kalan tarafından geçer (uçlardan 12 cm öte); öbür taraf kapalı
+                if kx < mx:                                   # kombi solda: sol taraftan geçer
+                    yarim = box(mx - 12, y0 - 60, x1 + 30, y1 + 60)
+                else:
+                    yarim = box(x0 - 30, y0 - 60, mx + 12, y1 + 60)
+            else:
+                if ky < my:
+                    yarim = box(x0 - 60, my - 12, x1 + 60, y1 + 30)
+                else:
+                    yarim = box(x0 - 60, y0 - 30, x1 + 60, my + 12)
+            serb &= ~G.maske(yarim.intersection(es.buffer(6, join_style=2)))
+        r = None
+        for sb in (serb, serb_tum):
+            r = self.cift(E0, E1, sb, sl, ucuz, 'y', 'y', ceza=ceza)
+            if r is None:
+                r = self.cift(E1, E0, sb, sl, ucuz, 'y', 'y', ceza=ceza)
+                if r is not None:
+                    r = dict(g=r['d'], d=r['g'], slot=r['slot'][::-1], dugum=r['dugum'])
             if r is not None:
-                r = dict(g=r['d'], d=r['g'], slot=r['slot'][::-1])
+                break
         if r is None:
             self.uyari.append('D%d: kombi hattı kurulamadı' % self.dno)
             return None
@@ -975,7 +1052,20 @@ class Daire:
             if not hg.intersects(o['poly']):
                 continue
             ek = hg.buffer(4, cap_style=2).intersection(o['poly'])
-            y = yeniden_kur(o, ek, o['kapi'], self.yasak, kapi_zorla=True)
+            # mutfak devresinin uçları kapının kombi hattından uzak ucunda (kombi kapının öbür yanından geçer)
+            kapi_m = o['kapi']
+            kp = self.kapi_poly(o)
+            if kp is not None:
+                es = self.esik(kp, o)
+                kes = hg.intersection(es)
+                if not kes.is_empty:
+                    kc = kes.centroid
+                    ex0, ey0, ex1, ey1 = es.bounds
+                    adaylar = [(ex0 + 15, (ey0 + ey1) / 2), (ex1 - 15, (ey0 + ey1) / 2),
+                               ((ex0 + ex1) / 2, ey0 + 15), ((ex0 + ex1) / 2, ey1 - 15)]
+                    kapi_m = max(adaylar, key=lambda q: math.hypot(q[0] - kc.x, q[1] - kc.y))
+                    kapi_m = (Point(kapi_m).buffer(1).centroid.x, Point(kapi_m).buffer(1).centroid.y)
+            y = yeniden_kur(o, ek, kapi_m, self.yasak, kapi_zorla=True)
             if y is None:
                 self.uyari.append('D%d: %s kombi hattı dışında kurulamadı' % (self.dno, o.get('zon', o['ad'])))
                 continue
@@ -1043,13 +1133,14 @@ class Daire:
             kap = set(tuple(p) for p in np.argwhere(G.maske(es) & taban & ~G.maske(o['poly'].buffer(-2))))
         if not kap:
             return False
-        for sira in (devs, devs[::-1]):
+        denemeler = [(sira, ys) for sira in (devs, devs[::-1]) for ys in ((None, 1, -1) if len(devs) > 1 else (None,))]
+        for sira, ys in denemeler:
             kul = np.zeros_like(taban)
             tamam = True
             for c in sira:
                 mm = ser_c[id(c)] & ~kul
                 r = self.cift_yol(c['pts'][0][:2], c['pts'][-1][:2], mm, kap, None, None,
-                                  self.uc_yonu(c, True), self.uc_yonu(c, False))
+                                  self.uc_yonu(c, True), self.uc_yonu(c, False), yasla=ys)
                 if r is None:
                     tamam = False
                     break
@@ -1059,8 +1150,6 @@ class Daire:
             if tamam:
                 o['ayak_sira'] = [id(c) for c in sira]       # kapıdan ilk girilmesi gereken devre önce
                 return True
-            if len(devs) == 1:
-                break
         return False
 
     def besleme_kirp(self, o, t=15.0):
@@ -1190,8 +1279,8 @@ class Daire:
             takas = set()
             while i < len(sira0):
                 o, c = sira0[i]
-                r = self.cift(c['pts'][0][:2], c['pts'][-1][:2], taban[id(c)], izin(c), None,
-                              self.uc_yonu(c, True), self.uc_yonu(c, False), yasla=self.yasla)
+                r = self.cift_c(c, taban[id(c)], izin(c), None,
+                              yasla=self.yasla)
                 if r is None:
                     # aynı mahalin bir önceki devresiyle sıra (ve ağız çifti) takası
                     if i > 0 and sira0[i - 1][0] is o and (id(c), i) not in takas:
@@ -1248,16 +1337,16 @@ class Daire:
                 yan[:, :-1] |= dol[:, 1:]
                 yan &= ~dol
                 self.slot_sahip = dict(sahip0)
-                r = self.cift(c['pts'][0][:2], c['pts'][-1][:2], taban[k], izin(c), None,
-                              self.uc_yonu(c, True), self.uc_yonu(c, False), ceza=ceza, isaretle=False)
+                r = self.cift_c(c, taban[k], izin(c), None,
+                              ceza=ceza, isaretle=False)
                 if r is None:
                     if DEBUG and o is self.hol:
                         m_ = taban[k]
                         log('hol çift yok: uç düğüm', len(self.uc_dugumleri(c['pts'][0][:2], m_)), len(self.uc_dugumleri(c['pts'][-1][:2], m_)),
                             'izin', izin(c)[:6], 'sahip', {k_: v for k_, v in self.slot_sahip.items() if isinstance(v, str)})
                     if DEBUG:
-                        r0 = self.cift(c['pts'][0][:2], c['pts'][-1][:2], taban[k], range(len(self.slot_ij)), None,
-                                       self.uc_yonu(c, True), self.uc_yonu(c, False), isaretle=False)
+                        r0 = self.cift_c(c, taban[k], range(len(self.slot_ij)), None,
+                                       isaretle=False)
                         log('yol yok', o.get('zon', o['ad']), tur, 'cezasız:', r0 is not None)
                     continue
                 r['o'], r['c'] = o, c
@@ -1301,8 +1390,7 @@ class Daire:
             for o, c in devs:
                 if id(c) in rota:
                     continue
-                r = self.cift(c['pts'][0][:2], c['pts'][-1][:2], taban[id(c)], list(range(len(self.slot_ij))), None,
-                              self.uc_yonu(c, True), self.uc_yonu(c, False))
+                r = self.cift_c(c, taban[id(c)], list(range(len(self.slot_ij))), None)
                 if r is None:
                     self.uyari.append('D%d %s: devre ayağı kollektöre bağlanamadı' % (self.dno, o.get('zon', o['ad'])))
                     continue
@@ -1336,8 +1424,8 @@ class Daire:
                     self.dolu[q] = False
                 for s_ in r['slot']:
                     self.slot_sahip.pop(s_, None)
-                r2 = self.cift(c['pts'][0][:2], c['pts'][-1][:2], taban[k], izin(c), None,
-                               self.uc_yonu(c, True), self.uc_yonu(c, False), isaretle=False, donus=DONUS_TEMIZ)
+                r2 = self.cift_c(c, taban[k], izin(c), None,
+                               isaretle=False, donus=DONUS_TEMIZ)
                 if r2 is not None and r2['dugum'] != r['dugum']:
                     r2['o'], r2['c'] = o, c
                     rota[k] = r = r2
@@ -1359,8 +1447,7 @@ class Daire:
         if ser_ek is not None:
             ser_t &= ser_ek
         izin = list(range(len(self.slot_ij))) if slot_izin is None else slot_izin
-        E0, E1 = c['pts'][0], c['pts'][-1]
-        r = self.cift(E0[:2], E1[:2], ser_t, izin, None, self.uc_yonu(c, True), self.uc_yonu(c, False))
+        r = self.cift_c(c, ser_t, izin, None)
         if r is None:
             return None
         for s in r['slot']:
