@@ -37,7 +37,7 @@ import denetle as D  # noqa: E402
 M = MY.M2.M
 if sys.path[0] != BURASI:
     sys.path.insert(0, BURASI)
-CIKIS = KOK + '/proje/denemeler/yerden2'
+CIKIS = os.environ.get('YI_CIKIS') or (KOK + '/proje/denemeler/yerden2')
 CIKIS_DXF = CIKIS + '/NB_YERDEN_ISITMA.dxf'
 CIKIS_JSON = CIKIS + '/NB_YERDEN_ISITMA_model.json'
 MIMARI_DXF = M.MIMARI
@@ -231,8 +231,17 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
                            alan_mimari=am, r=r,
                            esik=(ISLAK_ORAN * (am or r['area']) + ISLAK_PAYI) * 100.0 if tur == 'banyo' else None,
                            poly=r['poly'], H=H, eng=eng, xy=r['xy'], kapi=kapi, tasarim=d))
+    if HOL_YOK:                      # kullanıcı 15.10 (E): holde yerden ısıtma yok (ayaklar holden geçer)
+        for o in odalar:
+            if o['tur'] == 'hol':
+                o['tasarim'] = dict(o['tasarim'], devreler=[])
     # 15.10 (D): planda kollektör + kombi + devre ayakları (ayak.py); serpantinler gerekirse yeniden kurulur
     kol = ayaklari_kur(k, K, odalar, yasak) if AYAKLAR else {}
+    holler = []
+    if HOL_YOK:
+        holler = [o for o in odalar if o['tur'] == 'hol']
+        odalar = [o for o in odalar if o['tur'] != 'hol']
+        isitmasiz += [dict(ad=o['ad'], poly=o['poly'], tur='hol') for o in holler]
     # numaralama: daire sırası, tür sırası, konum (yukarıdan aşağı, soldan sağa)
     odalar.sort(key=lambda o: (o['daire'], TUR_SIRA[o['tur']], -round(o['xy'][1] / 50), o['xy'][0]))
     for i, o in enumerate(odalar):
@@ -251,10 +260,12 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
         for j, c in devs:
             devre_no += 1
             c['no'] = devre_no
-    return dict(kat=k, K=K, odalar=odalar, isitmasiz=isitmasiz, yasak=yasak, yazi=yaz, kollektorler=kol,
+    return dict(kat=k, K=K, odalar=odalar, isitmasiz=isitmasiz, yasak=yasak, yazi=yaz, kollektorler=kol, holler=holler,
                 yazi_u=unary_union(yaz) if yaz else Polygon())
 
 
+HOL_YOK = bool(os.environ.get('YI_HOL_YOK'))      # 15.10 (E): holler ısıtılmaz
+ISI_KAYBI = bool(os.environ.get('YI_ISI_KAYBI'))  # 15.10 (E): devre gücü mahal ısı kaybından
 AYAKLAR = True             # 15.10 (D): planda kollektör bağlantıları zorunlu
 # (kollektör sırası, hol modu: 'iki' iki yönlü demet / True sahte hol ucu / False, kombi hattı, yay sırası)
 # (kollektör sırası, hol modu: True sahte hol ucu / False / 'iki' iki yönlü demet, kombi hattı, yay sırası,
@@ -336,7 +347,7 @@ def ayaklari_kur(k, K, odalar, yasak):
             hol_ok = bool(hol['tasarim']['devreler'])
             hol_L = sum(S.uzunluk(c['pts']) for c in hol['tasarim']['devreler']) / 100.0
             # tam bağlantı önce; eşitlikte hol serpantini uzun olan (hol borusuz cebi küçük)
-            puan = ((n_bag - n_tum) * 10 + (0 if kombi_ok else -5) + (0 if hol_ok else -3) + min(hol_L, 40.0) / 50.0) \
+            puan = ((n_bag - n_tum) * 10 + (0 if kombi_ok else -5) + (0 if (hol_ok or HOL_YOK) else -3) + min(hol_L, 40.0) / 50.0) \
                 if sonuc is not None else -999
             if en is None or puan > en[0]:
                 en = (puan, ks, copy.deepcopy([(o['H'], o['tasarim'], o.get('ek_eng')) for o in od]), sonuc,
@@ -887,7 +898,7 @@ def kollektor_ciz(msp, KT, engel_tum):
         s2 = '%.1fW-%%%%C32' % W
         w = max(len(s1), len(s2) - 2) * 10 * 0.65 * 0.95 + 6
         h = 2 * 10 + 10
-        hol = next(o for o in od if o['tur'] == 'hol')
+        hol = next(o for o in od + [h for h in KT.get('holler', []) if h['daire'] == dno] if o['tur'] == 'hol')
         mer = ((p0[0] + p1[0]) / 2 + ic[0] * 45, (p0[1] + p1[1]) / 2 + ic[1] * 45)
         alan_h = hol['poly'].buffer(-3)
         b = _yazi_yeri(mer, w, h, engel_tum, alan_h, adim=5.0, r_max=500.0)
@@ -952,6 +963,7 @@ def model_yaz(KTS):
                 'zon': o['zon'], 'ad': o['ad'], 'tur': o['tur'], 'sic': o['sic'], 'alan_m2': o['alan'],
                 'alan_mimari_m2': o['alan_mimari'],
                 'isitma_alani_m2': round(o['H'].area / 1e4, 2), 'kose': o['tasarim']['kose'],
+                'isi_kaybi': o.get('isi_kaybi'),
                 'bbox': [round(v, 1) for v in o['poly'].bounds],
                 'devreler': [{'no': c['no'], 'L_m': c['L_m'], 'W': c['W'],
                               'L_ayak_m': round((S.uzunluk(tam_devre(c)) - S.uzunluk(c['pts'])) / 100.0, 2), 'etiket': {'cep': 'cep', 'ic': 'maskeli', 'bos': 'bos'}.get(c.get('etiket_yer'), 'yok')} for c in o['tasarim']['devreler']]})
@@ -993,7 +1005,7 @@ def main(argv=None):
     kutular = mimari_kopyala(doc)
     KTS = []
     onb = os.environ.get('YI_ONBELLEK')          # geliştirme: 'yaz' tasarımı saklar, 'oku' saklananı kullanır
-    onb_yol = '/tmp/claude-0/y2/KTS.pkl'
+    onb_yol = os.environ.get('YI_ONBELLEK_YOL') or '/tmp/claude-0/y2/KTS.pkl'
     if onb == 'oku' and os.path.exists(onb_yol):
         import pickle
         KTS = pickle.load(open(onb_yol, 'rb'))
@@ -1007,6 +1019,15 @@ def main(argv=None):
         if onb == 'yaz':
             import pickle
             pickle.dump(KTS, open(onb_yol, 'wb'))
+    if ISI_KAYBI:                    # 15.10 (E): devre gücü = mahal ısı kaybı × devre boyu / mahal boru boyu
+        import isi_kaybi as IK
+        for KT in KTS:
+            k = KT['kat']
+            IK.hesapla(KT['K'], KT['odalar'], ust_kat=(k == KATLAR[-1]), zemin_kat=(k == KATLAR[0]))
+            for o in KT['odalar']:
+                Lt = sum(c['L_m'] for c in o['tasarim']['devreler'])
+                for c in o['tasarim']['devreler']:
+                    c['W'] = round(o['isi_kaybi']['Q'] * c['L_m'] / Lt, 1) if Lt > 0 else 0.0
     if a.ayaklar:
         log('UYARI: --ayaklar henüz uygulanmadı (kullanıcının çiziminde planda ayak yok); yalnız şemada gösterilir')
     for KT in KTS:
@@ -1034,7 +1055,7 @@ def main(argv=None):
     doc.saveas(CIKIS_DXF)
     log('DXF: %s (%.1f s)' % (CIKIS_DXF, time.time() - t0))
     import excel_yi
-    excel_yi.yaz(model)
+    excel_yi.yaz(model, CIKIS_DXF[:-4] + '.xlsx')
     import yi_kontrol
     sonuc = yi_kontrol.calistir(KTS, CIKIS_DXF)
     if a.png:

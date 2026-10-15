@@ -157,7 +157,7 @@ def lejant(msp, x, y):
         yy -= 35
     msp.add_blockref('ROTAS-YI-ETIKET', (x, yy + 10), dxfattribs={'layer': 'ROTAS-ISITMA-ETIKET'}).add_auto_attribs(
         {'UZ': '00.00 m', 'AR': '15.0', 'YER': '0000.0 W', 'NO1': 'n'})
-    _t(msp, 'DEVRE ETİKETİ (hat uzunluğu, boru aralığı, ısıl güç = 35 W/m × L, devre no)', (x + 170, yy - 30), 12, 7, L)
+    _t(msp, 'DEVRE ETİKETİ (hat uzunluğu, boru aralığı, ısıl güç, devre no)', (x + 170, yy - 30), 12, 7, L)
     yy -= 130
     msp.add_blockref('ROTAS-YI-MAHAL', (x + 40, yy), dxfattribs={'layer': 'ROTAS-ISITMA-MAHAL-ETIKET'}).add_auto_attribs(
         {'DERECE': '20%%DC', 'NO': 'Z01'})
@@ -167,13 +167,17 @@ def lejant(msp, x, y):
 def notlar(msp, x, y, model):
     L = 'ROTAS-NOT'
     _t(msp, 'NOTLAR', (x, y), 25, 7, L, gen=0.8)
+    import os as _os
+    _hy, _ik = _os.environ.get('YI_HOL_YOK'), _os.environ.get('YI_ISI_KAYBI')
     s = [
         '1- Yerden ısıtma borusu PEX 16 x 2,0 (oksijen bariyerli), boru aralığı 15 cm, kenar mesafesi 7,5 cm.',
         '2- Her devre tek parça boru (ek yok), devre boyu en çok 80 m; 14 m² ve üstü mahaller 2 devre.',
-        '3- Oda / salon / mutfak 20°C, antre-koridor 15°C, banyo 24°C. Balkon, yüklük, wc-lavabo, duş ve 2,7 m²',
+        ('3- Oda / salon / mutfak 20°C, banyo 24°C. Antre-koridor (hol) yerden ısıtılmaz. Balkon, yüklük, wc-lavabo, duş ve 2,7 m²'
+         if _hy else '3- Oda / salon / mutfak 20°C, antre-koridor 15°C, banyo 24°C. Balkon, yüklük, wc-lavabo, duş ve 2,7 m²'),
         '   altındaki wc-duş, merdiven, asansör ve ortak alanlar ısıtılmaz; mutfak tezgâhı, buzdolabı, klozet, lavabo ve',
         '   duş teknesi altına boru döşenmez.',
-        '4- Devre ısıl gücü = 35 W/m × hat uzunluğu (plan etiketi, kolon şeması ve hesap tablosunda aynı esas).',
+        ('4- Devre ısıl gücü = mahal ısı kaybı × devre boyu / mahal boru boyu (ısı kaybı hesabı, kat yüksekliği 3,00 m).'
+         if _ik else '4- Devre ısıl gücü = 35 W/m × hat uzunluğu (plan etiketi, kolon şeması ve hesap tablosunda aynı esas).'),
         '5- Kollektörler daire holünde (dolap); kombi–kollektör gidiş/dönüş hattı ve devre ayakları planda, ağız sırası şemada.',
     ]
     yy = y - 45

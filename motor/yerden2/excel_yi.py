@@ -57,6 +57,147 @@ def dp_devre(W, L_m, dT=10.0):
 YUZEY = []
 
 
+def birim(m):
+    """mahal birim verimi W/m: ısı kaybı varsa Q / ΣL, yoksa 35 W/m (R6)"""
+    L = sum(c['L_m'] for c in m['devreler'])
+    if m.get('isi_kaybi') and L > 0:
+        return m['isi_kaybi']['Q'] / L
+    return BIRIM
+
+
+def _teknik_ik(ws):
+    import isi_kaybi as IK
+    ws['F25'] = ': yerden ısıtma yok (hesapta 15°C)'
+    ws['F31'] = ': antre-koridor (hol), balkon, yüklük, wc-lavabo / duş (≤ 2,7 m²), merdiven, asansör'
+    for rr in range(33, 70):
+        for cc in range(1, 15):
+            ws.cell(rr, cc).value = None
+    ws['A33'] = '1.3.'
+    ws['B33'] = 'Isı Kaybı Hesabı Esasları:'
+    sat = ['Dış hava sıcaklığı : %.0f °C (Sakarya / Adapazarı, TS 825 2. bölge)' % IK.T_DIS,
+           'Kat yüksekliği : %.2f m (duvar alanları bu yükseklikle hesaplanmıştır)' % IK.KAT_H,
+           'Isı geçirme katsayıları (W/m²K) : dış duvar %.3f, pencere / balkon kapısı %.2f, toprağa oturan döşeme %.3f, '
+           'çatı arası tavanı %.2f, iç duvar %.3f' % (IK.U['DD'], IK.U['ÇP'], IK.U['Dö'], IK.U['Ta'], IK.U['İD']),
+           'Komşu hacim sıcaklıkları : merdiven / asansör %.0f °C, daire holü %.0f °C (holde yerden ısıtma yoktur), '
+           'toprak %.0f °C' % (IK.T_ORTAK, IK.T_HOL, IK.T_TOPRAK),
+           'Zamlar : işletme %%%d, yön K +%%5 / G -%%5 / D-B 0; sızıntı Qs = a·Σl·R·H·ΔT·Ze (a 2, R 0,9, H 0,67, Ze 1,2)' % IK.ZD,
+           'Pencere ve balkon kapısı ölçüleri mimari plandaki ölçü yazılarından (genişlik / yükseklik) alınmıştır.',
+           'Yerden ısıtma devre gücü : mahal ısı kaybı, mahaldeki devrelere boru boyu oranında dağıtılmıştır '
+           '(plan etiketi, kolon şeması ve bu hesap aynıdır).',
+           'Boru PEX 16 x 2,0, boru aralığı 15 cm, devre boyu en çok 80 m; holler (antre-koridor) yerden ısıtılmaz.',
+           'Döşeme yüzey sıcaklığı kontrolü MMO sayfalarındadır (sınır: oturma 29 °C, banyo 33 °C).']
+    for i, t in enumerate(sat):
+        ws['B%d' % (35 + i)] = t
+
+
+def isi_kaybi_sayfalari(wb, tpl, katlar, mahaller):
+    """kullanıcının ZEMİN ısı kaybı sayfası biçiminde (aynı sütunlar ve formüller) kat başına bir sayfa.
+    -> {(kat, zon): "'SAYFA'!Q<toplam satırı>"}"""
+    src = wb['ZEMİN']
+    T = tpl['ZEMİN']
+    st_bas = [T.cell(8, c) for c in range(1, 18)]
+    st_sat = [T.cell(9, c) for c in range(1, 18)]
+    st_top = [T.cell(29, c) for c in range(1, 18)]
+    st_qs0 = [T.cell(30, c) for c in range(1, 18)]
+    st_qs = [T.cell(31, c) for c in range(1, 18)]
+    st_t = [T.cell(32, c) for c in range(1, 18)]
+    ref = {}
+    for kat in katlar:
+        ws = wb.copy_worksheet(src)
+        ws.title = ('ISI KAYBI %s' % kat['ad'])[:31]
+        for rng in list(ws.merged_cells.ranges):
+            if rng.min_row >= 8:
+                ws.unmerge_cells(str(rng))
+        for r in range(8, ws.max_row + 1):
+            for c in range(1, 18):
+                ws.cell(r, c).value = None
+        ws['O1'] = kat['ad']
+        ws['H2'] = '=kapak!C31'
+        ws['Q1'] = '=kapak!G41'
+        r = 8
+        genel = []
+        for k2, dno, m in mahaller:
+            if k2 is not kat or not m.get('isi_kaybi'):
+                continue
+            ik = m['isi_kaybi']
+            for c in range(1, 18):
+                stil(st_bas[c - 1], ws.cell(r, c))
+            ws['F%d' % r] = m['zon']
+            ws['I%d' % r] = '%s %s' % (dno, m['ad'].upper())
+            ws['K%d' % r] = '%dºC' % m['sic']
+            r += 1
+            r0 = r
+            satir_no = {}
+            for i, s in enumerate(ik['satirlar']):
+                satir_no[i] = r0 + i
+            pen_rows = []
+            for i, s in enumerate(ik['satirlar']):
+                rr = satir_no[i]
+                for c in range(1, 18):
+                    stil(st_sat[c - 1], ws.cell(rr, c))
+                isaret = {'BK': 'BK', 'Ta': 'Ta'}.get(s[0], s[0])
+                ws['A%d' % rr] = isaret
+                ws['B%d' % rr] = s[1] or None
+                ws['D%d' % rr] = s[2]
+                ws['E%d' % rr] = s[3]
+                ws['F%d' % rr] = '=IF(D{0}=0," ",D{0}*E{0})'.format(rr)
+                ws['G%d' % rr] = s[4]
+                if s[8]:
+                    ws['H%d' % rr] = '=' + '+'.join('F{0}*G{0}'.format(satir_no[j]) for j in s[8])
+                ws['I%d' % rr] = '=IF(F{0}=" "," ",F{0}*G{0}-H{0})'.format(rr)
+                ws['J%d' % rr] = s[5]
+                ws['K%d' % rr] = round(s[6], 1)
+                ws['L%d' % rr] = '=IF(I{0}=" "," ",I{0}*J{0}*K{0})'.format(rr)
+                ws['M%d' % rr] = 7
+                ws['N%d' % rr] = 0
+                ws['O%d' % rr] = s[7]
+                ws['P%d' % rr] = '=IF(M{0}=" "," ",(1+(M{0}+N{0}+O{0})/100))'.format(rr)
+                ws['Q%d' % rr] = '=IF(L{0}=" "," ",L{0}*P{0})'.format(rr)
+                if s[0] in ('ÇP', 'BK'):
+                    pen_rows.append(rr)
+            r = r0 + len(ik['satirlar'])
+            for c in range(1, 18):
+                stil(st_top[c - 1], ws.cell(r, c))
+            ws['Q%d' % r] = '=SUM(Q%d:Q%d)' % (r0, r - 1)
+            rs = r
+            r += 1
+            for c in range(1, 18):
+                stil(st_qs0[c - 1], ws.cell(r, c))
+            for col, t in zip('JKLMNOP', ('Qs=', 'a', 'L', 'R', 'H', 'D  T', 'Ze')):
+                ws['%s%d' % (col, r)] = t
+            r += 1
+            for c in range(1, 18):
+                stil(st_qs[c - 1], ws.cell(r, c))
+            ws['J%d' % r] = 'Qs  ='
+            ws['K%d' % r] = 2
+            ws['L%d' % r] = ('=' + '+'.join('(D{0}+E{0})*2*G{0}'.format(x) for x in pen_rows)) if pen_rows else 0
+            ws['M%d' % r] = 0.9
+            ws['N%d' % r] = 0.67
+            ws['O%d' % r] = round(ik['dT'], 1)
+            ws['P%d' % r] = 1.2
+            ws['Q%d' % r] = '=K{0}*L{0}*M{0}*N{0}*O{0}*P{0}'.format(r)
+            rq = r
+            r += 1
+            for c in range(1, 18):
+                stil(st_t[c - 1], ws.cell(r, c))
+            ws['M%d' % r] = '   TOPLAM ISI KAYBI ='
+            ws['Q%d' % r] = '=Q%d+Q%d' % (rs, rq)
+            ref[(kat['kat'], m['zon'])] = "'%s'!Q%d" % (ws.title, r)
+            genel.append(r)
+            r += 2
+        ws['M%d' % r] = '%s TOPLAM =' % kat['ad']
+        ws['Q%d' % r] = '=' + '+'.join('Q%d' % x for x in genel) if genel else 0
+        ws['Q%d' % r].number_format = '0'
+        ws.print_area = 'A1:Q%d' % r
+        ws.print_title_rows = '1:7'
+        ws.page_setup.orientation = 'landscape'
+        ws.page_setup.paperSize = 9
+        ws.page_setup.fitToWidth = 1
+        ws.page_setup.fitToHeight = 0
+        ws.sheet_properties.pageSetUpPr.fitToPage = True
+    return ref
+
+
 def yaz(model, cikis=CIKIS):
     shutil.copyfile(SABLON, cikis)
     YUZEY.clear()
@@ -129,9 +270,16 @@ def yaz(model, cikis=CIKIS):
                  'kaybı Δpmax üstünde çıkar (sayfadaki uyarı satırları).')
     ws['B47'] = ('Devre gücü esası (35 W/m × L, plan etiketleriyle aynı) proje sahibinin kararına bırakılmıştır; '
                  '17,5 W/m ya da ısı kaybı esasına geçilirse bu değerler olağan aralığa döner.')
+    ik_ref = isi_kaybi_sayfalari(wb, tpl, katlar, mahaller) if any(m.get('isi_kaybi') for _, _, m in mahaller) else {}
+    if ik_ref:
+        _teknik_ik(wb['TEKNİK RAPOR'])
     for nm in ('ZEMİN', '1 NK', 'TEKNİK RAPOR (2)'):
         if nm in wb.sheetnames:
             del wb[nm]
+    for i, nm in enumerate([n for n in wb.sheetnames if n.startswith('ISI KAYBI')]):
+        sh = wb[nm]
+        wb._sheets.remove(sh)
+        wb._sheets.insert(2 + i, sh)
     # ---------------- PETEK LİST
     ws = wb['PETEK LİST']
     temizle(ws, 10, 200, 16)
@@ -148,10 +296,13 @@ def yaz(model, cikis=CIKIS):
             if k2 is not kat:
                 continue
             L = sum(c['L_m'] for c in m['devreler'])
-            W = BIRIM * L
+            W = birim(m) * L
             v = {'A': m['zon'], 'B': '%s %s' % (dno, m['ad'].upper()), 'C': str(m['sic']), 'D': round(W, 1),
                  'E': BIRIM, 'F': "='YERDEN ISITMA'!N%d" % r, 'G': round(L, 2), 'H': len(m['devreler']),
                  'I': 'ZEMİNDEN ISITMA'}
+            if (kat['kat'], m['zon']) in ik_ref:
+                v['D'] = '=' + ik_ref[(kat['kat'], m['zon'])]
+                v['E'] = '=ROUND(D%d/G%d,2)' % (r, r)
             for c in range(1, 17):
                 stil(t_s[c - 1], ws.cell(r, c))
             for col, val in v.items():
@@ -167,7 +318,7 @@ def yaz(model, cikis=CIKIS):
         ws['G%d' % r] = 'watt'
         r += 1
     ws.print_area = 'A1:P%d' % r
-    ws['D6'] = 'ISIL GÜÇ\n35 W/m × L'
+    ws['D6'] = 'ISI KAYBI\nQh (W)' if ik_ref else 'ISIL GÜÇ\n35 W/m × L'
     ws['E6'] = 'BİRİM \nVERİMİ'
     ws['D9'] = 'W'
     ws['E9'] = 'W/m'
@@ -183,13 +334,14 @@ def yaz(model, cikis=CIKIS):
         v = {'A': "='PETEK LİST'!A%d" % rr, 'B': "='PETEK LİST'!B%d" % rr, 'C': "='PETEK LİST'!C%d" % rr,
              'D': "='PETEK LİST'!D%d" % rr, 'E': m.get('alan_mimari_m2') or m['alan_m2'], 'F': '=D%d/E%d' % (rr, rr),
              'G': '=76.263-0.539*F%d' % rr, 'H': '=D%d/G%d' % (rr, rr), 'I': 15, 'J': "='PETEK LİST'!G%d" % rr,
-             'K': '=J%d/80' % rr, 'L': '=CEILING(K%d,1)' % rr, 'M': BIRIM, 'N': '=J%d*M%d' % (rr, rr)}
+             'K': '=J%d/80' % rr, 'L': '=CEILING(K%d,1)' % rr, 'M': ("='PETEK LİST'!E%d" % rr) if ik_ref else BIRIM,
+             'N': '=J%d*M%d' % (rr, rr)}
         for c in range(1, 15):
             stil(t_s[c - 1], ws.cell(rr, c))
         for col, val in v.items():
             ws[col + str(rr)] = val
     ws.print_area = 'A1:N%d' % (max(satir.values()) + 2)
-    ws['D8'] = 'Mahal ısı ihtiyacı Q (boru boyundan: 35 W/m × L)'
+    ws['D8'] = 'Mahal ısı ihtiyacı Q (ısı kaybı hesabından)' if ik_ref else 'Mahal ısı ihtiyacı Q (boru boyundan: 35 W/m × L)'
     ws['M9'] = 'W/m'
     # ---------------- MMO: kat başına bir sayfa
     adlar = ['MMO YERDEN ISITMA', 'YERDEN ISITMA- DEVAMI']
@@ -222,7 +374,7 @@ def yaz(model, cikis=CIKIS):
         maxdp = 0.0
         for dno, m, c, A in allc:
             C = CL(col)
-            Wc = BIRIM * c['L_m']
+            Wc = birim(m) * c['L_m']
             debi, R, dps = dp_devre(Wc, c['L_m'])
             maxdp = max(maxdp, dps * 1.05)
             v = {7: c['no'], 8: m['zon'], 9: '%s %s' % (dno, m['ad']), 10: m['sic'],
@@ -241,7 +393,7 @@ def yaz(model, cikis=CIKIS):
         for C in cols:
             stil(tpl_col[34], ws[C + '35'])
             ws[C + '35'] = '=MAX(%s34:%s34)-%s34' % (cols[0], cols[-1], C)
-        ws['E2'] = 'TOPLAM ISI = %.0f W' % sum(BIRIM * c['L_m'] for _, _, c, _ in allc)
+        ws['E2'] = 'TOPLAM ISI = %.0f W' % sum(birim(m) * c['L_m'] for _, m, c, _ in allc)
         ws['E3'] = 'MAX. BASINÇ KAYBI = %.0f Pa' % maxdp
         ws['C30'] = 'BAĞLANTI BORULARI'
         ws['D30'] = 'Kollektör ayakları planda çizilmedi (0)'
@@ -256,12 +408,17 @@ def yaz(model, cikis=CIKIS):
                      'aynı esas); ayrı ısı kaybı hesabı yapılmamıştır.')
         ws['C13'] = 'DEVRE ISIL GÜCÜ'
         ws['D13'] = '35 W/m × L (planla aynı)'
+        if ik_ref:
+            ws['D13'] = 'Mahal ısı kaybı × devre boyu / mahal boru boyu'
+            ws['B43'] = ('Alta geçen ısı 0,2 q" olarak alınmıştır. qh = mahal ısı kaybı (ISI KAYBI sayfaları) devrelere boru '
+                         'boyu oranında dağıtılmıştır (plan etiketi ve kolon şeması ile aynı).')
+            ws['D30'] = 'Kollektör ayakları devre boyuna dahildir'
         # yüzey sıcaklığı kontrolü (Ty = Ti + (q"/8,92)^0,91; sınır oturma 29 °C, banyo 33 °C)
         from openpyxl.styles import PatternFill, Font
         kirmizi = PatternFill('solid', fgColor='FFC7CE')
         asim = []
         for C, (dno, m, c, A) in zip(cols, allc):
-            q = BIRIM * c['L_m'] / A if A > 0 else 0.0
+            q = birim(m) * c['L_m'] / A if A > 0 else 0.0
             ty = m['sic'] + (q / 8.92) ** 0.91
             sinir = TS_SINIR.get(m['sic'], 29.0)
             YUZEY.append(dict(kat=kat['kat'], zon=m['zon'], devre=c['no'], ad=m['ad'], sic=m['sic'], A=round(A, 2),
@@ -269,7 +426,7 @@ def yaz(model, cikis=CIKIS):
             if ty > sinir:
                 ws[C + '19'].fill = kirmizi
                 asim.append('%s-%d (%.1f °C)' % (m['zon'], c['no'], ty))
-        if asim:
+        if asim and not ik_ref:
             ws['B38'] = ('UYARI: 35 W/m × L esasında döşeme yüzey sıcaklığı sınırı aşılıyor (%d devre): %s' %
                          (len(asim), ', '.join(asim[:8]) + (' ...' if len(asim) > 8 else '')))
             ws['B39'] = ('Sınır içinde kalmak için q" ≤ 100 W/m² (oturma) gerekir; 35 W/m ile bu, boru aralığı ≈ 35 cm '

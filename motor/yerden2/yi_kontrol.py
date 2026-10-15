@@ -186,7 +186,7 @@ def ayak_kontrol(KTS):
                 if not c.get('ayak_g'):
                     continue
                 out['ayak_bagli'] += 1
-                hol = next((q for q in KT['odalar'] if q['daire'] == o['daire'] and q['tur'] == 'hol'), None)
+                hol = next((q for q in KT['odalar'] + KT.get('holler', []) if q['daire'] == o['daire'] and q['tur'] == 'hol'), None)
                 ayak = unary_union([LineString(c['ayak_g']), LineString(c['ayak_d'])])
                 izin = unary_union([o['poly'].buffer(1.5)] + ([hol['poly'].buffer(1.5)] if hol else []))
                 dis = ayak.difference(izin)

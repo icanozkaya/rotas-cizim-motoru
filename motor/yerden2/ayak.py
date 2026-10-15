@@ -652,7 +652,7 @@ class Daire:
                 ad = o.get('zon', o['ad'])
                 self.uyari = [u for u in self.uyari if not (('%s:' % ad) in u and 'erişim yok' in u)]
         if not self.hol['tasarim']['devreler'] or not any(a['o'] is self.hol for a in self.ayaklar):
-            if not any('hol' in u for u in self.uyari):
+            if not any('hol' in u for u in self.uyari) and not os.environ.get('YI_HOL_YOK'):
                 self.uyari.append('D%d %s: hol devresi kurulamadı (hol ayak demetiyle ısınır)' % (self.dno, self.hol.get('zon', self.hol['ad'])))
             self.hol['tasarim'] = dict(self.hol['tasarim'], devreler=[])
         for s_ in [k for k, v in self.slot_sahip.items() if v == 'hol']:
@@ -1578,6 +1578,9 @@ class Daire:
         """hol serpantini: ayak demeti + kombi hattı + kollektör dışında kalan alanın, hol için ayrılmış uç ağız
         çiftine bitişik parçasında; uçlar o ağızlara yakın köşede. İki uç denenir, borusu uzun olan alınır."""
         o = self.hol
+        if os.environ.get('YI_HOL_YOK'):
+            o['tasarim'] = dict(o['tasarim'], devreler=[])
+            return False
         G = self.G
         hat = [LineString(a['g'][0]) for a in self.ayaklar] + [LineString(a['d'][0]) for a in self.ayaklar]
         if getattr(self, 'kombi_hat', None):
