@@ -130,3 +130,19 @@ tablosu, MMO yüzey sıcaklıkları). Bir koşu ≈ 30 s, `--png` ile ≈ 70 s, 
 Notlar:
 - 100 cm'lik koridorda 7,5 cm kenar payı ve 15 cm aralıkla ulaşılabilecek en yüksek yoğunluk yaklaşık 5,7–6,0 m/m² (parmak boyu 85 cm).
 - Banyolarda klozet, lavabo ve duş teknesi hariç tutulduğu için boru kullanıcınınkinden kısa. Kullanıcı boruyu klozet ve lavabonun altından geçiriyor (banyo 23,53 m).
+
+## Tur 3 değişiklikleri (kontrolör tur 2 RED: Y-1..Y-4)
+- **Y-1 yüklük:** `mimari_yi._yari_duzlem_parca` — yatak odası poligonu içindeki yüklük etiketinin çevresinde x/y kesitleri
+  taranır (kesit ≤ 140 cm, parça 0,6–3,5 m², oda etiketini içermez) → en büyük parça yüklüğe verilir. Üç katta da
+  yüklük 1,79–1,85 m² ayrılıyor; yüklükte boru 0 (Y01). Eski morfolojik açma yalnız yedek.
+- **Y-2 ıslak hacim:** Ç.M. kutusu (fx `CM` ya da 40–85 cm kapalı kare kutu) engel; vitrifiye payı 3 cm daraltıldı
+  (`ISLAK_PAY_AZALT`); ıslak hacimde köşe = en çok mahal içi boru; `yerden.islak_doldur` eşik (3,0 m/m² × mimari m² +
+  0,8 m) tutmazsa duvar payı 6 / 5 cm denenir. Klozet, lavabo, duş teknesi/küvet ve Ç.M. altı boş.
+  4,37 m² wc+banyolarda (Z21, 114, 214) eşik geometrik olarak tutmuyor: kontrolörün mahal poligonu 2,44–2,57 m²,
+  klozet/duş/Ç.M. çıkınca 2,3–2,4 m² serbest zemin; 5 cm payla 15 cm aralıklı satırların toplamı en çok 12,6–13,2 m
+  (besleme kolonu düşülmeden). Ulaşılan 9,8–10,0 m.
+- **Y-3:** iki devreli mahalde devre etiketi yalnız kendi parmaklarının y bandında aranır; ikinci etiket ilkinin x'ine çekilir.
+- **Y-4:** etiket önce hiçbir mimari çizgiye değmeyen serbest zeminde (1,0 → 0,9 → 0,85); olmazsa tam boy çizgi üstü,
+  maske = kutu − (çizgiler + 3 cm) − vitrifiye alanı (`maske_ciz`, deliksiz parçalara bölünür). Maskelerin örttüğü
+  mimari çizgi: 0 cm. İki yerleşim sırası denenir, en küçük ölçeği en büyük olan seçilir.
+- **K-1:** esas değişmedi; TEKNİK RAPOR 1.4'te negatif MODÜL / m² hücrelerinin nedeni yazılı.

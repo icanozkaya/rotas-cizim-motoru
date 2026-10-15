@@ -515,12 +515,14 @@ def etiketle(msp, KT, tum_borular):
     mim = KT['mimari']
     for o in KT['odalar']:
         en_iyi = None
+        # iki sıra da denenir: önce eksik etiket, sonra (Ek) en küçük ölçek en büyük olan (yazı h 10'a yakın)
         for sira in ('mahal_once', 'devre_once'):
             r = _oda_etiket_yerleri(o, yasak, mim, sira)
-            if en_iyi is None or r[3] < en_iyi[3]:
+            olc = [k for c_, q_, (rt_, k) in r[1]] + [r[0][1]]
+            r = r + ((r[3], -min(olc), -sum(olc)),)
+            if en_iyi is None or r[4] < en_iyi[4]:
                 en_iyi = r
-            if r[3] == 0:
-                break
+        en_iyi = en_iyi[:4]
         (mq, mk), dv, yasak, eksik = en_iyi
         if mq is None:
             say['mahal_yok'] += 1

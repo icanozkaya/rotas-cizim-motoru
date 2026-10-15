@@ -113,8 +113,22 @@ def yaz(model, cikis=CIKIS):
     ws['B35'] = ('Plan etiketlerindeki, kolon şemasındaki ve bu hesaptaki devre ısıl gücü aynı esastan alınmıştır:')
     ws['B36'] = '   Q (W) = 35 W/m × hat uzunluğu L (m); L = plandaki serpantinin yaylar dahil gerçek boyu.'
     ws['B37'] = 'Bu projede ayrı ısı kaybı hesabı yapılmamıştır; "ısı ihtiyacı" sütunları boru boyundan hesaplanmıştır.'
-    ws['B38'] = 'Boru PEX 16 x 2,0, boru aralığı 15 cm, duvardan kenar mesafesi 7,5 cm; devre boyu en çok 80 m.'
+    ws['B38'] = ('Boru PEX 16 x 2,0, boru aralığı 15 cm, duvardan kenar mesafesi 7,5 cm (dar ıslak hacimlerde 5-6 cm); '
+                 'devre boyu en çok 80 m.')
     ws['B39'] = 'Döşeme yüzey sıcaklığı kontrolü MMO sayfalarındadır (sınır: oturma 29 °C, banyo 33 °C).'
+    # K-1 (tur 3): esas değişmedi; şablon formülünün bu esasla verdiği anlamsız değerlerin nedeni not edilir
+    ws['A41'] = '1.4.'
+    ws['B41'] = 'Not — "YERDEN ISITMA" (modülasyon) sayfasındaki negatif değerler:'
+    ws['B43'] = ('Sayfadaki G sütunu (MODÜL) şablon formülüdür: G = 76,263 − 0,539 × F, F = q = Q / A (W/m²). Şablon '
+                 '17,5 W/m esası için kurulmuştur;')
+    ws['B44'] = ('q > 141,5 W/m² olduğunda G negatif çıkar. Bu projede Q = 35 W/m × L ve boru yoğunluğu ≈ 6 m/m² '
+                 'olduğundan q ≈ 200-215 W/m² olur;')
+    ws['B45'] = ('bu yüzden G (MODÜL) ve H = D / G (m²) sütunlarında negatif değerler görünür. Bunlar bir ölçü değildir, '
+                 'yalnız formülün geçerlilik aralığı dışında olunduğunu gösterir.')
+    ws['B46'] = ('Formüller bozulmadan bırakılmıştır. Aynı esasla MMO sayfasında yüzey sıcaklığı ≈ 37,8 °C ve devre basınç '
+                 'kaybı Δpmax üstünde çıkar (sayfadaki uyarı satırları).')
+    ws['B47'] = ('Devre gücü esası (35 W/m × L, plan etiketleriyle aynı) proje sahibinin kararına bırakılmıştır; '
+                 '17,5 W/m ya da ısı kaybı esasına geçilirse bu değerler olağan aralığa döner.')
     for nm in ('ZEMİN', '1 NK', 'TEKNİK RAPOR (2)'):
         if nm in wb.sheetnames:
             del wb[nm]
@@ -292,7 +306,7 @@ def yaz(model, cikis=CIKIS):
     wb.properties.lastModifiedBy = 'ROTAŞ MÜHENDİSLİK'
     wb.properties.title = 'YERDEN ISITMA HESAPLARI'
     # R9: kapak ve TEKNİK RAPOR yazdırma alanı (A4 dikey, sayfaya sığdır)
-    for ad, alan in (('kapak', 'A1:I42'), ('TEKNİK RAPOR', 'A1:H40')):
+    for ad, alan in (('kapak', 'A1:I42'), ('TEKNİK RAPOR', 'A1:H48')):
         w = wb[ad]
         w.print_area = alan
         w.page_setup.orientation = 'portrait'
