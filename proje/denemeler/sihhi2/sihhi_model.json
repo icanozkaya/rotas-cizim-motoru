@@ -19,7 +19,7 @@
   },
   "hidrofor": false,
   "kaynak": "motor/sihhi2/plan.py",
-  "tarih": "15.10.2026 01:42"
+  "tarih": "15.10.2026 04:10"
  },
  "yuk_tablosu": {
   "LV": 0.75,
@@ -210,8 +210,8 @@
       },
       {
        "tip": "CM",
-       "x": 253389.1,
-       "y": -442427.6,
+       "x": 253374.8,
+       "y": -442401.4,
        "ek": false
       }
      ],
@@ -220,7 +220,13 @@
       "y": -442513.2,
       "ek": false
      },
-     "kolon": "P6"
+     "kolon": "P6",
+     "aspirator": {
+      "x": 253281.0,
+      "y": -442621.0,
+      "debi": 80,
+      "saft": "Ş@253405,-442736"
+     }
     },
     {
      "ad": "wc-lvb.",
@@ -417,7 +423,13 @@
       "y": -442745.0,
       "ek": true
      },
-     "kolon": "P5"
+     "kolon": "P5",
+     "aspirator": {
+      "x": 253323.0,
+      "y": -442823.0,
+      "debi": 80,
+      "saft": "Ş@253405,-442736"
+     }
     },
     {
      "ad": "mutfak",
@@ -754,8 +766,8 @@
      "armaturler": [
       {
        "tip": "BM",
-       "x": 253501.8,
-       "y": -443180.6,
+       "x": 253555.2,
+       "y": -443151.9,
        "ek": false
       },
       {
@@ -1183,8 +1195,8 @@
       },
       {
        "tip": "CM",
-       "x": 253741.4,
-       "y": -442427.6,
+       "x": 253755.7,
+       "y": -442401.4,
        "ek": false
       }
      ],
@@ -1195,8 +1207,8 @@
      },
      "kolon": "P3",
      "aspirator": {
-      "x": 253734.0,
-      "y": -442696.0,
+      "x": 253815.0,
+      "y": -442617.0,
       "debi": 80,
       "saft": "Ş@253725,-442736"
      }
@@ -1504,8 +1516,8 @@
      "armaturler": [
       {
        "tip": "BM",
-       "x": 253595.9,
-       "y": -443179.6,
+       "x": 253575.2,
+       "y": -443151.9,
        "ek": false
       },
       {
@@ -1727,8 +1739,8 @@
      },
      "kolon": "P2",
      "aspirator": {
-      "x": 253734.0,
-      "y": -442696.0,
+      "x": 253837.0,
+      "y": -442747.0,
       "debi": 80,
       "saft": "Ş@253725,-442736"
      }
@@ -2087,8 +2099,8 @@
       },
       {
        "tip": "CM",
-       "x": 253156.0,
-       "y": -442165.8,
+       "x": 253038.2,
+       "y": -442204.4,
        "ek": true
       }
      ],
@@ -2099,8 +2111,8 @@
      },
      "kolon": "P8",
      "aspirator": {
-      "x": 253058.0,
-      "y": -442208.0,
+      "x": 253057.0,
+      "y": -442133.0,
       "debi": 80,
       "saft": "Ş@253045,-442246"
      }
@@ -2519,8 +2531,8 @@
       },
       {
        "tip": "BM",
-       "x": 253667.8,
-       "y": -441634.5,
+       "x": 253636.7,
+       "y": -441867.8,
        "ek": true
       }
      ],
@@ -2910,8 +2922,8 @@
       },
       {
        "tip": "CM",
-       "x": 253389.3,
-       "y": -442427.6,
+       "x": 253375.0,
+       "y": -442401.4,
        "ek": false
       }
      ],
@@ -2920,7 +2932,13 @@
       "y": -442506.6,
       "ek": false
      },
-     "kolon": "P6"
+     "kolon": "P6",
+     "aspirator": {
+      "x": 253285.0,
+      "y": -442617.0,
+      "debi": 80,
+      "saft": "Ş@253405,-442736"
+     }
     },
     {
      "ad": "mutfak",
@@ -3257,8 +3275,8 @@
      "armaturler": [
       {
        "tip": "BM",
-       "x": 253501.9,
-       "y": -443180.6,
+       "x": 253555.4,
+       "y": -443151.9,
        "ek": false
       },
       {
@@ -3470,7 +3488,13 @@
       "y": -442745.0,
       "ek": true
      },
-     "kolon": "P5"
+     "kolon": "P5",
+     "aspirator": {
+      "x": 253327.0,
+      "y": -442815.0,
+      "debi": 80,
+      "saft": "Ş@253405,-442736"
+     }
     }
    ],
    "balkonlar": [
@@ -3871,7 +3895,13 @@
       "y": -442413.0,
       "ek": true
      },
-     "kolon": "P10"
+     "kolon": "P3",
+     "aspirator": {
+      "x": 253835.0,
+      "y": -442329.0,
+      "debi": 80,
+      "saft": "Ş@253725,-442286"
+     }
     },
     {
      "ad": "banyo",
@@ -4070,8 +4100,8 @@
       },
       {
        "tip": "CM",
-       "x": 253741.6,
-       "y": -442472.6,
+       "x": 253760.3,
+       "y": -442446.4,
        "ek": false
       }
      ],
@@ -4080,10 +4110,10 @@
       "y": -442537.9,
       "ek": false
      },
-     "kolon": "P11",
+     "kolon": "P3",
      "aspirator": {
-      "x": 253734.0,
-      "y": -442696.0,
+      "x": 253851.0,
+      "y": -442621.0,
       "debi": 80,
       "saft": "Ş@253725,-442736"
      }
@@ -4435,8 +4465,8 @@
      "armaturler": [
       {
        "tip": "BM",
-       "x": 253596.1,
-       "y": -443179.6,
+       "x": 253575.4,
+       "y": -443151.9,
        "ek": false
       },
       {
@@ -4807,8 +4837,8 @@
       },
       {
        "tip": "CM",
-       "x": 253128.2,
-       "y": -442192.0,
+       "x": 253038.4,
+       "y": -442204.4,
        "ek": true
       }
      ],
@@ -4819,8 +4849,8 @@
      },
      "kolon": "P8",
      "aspirator": {
-      "x": 253058.0,
-      "y": -442208.0,
+      "x": 253057.0,
+      "y": -442133.0,
       "debi": 80,
       "saft": "Ş@253045,-442246"
      }
@@ -5078,8 +5108,8 @@
       },
       {
        "tip": "BM",
-       "x": 253668.0,
-       "y": -441635.5,
+       "x": 253636.9,
+       "y": -441867.8,
        "ek": true
       }
      ],
@@ -5634,8 +5664,8 @@
       },
       {
        "tip": "CM",
-       "x": 253389.7,
-       "y": -442427.6,
+       "x": 253375.4,
+       "y": -442401.4,
        "ek": false
       }
      ],
@@ -5644,7 +5674,13 @@
       "y": -442484.9,
       "ek": false
      },
-     "kolon": "P6"
+     "kolon": "P6",
+     "aspirator": {
+      "x": 253287.0,
+      "y": -442617.0,
+      "debi": 80,
+      "saft": "Ş@253406,-442736"
+     }
     },
     {
      "ad": "mutfak",
@@ -5985,8 +6021,8 @@
      "armaturler": [
       {
        "tip": "BM",
-       "x": 253502.3,
-       "y": -443180.6,
+       "x": 253555.8,
+       "y": -443151.9,
        "ek": false
       },
       {
@@ -6214,7 +6250,13 @@
       "y": -442745.0,
       "ek": true
      },
-     "kolon": "P5"
+     "kolon": "P5",
+     "aspirator": {
+      "x": 253321.0,
+      "y": -442815.0,
+      "debi": 80,
+      "saft": "Ş@253406,-442736"
+     }
     }
    ],
    "balkonlar": [
@@ -6643,8 +6685,8 @@
       },
       {
        "tip": "CM",
-       "x": 253742.0,
-       "y": -442427.6,
+       "x": 253756.3,
+       "y": -442401.4,
        "ek": false
       }
      ],
@@ -6655,8 +6697,8 @@
      },
      "kolon": "P3",
      "aspirator": {
-      "x": 253736.0,
-      "y": -442696.0,
+      "x": 253843.0,
+      "y": -442617.0,
       "debi": 80,
       "saft": "Ş@253726,-442736"
      }
@@ -6972,8 +7014,8 @@
      "armaturler": [
       {
        "tip": "BM",
-       "x": 253596.5,
-       "y": -443179.6,
+       "x": 253575.8,
+       "y": -443151.9,
        "ek": false
       },
       {
@@ -7167,8 +7209,8 @@
      },
      "kolon": "P2",
      "aspirator": {
-      "x": 253736.0,
-      "y": -442696.0,
+      "x": 253795.0,
+      "y": -442803.0,
       "debi": 80,
       "saft": "Ş@253726,-442736"
      }
@@ -7575,8 +7617,8 @@
       },
       {
        "tip": "CM",
-       "x": 253134.0,
-       "y": -442196.0,
+       "x": 253038.8,
+       "y": -442204.4,
        "ek": true
       }
      ],
@@ -7587,8 +7629,8 @@
      },
      "kolon": "P8",
      "aspirator": {
-      "x": 253058.0,
-      "y": -442208.0,
+      "x": 253059.0,
+      "y": -442133.0,
       "debi": 80,
       "saft": "Ş@253046,-442246"
      }
@@ -7983,8 +8025,8 @@
       },
       {
        "tip": "BM",
-       "x": 253668.0,
-       "y": -441726.0,
+       "x": 253637.3,
+       "y": -441867.8,
        "ek": true
       }
      ],
@@ -8205,15 +8247,15 @@
  "kolonlar": [
   {
    "no": "P1",
-   "x": 253646.0,
-   "y": -443084.0,
+   "x": 253577.6,
+   "y": -443414.3,
    "katlar": [
     0,
     1,
     2
    ],
    "gecis_katlari": [],
-   "rogar": null,
+   "rogar": "R4",
    "sb_kat": [
     10,
     10,
@@ -8234,8 +8276,8 @@
   },
   {
    "no": "P2",
-   "x": 253736.0,
-   "y": -442806.0,
+   "x": 253735.2,
+   "y": -442736.9,
    "katlar": [
     0,
     2
@@ -8243,7 +8285,7 @@
    "gecis_katlari": [
     1
    ],
-   "rogar": null,
+   "rogar": "R3",
    "sb_kat": [
     14,
     0,
@@ -8256,53 +8298,53 @@
     "2": "wc-lvb. D9"
    },
    "armatur_sirasi_sema": [
-    "WC",
     "LV",
+    "WC",
     "YS"
    ]
   },
   {
    "no": "P3",
-   "x": 253748.0,
-   "y": -442404.0,
-   "katlar": [
-    0,
-    2
-   ],
-   "gecis_katlari": [
-    1
-   ],
-   "rogar": null,
-   "sb_kat": [
-    25,
-    0,
-    25
-   ],
-   "sb_toplam": 50,
-   "cap": "Ø100",
-   "mahal": {
-    "Z": "banyo D1",
-    "2": "banyo D9"
-   },
-   "armatur_sirasi_sema": [
-    "LV",
-    "CM",
-    "WC",
-    "DUS",
-    "YS"
-   ]
-  },
-  {
-   "no": "P4",
-   "x": 253499.0,
-   "y": -443356.0,
+   "x": 253716.4,
+   "y": -442662.3,
    "katlar": [
     0,
     1,
     2
    ],
    "gecis_katlari": [],
-   "rogar": null,
+   "rogar": "R3",
+   "sb_kat": [
+    25,
+    46,
+    25
+   ],
+   "sb_toplam": 96,
+   "cap": "Ø100",
+   "mahal": {
+    "Z": "banyo D1",
+    "2": "banyo D9",
+    "1": "wc-duş D6 + banyo D6"
+   },
+   "armatur_sirasi_sema": [
+    "WC",
+    "LV",
+    "DUS",
+    "YS",
+    "CM"
+   ]
+  },
+  {
+   "no": "P4",
+   "x": 253552.9,
+   "y": -443414.3,
+   "katlar": [
+    0,
+    1,
+    2
+   ],
+   "gecis_katlari": [],
+   "rogar": "R4",
    "sb_kat": [
     10,
     10,
@@ -8323,15 +8365,15 @@
   },
   {
    "no": "P5",
-   "x": 253394.0,
-   "y": -442806.0,
+   "x": 253393.7,
+   "y": -442736.9,
    "katlar": [
     0,
     1,
     2
    ],
    "gecis_katlari": [],
-   "rogar": null,
+   "rogar": "R3",
    "sb_kat": [
     14,
     14,
@@ -8346,21 +8388,21 @@
    },
    "armatur_sirasi_sema": [
     "LV",
-    "YS",
-    "WC"
+    "WC",
+    "YS"
    ]
   },
   {
    "no": "P6",
-   "x": 253352.0,
-   "y": -442404.0,
+   "x": 253414.1,
+   "y": -442662.3,
    "katlar": [
     0,
     1,
     2
    ],
    "gecis_katlari": [],
-   "rogar": null,
+   "rogar": "R3",
    "sb_kat": [
     25,
     25,
@@ -8375,23 +8417,23 @@
    },
    "armatur_sirasi_sema": [
     "WC",
+    "LV",
     "DUS",
     "YS",
-    "LV",
     "CM"
    ]
   },
   {
    "no": "P7",
-   "x": 253682.0,
-   "y": -441826.0,
+   "x": 253765.1,
+   "y": -441812.4,
    "katlar": [
     0,
     1,
     2
    ],
    "gecis_katlari": [],
-   "rogar": null,
+   "rogar": "R1",
    "sb_kat": [
     10,
     10,
@@ -8406,27 +8448,27 @@
    },
    "armatur_sirasi_sema": [
     "EV",
-    "YS",
-    "BM"
+    "BM",
+    "YS"
    ]
   },
   {
    "no": "P8",
-   "x": 253208.8,
-   "y": -442176.0,
+   "x": 253066.4,
+   "y": -442254.8,
    "katlar": [
     0,
     1,
     2
    ],
    "gecis_katlari": [],
-   "rogar": null,
+   "rogar": "R2",
    "sb_kat": [
     25,
-    25,
-    25
+    23,
+    23
    ],
-   "sb_toplam": 75,
+   "sb_toplam": 71,
    "cap": "Ø100",
    "mahal": {
     "Z": "wc+banyo D3",
@@ -8436,22 +8478,22 @@
    "armatur_sirasi_sema": [
     "WC",
     "LV",
+    "DUS",
     "YS",
-    "CM",
-    "DUS"
+    "CM"
    ]
   },
   {
    "no": "P9",
-   "x": 252834.0,
-   "y": -441985.0,
+   "x": 252778.2,
+   "y": -441881.0,
    "katlar": [
     0,
     1,
     2
    ],
    "gecis_katlari": [],
-   "rogar": null,
+   "rogar": "R1",
    "sb_kat": [
     11,
     11,
@@ -8469,62 +8511,83 @@
     "DUS",
     "YS"
    ]
-  },
-  {
-   "no": "P10",
-   "x": 253708.0,
-   "y": -442424.0,
-   "katlar": [
-    1
-   ],
-   "gecis_katlari": [],
-   "rogar": null,
-   "sb_kat": [
-    0,
-    21,
-    0
-   ],
-   "sb_toplam": 21,
-   "cap": "Ø100",
-   "mahal": {
-    "1": "wc-duş D6"
-   },
-   "armatur_sirasi_sema": [
-    "WC",
-    "YS",
-    "LV",
-    "DUS"
-   ]
-  },
-  {
-   "no": "P11",
-   "x": 253738.0,
-   "y": -442448.0,
-   "katlar": [
-    1
-   ],
-   "gecis_katlari": [],
-   "rogar": null,
-   "sb_kat": [
-    0,
-    25,
-    0
-   ],
-   "sb_toplam": 25,
-   "cap": "Ø100",
-   "mahal": {
-    "1": "banyo D6"
-   },
-   "armatur_sirasi_sema": [
-    "LV",
-    "WC",
-    "DUS",
-    "YS",
-    "CM"
-   ]
   }
  ],
- "rogarlar": [],
+ "rogarlar": [
+  {
+   "no": "R1",
+   "x": 254519.9,
+   "y": -441847.9,
+   "olcu": "70x70 h:-70cm",
+   "kolonlar": [
+    "P7",
+    "P9"
+   ],
+   "sonraki": "R2",
+   "cap": "Ø150",
+   "egim": "%1",
+   "sb": 63,
+   "sb_kumulatif": 63
+  },
+  {
+   "no": "R2",
+   "x": 254519.9,
+   "y": -442334.6,
+   "olcu": "70x70 h:-70cm",
+   "kolonlar": [
+    "P8"
+   ],
+   "sonraki": "R3",
+   "cap": "Ø150",
+   "egim": "%1",
+   "sb": 71,
+   "sb_kumulatif": 134
+  },
+  {
+   "no": "R3",
+   "x": 254519.9,
+   "y": -442841.4,
+   "olcu": "70x70 h:-70cm",
+   "kolonlar": [
+    "P2",
+    "P3",
+    "P5",
+    "P6"
+   ],
+   "sonraki": "R4",
+   "cap": "Ø150",
+   "egim": "%1",
+   "sb": 241,
+   "sb_kumulatif": 375
+  },
+  {
+   "no": "R4",
+   "x": 254519.9,
+   "y": -443366.5,
+   "olcu": "70x70 h:-70cm",
+   "kolonlar": [
+    "P1",
+    "P4"
+   ],
+   "sonraki": "PB",
+   "cap": "Ø150",
+   "egim": "%1",
+   "sb": 60,
+   "sb_kumulatif": 435
+  },
+  {
+   "no": "PB",
+   "x": 255025.8,
+   "y": -443366.5,
+   "olcu": "80x80 h:-80cm",
+   "kolonlar": [],
+   "sonraki": null,
+   "cap": "Ø150",
+   "egim": "%1",
+   "sb": 0,
+   "sb_kumulatif": 435
+  }
+ ],
  "yagmur": [
   {
    "no": "YB1",
@@ -8610,46 +8673,76 @@
  "hav_saftlari": [
   {
    "no": "Ş1",
+   "x": 253405,
+   "y": -442736,
+   "daireler": [
+    "D2",
+    "D4",
+    "D7"
+   ],
+   "debi": 480,
+   "fan": "ÇATI TİPİ FAN 480 m3/h"
+  },
+  {
+   "no": "Ş2",
    "x": 253045,
    "y": -442246,
    "daireler": [
     "D3",
-    "D5"
-   ],
-   "debi": 160,
-   "fan": "ÇATI TİPİ FAN 160 m3/h"
-  },
-  {
-   "no": "Ş2",
-   "x": 253725,
-   "y": -442736,
-   "daireler": [
-    "D1",
-    "D6"
+    "D5",
+    "D8"
    ],
    "debi": 240,
    "fan": "ÇATI TİPİ FAN 240 m3/h"
   },
   {
    "no": "Ş3",
-   "x": 253046,
-   "y": -442246,
+   "x": 253725,
+   "y": -442736,
    "daireler": [
-    "D8"
+    "D1",
+    "D6",
+    "D9"
    ],
-   "debi": 80,
-   "fan": "ÇATI TİPİ FAN 80 m3/h"
+   "debi": 400,
+   "fan": "ÇATI TİPİ FAN 400 m3/h"
   },
   {
    "no": "Ş4",
-   "x": 253726,
-   "y": -442736,
+   "x": 253725,
+   "y": -442286,
    "daireler": [
-    "D9"
+    "D6"
    ],
-   "debi": 160,
-   "fan": "ÇATI TİPİ FAN 160 m3/h"
+   "debi": 80,
+   "fan": "ÇATI TİPİ FAN 80 m3/h"
   }
  ],
- "uyarilar": []
+ "uyarilar": [
+  "kat Z wc+banyo P8: pis su doğrulaması (yol boyu/kesişme) geçmedi",
+  "kat Z duş P9: pis su doğrulaması (yol boyu/kesişme) geçmedi",
+  "kat 2 wc-banyo P8: pis su doğrulaması (yol boyu/kesişme) geçmedi",
+  "kat 1 wc-banyo P8: pis su doğrulaması (yol boyu/kesişme) geçmedi",
+  "kat Z pis su etiketi yerleşmedi: Ø100 25 SB @ (253716, -442639)",
+  "kat Z pis su etiketi yerleşmedi: Ø100 25 SB @ (253066, -442232)",
+  "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253177, -442094)",
+  "kat Z pis su etiketi yerleşmedi: Ø100 12 SB @ (253735, -442754)",
+  "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253538, -443295)",
+  "kat Z pis su etiketi yerleşmedi: Ø100 10 SB @ (253174, -442116)",
+  "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253594, -443296)",
+  "kat Z pis su etiketi yerleşmedi: Ø50 2 SB @ (253741, -442776)",
+  "kat 1 pis su etiketi yerleşmedi: Ø100 32 SB @ (255794, -442503)",
+  "kat 1 pis su etiketi yerleşmedi: Ø100 12 SB @ (255808, -442394)",
+  "kat 1 pis su etiketi yerleşmedi: Ø100 21 SB @ (255769, -442448)",
+  "kat 1 pis su etiketi yerleşmedi: Ø100 34 SB @ (255794, -442562)",
+  "kat 1 pis su etiketi yerleşmedi: Ø50 4 SB @ (255573, -443295)",
+  "kat 1 pis su etiketi yerleşmedi: Ø100 14 SB @ (255764, -442403)",
+  "kat 1 pis su etiketi yerleşmedi: Ø100 12 SB @ (255177, -442167)",
+  "kat 1 pis su etiketi yerleşmedi: Ø50 4 SB @ (255628, -443296)",
+  "kat 1 pis su etiketi yerleşmedi: Ø100 21 SB @ (255742, -442436)",
+  "kat 2 pis su etiketi yerleşmedi: Ø50 4 SB @ (257621, -443295)",
+  "kat 2 pis su etiketi yerleşmedi: Ø50 4 SB @ (257678, -443296)",
+  "kat 2 D7 temiz su etiketi yerleşmedi (6.5 MB)",
+  "kat 2 D7 temiz su etiketi yerleşmedi (5.25 MB)"
+ ]
 }

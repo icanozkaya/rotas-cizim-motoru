@@ -197,7 +197,8 @@ class Engel:
 
     def etiket_carpar(self, pg, tur='etiket'):
         """etiket yazı kutusu: marjlı kutu engellere + yasak alanlara"""
-        return self.carpar(pg.buffer(MARJ, join_style=2)) or self.yasakta(pg, tur) or self.yasakta(pg, 'armatur')
+        return self.carpar(pg.buffer(MARJ, join_style=2)) or self.yasakta(pg, tur) or self.yasakta(pg, 'armatur') \
+            or self.yasakta(pg, 'ortak')
 
     def carpar(self, pg, alan_tol=0.05, cizgi_tol=0.3, haric=()):
         self._agac()
@@ -1594,7 +1595,7 @@ def balon_yeri(c, eng, yasak, r=27.5, mesafeler=(55, 70, 85, 100, 115), disarida
 def carp_haric(eng, k, g):
     """etiket yazı kutusu çakışması; etiketin KENDİ hattı (g) ile kesişim sayılmaz"""
     kb = k.buffer(MARJ, join_style=2)
-    if eng.carpar(kb, cizgi_tol=1e9) or eng.yasakta(k, 'etiket') or eng.yasakta(k, 'armatur'):
+    if eng.carpar(kb, cizgi_tol=1e9) or eng.yasakta(k, 'etiket') or eng.yasakta(k, 'armatur') or eng.yasakta(k, 'ortak'):
         return True
     eng._agac()
     gb = g.buffer(1.0)
@@ -1732,8 +1733,8 @@ def etiket_kilavuzlu(msp, eng, a, satirlar, blok, katman, yasak=None, hks=(14, 2
     return None
 
 
-def etiket_halka(msp, eng, m, satirlar, blok, katman, mesafeler=(30, 40, 50, 62, 75, 90, 105, 120, 140),
-                 duvar=None, izin=None):
+def etiket_halka(msp, eng, m, satirlar, blok, katman, mesafeler=(25, 32, 40, 50, 62, 75, 90, 105, 120, 140, 160),
+                 duvar=None, izin=None, ortak_izin=False):
     """kalabalıkta etiket dışarı: m (parça ortası) çevresinde halka araması, kılavuz çizgili (yazı yatay)"""
     red = defaultdict(int)
     olc = {}
@@ -1766,11 +1767,15 @@ def etiket_halka(msp, eng, m, satirlar, blok, katman, mesafeler=(30, 40, 50, 62,
                         if g_.intersects(kb_):
                             log('      cizgi', [round(v) for v in g_.bounds], g_.geom_type); break
                 continue
-            if eng.yasakta(kutu, 'etiket') or eng.yasakta(kutu, 'armatur'):
+            ortakta = eng.yasakta(kutu, 'ortak')
+            if eng.yasakta(kutu, 'etiket') or eng.yasakta(kutu, 'armatur') or (ortakta and not ortak_izin):
                 red['yasak'] += 1
                 continue
             q = nearest_points(kutu.exterior, Point(m))[0]
             kil = LineString([m, (q.x, q.y)])
+            if ortakta and kil.length > 80:
+                red['ortak'] += 1
+                continue
             if duvar is not None and kil.intersection(duvar).length > 28:
                 red['duvar'] += 1
                 continue
@@ -1861,7 +1866,7 @@ def kat_yasaklari(eng, K):
             eng.yasak_ekle(r['poly'].buffer(8), 'balon')
             eng.yasak_ekle(r['poly'].buffer(8), 'asansor')
         elif r['tip'] == 'ortak':
-            eng.yasak_ekle(r['poly'], 'etiket')
+            eng.yasak_ekle(r['poly'], 'ortak')
     for f in K.fx:
         bb = f.get('bb')
         if bb and f['kind'] != 'KOMBI':
@@ -2311,12 +2316,13 @@ def kat_etiketle(doc, eng, K, kat, dur):
             mm = pc['g'].interpolate(0.5, normalized=True)
             izin = daire_alani(K, (mm.x, mm.y))
             e = None
-            for tt in (0.5, 0.3, 0.7, 0.15, 0.85):
-                if e is not None:
-                    break
-                m = pc['g'].interpolate(tt, normalized=True)
-                e = etiket_halka(msp, eng, (m.x, m.y), {'C1': pc['cap'], 'M1': '%d SB' % pc['sb']}, 'ROTAS-S2-TS-CAP2',
-                                 L_PCAP, duvar=K.S, izin=izin)
+            for oi in (False, True):        # 2. tur: merdiven holüne kısa kılavuzla (kullanıcı: 'Ø100 46 SB' merdivende)
+                for tt in (0.5, 0.3, 0.7, 0.15, 0.85):
+                    if e is not None:
+                        break
+                    m = pc['g'].interpolate(tt, normalized=True)
+                    e = etiket_halka(msp, eng, (m.x, m.y), {'C1': pc['cap'], 'M1': '%d SB' % pc['sb']},
+                                     'ROTAS-S2-TS-CAP2', L_PCAP, duvar=K.S, izin=izin, ortak_izin=oi)
         if e is None:
             n_yok += 1
             dur.uyari.append('kat %s pis su etiketi yerleşmedi: %s %d SB @ (%.0f, %.0f)' % (
@@ -2436,8 +2442,13 @@ def cati_plani(doc, eng, dur, Kz, depo_m3):
                 eng.ekle_alan(daire_poly(q, 28.5))
                 msp.add_line(kil.coords[0], kil.coords[-1], dxfattribs={'layer': L_KIL})
     # çatı tipi fanlar: havalandırma şaftları (zemin katta tanınan şaftlar, çatı çerçevesine ötelenmiş)
+    pler = [v for k, v in cati.items() if k.startswith('P')]
     for sf in Kz.saftlar:
         c = (sf['c'][0] + ox, sf['c'][1] + oy)
+        q = min(pler, key=lambda v: dist(v, c)) if pler else None
+        if q is not None and dist(q, c) < 32:           # fan, havalık ucuna binmesin (şaft içinde, kolondan uzağa)
+            u = birim(q, c) if dist(q, c) > 0.5 else (1.0, 0.0)
+            c = (q[0] + u[0] * 32, q[1] + u[1] * 32)
         msp.add_circle(c, 14.0, dxfattribs={'layer': 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL'})
         msp.add_circle(c, 9.0, dxfattribs={'layer': 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL'})
         for aci in (45, 135):
@@ -2577,8 +2588,10 @@ def model_yaz(Ks, katlar, dur):
             if not a['saft']:
                 continue
             key = (round(a['saft']['c'][0] - K.off), round(a['saft']['c'][1]))
+            key = next((k_ for k_ in sa if abs(k_[0] - key[0]) <= 5 and abs(k_[1] - key[1]) <= 5), key)
             s = sa.setdefault(key, dict(no='Ş%d' % (len(sa) + 1), x=key[0], y=key[1], daireler=[], debi=0, fan=None))
-            s['daireler'] += sorted({'D%s' % r['daire'] for r in a['odalar']})
+            s['daireler'] = sorted(set(s['daireler']) | {'D%s' % r['daire'] for r in a['odalar']},
+                                   key=lambda d_: int(d_[1:]))
             s['debi'] += a['debi']
     for s in sa.values():
         s['fan'] = 'ÇATI TİPİ FAN %d m3/h' % s['debi']
