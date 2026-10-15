@@ -726,6 +726,15 @@ def t09_suzgec_sayisi(cz, kat, kb):
         if not r['islak']:
             continue
         n = sum(1 for s in semboller if r['poly'].buffer(5).contains(Point(s)))
+        if 'mutfak' in C.normu(r.get('name') or '').lower():
+            # kullanıcı 15.10 (D): MUTFAKTA YER SÜZGECİ YOK (14.10 "her ıslak hacimde süzgeç" mutfak için iptal)
+            if n:
+                c = r['poly'].centroid
+                out.append(Bulgu('T09', 'FAIL', '%s: mutfakta yer süzgeci %d (kural: mutfakta süzgeç YOK)' % (r['name'], n),
+                                 kat, (c.x, c.y)))
+            else:
+                n_ok += 1
+            continue
         if n != 1:
             c = r['poly'].centroid
             out.append(Bulgu('T09', 'FAIL', '%s: yer süzgeci %d (her ıslak hacimde tam 1)' % (r['name'], n), kat, (c.x, c.y),
@@ -737,7 +746,7 @@ def t09_suzgec_sayisi(cz, kat, kb):
         if r is not None and not r['islak'] and not r['balkon']:
             out.append(Bulgu('T09', 'FAIL', 'süzgeç kuru mahalde: %s' % r['name'], kat, s, pencere=pencere_yap([s])))
     if not any(b.durum == 'FAIL' for b in out):
-        out.append(Bulgu('T09', 'PASS', '%d ıslak hacimde 1 süzgeç' % n_ok, kat))
+        out.append(Bulgu('T09', 'PASS', '%d ıslak hacimde 1 süzgeç (mutfakta 0)' % n_ok, kat))
     return out
 
 

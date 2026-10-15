@@ -381,7 +381,7 @@ def rapor_yaz(o, cz, katlar, bulgular, log, png_klasor, sure):
                '- T07 yazı kutuları ezdxf yazı tipi ölçüsüyle; herhangi örtüşme (> 0,2 cm²) FAIL; hat yazı kutusundan ≥ 3 cm geçiyorsa FAIL; '
                'çap etiketi yüksekliği ortanca %.0f–%.0f.' % T.ETIKET_H,
                '- T08 sayaç sembolü y ≥ 1. kat bandı çizgisi → FAIL; x daire bloklarının (D1..) solunda değilse FAIL; "SAYAÇ (KAPIDA)" yazısı FAIL.',
-               '- T09 ıslak mahal poligonunda süzgeç sembolü (çizim + mimari ızgara, 15 cm kümeli) sayısı ≠ 1 → FAIL.',
+               '- T09 ıslak mahal poligonunda süzgeç sembolü (çizim + mimari ızgara, 15 cm kümeli) sayısı ≠ 1 → FAIL; mutfakta süzgeç varsa FAIL (15.10 (D): mutfakta süzgeç yok).',
                '- T10 kolon sembolü ıslak mahal (20 cm pay) dışında / betonarme içinde / en yakın köşeye > %.0f cm → FAIL.' % T.KOLON_KOSE_MAX,
                '- T11 `motor/deneme/denetim/denetle.py` ile aynı sayılar.',
                '- T07 ek: gerçek yazı kutusu (`kutu.py`, ezdxf text_size; hizalama + döndürme, MTEXT mtext_size); etiket kutusunun '

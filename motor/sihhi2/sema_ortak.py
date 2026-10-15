@@ -150,7 +150,8 @@ def yiginlar(m):
             sz = h.get('suzgec')
             # kullanıcının şemasında süzgeç yalnız duşlu hacimlerde; mutfak / wc-lvb'ye kuralla eklenmiş (ek) süzgeç
             # şemaya konmaz (SIHHI_ALTIN §3.4, §8: "wc-lvb ve mutfakta süzgeç yok")
-            if sz and not (sz.get('ek') and 'DUS' not in tip):
+            # 15.10 (D): MUTFAKTA YER SÜZGECİ YOK (mimari tanıma bulsa da)
+            if sz and not (sz.get('ek') and 'DUS' not in tip) and 'mutfak' not in (h.get('ad') or '').lower():
                 tip.append('YS')
             g = hedef.gruplar.get((d['kat'], p))
             if g is None:

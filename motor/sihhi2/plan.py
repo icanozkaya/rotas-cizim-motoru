@@ -55,6 +55,11 @@ CATI_OFF = 6143.0            # çatı paftası mimari ötelemesi (zemin çerçev
 with open(BURASI + '/tasarim_new_block.json', encoding='utf-8') as _f:
     TASARIM = json.load(_f)
 KOLON_SABIT = {k: tuple(v) for k, v in TASARIM['kolonlar'].items()}
+# kullanıcının kolon bloğu: ekleme noktası (KOLON_SABIT) = borunun BAĞLANDIĞI nokta; sembolün (STM-PISSU-KOLON r 10)
+# MERKEZİ ondan 15,9 cm içeride (15.10 (D): hat kolon sembolünün İÇİNE girmez, çevresinde biter; eskiden sembol bağlantı
+# noktasına konuyordu -> P2/P5 'mek. havl.' şaftına, P3/P6 betonarmeye biniyordu)
+KOLON_MERKEZ = {k: tuple(TASARIM.get('kolon_merkez', {}).get(k, v)) for k, v in KOLON_SABIT.items()}
+KOLON_R = 10.0               # kolon sembolü dış çemberi (kullanıcının STM-PISSU-KOLON r 10)
 MARJ = 1.5                   # etiket yazı kutusu çevresi boşluk (cm)
 
 # ---- kullanıcı çizimi değerleri (SIHHI_ALTIN_REFERANS.md, MODEL.md)
@@ -147,6 +152,69 @@ def temiz(pts):
             out.pop(i)
         else:
             i += 1
+    return out
+
+
+def kolon_merkezi(no, off):
+    q = KOLON_MERKEZ[no]
+    return (q[0] + off, q[1])
+
+
+def kolon_cember_noktasi(no, off):
+    """bağlantı noktası -> merkez doğrultusunda dış çember (r 10) üstündeki nokta: hat burada biter"""
+    c = kolon_merkezi(no, off)
+    b = (KOLON_SABIT[no][0] + off, KOLON_SABIT[no][1])
+    if dist(b, c) < 0.5:
+        return b
+    u = birim(c, b)
+    return (c[0] + u[0] * KOLON_R, c[1] + u[1] * KOLON_R)
+
+
+def kolon_aci(no):
+    """kelepçe kolu bağlantı noktasına bakar (derece)"""
+    c, b = KOLON_MERKEZ[no], KOLON_SABIT[no]
+    return math.degrees(math.atan2(b[1] - c[1], b[0] - c[0])) if dist(b, c) > 0.5 else 0.0
+
+
+def kolon_baglantisi(ps, off):
+    """15.10 (D): pis su hattı kolon sembolünün İÇİNE girmez. Kolondan (bağlantı noktası C) başlayan omurga /
+    branşman, C'den sembolün dış çemberine (r 10) kelepçe doğrultusunda kısa uzatılır ve orada biter; t'ler kayar."""
+    no = ps.get('no')
+    if ps.get('misafir') or no not in KOLON_MERKEZ:
+        return
+    C = (KOLON_SABIT[no][0] + off, KOLON_SABIT[no][1])
+    E = kolon_cember_noktasi(no, off)
+    ek = dist(C, E)
+    ps['merkez'] = kolon_merkezi(no, off)
+    ps['cember'] = E
+    if ek < 0.5:
+        return
+    for yon, kol in list(ps['kollar'].items()):
+        cs = list(kol.coords)
+        if dist(cs[0], C) <= 1.0:
+            ps['kollar'][yon] = LineString(temiz([E] + cs))
+            for b in ps['br']:
+                if b['kol'] == yon:
+                    b['t'] += ek
+    for b in ps['br']:
+        if b['pts'] and dist(b['pts'][-1], C) <= 1.0 and (b['kol'] is None or b['kol'] not in ps['kollar']
+                                                         or b.get('t', 1.0) <= 0.01):
+            b['pts'] = temiz(list(b['pts']) + [E])
+
+
+def kolon_ici_kirp(g, merkezler, r=KOLON_R):
+    """hat geometrisi (LineString) kolon çemberlerinin içinden geçmez: iç kısım kırpılır -> [LineString]"""
+    out = [g]
+    for c in merkezler:
+        cc = Point(c).buffer(r - 0.05, resolution=32)
+        yeni = []
+        for h in out:
+            if not h.intersects(cc):
+                yeni.append(h)
+                continue
+            d = h.difference(cc)
+            yeni += [q for q in getattr(d, 'geoms', [d]) if q.geom_type == 'LineString' and q.length > 0.3]
+        out = yeni
     return out
 
 
@@ -1777,9 +1845,15 @@ def klozet_yani_suzgec(K, r, fo, p, CW):
     return None
 
 
+def mutfak_mi(r):
+    return r is not None and (r.get('tip') == 'mutfak' or 'mutfak' in M2.MB.norm(r.get('name') or ''))
+
+
 def ek_armaturler(K):
-    """her ıslak hacimde 1 süzgeç; her dairede ÇM ve BM (mimaride yoksa EK)"""
+    """her ıslak hacimde (MUTFAK HARİÇ, 15.10 (D)) 1 süzgeç; her dairede ÇM ve BM (mimaride yoksa EK)"""
     ekler = []
+    # 15.10 (D): mutfakta yer süzgeci YOK — mimari tanımanın bulduğu mutfak süzgeci de atılır
+    K.fx[:] = [f for f in K.fx if not (f['kind'] == 'YS' and mutfak_mi(f.get('oda')))]
     daireler = sorted({r['daire'] for r in K.rooms if r['daire'] is not None})
     # ÇM / BM: kullanıcının çiziminde (mimari niş / tezgâh altı) gösterildiği yer — tasarim_new_block.json
     for m in TASARIM['makineler'].get(K.k, []):
@@ -1811,7 +1885,7 @@ def ek_armaturler(K):
                     if f.get('kutu') is None:
                         K.fx.remove(f)
     for r in K.rooms:
-        if r['tip'] not in ('islak', 'mutfak'):
+        if r['tip'] not in ('islak', 'mutfak') or mutfak_mi(r):
             continue
         fo = [f for f in K.fx if f['oda'] is r]
         if not any(f['kind'] == 'YS' for f in fo):
@@ -2570,6 +2644,8 @@ def kat_ciz(doc, eng, K, dur, onceki):
     for ps in pisler:
         makine_bransmani(ps)
     for ps in pisler:
+        kolon_baglantisi(ps, off)
+    for ps in pisler:
         no = ps['no']
         kv = dur.kolonlar[no]
         if k not in kv['katlar']:
@@ -2580,31 +2656,43 @@ def kat_ciz(doc, eng, K, dur, onceki):
         kv['armatur'][k] += [b['f']['kind'] for b in ps['br'] if b['f']['kind'] != 'BAG']
         if ps.get('dogrulanmadi'):
             dur.uyari.append('kat %s %s %s: pis su doğrulaması (yol boyu/kesişme) geçmedi' % (k, ps['oda']['name'], no))
+    # 15.10 (D): hiçbir pis su hattı (bu kattaki) kolon sembolü çemberinin içine girmez — çizimde kırpılır, sayılır
+    merkezler = [kolon_merkezi(no, off) for no in KOLON_MERKEZ]
+    K.kolon_merkezleri = merkezler
+    K.kolon_ici_kirpilan = 0
+
+    def _pis_ciz(pts):
+        g = LineString(pts)
+        parca = kolon_ici_kirp(g, merkezler)
+        if len(parca) != 1 or abs(parca[0].length - g.length) > 0.05:
+            K.kolon_ici_kirpilan += 1
+        for h in parca:
+            msp.add_lwpolyline(list(h.coords), dxfattribs={'layer': L_PIS})
+            eng.ekle_cizgi(h)
+
     for ps in pisler:
         for yon, kol in ps['kollar'].items():
             # branşman birleşim noktaları omurgaya köşe olarak eklenir (T-bağlantı ağ düğümü olsun)
             js = [b['pts'][-1] for b in ps['br'] if b['kol'] == yon and len(b['pts']) > 1]
             kc = kol_bol(kol, js)
-            msp.add_lwpolyline(kc, dxfattribs={'layer': L_PIS})
-            eng.ekle_cizgi(kol)
+            _pis_ciz(kc)
         for b in ps['br']:
             if len(b['pts']) > 1:
-                msp.add_lwpolyline(b['pts'], dxfattribs={'layer': L_PIS})
-                eng.ekle_cizgi(LineString(b['pts']))
+                _pis_ciz(b['pts'])
         if ps.get('misafir'):
-            msp.add_lwpolyline(ps['baglanti'], dxfattribs={'layer': L_PIS})
-            eng.ekle_cizgi(LineString(ps['baglanti']))
+            _pis_ciz(ps['baglanti'])
             continue
-        ekle_insert(msp, 'ROTAS-S2-PIS-KOLON', ps['kolon'], 'ROTAS-SIHHI-SEMBOL', attr={'NO': ps['no']})
-        eng.ekle_alan(daire_poly(ps['kolon'], 15))
+        ekle_insert(msp, 'ROTAS-S2-PIS-KOLON', ps['merkez'], 'ROTAS-SIHHI-SEMBOL', rot=kolon_aci(ps['no']),
+                    attr={'NO': ps['no']})
+        eng.ekle_alan(daire_poly(ps['merkez'], 15))
         dur.adet['ROTAS-S2-PIS-KOLON'] += 1
     # bağlantısız geçen kolon (o katta ıslak hacmi yok, ör. 1. kat P2): kolon sembolü yine çizilir (düşey süreklilik)
     kullanilan = {ps['no'] for ps in pisler}
     K.gecis_kolonlari = []
     for no, q in KOLON_SABIT.items():
         if no not in kullanilan:
-            C = (q[0] + off, q[1])
-            ekle_insert(msp, 'ROTAS-S2-PIS-KOLON', C, 'ROTAS-SIHHI-SEMBOL', attr={'NO': no})
+            C = kolon_merkezi(no, off)
+            ekle_insert(msp, 'ROTAS-S2-PIS-KOLON', C, 'ROTAS-SIHHI-SEMBOL', rot=kolon_aci(no), attr={'NO': no})
             eng.ekle_alan(daire_poly(C, 15))
             K.gecis_kolonlari.append((no, C))
     # süzgeçler (ıslak hacim)
@@ -2710,7 +2798,7 @@ def kat_ciz(doc, eng, K, dur, onceki):
         asp.append(dict(r=r, saft=sf))
     engel_p = [f['kutu'].buffer(22) for f in K.fx if f.get('kutu') is not None] + \
               [Point(f['c']).buffer(24) for f in K.fx if f['oda'] is not None and f['kind'] != 'KOMBI'] + \
-              [daire_poly(ps['kolon'], 24) for ps in pisler if not ps.get('misafir')]
+              [daire_poly(ps['merkez'], 24) for ps in pisler if not ps.get('misafir')]
     engel_u = unary_union(engel_p) if engel_p else Polygon()
     for a_ in asp:
         r = a_['r']
@@ -3040,7 +3128,7 @@ def kat_etiketle(doc, eng, K, kat, dur):
     islak_u = unary_union([r['poly'].buffer(-2) for r in K.rooms if r['tip'] in ('islak',)])
     n_ok = n_yok = 0
     # P balonları (ıslak hacim dışında, kılavuzlu)
-    kolon_bal = [(ps['no'], ps['kolon']) for ps in kat['pisler'] if not ps.get('misafir')]
+    kolon_bal = [(ps['no'], ps['merkez']) for ps in kat['pisler'] if not ps.get('misafir')]
     kolon_bal += list(getattr(K, 'gecis_kolonlari', []))
     merd_ = unary_union([r['poly'].buffer(5) for r in K.rooms if r['tip'] == 'ortak'
                          and 'asans' not in M2.MB.norm(r['name'])] or [Polygon()])
@@ -3052,24 +3140,26 @@ def kat_etiketle(doc, eng, K, kat, dur):
             continue
         gor.add(no)
         ps = dict(no=no, kolon=kc)
+        # kullanıcının balonu, kolon SEMBOL MERKEZİNE göre (tasarim_cikar: balon_ofset_merkez)
+        to_ = TASARIM.get('balon_ofset_merkez', {}).get(no) or TASARIM['balon_ofset'].get(no)
         # kullanıcı ofseti 49–101 cm: balon ıslak hacim dışında, kılavuz ıslak hacimde ≤ 30 cm (duşu/odayı kesmez)
         MB_ = (55, 65, 75, 85, 95, 105, 115)
-        p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=TASARIM['balon_ofset'].get(no), islak=islak_u)
+        p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=to_, islak=islak_u)
         if p is None:          # kullanıcının ofseti: kılavuz/balon mimari yazının (kolon adı, mahal adı) üstünden geçebilir
             yakin_ = Point(kc).buffer(160)
             mim_ = [g for g in eng.alan[:getattr(eng, 'n_mimari', 0)] if g.intersects(yakin_)]
-            p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=TASARIM['balon_ofset'].get(no), islak=islak_u,
+            p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=to_, islak=islak_u,
                                 haric=mim_)
         if p is None:          # merdiven basamakları duvar katısı sanılabiliyor: kullanıcı ofsetinde duvar toleranslı
-            p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=TASARIM['balon_ofset'].get(no), islak=islak_u,
+            p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=to_, islak=islak_u,
                                 duvar_tol=1e9, mesafeler=())        # önce yazıya binmeyen varyant
         if p is None:
-            p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=TASARIM['balon_ofset'].get(no), islak=islak_u,
+            p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=to_, islak=islak_u,
                                 haric=mim_, duvar_tol=1e9)
         if p is None:
             p, kil = balon_yeri(ps['kolon'], eng, islak_u, mesafeler=MB_, islak=islak_u)
         if p is None:          # kullanıcı gibi merdivende: basamak numarasının üstüne binebilir
-            p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=TASARIM['balon_ofset'].get(no), islak=islak_u,
+            p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=to_, islak=islak_u,
                                 haric=merd_yazi)
         if p is None:
             p, kil = balon_yeri(ps['kolon'], eng, islak_u, mesafeler=MB_, kil_tol=1e9, islak=islak_u, haric=merd_yazi)
@@ -3387,7 +3477,9 @@ def cati_plani(doc, eng, dur, Kz, depo_m3):
     for no in sorted(cati, key=lambda k: (k[0] == 'Y', int(''.join(c for c in k if c.isdigit())))):
         p = cati[no]
         if no.startswith('P'):
-            ekle_insert(msp, 'ROTAS-S2-PIS-KOLON', p, 'ROTAS-SIHHI-SEMBOL', attr={'NO': no})
+            p = tuple(TASARIM.get('cati_merkez', {}).get(no, p))     # sembol merkezi (bağlantı noktası değil)
+            ekle_insert(msp, 'ROTAS-S2-PIS-KOLON', p, 'ROTAS-SIHHI-SEMBOL', attr={'NO': no},
+                        rot=kolon_aci(no) if no in KOLON_MERKEZ else 0.0)
             msp.add_circle(p, 13.0, dxfattribs={'layer': 'ROTAS-SIHHI-SEMBOL'})        # havalık şapkası
             eng.ekle_alan(daire_poly(p, 15))
             q, kil = balon_yeri(p, eng, None, mesafeler=(45, 55, 70, 85))
