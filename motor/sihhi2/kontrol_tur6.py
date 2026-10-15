@@ -50,7 +50,7 @@ def oku(dxf):
         t = e.dxftype()
         if t in ('LWPOLYLINE', 'LINE', 'POLYLINE'):
             lay = e.dxf.layer.upper()
-            if 'SIHHI' not in lay or 'CAP' in lay or 'YAZI' in lay or 'SEMBOL' in lay or 'NO' in lay.split('-')[-1:]:
+            if 'SIHHI' not in lay or 'CAP' in lay or 'YAZI' in lay or 'SEMBOL' in lay or 'SAYAC' in lay or 'NO' in lay.split('-')[-1:]:
                 continue
             try:
                 pts = [(p[0], p[1]) for p in (e.get_points('xy') if t == 'LWPOLYLINE' else

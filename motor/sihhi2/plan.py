@@ -34,6 +34,7 @@ KOK = M2.KOK
 sys.path.insert(0, KOK + '/motor/deneme/denetim')
 import denetle as D  # noqa: E402
 import etiket_kontrol as EK  # noqa: E402
+import besleme as BES  # noqa: E402
 sys.path.insert(0, KOK + '/motor/kontrolor')
 import kutu as KUTU  # noqa: E402
 
@@ -3550,6 +3551,16 @@ def cati_plani(doc, eng, dur, Kz, depo_m3):
     if dep is not None:
         mer = [(dep[0] + dx, dep[1] + dy) for dx, dy in ((40, -70), (40, -95), (40, 60), (190, -10), (-150, -10))]
         yazi_yerlestir(msp, eng, 'KULLANIM SU DEPOSU\\PV=%g m³' % depo_m3, 15.0, 'ROTAS-SIHHI-CIHAZ-YAZI', mer)
+    # depo dolum / dönüş kolonları (kat planlarındaki temiz su kolon kutusu, P kolonlarıyla aynı öteleme)
+    cb = None
+    if getattr(dur, 'besleme', None):
+        oxm = [TASARIM['cati_merkez'][k][0] - KOLON_MERKEZ[k][0] for k in KOLON_MERKEZ if k in TASARIM.get('cati_merkez', {})]
+        oym = [TASARIM['cati_merkez'][k][1] - KOLON_MERKEZ[k][1] for k in KOLON_MERKEZ if k in TASARIM.get('cati_merkez', {})]
+        of_ = (sum(oxm) / len(oxm), sum(oym) / len(oym)) if oxm else (ox, oy)
+        cb = BES.cati_ciz(doc, eng, dur.besleme, of_, dep, sys.modules[__name__])
+        if cb is None:
+            dur.uyari.append('çatı: su deposu kutusu bulunamadı, depo kolon hatları çizilmedi')
+        dur.besleme['cati'] = cb
     return dict(ofset=(ox, oy))
 
 
@@ -3638,6 +3649,21 @@ def model_yaz(Ks, katlar, dur):
                       daire_mb={d['no']: d.get('temiz_su_mb') for d in daireler},
                       daire_cap={d['no']: d.get('temiz_su_cap') for d in daireler}),
         hav_saftlari=[], uyarilar=dur.uyari)
+    bes = getattr(dur, 'besleme', None)
+    if bes:                     # 15.10 (D): plandaki besleme kurgusu (şema ile aynı: şebeke -> depo -> sayaç -> daire)
+        Z = bes['plan'].get('Z', {})
+        cfg = bes['cfg']
+        m['temiz_su'].update(
+            sebeke=dict(x=cfg['sebeke'][0][0], y=cfg['sebeke'][0][1], yer='bina girişi (döşeme altından)'),
+            sayac_grubu=dict(kat=0, yer='zemin kat merdiven holü, bina girişi kapısı yanı (ortak alan)',
+                             adet=Z.get('sayac', {}).get('adet'), sira=[BES.dad(q) for q in Z.get('sayac', {}).get('satirlar', [])],
+                             dizilim='vana – pislik tutucu – sayaç – çek valf – vana'),
+            kolon_kutusu=dict(x=cfg['kolon_x'], kolonlar={BES.dad(ad): round(y, 1) for ad, y in bes['kol_y'].items()},
+                              yer='merdiven holü doğu duvarı (her katta aynı nokta)'),
+            depo_kolonlari=dict(dolum='şebeke -> çatı deposu', donus='çatı deposu -> sayaç kollektörü',
+                                by_pass='çek valf (şebeke -> kollektör)'),
+            daire_besleme={BES.dad(dn): dict(kat=d['kat'], kolon=(BES.dad(dn) if d['kat'] > 0 else None), cap=inc(d['mb']),
+                                    mb=round(d['mb'], 2)) for dn, d in bes['daireler'].items()})
     sa = {}
     for K in Ks:
         for a in katlar[K.k]['aspirator']:
@@ -3684,6 +3710,8 @@ def main(argv):
         doc = ezdxf.readfile(TMP + '/adim.dxf')
         for K in Ks:
             kat_etiketle(doc, eng, K, katlar[K.k], dur)
+        if getattr(dur, 'besleme', None):
+            dur.uyari += BES.etiketle(doc, eng, Ks, dur.besleme, sys.modules[__name__])
         cati_plani(doc, eng, dur, Ks[0], 3.0)
         model_yaz(Ks, katlar, dur)
         doc.saveas(CIKIS_DXF)
@@ -3704,6 +3732,8 @@ def main(argv):
         onceki = [(kv['x'], kv['y']) for kv in dur.kolonlar.values()]
         Ks.append(K)
     Ks.sort(key=lambda K: KATLAR.index(K.k))
+    # 15.10 (D): daire beslemeleri + sayaç grubu + temiz su kolon kutusu planlarda (şema ile aynı kurgu)
+    dur.besleme = BES.ciz(doc, eng, Ks, katlar, KATLAR, TASARIM, sys.modules[__name__])
     if adim == 'kaydet':
         import pickle
         eng._ta = eng._tc = None
@@ -3713,6 +3743,7 @@ def main(argv):
         doc.saveas(TMP + '/adim.dxf')
     for K in Ks:
         kat_etiketle(doc, eng, K, katlar[K.k], dur)
+    dur.uyari += BES.etiketle(doc, eng, Ks, dur.besleme, sys.modules[__name__])
     cati_plani(doc, eng, dur, Ks[0], 3.0)
     m = model_yaz(Ks, katlar, dur)
     aud = doc.audit()
