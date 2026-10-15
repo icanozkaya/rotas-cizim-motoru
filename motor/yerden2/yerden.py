@@ -742,18 +742,26 @@ def etiketle(msp, KT, tum_borular):
             yasak = unary_union([yasak_once] + [q.buffer(5) for q in kut])
         # hol devresi (demet arasında kısa serpantin): etiket kendi serpantininin 25 cm yakınında olmalı, yoksa başka
         # devrenin ayağının üstünde okunur (Y03/Y05) -> serpantin çevresinde yeniden aranır (maskeli olabilir)
+        def _deger_noktasi(b_, rot_):
+            # kontrolör etiketin değer sütununu (UZ/AR/YER/NO1) okur: tablonun sağ (90°'de üst) %15'i
+            x0_, y0_, x1_, y1_ = b_.bounds
+            if rot_ == 0:
+                return Point(x0_ + 0.85 * (x1_ - x0_), (y0_ + y1_) / 2)
+            return Point((x0_ + x1_) / 2, y0_ + 0.85 * (y1_ - y0_))
         if o['tur'] == 'hol' and dv:
             yeni = []
             for c, q, (rot, olc) in dv:
                 g = S.cizgi(c['pts'])
-                if q.centroid.distance(g) <= 25:
+                if _deger_noktasi(q, rot).distance(g) <= 20:
                     yeni.append((c, q, (rot, olc)))
                     continue
                 diger = unary_union([q2.buffer(3) for c2, q2, r2 in dv if c2 is not c] + ([mq.buffer(3)] if mq is not None else []))
                 alan = o['poly'].buffer(-2)
                 bul = None
                 gc = g.centroid
-                for k in (1.0, 0.85, 0.7, 0.6):
+                yu = KT.get('yazi_u') or Polygon()
+                for k, gevsek in ((1.0, False), (0.85, False), (0.7, False), (0.6, False), (0.85, True), (0.7, True),
+                                  (0.6, True), (0.5, True)):
                     w_, h_ = 150 * k, 80 * k
                     for rot_ in (0, 90):
                         ww, hh = (w_, h_) if rot_ == 0 else (h_, w_)
@@ -764,8 +772,9 @@ def etiketle(msp, KT, tum_borular):
                                 a_ = 2 * math.pi * kk / n
                                 cx_, cy_ = gc.x + r_ * math.cos(a_), gc.y + r_ * math.sin(a_)
                                 b_ = box(cx_ - ww / 2, cy_ - hh / 2, cx_ + ww / 2, cy_ + hh / 2)
-                                if alan.contains(b_) and not b_.intersects(diger) and b_.centroid.distance(g) <= 25 \
-                                        and not b_.intersects(yasak_once.difference(q.buffer(1))):
+                                if alan.contains(b_) and not b_.intersects(diger) and _deger_noktasi(b_, rot_).distance(g) <= 20 \
+                                        and ((gevsek and not b_.intersects(yu))
+                                             or not b_.intersects(yasak_once.difference(q.buffer(1)))):
                                     bul = (b_, rot_, k)
                                     break
                             r_ += 6
@@ -775,7 +784,9 @@ def etiketle(msp, KT, tum_borular):
                         break
                 if bul:
                     yeni.append((c, bul[0], (bul[1], bul[2])))
+                    log('hol devre etiketi %d kendi serpantinine taşındı (×%.2f)' % (c['no'], bul[2]))
                 else:
+                    log('UYARI: hol devre etiketi %d serpantin yanında yer yok (uzaklık %.0f)' % (c['no'], _deger_noktasi(q, rot).distance(g)))
                     yeni.append((c, q, (rot, olc)))
             dv = yeni
         if mq is None:
@@ -989,11 +1000,21 @@ def main(argv=None):
     msp = doc.modelspace()
     kutular = mimari_kopyala(doc)
     KTS = []
-    for k in KATLAR:
-        KT = kat_tasarla(k, kutular, [], cep_ac=a.cep)
-        n = sum(len(o['tasarim']['devreler']) for o in KT['odalar'])
-        log('kat %s: %d ısıtılan mahal, %d devre' % (k, len(KT['odalar']), n))
-        KTS.append(KT)
+    onb = os.environ.get('YI_ONBELLEK')          # geliştirme: 'yaz' tasarımı saklar, 'oku' saklananı kullanır
+    onb_yol = '/tmp/claude-0/y2/KTS.pkl'
+    if onb == 'oku' and os.path.exists(onb_yol):
+        import pickle
+        KTS = pickle.load(open(onb_yol, 'rb'))
+        log('tasarım önbellekten okundu (%s)' % onb_yol)
+    else:
+        for k in KATLAR:
+            KT = kat_tasarla(k, kutular, [], cep_ac=a.cep)
+            n = sum(len(o['tasarim']['devreler']) for o in KT['odalar'])
+            log('kat %s: %d ısıtılan mahal, %d devre' % (k, len(KT['odalar']), n))
+            KTS.append(KT)
+        if onb == 'yaz':
+            import pickle
+            pickle.dump(KTS, open(onb_yol, 'wb'))
     if a.ayaklar:
         log('UYARI: --ayaklar henüz uygulanmadı (kullanıcının çiziminde planda ayak yok); yalnız şemada gösterilir')
     for KT in KTS:

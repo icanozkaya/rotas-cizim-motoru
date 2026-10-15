@@ -211,6 +211,11 @@ Notlar:
   kesişmesi 0; farklı hatlar arası < 4 cm 0; ayak duvarı yalnız kapı/geçişte keser (0 ihlal); başka / ısıtılmayan mahalden
   geçen ayak 0; kombi hattı 8/9 daire (2. kat D7: kombi hattı mutfaktaki duvarsız geçişte devre ayaklarıyla kesişmeden
   yerleşemedi — açık madde).
+- Hol devre etiketi: değer sütunu (UZ/AR/YER/NO1, tablonun sağ %15'i) kendi serpantininden ≤ 20 cm olacak şekilde
+  yeniden yerleştirilir (gerekirse ×0,85); ayak demetindeki başka devreye bağlanmaz (kontrolör Y03/Y05 PASS).
+- Son koşu: denetle geçti (kesişme 0, yazı 0); kontrolör yalnız Y01 15 FAIL (hollerde 0,86–1,18 m² borusuz cep — ayak
+  demeti holü kaplıyor; salon/yatak D3/D5/D8/D9 5,17–5,29 m/m² < 5,3) — açık madde. Kırpımlar
+  `proje/denemeler/yerden2/onizleme/kirp_tur5/` (9 daire kollektör+ayak, şema paneli yan yana 2 adet).
 - Kontrolör (`motor/kontrolor/yerden.py`): devrenin mahali artık polyline'ın ORTA noktasını içeren mahal (ayaklar iki uçta
   simetrik); eskisi en çok boru içeren mahaldi (ayaklı küçük ıslak hacim devreleri hole sayılıyordu).
 ### Şema devre paneli = kullanıcının *U108 bloğu
