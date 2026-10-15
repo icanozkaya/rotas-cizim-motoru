@@ -211,10 +211,11 @@ def mimari_kopyala(doc):
     for e in yeni:
         if e.dxftype() in ('TEXT', 'MTEXT'):
             e.dxf.layer = 'ROTAS-MIMARI-YAZI'
-            for f in ((D.yazi_kutusu, D.yazi_poligonu) if e.dxftype() == 'MTEXT' else (D.yazi_poligonu,)):
-                pg = f(e)
-                if pg is not None and pg.is_valid and not pg.is_empty:
-                    kutular.append(pg)
+            # denetle.py / kontrolörle ORTAK ölçü (kutu.yazi_kutusu: MTEXT satır satır gerçek genişlik, sütun
+            # genişliği değil — "asansör boşluğu" 97,5 cm, eskiden 237,6 cm ve wc+banyonun içine 64 cm giriyordu)
+            pg = D.yazi_poligonu(e)
+            if pg is not None and pg.is_valid and not pg.is_empty:
+                kutular.append(pg)
         else:
             e.dxf.layer = 'ROTAS-MIMARI'
         e.dxf.color = 256
@@ -502,10 +503,14 @@ def _oda_etiket_yerleri(o, yasak, mim, sira, yazi_u=None):
             mimari yazıya değmez; tablo kutusu diğer etiketlerden yine ayrı."""
             y_et = yasak.difference(yazi_u.buffer(3.5, join_style=2))
             for kk in (1.0, 0.9, 0.85):
-                q, rot = yer_bul([(S.ETIKET_W * kk, S.ETIKET_H * kk, 0)], anc, [(P.buffer(-1, join_style=2), False)],
-                                 y_et, mim, kendi=g, adim=2.5, sag_yasak=yazi_u.buffer(1.0), k=kk)
-                if q is not None:
-                    return q, (rot, kk)
+                # önce tablonun tamamı mimari yazıdan (mahal adı, m², mek. havl.) ayrı — kullanıcının Z07'si gibi tablo
+                # vitrifiye / Ç.M. / duş teknesi üstünde (kesik maske, çizgiler görünür); olmazsa yalnız değer sütunu
+                for y_, sy_ in ((yasak, None), (y_et, yazi_u.buffer(1.0))):
+                    q, rot = yer_bul([(S.ETIKET_W * kk, S.ETIKET_H * kk, 0)], anc,
+                                     [(P.buffer(-1, join_style=2), False)], y_, mim, kendi=g, adim=2.5,
+                                     sag_yasak=sy_, k=kk)
+                    if q is not None:
+                        return q, (rot, kk)
             return None
         islak_denendi = not (o['tur'] == 'banyo' and yazi_u is not None and not yazi_u.is_empty)
         for bant_mi in ((True, False) if bkut is not None else (False,)):

@@ -161,12 +161,17 @@ Notlar:
   duvar sınırı `min(4, kenar)`; ıslak hacimde satır fazı 0,5 cm adımla taranır (`serpantin.FAZ_ADIM`).
 - **Sonuç (Y02, kontrolör poligonu):** Z21 13,27 m, 114 13,28 m, 214 13,14 m (eşik 13,11 m = 3,0 × 4,37). Klozet dış
   çizgisi içinde 1,27 m (kullanıcı 1,27 m); lavabo, duş teknesi, Ç.M. gövdesi içinde 0.
-- **E-1 devre etiketi:** ıslak hacimde tam boy etiket vitrifiye / Ç.M. / mimari yazı üstüne binebilir (kesik maske;
-  maske artık mimari yazıyı da örtmez), yalnız değer sütunu (ATTRIB) mimari yazıya değmez. Z21 / 114 / 214'te
-  ×1,0 **yine sığmıyor**: denetle.py (`yazi_poligonu`, ezdxf make_primitive) komşu asansör boşluğundaki
-  "asansör boşluğu" MTEXT'ini 237 cm genişlikte ölçüyor (x 253148–253385, y −442119…−442172) ve kutu wc+banyonun
-  içine 64 cm giriyor. Bu bandın dışında 150×80 tablo mahale sığmıyor; en büyük T11-temiz ölçek ×0,7. Etiket ×0,7
-  kaldı (T11 0 FAIL). Karar ana oturum / kontrolörde (denetle MTEXT ölçüsü).
+- **E-1 devre etiketi:** ıslak hacimde tam boy etiket vitrifiye / Ç.M. / duş teknesi üstüne binebilir (kesik maske,
+  mimari çizgiler görünür; maske mimari yazıyı örtmez). Önce tablonun tamamı mimari yazıdan (mahal adı, m², mek. havl.)
+  ayrı yer aranır; yoksa yalnız değer sütunu (ATTRIB) mimari yazıya değmez. **Z21 / 114 / 214 artık ×1,0 (h 10)**:
+  eski ×0,7'nin nedeni denetle.py'nin (`yazi_poligonu`, ezdxf make_primitive) komşu asansör boşluğundaki
+  "asansör boşluğu" MTEXT'ini sütun genişliğiyle 237,6 cm ölçmesiydi (kutu wc+banyonun içine 64 cm giriyordu). Ölçü
+  artık `motor/kontrolor/kutu.py` `mtext_olcu` (satır satır gerçek genişlik, 97,5 cm) — denetle.py, kontrolör ve
+  `mimari_altlik` yazı kutuları aynı fonksiyonu kullanır. Tablo kullanıcının Z07'si gibi mahal yazısının altında,
+  Ç.M. ve duş teknesi üstünde; mimari yazıya değen etiket 0. Borular değişmedi (Y02: Z21 13,27 / 114 13,28 /
+  214 13,14 m, eşik 13,11). Etiket ölçekleri: ×1,0 76, ×0,85 6 (holler), ×0,7 0 (önce ×1,0 73, ×0,85 6, ×0,7 3).
+  Not: Z21 ve 114'te mahal etiketi (24 °C) kapı kanadı çizgisinin üstünde kalıyor (kesik maske, çizgi görünür); tam boy
+  devre tablosu ortadaki serbest zemini aldığı için temiz yer yok.
 - **Mahal etiketi:** önce vitrifiye / Ç.M. / kapı kanadı engelinden 6 cm uzak yer; küçük ıslak hacimde çerçeve mahal
   yazısının üstüne binebilir (kullanıcının Z07'si gibi), yalnız 24 °C / Zxx yazıları mimari yazıya değmez. Z21 etiketi
   artık Ç.M. kutusuna değmiyor.

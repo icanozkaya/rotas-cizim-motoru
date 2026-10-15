@@ -43,7 +43,7 @@
   "duzlem": 0,
   "duzlem_ornek": [],
   "yazi": 0,
-  "yazi_mimari": 111,
+  "yazi_mimari": 24,
   "yazi_ornek": [],
   "audit": 0,
   "audit_duzeltme": 0,
@@ -3878,6 +3878,10 @@
  "etiket_mahal_disi": [],
  "mahal_etiketi_mahal_disi": [],
  "mahal_etiketi_vitrifiye_ustu": [
+  [
+   "Z",
+   "Z21"
+  ],
   [
    "1",
    "114"
