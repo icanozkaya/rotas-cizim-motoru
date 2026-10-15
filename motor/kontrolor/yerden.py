@@ -152,6 +152,13 @@ def _cep(r, boru):
 
 
 def _devre_mahali(kb, g):
+    """devrenin mahali. 15.10 (D): devre polyline'ı kollektörden başlayıp kapıdan geçen ayaklarla birlikte çizilir;
+    ayaklar iki uçta simetrik olduğundan polyline'ın orta noktası serpantinin içindedir -> önce o noktayı içeren mahal,
+    yoksa (eski davranış) en çok boru uzunluğunu içeren mahal."""
+    m = g.interpolate(0.5, normalized=True)
+    for r in kb['rooms']:
+        if r['poly'].buffer(5).contains(m):
+            return r
     en, eL = None, 0.0
     for r in kb['rooms']:
         L = g.intersection(r['poly'].buffer(10)).length

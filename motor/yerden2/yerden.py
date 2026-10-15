@@ -319,12 +319,15 @@ def ayaklari_kur(k, K, odalar, yasak):
                 o['H'], o['tasarim'], o['ek_eng'], o['ayak_sira'] = (yedek[id(o)][0], copy.deepcopy(yedek[id(o)][1]),
                                                                      yedek[id(o)][2], yedek[id(o)][3])
         en = None
-        for ks, sh, kombili in ((0, True, True), (0, False, True), (1, True, True), (2, True, True), (0, True, False)):
-            # kollektör yeri / sahte hol ucu adayları; son çare kombi hattı sonra (devreler önce)
+        adaylar = ((0, True, True, 0), (0, True, True, 1), (0, True, True, 2), (0, False, True, 0), (1, True, True, 0),
+                   (2, True, True, 0), (0, True, False, 0))
+        for ks, sh, kombili, ys in adaylar:
+            # kollektör yeri / sahte hol ucu (en uzun 1./2./3. kapısız yay) adayları; son çare kombi hattı yok
             geri_yukle()
             n_ek = {}
             for tur in range(3):
-                D_ = A.Daire(K, dno, od, hol, kb if kombili else None, None, yasak, kol_sira=ks, sahte_hol=sh)
+                D_ = A.Daire(K, dno, od, hol, kb if kombili else None, None, yasak, kol_sira=ks, sahte_hol=sh,
+                             yay_sira=ys)
                 sonuc = D_.coz()
                 if sonuc is None:
                     break
@@ -350,13 +353,17 @@ def ayaklari_kur(k, K, odalar, yasak):
                 D_.uyari.append('D%d: kombi–kollektör hattı devre ayaklarıyla kesişmeden çizilemedi (planda kombi yeri '
                                 'işaretli, hat yok)' % dno)
             hol_ok = bool(hol['tasarim']['devreler'])
-            puan = ((n_bag - n_tum) * 10 + (0 if kombi_ok else -5) + (0 if hol_ok else -3)) if sonuc is not None else -999
+            hol_L = sum(S.uzunluk(c['pts']) for c in hol['tasarim']['devreler']) / 100.0
+            # tam bağlantı önce; eşitlikte hol serpantini uzun olan (hol borusuz cebi küçük)
+            puan = ((n_bag - n_tum) * 10 + (0 if kombi_ok else -5) + (0 if hol_ok else -3) + min(hol_L, 40.0) / 50.0) \
+                if sonuc is not None else -999
             if en is None or puan > en[0]:
                 en = (puan, ks, copy.deepcopy([(o['H'], o['tasarim'], o.get('ek_eng')) for o in od]), sonuc,
                       list(D_.uyari))
-            if puan == 0:
+            if puan >= 0.6 or (puan >= 0 and ys == 2):
                 break
-            log('kat %s D%d: kollektör adayı %d eksik (%d/%d), sonraki aday' % (k, dno, ks, n_bag, n_tum))
+            log('kat %s D%d: aday (kollektör %d, sahte hol %s, yay %d, kombi %s): bağlı %d/%d, hol %.1f m, puan %.2f' % (
+                k, dno, ks, sh, ys, kombili, n_bag, n_tum, hol_L if sonuc is not None else 0, puan))
         puan, ks, tas, sonuc, uyari = en
         for o, (H_, t_, e_) in zip(od, tas):
             o['H'], o['tasarim'], o['ek_eng'] = H_, t_, e_
@@ -733,6 +740,44 @@ def etiketle(msp, KT, tum_borular):
         if ay is not None and not ay.is_empty:
             kut = [q for c_, q, r_ in dv] + ([mq] if mq is not None else [])
             yasak = unary_union([yasak_once] + [q.buffer(5) for q in kut])
+        # hol devresi (demet arasında kısa serpantin): etiket kendi serpantininin 25 cm yakınında olmalı, yoksa başka
+        # devrenin ayağının üstünde okunur (Y03/Y05) -> serpantin çevresinde yeniden aranır (maskeli olabilir)
+        if o['tur'] == 'hol' and dv:
+            yeni = []
+            for c, q, (rot, olc) in dv:
+                g = S.cizgi(c['pts'])
+                if q.centroid.distance(g) <= 25:
+                    yeni.append((c, q, (rot, olc)))
+                    continue
+                diger = unary_union([q2.buffer(3) for c2, q2, r2 in dv if c2 is not c] + ([mq.buffer(3)] if mq is not None else []))
+                alan = o['poly'].buffer(-2)
+                bul = None
+                gc = g.centroid
+                for k in (1.0, 0.85, 0.7, 0.6):
+                    w_, h_ = 150 * k, 80 * k
+                    for rot_ in (0, 90):
+                        ww, hh = (w_, h_) if rot_ == 0 else (h_, w_)
+                        r_ = 0.0
+                        while r_ <= 150 and bul is None:
+                            n = max(1, int(2 * math.pi * r_ / 6)) if r_ > 0 else 1
+                            for kk in range(n):
+                                a_ = 2 * math.pi * kk / n
+                                cx_, cy_ = gc.x + r_ * math.cos(a_), gc.y + r_ * math.sin(a_)
+                                b_ = box(cx_ - ww / 2, cy_ - hh / 2, cx_ + ww / 2, cy_ + hh / 2)
+                                if alan.contains(b_) and not b_.intersects(diger) and b_.centroid.distance(g) <= 25 \
+                                        and not b_.intersects(yasak_once.difference(q.buffer(1))):
+                                    bul = (b_, rot_, k)
+                                    break
+                            r_ += 6
+                        if bul:
+                            break
+                    if bul:
+                        break
+                if bul:
+                    yeni.append((c, bul[0], (bul[1], bul[2])))
+                else:
+                    yeni.append((c, q, (rot, olc)))
+            dv = yeni
         if mq is None:
             say['mahal_yok'] += 1
             log('UYARI: mahal etiketi yeri yok: %s' % o['zon'])
@@ -845,14 +890,25 @@ def kollektor_ciz(msp, KT, engel_tum):
         h = 2 * 10 + 10
         hol = next(o for o in od if o['tur'] == 'hol')
         mer = ((p0[0] + p1[0]) / 2 + ic[0] * 45, (p0[1] + p1[1]) / 2 + ic[1] * 45)
-        b = _yazi_yeri(mer, w, h, engel_tum, hol['poly'].buffer(-3), adim=5.0, r_max=500.0)
+        alan_h = hol['poly'].buffer(-3)
+        b = _yazi_yeri(mer, w, h, engel_tum, alan_h, adim=5.0, r_max=500.0)
+        dik = False
+        if b is None:                                   # dar holde dik (90°) yazı
+            b = _yazi_yeri(mer, h, w, engel_tum, alan_h, adim=5.0, r_max=500.0)
+            dik = b is not None
         if b is None:
             b = _yazi_yeri(mer, w, h, engel_tum, unary_union([o['poly'] for o in od]).buffer(-3), adim=5.0,
                            r_max=500.0)
         if b is not None:
             x0, y0, x1, y1 = b.bounds
-            _yazi(msp, s1, (x0 + 3, y1 - 12), 10, 41, katman=L_CAP)
-            _yazi(msp, s2, (x0 + 3, y1 - 27), 10, 41, katman=L_CAP)
+            if dik:
+                t1 = _yazi(msp, s1, (x0 + 12, y0 + 3), 10, 41, katman=L_CAP)
+                t2 = _yazi(msp, s2, (x0 + 27, y0 + 3), 10, 41, katman=L_CAP)
+                t1.dxf.rotation = 90.0
+                t2.dxf.rotation = 90.0
+            else:
+                _yazi(msp, s1, (x0 + 3, y1 - 12), 10, 41, katman=L_CAP)
+                _yazi(msp, s2, (x0 + 3, y1 - 27), 10, 41, katman=L_CAP)
             engel_tum = engel_tum.union(b)
             KT['yasak'] = KT['yasak'].union(b.buffer(5))      # devre / mahal etiketleri buraya konmaz
         # kombi (sıhhi plandaki kombi kutusu) + hatlar

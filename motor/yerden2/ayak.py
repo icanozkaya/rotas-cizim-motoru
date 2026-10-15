@@ -21,6 +21,7 @@ import os
 
 import numpy as np
 import shapely
+import shapely.ops
 from shapely.geometry import Point, LineString, Polygon, box, MultiLineString
 from shapely.ops import unary_union
 
@@ -434,8 +435,10 @@ def yeniden_kur(o, ek, kapi, yasak, kapi_zorla=True, hedef_L=None, n_min=None):
 
 # ====================================================================== daire çözümü
 class Daire:
-    def __init__(self, K, dno, odalar, hol, kombi, diger_serp, yasak, kol_sira=0, sahte_hol=True):
+    def __init__(self, K, dno, odalar, hol, kombi, diger_serp, yasak, kol_sira=0, sahte_hol=True, yay_sira=0):
         self.kol_sira = kol_sira
+        self.yay_sira = yay_sira
+        self.kombi_hat = None
         self.sahte_hol_izin = sahte_hol
         self.K = K
         self.dno = dno
@@ -779,7 +782,8 @@ class Daire:
         ts = [q[0] for q in term]
         sinir = [0.0] + ts + [P - gen]
         yaylar = [(sinir[k + 1] - sinir[k], k) for k in range(len(sinir) - 1)]
-        L_, kmax = max(yaylar)
+        yaylar.sort(reverse=True)
+        L_, kmax = yaylar[min(getattr(self, 'yay_sira', 0), len(yaylar) - 1)]
         uzak_uc = (len(sinir) - 2) if ileri_yon else 0
         self.hol_sahte = None
         if kmax == uzak_uc or not term or not getattr(self, 'sahte_hol_izin', True):
@@ -1269,6 +1273,16 @@ class Daire:
         nd = len(o['tasarim']['devreler'])
         genis = RES * (2 * nd - 1) / 2.0 + S.KENAR + 1.0
         kc = kp.centroid
+        # önce şeritsiz: uçlar kapıya en yakın köşede (mahal tam dolu kalır)
+        import copy
+        yedek_t = (o['H'], copy.deepcopy(o['tasarim']), o.get('ek_eng'))
+        y = yeniden_kur(o, o.get('ek_eng'), (kc.x, kc.y), self.yasak, kapi_zorla=True)
+        if y is not None:
+            o['H'], o['tasarim'] = y['H'], y['tasarim']
+            if self._dene_kirp(o):
+                log('D%d %s: uçlar kapı köşesine alındı' % (self.dno, o.get('zon', o['ad'])))
+                return True
+        o['H'], o['tasarim'], o['ek_eng'] = yedek_t
         # kapı ile mahal arasındaki eşik orta noktası
         for deneme in range(3):
             # yalnız duvarlara göre, kapıdan mevcut uçlara duvar dibi şerit
@@ -1283,17 +1297,36 @@ class Daire:
             if yol is None:
                 break
             serit = LineString([G.xy(*p) for p in yol] + [c0['pts'][0][:2]]) if len(yol) > 1 else Point(G.xy(*yol[0]))
-            ek = serit.buffer(genis, cap_style=2, join_style=2).intersection(o['poly'])
             onceki = o.get('ek_eng')
+            yedek_d = (o['H'], copy.deepcopy(o['tasarim']), o.get('ek_eng'))
+            basari = False
+            # önce kısa şerit (kapı ağzından 60 / 120 cm), olmazsa tam şerit: mahal olabildiğince dolu kalsın
+            for uz in (60.0, 120.0, None):
+                if uz is not None and (serit.geom_type != 'LineString' or serit.length <= uz + 5):
+                    continue
+                sr = shapely.ops.substring(serit, 0, uz) if uz is not None else serit
+                ek = sr.buffer(genis, cap_style=2, join_style=2).intersection(o['poly'])
+                ek_t = ek if onceki is None else unary_union([onceki, ek])
+                y = yeniden_kur(o, ek_t, (kc.x, kc.y), self.yasak, kapi_zorla=True)
+                if y is None:
+                    continue
+                o['H'], o['tasarim'] = y['H'], y['tasarim']
+                o['ek_eng'] = ek_t
+                if self._dene_kirp(o):
+                    basari = True
+                    break
+                o['H'], o['tasarim'], o['ek_eng'] = yedek_d[0], copy.deepcopy(yedek_d[1]), yedek_d[2]
+            if basari:
+                log('D%d %s: kapıdan uca ayak şeridi açıldı (deneme %d)' % (self.dno, o.get('zon', o['ad']), deneme + 1))
+                return True
+            # tam şeritle tasarım (bir sonraki deneme bu uçlardan şerit arar)
+            ek = serit.buffer(genis, cap_style=2, join_style=2).intersection(o['poly'])
             ek_t = ek if onceki is None else unary_union([onceki, ek])
             y = yeniden_kur(o, ek_t, (kc.x, kc.y), self.yasak, kapi_zorla=True)
             if y is None:
                 break
             o['H'], o['tasarim'] = y['H'], y['tasarim']
             o['ek_eng'] = ek_t
-            if self._dene_kirp(o):
-                log('D%d %s: kapıdan uca ayak şeridi açıldı (deneme %d)' % (self.dno, o.get('zon', o['ad']), deneme + 1))
-                return True
         # son çare: uçlar kapıya en yakın köşede (şeritsiz)
         y = yeniden_kur(o, o.get('ek_eng'), (kc.x, kc.y), self.yasak, kapi_zorla=True)
         if y is not None:
@@ -1338,7 +1371,8 @@ class Daire:
                               yasla=self.yasla)
                 if r is None:
                     # aynı mahalin bir önceki devresiyle sıra (ve ağız çifti) takası
-                    if i > 0 and sira0[i - 1][0] is o and (id(c), i) not in takas:
+                    if i > 0 and sira0[i - 1][0] is o and (id(c), i) not in takas and id(c) in self.atama \
+                            and id(sira0[i - 1][1]) in self.atama:
                         takas.add((id(c), i))
                         o2, c2 = sira0[i - 1]
                         r2 = rota.pop(id(c2))
@@ -1547,7 +1581,7 @@ class Daire:
         # önce ayrılmış ağızlara bitişik parça; sonra büyükten küçüğe diğer parçalar (boş herhangi bir ağız)
         aday = [q for q in parcalar if q.distance(Pu) < 30] + [q for q in parcalar if q.distance(Pu) >= 30]
         bos_slot = [s_ for s_ in range(len(self.slot_ij)) if s_ not in self.slot_sahip or self.slot_sahip[s_] == 'hol']
-        for q in aday[:5]:
+        for q in aday[:6]:
             Mk = Point(self.kol['merkez'])
             from shapely.ops import nearest_points
             Ps = nearest_points(q, Pu if q.distance(Pu) < 30 else Mk)[0]
@@ -1579,7 +1613,7 @@ class Daire:
                 en = (L, y, ek, eklenen, self.dolu.copy(), dict(self.slot_sahip))
             self.dolu, self.slot_sahip = dolu0, sahip0
             o['H'], o['tasarim'], o['ek_eng'] = eski
-            if en is not None and en[0] > 2500:
+            if en is not None and en[0] > 4500:
                 break
         if en is None:
             self.uyari.append('D%d %s: hol serpantini ayak demeti dışında kurulamadı / bağlanamadı' % (

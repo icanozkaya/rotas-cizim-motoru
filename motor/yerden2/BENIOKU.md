@@ -10,7 +10,7 @@ python3 motor/deneme/denetim/denetle.py proje/denemeler/yerden2/NB_YERDEN_ISITMA
 |---|---|
 | `--png` | `proje/denemeler/yerden2/onizleme/` içine kat planı, şema ve referansla yan yana PNG'ler |
 | `--cep` | (eski, tur 1) devre etiketi için serpantinde cep bırakır. **Varsayılan (tur 2): etiket serpantinin üstünde, altı WIPEOUT maskeli** (kullanıcının çizimi gibi) |
-| `--ayaklar` | Uygulanmadı, yalnız uyarı. Kullanıcının çiziminde planda ayak yok, bağlantı yalnız şemada |
+| `--ayaklar` | (eski seçenek, etkisiz) 15.10 (D) itibarıyla planda kollektör + kombi + ayaklar HER ZAMAN çizilir (`ayak.py`) |
 | `--yenile` | Mimari tanıma önbelleğini (`/tmp/claude-0/y2/onbellek`) yeniden kurar |
 
 Çıktılar `proje/denemeler/yerden2/` içinde: `NB_YERDEN_ISITMA.dxf` (AC1032, cm; 3 kat planı kaynak koordinatında, kolon
@@ -20,6 +20,7 @@ tablosu, MMO yüzey sıcaklıkları). Bir koşu ≈ 30 s, `--png` ile ≈ 70 s, 
 ## Modüller
 | Dosya | Görev |
 |---|---|
+| `ayak.py` | **15.10 (D)** planda kollektör dolabı, kombi–kollektör gidiş/dönüş hattı, her devrenin gidiş/dönüş ayakları (aşağıda) |
 | `mimari_yi.py` | Mahal tanıma (`sihhi2/mimari2.Kat`), ısıtılan mahal ve sıcaklık, yüklük bölme, kapılar, tefriş engelleri, ısıtma bölgesi. Kapı kanadına değen kısa çizgiler ve kapı etiket dairesi (K2, r≈8) kapı parçasıdır; süpürme alanı engel değildir. Islak hacimde duş teknesi/küvet, lavabo, Ç.M. gövdesi hariç tutulur; klozetin önü (çanak) hariç tutulmaz, yalnız duvar tarafındaki 12 cm arka şerit boş (tur 4). Lavabo, içinde batarya daireleri olan küçük kutudan tanınır |
 | `serpantin.py` | Meander. `kur()` satır fazını (0–12,5 cm) ve uç tarafında atlanan satır sayısını (0–6) tarayıp en çok boru veren düzeni seçer. `kur_merdiven()` tek devreli mahallerde **basamaklı besleme** kurar: besleme hattı her satır grubunda sol sınıra yaslanır, gruplar arasında kısa yatay bir basamakla kayar (klozet/lavabo yanı, L hol, kapı girintisi) |
 | `tasarim.py` | Köşe seçimi (kapıya en yakın köşe; kaplama en iyinin %97'sinden azsa daha iyi kaplayan köşe), devre sayısı, bant bölmesi. Tek devrede normal ve basamaklı düzenden uzun olanı alır |
@@ -177,3 +178,46 @@ Notlar:
   artık Ç.M. kutusuna değmiyor.
 - **İki devreli mahal:** etiketler aynı x hizasında alt alta (18/18 mahal), her biri kendi bandında.
 - `yi_kirp.py`: tur 4 kırpımları 17–22 (`YI_KIRP_SADECE=17,18` ile yalnız seçilenler).
+
+## Tur 5 — 15.10 (D) kullanıcı reddi: "Yerden ısıtmayı hiç ellememişsin, kollektör bağlantıları yok, bloklarımı bozmuşsun"
+### Planda kollektör bağlantıları (`ayak.py`)
+- **Kollektör yeri**: daire holünün (antre-kor.) duvarında; arkası aynı dairenin mahali (ortak alan / balkon / dış değil),
+  önü kapı süpürme alanına değmez, hol ≥ 70 cm derin. Puan: devre uçlarına + kombiye Manhattan uzaklık toplamı (merkez).
+  Planda dolap 10 cm derin, kullanılan ağızlar kadar geniş; iç iki çizgi gidiş/dönüş barı. Etiket iki satır, kullanıcının
+  şema biçimi: `KOLLEKTÖR n AĞIZ` / `ΣW-Ø32` (holde boş yerde; dar holde 90°).
+- **Kombi**: sıhhi modeldeki kombi noktası (`proje/denemeler/sihhi2/sihhi_model.json` daireler[].kombi, x + kat ofseti) —
+  sıhhi planla aynı nokta; planda mimari kombi kutusu ROTAS-ISITMA-CIHAZ ile + "KOMBİ". Kombi–kollektör gidiş (kırmızı) /
+  dönüş (turuncu kesikli) hattı mutfaktan (tezgâh altı tercihli) ve mutfak kapısının mutfak devresi uçlarından uzak
+  yarısından hole geçer; mutfak serpantini bu hattın dışında yeniden kurulur.
+- **Ayaklar**: 5 cm ızgarada ÇİFT A* (gidiş + dönüş birlikte, 5 cm paralel; aralarına başka hat giremez). Dik açılı,
+  dönüş cezalı; serpantin ekseninden ≥ 7,6 cm (parmaklar arasına giremez), duvardan ≥ 4 cm.
+  - Mahal içinde: kapı eşiğinden (kapı süpürme alanı + duvar boşluğu, hol tarafına 45 cm) uçlara. Erişim yoksa sırayla:
+    besleme ucu yol boyunca 15/30 cm kısaltılır (köşedeki parmak ucuna kapıdan yol) → uçlar kapı köşesine alınır
+    (şeritsiz yeniden kurulum) → kapı ağzından 60/120 cm / tam ayak şeridi ayrılıp serpantin şeridin dışında kurulur.
+    Çok devreli mahalde erişim devrelerin hepsi BİRLİKTE (birbirini kesmeden) denetlenir; bulunan mahal içi yol sabitlenir.
+  - Kapısız geçiş: kapı poligonu yoksa / hole uzaksa (duş kabini kapısı) iki mahal poligonu ≤ 3 cm olan ortak kenar
+    (duvarsız açıklık) ya da mimari çizgi kesmeyen duvar boşluğu kullanılır.
+  - Holde: **düzlemsel ağız ataması** — hol sınırı boyunca kapılar kollektörün bir ucundan öbürüne sıralanır, ağız
+    çiftleri ters sırayla verilir (kesişmesiz kirişler). Yönlendirme önce bu sırayla tek tek, duvara / önceki çifte
+    yaslanarak (duvar takibi, iki yönden); olmazsa müzakereli yönlendirme (PathFinder: çakışan düğüm cezası artırılarak
+    yeniden), sonra kısmi çözüm + tek tek tamamlama. Hepsinin ardından 3 temizleme geçişi (yüksek dönüş cezası).
+  - Hol devresi: demetin dışında kalan, ağız çiftine bitişik hol parçasında kurulur (en uzun kapısız sınır yayına sahte uç
+    konarak demette ona koridor bırakılır; 1./2./3. en uzun yay ve sahte uçsuz değişkenler denenir, hol borusu uzun olan
+    seçilir).
+  - Adaylar (kollektör yeri × sahte hol ucu × kombi) puanlanır: tam bağlantı > kombi hattı > hol devresi uzunluğu.
+- **Devre boyu** = ayaklar + serpantin (plan etiketi, şema, Excel aynı); > 80 m ise mahal bir devre fazla bölünür (bu
+  koşuda gerek olmadı, en uzun 71,87 m). Planda her devre tek polyline: ağız → gidiş ayağı → serpantin → dönüş ayağı → ağız.
+- **Kontroller** (`yi_kontrol.ayak_kontrol`, KONTROL.json): ayaklı devre 81/81; ayak–ayak / ayak–serpantin / ayak–kombi
+  kesişmesi 0; farklı hatlar arası < 4 cm 0; ayak duvarı yalnız kapı/geçişte keser (0 ihlal); başka / ısıtılmayan mahalden
+  geçen ayak 0; kombi hattı 8/9 daire (2. kat D7: kombi hattı mutfaktaki duvarsız geçişte devre ayaklarıyla kesişmeden
+  yerleşemedi — açık madde).
+- Kontrolör (`motor/kontrolor/yerden.py`): devrenin mahali artık polyline'ın ORTA noktasını içeren mahal (ayaklar iki uçta
+  simetrik); eskisi en çok boru içeren mahaldi (ayaklı küçük ıslak hacim devreleri hole sayılıyordu).
+### Şema devre paneli = kullanıcının *U108 bloğu
+- `yi_sema.panel`: kendi bloğumuz `ROTAS-YI-DEVRE-PANELI` (MTY bloğu değil) — kullanıcının *U108 geometrisi 1:1
+  (duvarlar, beton ayak, şap AR-CONC, döşeme üstü ACAD_ISO08W100 bandı; tarama tanım satırları new_block'tan birebir),
+  boru ilmeği (gidiş 50 / dönüş 25, r 5). Yazılar kullanıcının öznitelik yerlerinde/boylarında: Zxx h15 (1,26; 31,86),
+  °C h10 (94,35; 33,73), W h10 (14,5; 70), m h10 (62,06; 70), ISIKAYBI h10 (14,15; 110) + devre no sağa dayalı (94,7; 110),
+  "PEX BORU, 16 x 2.0" h10 (4,3; −14,1). Bizim eklediğimiz "DEVRE" yazısı kaldırıldı.
+- Hat etiketi kullanıcının *U110'u: kılavuz (Px−15, yg) → 6 yukarı → 7,5 sola, "NNNN.NW-Ø20" h10 kılavuzun solunda.
+- Gidiş Px−5'ten (57,5), dönüş Px'ten (22,5) iner (kullanıcının şeması).
