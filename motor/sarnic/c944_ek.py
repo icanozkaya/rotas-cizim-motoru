@@ -508,115 +508,116 @@ def kanal_w(q):
 def vel(q, w):
     return q / 3600 / (w / 100 * HK / 100)
 
-DY = -498930.0      # ana kanal ekseni
-O1 = (352568.0, -499331.5); O2 = (355473.1, -499228.3); O3 = (357529.9, -498848.4)  # mimari 80x120 tavanda boşluklar
+DY = -498930.0      # kuzey ana kanal ekseni (DT-1)
+YB_ = -499335.0     # güney toplama kanalı ekseni (DT-2)
+FA = (357150.0, -499180.0); FB = (357150.0, -499335.0)     # fanlar (rampa perdesi önü)
+PX1, PX2, PY1, PY2 = 357262.0, 357392.0, -499380.0, -499150.0  # atış plenumu
+WY1, WY2 = -499360.0, -499160.0                             # rampa perdesi boşluğu 200x60
 segs = []   # (a, b, q)
 def SEG(a, b, q): segs.append((a, b, q))
-# DT-1
-g1 = []
+g1 = []; g2 = []
 tee = 352330.0
-# batı ana kanal: 351900, 352150 menfezleri ; lobe kolu tee'den kuzeye 3 menfez
-for xa, xb, q in ((351820, 351900, 0), (351900, 352150, 1), (352150, tee, 2), (tee, O1[0], 5)):
-    if q: SEG((xa, DY), (xb, DY), q * Q_G)
+# DT-1: kuzey ana kanal (batı 2 + kuzey cep 3 + ana kanal 7 = 12 menfez)
+SEG((351900, DY), (352150, DY), 1 * Q_G); SEG((352150, DY), (tee, DY), 2 * Q_G)
 g1 += [(351900, DY), (352150, DY)]
 for ya, yb, q in ((-498050, -498350, 1), (-498350, -498650, 2), (-498650, DY, 3)):
     SEG((tee, ya), (tee, yb), q * Q_G)
 g1 += [(tee, -498050), (tee, -498350), (tee, -498650)]
-# doğu ana kanal: 353050..354550 (4)
-xs = [354550, 354050, 353550, 353050]
-for i in range(4):
-    xa = xs[i]; xb = xs[i + 1] if i < 3 else O1[0]
-    SEG((xa, DY), (xb, DY), (i + 1) * Q_G)
+xs = [353050, 353700, 354350, 355000, 355650, 356300, 356950]
+pts = [tee] + xs + [FA[0]]
+for i in range(len(pts) - 1):
+    SEG((pts[i], DY), (pts[i + 1], DY), (5 + i) * Q_G)
 g1 += [(x, DY) for x in xs]
-SEG((O1[0], DY), (O1[0], O1[1] + 40), 9 * Q_G)            # ana kanaldan fana
-# güney (cep) kolu: 3 menfez
-for ya, yb, q in ((-500050, -499830, 1), (-499830, -499600, 2), (-499600, O1[1] - 40, 3)):
-    SEG((O1[0], ya), (O1[0], yb), q * Q_G)
-g1 += [(O1[0], -500050), (O1[0], -499830), (O1[0], -499600)]
-# DT-2
-g2 = []
-SEG((355000, DY), (O2[0], DY), 1 * Q_G); g2 += [(355000, DY)]
-xs2 = [357150, 356750, 356300, 355850]
-for i in range(4):
-    xa = xs2[i]; xb = xs2[i + 1] if i < 3 else O2[0]
-    SEG((xa, DY), (xb, DY), (i + 1) * Q_G)
-g2 += [(x, DY) for x in xs2]
-SEG((O2[0], DY), (O2[0], O2[1] + 40), 5 * Q_G)
-for ya, yb, q in ((-500050, -499800, 1), (-499800, -499550, 2), (-499550, O2[1] - 40, 3)):
-    SEG((O2[0], ya), (O2[0], yb), q * Q_G)
-g2 += [(O2[0], -500050), (O2[0], -499800), (O2[0], -499550)]
-STUBS = [((351900, DY), (351860, DY)), ((tee, -498050), (tee, -498010)), ((354550, DY), (354590, DY)),
-         ((O1[0], -500050), (O1[0], -500090)), ((355000, DY), (354960, DY)), ((357150, DY), (357190, DY)),
-         ((O2[0], -500050), (O2[0], -500090))]
-for a, b in STUBS: segs.append((a, b, -Q_G))
+SEG((FA[0], DY), (FA[0], FA[1] + 38), 12 * Q_G)            # ana kanaldan DT-1 fanına
+# DT-2: güney toplama kanalı (batı cep 3 + kanal 2 + doğu cep 3 = 8 menfez)
+XW, XE = 352950.0, 355800.0
+for ya, yb, q in ((-500050, -499830, 1), (-499830, -499600, 2), (-499600, YB_, 3)):
+    SEG((XW, ya), (XW, yb), q * Q_G)
+g2 += [(XW, -500050), (XW, -499830), (XW, -499600)]
+for ya, yb, q in ((-500050, -499800, 1), (-499800, -499550, 2), (-499550, YB_, 3)):
+    SEG((XE, ya), (XE, yb), q * Q_G)
+g2 += [(XE, -500050), (XE, -499800), (XE, -499550)]
+SEG((XW, YB_), (353800, YB_), 3 * Q_G); SEG((353800, YB_), (354600, YB_), 4 * Q_G); SEG((354600, YB_), (XE, YB_), 5 * Q_G)
+g2 += [(353800, YB_), (354600, YB_)]
+SEG((XE, YB_), (FB[0] - 38, YB_), 8 * Q_G)
+STUBS = [((351900, DY), (351860, DY)), ((tee, -498050), (tee, -498010)),
+         ((XW, -500050), (XW, -500090)), ((XE, -500050), (XE, -500090)), ((XW, YB_), (XW - 40, YB_))]
+for a_, b_ in STUBS: segs.append((a_, b_, -Q_G))
 assert len(g1) == N_G1 and len(g2) == N_G2, (len(g1), len(g2))
 
-# kanalları çift çizgi çiz
 KL = 'MTY-DUMAN-EGZOZ-KANALI'
-def duct(a, b, wcm, ext_a=0, ext_b=0):
-    dx, dy = b[0] - a[0], b[1] - a[1]; Ln = math.hypot(dx, dy); ux, uy = dx / Ln, dy / Ln
-    nx, ny = -uy * wcm / 2, ux * wcm / 2
-    a2 = (a[0] - ux * ext_a, a[1] - uy * ext_a); b2 = (b[0] + ux * ext_b, b[1] + uy * ext_b)
-    L((a2[0] + nx, a2[1] + ny), (b2[0] + nx, b2[1] + ny), KL)
-    L((a2[0] - nx, a2[1] - ny), (b2[0] - nx, b2[1] - ny), KL)
-    return a2, b2, (nx, ny)
 LBL = []
 from shapely.geometry import Polygon as _Poly
 from shapely.ops import unary_union as _uu
 _rects = []
-for a, b, q in segs:
+for a_, b_, q in segs:
     w_ = kanal_w(abs(q))
-    dx, dy = b[0] - a[0], b[1] - a[1]; Ln = math.hypot(dx, dy); ux, uy = dx / Ln, dy / Ln
+    dx, dy = b_[0] - a_[0], b_[1] - a_[1]; Ln = math.hypot(dx, dy); ux, uy = dx / Ln, dy / Ln
     nx, ny = -uy * w_ / 2, ux * w_ / 2
-    _rects.append(_Poly([(a[0] + nx, a[1] + ny), (b[0] + nx, b[1] + ny), (b[0] - nx, b[1] - ny), (a[0] - nx, a[1] - ny)]))
-    if q > 0: LBL.append((a, b, q, w_))
+    _rects.append(_Poly([(a_[0] + nx, a_[1] + ny), (b_[0] + nx, b_[1] + ny), (b_[0] - nx, b_[1] - ny), (a_[0] - nx, a_[1] - ny)]))
+    if q > 0: LBL.append((a_, b_, q, w_))
+# fan çıkış bağlantıları (fan → plenum) ve plenum
+for F in (FA, FB):
+    _rects.append(_Poly([(F[0] + 30, F[1] - 30), (PX1, F[1] - 30), (PX1, F[1] + 30), (F[0] + 30, F[1] + 30)]))
 _U = _uu(_rects)
 for g in (_U.geoms if hasattr(_U, 'geoms') else [_U]):
     PL(list(g.exterior.coords), KL, True)
     for r_ in g.interiors: PL(list(r_.coords), KL, True)
+REC(PX1, PY1, PX2, PY2, KL, 1.2)
+T('ATIŞ PLENUMU', (PX1 + PX2) / 2, (PY1 + PY2) / 2, 8, 'MTY-DUMAN-EGZOZ-CAP', 'MIDDLE_CENTER', 90)
+# rampa perdesindeki boşluk (mimari boşluk 200x60'a büyütülür) + atış okları
+REC(PX2, WY1, PX2 + 20, WY2, 'MTY-DUMAN-FAN', 1.5)
+for yy in (-499200, -499260, -499320):
+    ARROW((PX2 + 25, yy), (PX2 + 140, yy), 'MTY-DUMAN-FAN', 16)
+T('DUMAN ATIŞI → RAMPA', PX2 + 150, -499245, 10, 'MTY-DUMAN-FAN', 'BOTTOM_LEFT')
+T('Perde boşluğu 200x60 cm (mimari boşluk)', PX2 + 150, -499265, 8.5, 'MTY-DUMAN-FAN', 'TOP_LEFT')
 # menfezler (tavan tipi duman egzoz menfezi 600x300, kanal altında)
 for (x, y) in g1 + g2:
-    horiz = abs(y - DY) < 1
+    horiz = abs(y - DY) < 1 or abs(y - YB_) < 1
     if horiz: x1, y1, x2, y2 = x - 30, y - 15, x + 30, y + 15
     else:     x1, y1, x2, y2 = x - 15, y - 30, x + 15, y + 30
     REC(x1, y1, x2, y2, 'MTY-DUMAN-MENFEZ'); L((x1, y1), (x2, y2), 'MTY-DUMAN-MENFEZ'); L((x1, y2), (x2, y1), 'MTY-DUMAN-MENFEZ')
-# menfez etiketleri (bir kısmına, diğerleri aynı) — ana kanal menfezleri kanal üstüne
 for (x, y) in g1 + g2:
-    horiz = abs(y - DY) < 1
-    if horiz: T('M 600x300 / 1550 m³/h', x, y - 60, 7.5, 'MTY-DUMAN-EGZOZ-CAP', 'TOP_CENTER')
+    if abs(y - DY) < 1: T('M 600x300 / 1550 m³/h', x, y - 100, 7.5, 'MTY-DUMAN-EGZOZ-CAP', 'TOP_CENTER')
+    elif abs(y - YB_) < 1: T('M 600x300 / 1550 m³/h', x, y + 70, 7.5, 'MTY-DUMAN-EGZOZ-CAP', 'BOTTOM_CENTER')
     else: T('M 600x300 / 1550 m³/h', x + 40, y, 7.5, 'MTY-DUMAN-EGZOZ-CAP', 'MIDDLE_LEFT')
-# kanal etiketleri (her segmentin ortası)
-for a, b, q, w_ in LBL:
-    mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+# kanal etiketleri
+for a_, b_, q, w_ in LBL:
+    mx, my = (a_[0] + b_[0]) / 2, (a_[1] + b_[1]) / 2
+    if math.hypot(b_[0] - a_[0], b_[1] - a_[1]) < 150: continue
     v = vel(q, w_)
     s1 = f'{q:,} m³/h'.replace(',', '.'); s2 = f'{w_ * 10}x{HK * 10} - v={f(v, 1)} m/s'
-    if abs(a[1] - b[1]) < 1:
-        T(s1, mx, my + w_ / 2 + 22, 9, 'MTY-DUMAN-EGZOZ-CAP', 'BOTTOM_CENTER'); T(s2, mx, my + w_ / 2 + 8, 8, 'MTY-DUMAN-EGZOZ-CAP', 'BOTTOM_CENTER')
+    if abs(a_[1] - b_[1]) < 1:
+        if abs(my - YB_) < 1:
+            T(s1, mx, my - w_ / 2 - 8, 9, 'MTY-DUMAN-EGZOZ-CAP', 'TOP_CENTER'); T(s2, mx, my - w_ / 2 - 22, 8, 'MTY-DUMAN-EGZOZ-CAP', 'TOP_CENTER')
+        else:
+            T(s1, mx, my + w_ / 2 + 22, 9, 'MTY-DUMAN-EGZOZ-CAP', 'BOTTOM_CENTER'); T(s2, mx, my + w_ / 2 + 8, 8, 'MTY-DUMAN-EGZOZ-CAP', 'BOTTOM_CENTER')
     else:
         T(s1, mx - w_ / 2 - 22, my, 9, 'MTY-DUMAN-EGZOZ-CAP', 'BOTTOM_CENTER', 90); T(s2, mx - w_ / 2 - 8, my, 8, 'MTY-DUMAN-EGZOZ-CAP', 'BOTTOM_CENTER', 90)
-# fanlar
-for tag, O, q, kw in (('DT-1', O1, Q1, '5,5'), ('DT-2', O2, Q2, '4,0')):
-    FAN(O, 38)
-    ARROW((O[0] + 70, O[1] - 20), (O[0] + 70, O[1] + 40), 'MTY-DUMAN-FAN', 14)
-    bx, by_ = O[0] + 110, O[1] + 70
-    REC(bx, by_ - 70, bx + 360, by_ + 22, 'MTY-DUMAN-FAN')
-    T(f'{tag} DUMAN EGZOZ FANI (F400/120 dk)', bx + 8, by_ + 8, 10, 'MTY-DUMAN-FAN')
-    T(f'Q = {q:,} m³/h - 450 Pa - {kw} kW'.replace(',', '.'), bx + 8, by_ - 12, 9, 'MTY-DUMAN-FAN')
-    T('Mimari 80x120 tavanda boşluktan dış havaya atar', bx + 8, by_ - 32, 8.5, 'MTY-DUMAN-FAN')
-    T('çift devirli: normal havalandırma / yangın', bx + 8, by_ - 52, 8.5, 'MTY-DUMAN-FAN')
-    L((O[0] + 38, O[1] + 10), (bx, by_ - 24), 'MTY-DUMAN-FAN')
-# taze hava (doğal): rampa + H3 boşluğu
-T('TAZE HAVA GİRİŞİ (DOĞAL) - mimari 80x120 boşluk', O3[0] - 70, O3[1] + 70, 9, 'MTY-TAZE-HAVA', 'BOTTOM_RIGHT')
-ARROW((O3[0] - 75, O3[1] + 62), (O3[0] - 5, O3[1] + 5), 'MTY-TAZE-HAVA', 14)
-for yy in (-499350, -499650, -499950):
+# fanlar + etiket kutusu
+FAN(FA, 38); FAN(FB, 38)
+T('DT-1', FA[0] - 45, FA[1] + 20, 11, 'MTY-DUMAN-FAN', 'BOTTOM_RIGHT')
+T('DT-2', FB[0] - 45, FB[1] - 20, 11, 'MTY-DUMAN-FAN', 'TOP_RIGHT')
+bx, by_ = 355950.0, -498700.0
+REC(bx, by_ - 95, bx + 520, by_ + 22, 'MTY-DUMAN-FAN')
+T('DT-1 / DT-2 DUMAN EGZOZ FANLARI (F400/120 dk, TS EN 12101-3)', bx + 8, by_ + 8, 10, 'MTY-DUMAN-FAN')
+T(f'DT-1: Q = {Q1:,} m³/h - 450 Pa - 5,5 kW'.replace(',', '.'), bx + 8, by_ - 12, 9, 'MTY-DUMAN-FAN')
+T(f'DT-2: Q = {Q2:,} m³/h - 450 Pa - 4,0 kW'.replace(',', '.'), bx + 8, by_ - 32, 9, 'MTY-DUMAN-FAN')
+T('Rampa perdesindeki boşluktan plenum üzerinden rampaya atar', bx + 8, by_ - 52, 8.5, 'MTY-DUMAN-FAN')
+T('çift devirli: normal havalandırma / yangın', bx + 8, by_ - 72, 8.5, 'MTY-DUMAN-FAN')
+PL([(bx + 520, by_ - 40), (FA[0] - 30, FA[1] + 25)], "MTY-DUMAN-FAN")
+# taze hava (doğal): rampa
+for yy in (-499650, -499850, -500050):
     ARROW((357640, yy), (357480, yy), 'MTY-TAZE-HAVA', 16)
-T('TAZE HAVA (RAMPADAN, DOĞAL)', 357360, -500010, 9, 'MTY-TAZE-HAVA', 'TOP_RIGHT')
-T('OTOPARK DUMAN TAHLİYESİ: 10 HAVA DEĞİŞİMİ - 2 FAN (DT-1 + DT-2) - TOPLAM 31.000 m³/h', 352380, -497760, 15, 'MTY-DUMAN-EGZOZ-CAP')
+T('TAZE HAVA (RAMPADAN, DOĞAL)', 357360, -500110, 9, 'MTY-TAZE-HAVA', 'TOP_RIGHT')
+T('OTOPARK DUMAN TAHLİYESİ: 10 HAVA DEĞİŞİMİ - 2 FAN (DT-1 + DT-2) - TOPLAM 31.000 m³/h - ATIŞ RAMPA TARAFINDAN', 352380, -497760, 15, 'MTY-DUMAN-EGZOZ-CAP')
 
 # ---------------------------------------------------------------- DUMAN TAHLİYE HESABI (tablo)
-v1 = Q1 / 3600 / 0.96; v2 = Q2 / 3600 / 0.96
-A_TH = 3.60 * 2.20 + 0.96
+A_AT = 2.00 * 0.60
+v_at = (Q1 + Q2) / 3600 / A_AT
+A_TH = 3.45 * 2.40
 v_th = (Q1 + Q2) / 3600 / A_TH
+v1 = v_at; v2 = v_at
 P1k = Q1 / 3600 * 450 / 0.55 / 1000; P2k = Q2 / 3600 * 450 / 0.55 / 1000
 RD = [
  ('NO', 'KALEM', 'FORMÜL / KAYNAK', 'DEĞER'),
@@ -626,12 +627,12 @@ RD = [
  ('4', 'Duman tahliye hava değişim sayısı', 'n', '10 1/h'),
  ('5', 'Gerekli duman egzoz debisi', 'Q = n · V', f(Q_REQ, 0) + ' m³/h'),
  ('6', 'Seçilen toplam debi (20 menfez x 1.550 m³/h)', 'DT-1 + DT-2', f'{Q1 + Q2:,}'.replace(',', '.') + ' m³/h ≥ ' + f(Q_REQ, 0)),
- ('7', 'DT-1 fanı (batı + kuzey cep + güney cep, 12 menfez)', 'Q1', f'{Q1:,}'.replace(',', '.') + ' m³/h'),
- ('8', 'DT-2 fanı (doğu + güney cep, 8 menfez)', 'Q2', f'{Q2:,}'.replace(',', '.') + ' m³/h'),
+ ('7', 'DT-1 fanı (kuzey ana kanal + kuzey cep, 12 menfez)', 'Q1', f'{Q1:,}'.replace(',', '.') + ' m³/h'),
+ ('8', 'DT-2 fanı (güney toplama kanalı + 2 güney cep, 8 menfez)', 'Q2', f'{Q2:,}'.replace(',', '.') + ' m³/h'),
  ('9', 'Menfez yüz hızı (600x300 = 0,18 m²)', 'v = 1550/3600/0,18', f(1550 / 3600 / 0.18) + ' m/s ≤ 3'),
  ('10', 'Kanal boyutlandırma (yükseklik 400 mm sabit)', 'v ≤ 8 m/s', 'plandaki etiketler'),
- ('11', 'Fan atış hızı - mimari 80x120 boşluk (0,96 m²)', 'v = Q / 0,96', f'{f(v1)} / {f(v2)} m/s'),
- ('12', 'Taze hava girişi: rampa 3,60x2,20 + 80x120 boşluk', 'At', f(A_TH) + ' m²'),
+ ('11', 'Atış hızı - rampa perdesi boşluğu 200x60 (1,20 m²)', 'v = Q / 1,20', f(v_at) + ' m/s ≤ 10'),
+ ('12', 'Taze hava girişi: rampa açıklığı ≈ 3,45 x 2,40', 'At', f(A_TH) + ' m²'),
  ('13', 'Taze hava giriş hızı (doğal)', 'v = Q / At', f(v_th) + ' m/s'),
  ('14', 'Fan statik basıncı (kanal + menfez + atış, kabul)', 'Δp', '450 Pa'),
  ('15', 'Motor gücü (η = 0,55)', 'P = Q·Δp / η', f'{f(P1k, 1)} → 5,5 / {f(P2k, 1)} → 4,0 kW'),
@@ -640,75 +641,87 @@ TABLO(352080, -500380, 'OTOPARK DUMAN TAHLİYE HESABI (10 HAVA DEĞİŞİMİ)', 
 NOT2 = [
  '1. Duman tahliye fanları F400 (400 °C / 120 dk) sınıfında, TS EN 12101-3 belgeli olacaktır.',
  '2. Fanlar yangın algılama paneli ve otopark CO/duman dedektörlerinden otomatik devreye girecektir.',
- '3. Fanlar mimarinin gösterdiği 80x120 tavanda boşluklardan dış havaya atacak; atış ağzı ızgaralı olacaktır.',
- '4. Atış ağzı pencere, kapı ve sığınak taze hava alışından en az 3 m uzakta olacaktır.',
+ '3. Fanlar atış plenumu üzerinden rampa perdesindeki 200x60 cm boşluktan rampaya atacaktır.',
+ '4. Atış boşluğu ızgaralı olacak, ızgara kanatları rampa çıkışı yönüne açılı olacaktır.',
  '5. Kanallar en az 1,0 mm galvaniz sac, flanşlı ve sızdırmaz olacak; askılar çelik olacaktır.',
  '6. Kanal alt kotunda otopark net yüksekliği en az 2,20 m korunacaktır.',
- '7. Taze hava rampadan ve rampa yanındaki 80x120 boşluktan doğal olarak alınacaktır.',
+ '7. Taze hava rampadan doğal olarak alınacaktır.',
  '8. Fan besleme kabloları yangına dayanıklı (FE180) olacak, ayrı jeneratör hattından beslenecektir.',
 ]
 T('PROJE NOTLARI (DUMAN TAHLİYE)', 352080, -500960, 12, 'ROTAS-HESAP-BASLIK')
-for i, s in enumerate(NOT2):
-    T(s, 352080, -500985 - i * 18, 8.3, 'ROTAS-HESAP-YAZI')
+for i, s_ in enumerate(NOT2):
+    T(s_, 352080, -500985 - i * 18, 8.3, 'ROTAS-HESAP-YAZI')
 
 # ---------------------------------------------------------------- HAVALANDIRMA ŞEMASI (duman tahliye)
 X0, Y0 = 355150.0, -500680.0
 T('OTOPARK DUMAN TAHLİYE ŞEMASI', X0, Y0, 14, 'MTY-HAVALANDIRMA-SEMA')
-yz = Y0 - 100       # zemin (±0,00 / bahçe)
+yz = Y0 - 100       # zemin (±0,00)
 yt = Y0 - 260       # 1. bodrum tavanı
 yb = Y0 - 480       # 1. bodrum döşeme
-for yy, s in ((yz, 'ZEMİN KAT / BAHÇE  ±0,00'), (yt, ''), (yb, '1. BODRUM KAT (OTOPARK)  -3,54')):
-    PL([(X0, yy), (X0 + 2750, yy)], 'MTY-HAVALANDIRMA-SEMA', w=2 if s else 0)
-    if s: T(s, X0, yy + 8, 9, 'MTY-HAVALANDIRMA-SEMA', 'BOTTOM_LEFT')
-T('H = 3,54 m', X0 + 2700, (yz + yb) / 2, 9, 'MTY-HAVALANDIRMA-SEMA', 'MIDDLE_RIGHT')
-def sema_dt(xa, tag, ns, q, xb):
-    # kanal (tek çizgi kalın) + menfezler
-    yk = yt - 30
-    PL([(xa, yk), (xb, yk)], KL, w=8)
-    step = (xb - xa) / (ns + 1)
-    for i in range(ns):
+XP = X0 + 2200      # rampa perdesi
+for yy, s_ in ((yz, 'ZEMİN KAT  ±0,00'), (yt, ''), (yb, '1. BODRUM KAT (OTOPARK)  -3,54')):
+    PL([(X0, yy), (XP, yy)], 'MTY-HAVALANDIRMA-SEMA', w=2 if s_ else 0)
+    if s_: T(s_, X0, yy + 8, 9, 'MTY-HAVALANDIRMA-SEMA', 'BOTTOM_LEFT')
+T('H = 3,54 m', X0 + 20, (yt + yb) / 2, 9, 'MTY-HAVALANDIRMA-SEMA', 'MIDDLE_LEFT')
+yk1 = yt - 30; yk2 = yt - 100
+def menfezler(xa, xb, n, yk):
+    step = (xb - xa) / (n + 1)
+    for i in range(n):
         x = xa + step * (i + 1)
         REC(x - 14, yk - 18, x + 14, yk - 8, 'MTY-DUMAN-MENFEZ')
         ARROW((x, yk - 60), (x, yk - 20), 'MTY-DUMAN-MENFEZ', 10)
-    T(f'{ns} x MENFEZ 600x300 - 1.550 m³/h', (xa + xb) / 2, yk - 80, 8.5, 'MTY-DUMAN-EGZOZ-CAP', 'TOP_CENTER')
-    fx_ = xb + 60
-    PL([(xb, yk), (fx_ - 28, yk)], KL, w=8)
-    FAN((fx_, yk), 28)
-    PL([(fx_, yk + 28), (fx_, yz + 40)], KL, w=8)
-    REC(fx_ - 40, yz - 6, fx_ + 40, yz + 6, 'MTY-HAVALANDIRMA-SEMA')
-    T('80x120 TAVANDA BOŞLUK (mimari)', fx_ + 48, yz - 14, 8, 'MTY-HAVALANDIRMA-SEMA', 'TOP_LEFT')
-    PL([(fx_ - 50, yz + 40), (fx_ + 50, yz + 40)], 'MTY-HAVALANDIRMA-SEMA', w=3)
-    for k in range(5): L((fx_ - 40 + k * 20, yz + 44), (fx_ - 30 + k * 20, yz + 54), 'MTY-HAVALANDIRMA-SEMA')
-    ARROW((fx_, yz + 60), (fx_, yz + 110), 'MTY-DUMAN-FAN', 14)
-    T('DIŞ HAVAYA ATIŞ (ızgaralı)', fx_ + 12, yz + 95, 8.5, 'MTY-HAVALANDIRMA-SEMA')
-    T(f'{tag}', fx_ - 36, yk + 36, 11, 'MTY-DUMAN-FAN', 'BOTTOM_RIGHT')
-    T(f'{q:,} m³/h - 450 Pa'.replace(',', '.'), fx_ + 36, yk - 36, 8.5, 'MTY-DUMAN-FAN', 'TOP_LEFT')
-sema_dt(X0 + 60, 'DT-1', 12, Q1, X0 + 1060)
-sema_dt(X0 + 1300, 'DT-2', 8, Q2, X0 + 1980)
-# taze hava (rampa)
-xr = X0 + 2300
-PL([(xr, yz), (xr + 300, yb)], 'MTY-HAVALANDIRMA-SEMA')
-T('RAMPA', xr + 170, (yz + yb) / 2 + 20, 9, 'MTY-HAVALANDIRMA-SEMA')
+# DT-1: menfezli bölüm X0+150..X0+1100, sonra düz kanal fana
+PL([(X0 + 150, yk1), (X0 + 2030, yk1)], KL, w=8)
+menfezler(X0 + 150, X0 + 1100, 12, yk1)
+T('DT-1: 12 x MENFEZ 600x300 - 1.550 m³/h (kuzey ana kanal + kuzey cep)', X0 + 625, yk1 - 80, 8.5, 'MTY-DUMAN-EGZOZ-CAP', 'TOP_CENTER')
+# DT-2
+PL([(X0 + 1200, yk2), (X0 + 2030, yk2)], KL, w=8)
+menfezler(X0 + 1200, X0 + 1900, 8, yk2)
+T('DT-2: 8 x MENFEZ 600x300 - 1.550 m³/h (güney kanal + 2 cep)', X0 + 1550, yk2 - 80, 8.5, 'MTY-DUMAN-EGZOZ-CAP', 'TOP_CENTER')
+for yk, tag, q in ((yk1, 'DT-1', Q1), (yk2, 'DT-2', Q2)):
+    FAN((X0 + 2060, yk), 28)
+    PL([(X0 + 2088, yk), (XP - 70, yk)], KL, w=8)
+    T(tag, X0 + 2060, yk + 34, 10, 'MTY-DUMAN-FAN', 'BOTTOM_CENTER')
+    T(f'{q:,} m³/h - 450 Pa'.replace(',', '.'), X0 + 1990, yk + 34, 8, 'MTY-DUMAN-FAN', 'BOTTOM_RIGHT')
+REC(XP - 70, yk2 - 40, XP, yk1 + 30, KL, 1.2)
+T('PLENUM', XP - 35, (yk1 + yk2) / 2, 7.5, 'MTY-DUMAN-EGZOZ-CAP', 'MIDDLE_CENTER', 90)
+# rampa perdesi (boşluklu) + rampa
+PL([(XP, yz), (XP, yk1 + 30)], 'MTY-HAVALANDIRMA-SEMA', w=3)
+PL([(XP, yk2 - 40), (XP, yb + 260)], 'MTY-HAVALANDIRMA-SEMA', w=3)
+for yy in (yk1, (yk1 + yk2) / 2, yk2):
+    ARROW((XP + 5, yy), (XP + 110, yy), 'MTY-DUMAN-FAN', 12)
+T('DUMAN ATIŞI → RAMPA (perde boşluğu 200x60)', XP + 120, (yk1 + yk2) / 2, 8.5, 'MTY-DUMAN-FAN', 'MIDDLE_LEFT')
+PL([(XP, yz), (XP + 520, yb)], 'MTY-HAVALANDIRMA-SEMA')
+T('RAMPA', XP + 330, yb + 190, 9, 'MTY-HAVALANDIRMA-SEMA')
+PL([(XP, yb), (XP + 520, yb)], 'MTY-HAVALANDIRMA-SEMA', w=2)
 for k in range(3):
-    ARROW((xr + 40 + k * 90, yz - 40 - k * 75), (xr + 0 + k * 90 - 40, yz - 70 - k * 75), 'MTY-TAZE-HAVA', 12)
-T('TAZE HAVA (DOĞAL) - RAMPA + 80x120 BOŞLUK', xr - 30, yz + 14, 8.5, 'MTY-TAZE-HAVA', 'BOTTOM_LEFT')
-# kumanda
+    ARROW((XP + 260 + k * 60, yb + 40 + k * 20), (XP - 120 + k * 60, yb + 40 + k * 20), 'MTY-TAZE-HAVA', 12)
+T('TAZE HAVA (DOĞAL) - RAMPADAN', XP - 130, yb + 100, 8.5, 'MTY-TAZE-HAVA', 'BOTTOM_RIGHT')
 T('Kumanda: yangın algılama paneli / duman dedektörü → DT-1 + DT-2 yüksek devir; CO dedektörü → düşük devir', X0, yb - 30, 8.5, 'MTY-HAVALANDIRMA-SEMA')
-# lejant
 lyy = yb - 55
 T('LEJANT', X0, lyy, 11, 'MTY-HAVALANDIRMA-SEMA')
 items = [('fan', 'Duman egzoz fanı (F400/120 dk)'), ('m', 'Duman egzoz menfezi 600x300 (tavan)'),
          ('k', 'Duman egzoz kanalı (galvaniz, h=400 mm)'), ('t', 'Taze hava (doğal) akış yönü')]
-for i, (k, s) in enumerate(items):
+for i, (k, s_) in enumerate(items):
     xx = X0 + 30 + (i % 2) * 700; yy = lyy - 30 - (i // 2) * 30
     if k == 'fan': FAN((xx, yy), 14)
     elif k == 'm': REC(xx - 20, yy - 10, xx + 20, yy + 10, 'MTY-DUMAN-MENFEZ'); L((xx - 20, yy - 10), (xx + 20, yy + 10), 'MTY-DUMAN-MENFEZ'); L((xx - 20, yy + 10), (xx + 20, yy - 10), 'MTY-DUMAN-MENFEZ')
     elif k == 'k': L((xx - 25, yy - 8), (xx + 25, yy - 8), KL); L((xx - 25, yy + 8), (xx + 25, yy + 8), KL)
     else: ARROW((xx - 25, yy), (xx + 25, yy), 'MTY-TAZE-HAVA', 10)
-    T(s, xx + 40, yy, 8.5, 'MTY-HAVALANDIRMA-SEMA')
+    T(s_, xx + 40, yy, 8.5, 'MTY-HAVALANDIRMA-SEMA')
+
+# =================================================================================
+# 3) HİZALAMA İÇİN KOLONLAR (mimari 1. bodrum COLUMN4) — her iki paftada
+# =================================================================================
+import json, os
+_KJ = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'proje', 'sarnic_duman_944_343', 'kolonlar_1bodrum.json')))
+doc.layers.add('MIM-KOLON-REFERANS', color=8)
+for (ox_, oy_) in (_KJ['hv_ofset'], _KJ['sihhi_ofset']):
+    for poly in _KJ['kolonlar']:
+        PL([(x + ox_, y + oy_) for x, y in poly], 'MIM-KOLON-REFERANS')
 
 doc.saveas(OUT)
 print('OK', OUT)
 print(f'E={E:.2f} Vmin={Vmin:.2f} Vm={Vm:.2f} Qr={Qr:.2f} q={qYB:.2f} H={H_P:.1f} P={Pw:.3f} Vt={Vt:.1f}')
 print(f'V_OT={V_OT:.1f} Q_REQ={Q_REQ:.0f} Q1={Q1} Q2={Q2} v1={v1:.2f} v2={v2:.2f} vth={v_th:.2f} P1={P1k:.2f} P2={P2k:.2f}')
-for a, b, q, w_ in LBL: print(q, w_, round(vel(q, w_), 2))
+for a_, b_, q, w_ in LBL: print(q, w_, round(vel(q, w_), 2))
