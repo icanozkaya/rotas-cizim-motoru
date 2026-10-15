@@ -211,6 +211,43 @@ def kolon_baglantisi(ps, off):
             b['pts'] = temiz(list(b['pts']) + [E])
 
 
+def radyal_uc(pts, merkezler, r=KOLON_R, tol=10.0):
+    """tur 7: kolonda biten hat çembere RADYAL varır (kolonun yanından teğet geçip çemberde bitmez). Uç çemberin içinde
+    ya da kenarındaysa ve son parça merkez doğrultusundan > tol derece sapıyorsa: hat, merkezden 0/45/90° doğrultudaki
+    ışınla kesiştiği (merkeze >= r + 1,5) son noktada kesilir, oradan merkeze düz (çizimde çemberde kırpılır) devam eder."""
+    pts = [tuple(p) for p in pts]
+    for uc in (0, -1):
+        if len(pts) < 2:
+            break
+        q = pts[uc]
+        c = min(merkezler, key=lambda m: dist(m, q)) if merkezler else None
+        if c is None or dist(c, q) > r + 2.0:
+            continue
+        v = pts[1] if uc == 0 else pts[-2]
+        a1 = math.atan2(q[1] - v[1], q[0] - v[0])
+        a2 = math.atan2(c[1] - q[1], c[0] - q[0]) if dist(c, q) > 0.3 else a1
+        if abs((math.degrees(a1 - a2) + 180) % 360 - 180) <= tol:
+            continue
+        yol = pts if uc == -1 else pts[::-1]
+        g = LineString(yol)
+        # merkeze 0/45/90° varan son parça: merkezden 8 yönde ışın, hattı (merkezden >= r + 1,5) kestiği, hattın sonuna en
+        # yakın nokta X; hat X'te kesilir, X -> merkez (çizimde çemberde kırpılır)
+        best = None
+        for k_ in range(8):
+            u_ = (math.cos(k_ * math.pi / 4), math.sin(k_ * math.pi / 4))
+            ray = LineString([(c[0] + u_[0] * (r + 1.5), c[1] + u_[1] * (r + 1.5)), (c[0] + u_[0] * 80, c[1] + u_[1] * 80)])
+            x_ = g.intersection(ray)
+            for q_ in [x_] if x_.geom_type == 'Point' else [h for h in getattr(x_, 'geoms', []) if h.geom_type == 'Point']:
+                t_ = g.project(q_)
+                if best is None or t_ > best[0]:
+                    best = (t_, (q_.x, q_.y))
+        if best is None or best[0] < 1.0:
+            continue
+        yeni = temiz(list(substring(g, 0.0, best[0]).coords) + [tuple(c)])
+        pts = yeni if uc == -1 else yeni[::-1]
+    return pts
+
+
 def kolon_ici_kirp(g, merkezler, r=KOLON_R):
     """hat geometrisi (LineString) kolon çemberlerinin içinden geçmez: iç kısım kırpılır -> [LineString]"""
     out = [g]
@@ -2802,6 +2839,7 @@ def kat_ciz(doc, eng, K, dur, onceki):
     K.kolon_ici_kirpilan = 0
 
     def _pis_ciz(pts):
+        pts = radyal_uc(pts, merkezler)
         g = LineString(pts)
         parca = kolon_ici_kirp(g, merkezler)
         if len(parca) != 1 or abs(parca[0].length - g.length) > 0.05:

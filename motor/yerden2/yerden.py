@@ -235,15 +235,22 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
     kol = ayaklari_kur(k, K, odalar, yasak) if AYAKLAR else {}
     # numaralama: daire sırası, tür sırası, konum (yukarıdan aşağı, soldan sağa)
     odalar.sort(key=lambda o: (o['daire'], TUR_SIRA[o['tur']], -round(o['xy'][1] / 50), o['xy'][0]))
-    devre_no = 0
     for i, o in enumerate(odalar):
         o['zon'] = ('Z%02d' % (i + 1)) if k == 'Z' else ('%s%02d' % (ZON_ONEK[k], i + 1))
-        # bant 0 = uca en yakın devre -> önce numaralanır
         for c in o['tasarim']['devreler']:
-            devre_no += 1
-            c['no'] = devre_no
             c['L_m'] = round(c['L'] / 100.0, 2)
             c['W'] = round(W_M * c['L_m'], 1)
+    # devre no: daire sırasıyla, daire içinde PLANDAKİ KOLLEKTÖR AĞIZ SIRASIYLA (gidiş ağzı, dolabın bir ucundan
+    # öbürüne) -> şemadaki panel/ağız sırası (no büyükten küçüğe) plandaki kollektörle aynı. Ayaksız devre (olmamalı)
+    # mahal sırasıyla sona.
+    devre_no = 0
+    for dno in sorted({o['daire'] for o in odalar}):
+        devs = [(j, c) for j, (o, c) in enumerate((o, c) for o in odalar if o['daire'] == dno
+                                                  for c in o['tasarim']['devreler'])]
+        devs.sort(key=lambda jc: (0, min(jc[1]['agiz'])) if jc[1].get('agiz') else (1, jc[0]))
+        for j, c in devs:
+            devre_no += 1
+            c['no'] = devre_no
     return dict(kat=k, K=K, odalar=odalar, isitmasiz=isitmasiz, yasak=yasak, yazi=yaz, kollektorler=kol,
                 yazi_u=unary_union(yaz) if yaz else Polygon())
 
@@ -955,7 +962,11 @@ def model_yaz(KTS):
             devs = [c for o in KT['odalar'] if o['daire'] == dno for c in o['tasarim']['devreler']]
             dd['kollektor'] = {'agiz': len(devs), 'W': round(sum(c['W'] for c in devs), 1),
                                'ayakli': sum(1 for c in devs if c.get('ayak_g')),
-                               'kombi_hatti': bool(son and son.get('kombi_hat'))}
+                               'kombi_hatti': bool(son and son.get('kombi_hat')),
+                               # plandaki ağız sırası (gidiş ağzı slotu artan) ve şemadaki panel sırası (no azalan)
+                               'plan_agiz_sirasi': [c['no'] for c in sorted((c for c in devs if c.get('agiz')),
+                                                                             key=lambda c: min(c['agiz']))],
+                               'sema_sirasi': sorted((c['no'] for c in devs), reverse=True)}
         kat['isitilmayan'] = sorted({'%s (%s)' % (q['ad'].replace('\n', ' '), q['tur']) for q in KT['isitmasiz']})
         out['katlar'].append(kat)
     json.dump(out, open(CIKIS_JSON, 'w'), ensure_ascii=False, indent=1)

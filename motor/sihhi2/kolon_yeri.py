@@ -60,9 +60,9 @@ def saft_yazilari(K):
             continue
         h = float(a[2][1])
         p0, p1 = a[1][0], a[1][1]
-        # kayıttaki ikinci nokta yazı sonu (AutoCAD); ekranda yazı tipi daha geniş görünüyor: %40 pay
-        w = (p1[0] - p0[0]) if p1[0] - p0[0] > 0.3 * h else 0.75 * h * len(s)
-        out.append(box(p0[0], p0[1] - 0.3 * h, p0[0] + 1.4 * w, p0[1] + 1.1 * h))
+        # kayıttaki ikinci nokta yazı sonunu vermiyor (çizimde 'havl.' ~26 cm görünüyor, kayıt 12 cm): karakter başına 0,6 h
+        w = max(p1[0] - p0[0], 0.6 * h * len(s))
+        out.append(box(p0[0], p0[1] - 0.3 * h, p0[0] + w, p0[1] + 1.1 * h))
     return out
 
 
