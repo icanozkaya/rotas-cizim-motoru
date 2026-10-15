@@ -39,6 +39,13 @@ python3 emitp.py /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_SIH
 python3 pdfp.py  /tmp/claude-0/p2/st_R.pkl /tmp/claude-0/p2/out/SINEM_TURHAN_ONIZLEME.pdf
 ```
 
+## Kalıcı kurallar — 15.10.2026 (D) kullanıcı geri bildirimi (13:07; görüntüler `geri_bildirim/RED_yerden_sema_panel_blok_bozuk.png`, `RED_sihhi_pissu_kolon_icine_giriyor.png`)
+- YERDEN ISITMA PLANINDA KOLLEKTÖR BAĞLANTILARI ZORUNLU: her dairede kombi + kollektör (dolap) planda çizilir; her devrenin gidiş-dönüş ayakları kollektöre kadar çizilir (kapıdan geçer, ayaklar paralel ve üst üste binmez, birbirini kesmez). "Planda ayak yok" kabulü İPTAL.
+- KULLANICININ BLOKLARI BOZULMAZ: kolon şeması devre paneli vb. kullanıcının blok düzeni (yazıların yeri/boyu/sırası: Zxx, °C, W, m, PEX BORU 16x2.0, hat etiketi) birebir korunur; saf geometriyle yeniden çiziliyorsa görünüm kullanıcının bloğuyla aynı olmalı.
+- PİS SU: gider hatları kolon sembolünün İÇİNE GİRMEZ, sembol çevresinde biter; kolon betonarme kolon/perde ve mekanik havalandırma şaftı içinde olmaz.
+- MUTFAKTA YER SÜZGECİ YOK (14.10 standarttaki "her ıslak hacimde süzgeç" mutfak için İPTAL).
+- DAİRE BESLEMELERİ VE SAYAÇ YERLERİ PLANLARDA İŞLENİR: bina girişinde sayaç grubu (zemin, ortak alan) planda çizilir; her daireye sayaçtan ayrı besleme hattı ortak alandan (merdiven holü/kolon kutusu) daire girişine kadar çizilir, katlarda besleme kolonları aynı hizada; şema ile plan aynı.
+
 ## Kalıcı kurallar — 14.10.2026 (C) SIHHİ RED ve SIFIRDAN BAŞLANGIÇ (kullanıcı 18:33; görüntüler `kutuphane/arastirma/geri_bildirim/RED_sihhi_*.png`)
 Kullanıcı `uctan_uca` sıhhi denemelerinin tamamını (R1–R4) REDDETTİ. Sıhhi tesisat SIFIRDAN yeniden kurulur (`motor/sihhi2/`); eski uctan_uca çıktıları arşivdir, tarz olarak örnek alınmaz.
 - TEK REFERANS: kullanıcının KENDİ çizimi `ornekler/new_block.dxf` — ölçülmüş spec: `kutuphane/arastirma/SIHHI_ALTIN_REFERANS.md` (+`referans/sihhi/*.png`), `KOLON_SEMASI_TARZI.md`, `ISLAK_HACIM_GUZERGAH_ALGORITMASI.md`, yerden: `YERDEN_ISITMA_ALTIN_REFERANS.md` (+`referans/yerden/`), `10_YERDEN_ISITMA_BORULAMA.md`; kontrolör: `motor/kontrolor/` (aynı dosyadaki MTY katmanlı sıhhi + yerden ısıtma çizimi) + `ornekler/ORNEK_DUZEN.md`. Motorun çıktısı bu çizimle yan yana konduğunda aynı tarzda görünmeli (etiket biçimi/boyu, hat güzergâhı, kolon yeri, şema düzeni). İnternetten/başka siteden alınmış şema tarzı KULLANILMAZ.
