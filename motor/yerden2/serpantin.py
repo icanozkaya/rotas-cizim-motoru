@@ -212,6 +212,14 @@ def _satirlar_faz(R, faz):
     return out
 
 
+FAZ_ADIM = 2.5      # satır fazı tarama adımı (cm); ıslak hacimde 0,5 (tur 4 Y-2': 1 cm'lik pencereler)
+
+
+def fazlar_listesi():
+    k = int(round(ADIM / FAZ_ADIM))
+    return [None] + [FAZ_ADIM * i for i in range(k)]
+
+
 def kur(R, n, R_satir=None, bolme=None, cepler=None, y_u_ofset=None, atla=0):
     """Kanonik çerçevede n devreli meander. bolme: devre başına satır sayıları (aşağıdan yukarı: yakın..uzak) | None.
     Dönüş: dict(devreler=[pts...] (0 = en yakın/alt), ys, x_f, bolme) | None"""
@@ -221,7 +229,7 @@ def kur(R, n, R_satir=None, bolme=None, cepler=None, y_u_ofset=None, atla=0):
     # veren (faz, atla, besleme x) seçilir. Kapı önündeki dar çıkıntı/girinti yüzünden besleme hattının odanın
     # ortasına kayması ve satır kaybı önlenir (R1 yoğunluk, R10 Z19).
     if atla is None:
-        fazlar = [None] + [2.5 * i for i in range(6)]
+        fazlar = fazlar_listesi()
         atlar = range(0, 7)
     else:
         fazlar = [y_u_ofset]
@@ -426,7 +434,7 @@ def kur_merdiven(R, faz=None, ust_kirp=0, pay=0.0, alt=0):
 
 def en_iyi_merdiven(R):
     best = None
-    for faz in [None] + [2.5 * i for i in range(6)]:
+    for faz in fazlar_listesi():
         for alt in (0, 1, 2, 3):
             for uk in (0, 1, 2):
                 for pay in (0.0, 2.5, 5.0):

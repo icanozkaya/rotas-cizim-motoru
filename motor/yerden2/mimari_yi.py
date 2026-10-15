@@ -221,9 +221,13 @@ def engeller(K, r, res=2.0, islak=False):
     vit += lav
     vit_u = unary_union(vit) if vit else Polygon()
     tut = []
+    seritler = []
     for q in _parcalar(eng):
-        if q.area < 3000 or (not vit_u.is_empty and q.intersection(vit_u).area > 50) or _cm_kutusu(q):
+        cm = _cm_kutusu(q)
+        if q.area < 3000 or (not vit_u.is_empty and q.intersection(vit_u).area > 50) or cm:
             tut.append(q)
+        if cm:
+            seritler += cm_on_seridi(K, q, P)
     tut += [q.intersection(P) for q in lav]
     # Tur 3 Y-2: çamaşır makinesi kutusu (fx 'CM' ya da 40-80 cm kare kapalı kutu) altına boru girmez (referansta
     # Ç.M. altı boş; kontrolörün mahal poligonu da Ç.M. nişini dışarıda bırakıyor)
@@ -234,10 +238,121 @@ def engeller(K, r, res=2.0, islak=False):
         return Polygon()
     # vitrifiye payı: kutu + 4 cm yerine kutu + 1 cm (boru ekseni vitrifiyeden ≈ 7,5 cm, altı yine boş) -> ıslak hacimde
     # serbest zemin daha çok dolar (Y-2)
-    return unary_union(tut).buffer(-ISLAK_PAY_AZALT, join_style=2).buffer(0)
+    sonuc = unary_union(tut).buffer(-ISLAK_PAY_AZALT, join_style=2).buffer(0)
+    if seritler:
+        # Tur 4 Y-2': Ç.M. gövdesinin önündeki ince ön panel şeridi (3–8 cm) engel değildir: kullanıcının wc+banyo
+        # çiziminde alt sıra bu şeridin üstünden, gövdeden ≈ 1 cm geçer (new_block Z07: y −167,8; gövde −169)
+        sonuc = sonuc.difference(unary_union(seritler)).buffer(0)
+    # Tur 4 Y-2': kullanıcının çiziminde (new_block Z07 wc+banyo 1,25 m, Z14 banyo 1,24 m) serpantin ilmekleri klozetin
+    # ön kısmının (çanak) altından geçer; yalnız duvara yaslı arka şerit (rezervuar/bağlantı, KLOZET_ARKA cm) boş kalır.
+    # Lavabo, duş teknesi/küvet, Ç.M. ve mek. havl. altı boş kalmaya devam eder.
+    on = klozet_onleri(K, P)
+    if on:
+        sonuc = sonuc.difference(unary_union(on)).buffer(0)
+        sonuc = unary_union([q for q in _parcalar(sonuc) if q.area > 150]) if _parcalar(sonuc) else Polygon()
+    return sonuc
 
 
 ISLAK_PAY_AZALT = 3.0
+KLOZET_ARKA = 12.0          # cm — klozetin duvar tarafındaki boş şerit (rezervuar); kullanıcı: dönüş ekseni duvardan ≈ 17 cm
+
+
+def islak_genislet(K, r):
+    """Tur 4 Y-2': ıslak hacimde klozet rezervuarı ile duş teknesi arasındaki paralel çizgiler (35 cm) mahal tanımada
+    duvar sanılıp mahal poligonundan çentik olarak çıkıyor (new_block wc+banyo: x 188–212, y −108…−178). Kullanıcı bu
+    zeminden boru geçiriyor. Klozet çevresindeki (kutu + 40 cm) en az 15 cm genişlikteki çentikler mahale geri katılır.
+    Dönüş: yeni poligon (değişmediyse aynı)."""
+    P = r['poly']
+    wc = [box(*f['bb']).buffer(40, join_style=2) for f in getattr(K, 'fx', [])
+          if f['kind'] == 'WC' and f.get('bb') and P.buffer(10).contains(Point(f['c']))]
+    if not wc:
+        return P
+    kap = P.buffer(36, join_style=2).buffer(-36, join_style=2).difference(P).intersection(unary_union(wc))
+    ek = []
+    for q in _parcalar(kap.buffer(0)):
+        if q.area < 200:
+            continue
+        mrr = q.minimum_rotated_rectangle
+        cs = list(mrr.exterior.coords)
+        kisa = min(math.hypot(cs[1][0] - cs[0][0], cs[1][1] - cs[0][1]), math.hypot(cs[2][0] - cs[1][0], cs[2][1] - cs[1][1]))
+        if kisa >= 15:
+            ek.append(q)
+    if not ek:
+        return P
+    Y = unary_union([P] + [q.buffer(0.5, join_style=2) for q in ek]).buffer(0)
+    pr = _parcalar(Y)
+    return max(pr, key=lambda q: q.area).simplify(0.5) if pr else P
+
+
+def klozet_onleri(K, P):
+    """ıslak hacimdeki klozetlerin altından boru geçebilecek ön kısmı (kutu + 6 cm, duvar tarafındaki KLOZET_ARKA şerit
+    hariç). Duvar tarafı: kutunun mahal sınırına en yakın kenarı."""
+    out = []
+    sinir = P.exterior
+    for f in getattr(K, 'fx', []):
+        if f['kind'] != 'WC' or not f.get('bb') or not P.buffer(10).contains(Point(f['c'])):
+            continue
+        x0, y0, x1, y1 = f['bb']
+        kenar = {'sol': LineString([(x0, y0), (x0, y1)]), 'sag': LineString([(x1, y0), (x1, y1)]),
+                 'alt': LineString([(x0, y0), (x1, y0)]), 'ust': LineString([(x0, y1), (x1, y1)])}
+        # arka (rezervuar) tarafı klozetin uzun ekseninin ucundadır: kısa kenarlardan sınıra yakın olanı
+        adaylar = ('sol', 'sag') if (x1 - x0) >= (y1 - y0) else ('alt', 'ust')
+        duvar = min(adaylar, key=lambda k: kenar[k].centroid.distance(sinir))
+        a = KLOZET_ARKA
+        bx = box(x0 - 6, y0 - 6, x1 + 6, y1 + 6)
+        arka = {'sol': box(x0 - 20, y0 - 20, x0 + a, y1 + 20), 'sag': box(x1 - a, y0 - 20, x1 + 20, y1 + 20),
+                'alt': box(x0 - 20, y0 - 20, x1 + 20, y0 + a), 'ust': box(x0 - 20, y1 - a, x1 + 20, y1 + 20)}[duvar]
+        out.append(bx.difference(arka))
+    return out
+
+
+def cm_on_seridi(K, q, P):
+    """Ç.M. kutusunun mahale bakan kenarında, kutu boyunca uzanan iç çizgiyle ayrılmış 3–8 cm'lik ön panel şeridi
+    (+ engel payı) -> [Polygon]. Mahale bakan kenar: mahal sınırına uzak olan kenar."""
+    x0, y0, x1, y1 = q.bounds
+    w, h = x1 - x0, y1 - y0
+    sinir = P.exterior
+    yatay, dikey = [], []
+    for a in K.R:
+        if a[0] not in 'LP':
+            continue
+        ge = _geom(a)
+        if ge is None or ge.is_empty or not q.buffer(3).contains(ge):
+            continue
+        for s in getattr(ge, 'geoms', [ge]):
+            cs = list(s.coords) if s.geom_type == 'LineString' else list(s.exterior.coords)
+            for (ax, ay), (bx, by) in zip(cs, cs[1:]):
+                if abs(ay - by) < 0.5 and abs(bx - ax) >= 0.8 * w:
+                    yatay.append(ay)
+                elif abs(ax - bx) < 0.5 and abs(by - ay) >= 0.8 * h:
+                    dikey.append(ax)
+    out = []
+    for ad in ('ust', 'alt', 'sag', 'sol'):
+        orta = {'ust': (x0 + w / 2, y1), 'alt': (x0 + w / 2, y0), 'sag': (x1, y0 + h / 2), 'sol': (x0, y0 + h / 2)}[ad]
+        if Point(orta).distance(sinir) < 6:
+            continue                       # duvara yaslı kenar
+        cz = sorted(set(round(c, 1) for c in (yatay if ad in ('ust', 'alt') else dikey)))
+        if ad in ('ust', 'sag'):
+            cz = cz[::-1]                  # dıştan içe
+        if len(cz) < 2:
+            continue
+        dis = cz[0]
+        e = y1 if ad == 'ust' else y0 if ad == 'alt' else x1 if ad == 'sag' else x0
+        if abs(dis - e) > 8:
+            continue
+        ic = [c for c in cz[1:] if 3.0 <= abs(c - dis) <= 8.0]
+        if not ic:
+            continue
+        g = ic[-1]                         # gövde çizgisi
+        if ad == 'ust':
+            out.append(box(x0 - 5, g + 1.5, x1 + 5, y1 + 10))
+        elif ad == 'alt':
+            out.append(box(x0 - 5, y0 - 10, x1 + 5, g - 1.5))
+        elif ad == 'sag':
+            out.append(box(g + 1.5, y0 - 5, x1 + 10, y1 + 5))
+        else:
+            out.append(box(x0 - 10, y0 - 5, g - 1.5, y1 + 5))
+    return out
 
 
 def _cm_kutusu(q):
@@ -387,8 +502,9 @@ def bolge(r, eng, kenar=None):
     if not pr:
         return H, Polygon()
     R = max(pr, key=lambda q: q.area)
-    # duvar yüzündeki küçük girintileri (kolon/pencere sıvası, ≤ 10 cm) kapat; duvardan ≥ 4 cm kalsın
-    R = R.buffer(5, join_style=2).buffer(-5, join_style=2).intersection(H.buffer(-4, join_style=2))
+    # duvar yüzündeki küçük girintileri (kolon/pencere sıvası, ≤ 10 cm) kapat; duvardan ≥ min(4, kenar) cm kalsın
+    # (ıslak hacimde kenar 2,5–3: kullanıcının banyo çiziminde boru ekseni duvardan 2,4–3,6 cm)
+    R = R.buffer(5, join_style=2).buffer(-5, join_style=2).intersection(H.buffer(-min(4.0, kenar), join_style=2))
     pr = _parcalar(R.buffer(0))
     if not pr:
         return H, Polygon()

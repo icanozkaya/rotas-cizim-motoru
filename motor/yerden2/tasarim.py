@@ -70,6 +70,18 @@ def kose_dene(R, kose, merkez, n_min):
 
 
 def oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True, islak=False):
+    """ıslak hacimde satır fazı 0,5 cm adımla taranır (tur 4 Y-2': 4,37 m² wc+banyoda 8 satırın sığdığı pencere 1 cm)."""
+    if not islak:
+        return _oda_tasarla(oda, H, R, kapi, yasak, cep_ac, islak)
+    eski = S.FAZ_ADIM
+    S.FAZ_ADIM = 0.5
+    try:
+        return _oda_tasarla(oda, H, R, kapi, yasak, cep_ac, islak)
+    finally:
+        S.FAZ_ADIM = eski
+
+
+def _oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True, islak=False):
     """oda: mahal kaydı; H: ısıtma alanı (duvar yüzü), R: boru ekseni bölgesi; kapi: (x, y) | None;
     yasak: etiket cebi için kaçınılacak alanlar (yazılar, etiketler) -> shapely geometri.
     Dönüş: dict | None"""

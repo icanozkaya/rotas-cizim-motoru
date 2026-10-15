@@ -244,6 +244,10 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
         if not ok:
             isitmasiz.append(dict(ad=r['name'], poly=r['poly'], tur=tur))
             continue
+        if tur == 'banyo':
+            Pg = MY.islak_genislet(K, r)
+            if Pg is not r['poly']:
+                r = dict(r, poly=Pg)
         eng = MY.engeller(K, r, islak=(tur == 'banyo'))
         H, R = MY.bolge(r, eng)
         kapi = MY.ana_kapi(K, r, tur)
@@ -275,8 +279,8 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
 
 
 ISLAK_ORAN = 3.0           # m/m² (mimari m²) — ıslak hacim doluluğu (kontrolör Y02)
-ISLAK_KENARLAR = (7.5, 6.0, 5.0)
-ISLAK_PAYI = 0.8           # m — kontrolörün mahal poligonu duvar/niş farkıyla ≈ 0,4 m daha az ölçüyor
+ISLAK_KENARLAR = (7.5, 6.0, 5.0, 4.0, 3.0, 2.5)
+ISLAK_PAYI = 0.2           # m — eşik payı (tur 4: mahal poligonu kontrolörünkiyle aynı; klozet çentiği geri katıldı)
 
 
 def _mahal_ici(d, P):

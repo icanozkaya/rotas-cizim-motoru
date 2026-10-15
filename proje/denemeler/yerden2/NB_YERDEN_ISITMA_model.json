@@ -177,7 +177,7 @@
        "sic": 24,
        "alan_m2": 4.85,
        "alan_mimari_m2": 5.36,
-       "isitma_alani_m2": 3.39,
+       "isitma_alani_m2": 3.54,
        "kose": "SE",
        "bbox": [
         253700.0,
@@ -188,8 +188,8 @@
        "devreler": [
         {
          "no": 9,
-         "L_m": 17.21,
-         "W": 602.4,
+         "L_m": 18.89,
+         "W": 661.1,
          "etiket": "maskeli"
         }
        ]
@@ -362,8 +362,8 @@
        "sic": 24,
        "alan_m2": 4.8,
        "alan_mimari_m2": 5.36,
-       "isitma_alani_m2": 3.44,
-       "kose": "NE",
+       "isitma_alani_m2": 3.6,
+       "kose": "SW",
        "bbox": [
         253258.0,
         -442712.0,
@@ -373,8 +373,8 @@
        "devreler": [
         {
          "no": 18,
-         "L_m": 17.47,
-         "W": 611.4,
+         "L_m": 19.17,
+         "W": 671.0,
          "etiket": "maskeli"
         }
        ]
@@ -547,8 +547,8 @@
        "sic": 24,
        "alan_m2": 3.47,
        "alan_mimari_m2": 4.37,
-       "isitma_alani_m2": 2.13,
-       "kose": "NW",
+       "isitma_alani_m2": 2.41,
+       "kose": "SW",
        "bbox": [
         253038.0,
         -442252.0,
@@ -558,8 +558,8 @@
        "devreler": [
         {
          "no": 27,
-         "L_m": 9.97,
-         "W": 349.0,
+         "L_m": 13.29,
+         "W": 465.1,
          "etiket": "bos"
         }
        ]
@@ -746,7 +746,7 @@
        "sic": 24,
        "alan_m2": 4.8,
        "alan_mimari_m2": 5.04,
-       "isitma_alani_m2": 3.44,
+       "isitma_alani_m2": 3.59,
        "kose": "SW",
        "bbox": [
         255292.0,
@@ -757,8 +757,8 @@
        "devreler": [
         {
          "no": 9,
-         "L_m": 16.63,
-         "W": 582.0,
+         "L_m": 19.15,
+         "W": 670.2,
          "etiket": "maskeli"
         }
        ]
@@ -931,8 +931,8 @@
        "sic": 24,
        "alan_m2": 3.47,
        "alan_mimari_m2": 4.37,
-       "isitma_alani_m2": 2.13,
-       "kose": "NW",
+       "isitma_alani_m2": 2.41,
+       "kose": "SW",
        "bbox": [
         255072.0,
         -442252.0,
@@ -942,9 +942,9 @@
        "devreler": [
         {
          "no": 18,
-         "L_m": 9.98,
-         "W": 349.3,
-         "etiket": "bos"
+         "L_m": 13.29,
+         "W": 465.1,
+         "etiket": "maskeli"
         }
        ]
       }
@@ -1116,7 +1116,7 @@
        "sic": 24,
        "alan_m2": 4.11,
        "alan_mimari_m2": 4.37,
-       "isitma_alani_m2": 2.77,
+       "isitma_alani_m2": 2.93,
        "kose": "NW",
        "bbox": [
         255734.0,
@@ -1127,8 +1127,8 @@
        "devreler": [
         {
          "no": 27,
-         "L_m": 14.99,
-         "W": 524.6,
+         "L_m": 16.0,
+         "W": 560.0,
          "etiket": "maskeli"
         }
        ]
@@ -1315,8 +1315,8 @@
        "sic": 24,
        "alan_m2": 4.79,
        "alan_mimari_m2": 5.04,
-       "isitma_alani_m2": 3.49,
-       "kose": "SE",
+       "isitma_alani_m2": 3.64,
+       "kose": "SW",
        "bbox": [
         257340.0,
         -442712.0,
@@ -1326,8 +1326,8 @@
        "devreler": [
         {
          "no": 9,
-         "L_m": 17.93,
-         "W": 627.5,
+         "L_m": 19.88,
+         "W": 695.8,
          "etiket": "maskeli"
         }
        ]
@@ -1500,8 +1500,8 @@
        "sic": 24,
        "alan_m2": 3.44,
        "alan_mimari_m2": 4.37,
-       "isitma_alani_m2": 2.11,
-       "kose": "NW",
+       "isitma_alani_m2": 2.37,
+       "kose": "SW",
        "bbox": [
         257122.0,
         -442252.0,
@@ -1511,9 +1511,9 @@
        "devreler": [
         {
          "no": 18,
-         "L_m": 9.83,
-         "W": 344.1,
-         "etiket": "bos"
+         "L_m": 13.15,
+         "W": 460.2,
+         "etiket": "maskeli"
         }
        ]
       }
@@ -1685,7 +1685,7 @@
        "sic": 24,
        "alan_m2": 4.82,
        "alan_mimari_m2": 5.04,
-       "isitma_alani_m2": 3.52,
+       "isitma_alani_m2": 3.67,
        "kose": "SE",
        "bbox": [
         257784.0,
@@ -1696,8 +1696,8 @@
        "devreler": [
         {
          "no": 27,
-         "L_m": 18.48,
-         "W": 646.8,
+         "L_m": 20.12,
+         "W": 704.2,
          "etiket": "maskeli"
         }
        ]
