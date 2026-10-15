@@ -15,8 +15,11 @@ DEĞİŞTİRME YETKİSİ VERİRİM. BAŞKA KONUŞMADA AÇSAM DA BU SİSTEMİ KUL
 Kullanıcı: "HAVALANDIRMA SİSTEMİ İÇİN KAYIT ET BU ÇİZDİĞİN DOSYAYI ... PANTOLON VESAİRE YAPARKEN BÖLMELERİNİ GÖSTER
 VE KANALLARIN HEPSİNİ BİR YERDEN YAN YANA ÇIKART, KURANGLEZ OLACAKMIŞ GİBİ TASARLA".
 - Motor `motor/ab2750/siginak_hav.py` (hesap kuralları `motor/siginak/README.md`), referans çıktı `STANDART_SIGINAK_HAVALANDIRMA_ab2750.dxf`.
-- Tarz: taze emiş + duman atış + egzoz atış perde geçişleri tek perdede YAN YANA, ortak bölmeli KURANGLEZ (emiş +0,50 ızgara,
-  atışlar +2,50 panjur, hücreler betonarme bölmeli); B-B görünüş + A-A kesit detayı paftada.
+- Tarz: taze emiş + duman atış + egzoz atış perde geçişleri tek perdede YAN YANA. Kullanıcı düzeltmesi (15.10.2026 22:07):
+  "KURANGLEZ SEN GÖSTERME, PROJEDE YOKSA SADECE PERDEDEKİ DELİK OLARAK GÖSTER" → mimaride kuranglez/baca yoksa dış tarafta
+  hiçbir yapı çizilmez, yalnız perde geçişi (kovan + GSK) + "dış düzen mimari projeye göre" notu; paftada perde dış yüz görünüşü.
+- WC'ler: "WC'LERE EGZOZ HATTINA WC ANEMOSTAD BAĞLA" → her WC hücresine tavan anemostadı (Ø160, 100 m³/h), egzoz hattından
+  150x150 dal; dallar kapı yazılarının yanından iner. Toplam egzoz debisi değişmez (kalan debi menfezlere bölünür).
 - Kanal özel parçaları: kavisli dirsek R iç 0,5·W + yönlendirici kanat; yer yoksa köşeli dirsek kanat dizili; pantolon ayrımda
   AYIRICI BÖLME levhası + kol kanatları; T dalda yuvarlatılmış ağız + ayar kanadı; 45° ofset; 20 cm konik redüksiyon; flanş çizgileri.
   Kaçınılmaz kanal kesişmesinde alttaki kanal kesikli (…-GIZLI katmanı). 1/20 özel parça detay paftası eklenir.
