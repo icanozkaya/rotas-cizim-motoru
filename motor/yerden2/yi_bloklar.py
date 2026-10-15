@@ -19,7 +19,7 @@ Yazılar (sabit TEXT ve öznitelikler) kullanıcının yerleşimdeki yerinde, bo
 
 Kollektör ağız sayısı n ≠ 9: kullanıcının 9 ağızlı bloğu AutoCAD STRETCH gibi değiştirilir — en soldaki (9−n) ağız
 birimi (gidiş x = 5+10k, dönüş x = 10k, ±2,4) silinir, sol uç (barların sol ucu, vanalar, braket, dolap sol kenarı,
-kombi bağlantı hatlarının ucu; x −35…kesim) +10·(9−n) sağa kayar; kombi yerinde kalır. n > 9'da sağdaki ağız birimi
+kombi bağlantı hatlarının ucu; x −30…kesim) +10·(9−n) sağa kayar; kombi yerinde kalır. n > 9'da sağdaki ağız birimi
 kopyalanır, sol uç sola kayar.
 
     python3 motor/yerden2/yi_bloklar.py --cikar     # new_block'tan kütüphaneyi yeniden üret (geliştirme)
@@ -262,7 +262,7 @@ def kombi_kollektor_blogu(doc, n):
         return ad
     taban = doc.blocks[KOMBI]
     blk = doc.blocks.new(ad)
-    sol_min = -35.0
+    sol_min = -30.0             # kombi gövdesi (sağ kenar −34,4) ve iniş hatları yerinde kalır
     if n < 9:
         d = 10.0 * (9 - n)
         kaldir = range(9 - n)

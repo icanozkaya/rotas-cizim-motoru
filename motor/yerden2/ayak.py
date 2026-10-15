@@ -435,7 +435,10 @@ def yeniden_kur(o, ek, kapi, yasak, kapi_zorla=True, hedef_L=None, n_min=None):
 
 # ====================================================================== daire çözümü
 class Daire:
-    def __init__(self, K, dno, odalar, hol, kombi, diger_serp, yasak, kol_sira=0, sahte_hol=True, yay_sira=0):
+    def __init__(self, K, dno, odalar, hol, kombi, diger_serp, yasak, kol_sira=0, sahte_hol=True, yay_sira=0,
+                 iki_yon=False, kombi_ters=False):
+        self.iki_yon = iki_yon
+        self.kombi_ters = kombi_ters
         self.kol_sira = kol_sira
         self.yay_sira = yay_sira
         self.kombi_hat = None
@@ -786,7 +789,13 @@ class Daire:
         L_, kmax = yaylar[min(getattr(self, 'yay_sira', 0), len(yaylar) - 1)]
         uzak_uc = (len(sinir) - 2) if ileri_yon else 0
         self.hol_sahte = None
-        if kmax == uzak_uc or not term or not getattr(self, 'sahte_hol_izin', True):
+        iki = bool(getattr(self, 'iki_yon', False) and term)
+        if iki:
+            # tur 6: iki yönlü demet — hol ağzı kollektörün ortasında (kmax yayı ile ayrılan iki grup arasında);
+            # kmax'tan önceki kapılar k1 ucundan, sonrakiler k0 ucundan duvara yaslanarak; hol serpantini aradaki
+            # (kollektöre bitişik) büyük boş yüzde
+            term.insert(kmax, ((sinir[kmax] + sinir[kmax + 1]) / 2, 0.0, 'hol', self.hol, None))
+        elif kmax == uzak_uc or not term or not getattr(self, 'sahte_hol_izin', True):
             hol_kayit = (0.0, 0.0, 'hol', self.hol, None)
             if ileri_yon:
                 term.append(hol_kayit)
@@ -817,6 +826,7 @@ class Daire:
         sol = ((yon == 1) == ccw)
         self.yasla = (1 if sol else -1) if ileri_yon else (-1 if sol else 1)
         self.ileri_yon = ileri_yon
+        self.yasla_c = {}
         self.atama = {}
         self.sira = []
         self.hol_uclar = []
@@ -861,7 +871,17 @@ class Daire:
             else:
                 self.atama[id(c)] = pair
                 self.sira.append((o, c))
-        if not ileri_yon:
+        if iki:
+            yA = 1 if sol else -1
+            A_, B_ = [], []
+            for k_, (t, t2, tur, o, c) in enumerate(term):
+                if c is None or tur == 'hol':
+                    continue
+                (A_ if k_ < kmax else B_).append((o, c))
+                self.yasla_c[id(c)] = yA if k_ < kmax else -yA
+            self.sira = (B_[::-1] + A_) if ters else (A_ + B_[::-1])
+            self.grup_n = (len(A_), len(B_))
+        elif not ileri_yon:
             self.sira = self.sira[::-1]
 
     # ---------------------------------------------------------------- serbest maske
@@ -1081,12 +1101,12 @@ class Daire:
             dikey_uzanti = (y1 - y0) > (ky1 - ky0) + 10       # eşik hol tarafına dikey uzanıyorsa duvar yatay
             if dikey_uzanti or ((x1 - x0) >= (y1 - y0) and not (x1 - x0) > (kx1 - kx0) + 10):
                 # kombi uçların geniş kalan tarafından geçer (uçlardan 12 cm öte); öbür taraf kapalı
-                if kx < mx:                                   # kombi solda: sol taraftan geçer
+                if (kx < mx) != bool(getattr(self, 'kombi_ters', False)):   # kombi solda: sol taraftan geçer
                     yarim = box(mx - 12, y0 - 60, x1 + 30, y1 + 60)
                 else:
                     yarim = box(x0 - 30, y0 - 60, mx + 12, y1 + 60)
             else:
-                if ky < my:
+                if (ky < my) != bool(getattr(self, 'kombi_ters', False)):
                     yarim = box(x0 - 60, my - 12, x1 + 60, y1 + 30)
                 else:
                     yarim = box(x0 - 60, y0 - 30, x1 + 60, my + 12)
@@ -1368,7 +1388,7 @@ class Daire:
             while i < len(sira0):
                 o, c = sira0[i]
                 r = self.cift_c(c, taban[id(c)], izin(c), None,
-                              yasla=self.yasla)
+                              yasla=self.yasla_c.get(id(c), self.yasla))
                 if r is None:
                     # aynı mahalin bir önceki devresiyle sıra (ve ağız çifti) takası
                     if i > 0 and sira0[i - 1][0] is o and (id(c), i) not in takas and id(c) in self.atama \

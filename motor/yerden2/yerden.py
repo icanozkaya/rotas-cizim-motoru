@@ -113,48 +113,12 @@ def _yazi(blk, metin, p, h, renk, hizala=None, katman=None):
     return t
 
 
-def _attdef(blk, tag, p, h, renk, hizala, gizli=False):
-    a = blk.add_attdef(tag, p, dxfattribs={'height': h, 'style': 'ROTAS-YAZI', 'width': GEN, 'color': renk})
-    a.set_placement(p, align=hizala)
-    if gizli:
-        a.is_invisible = True
-    return a
-
-
-def yuvarlak_dikd(a, b, r):
-    t = math.tan(math.radians(22.5))
-    return [(-a + r, -b, 0), (a - r, -b, t), (a, -b + r, 0), (a, b - r, t), (a - r, b, 0), (-a + r, b, t),
-            (-a, b - r, 0), (-a, -b + r, t)]
-
-
 def bloklar(doc):
-    TA = ezdxf.enums.TextEntityAlignment
-    # devre etiketi: 150 × 80 sarı tablo, 4 satır × 20; ekleme noktası = sol üst köşe
-    b = doc.blocks.new('ROTAS-YI-ETIKET')
-    da = {'color': 2}
-    b.add_lwpolyline([(0, 0), (150, 0), (150, -80), (0, -80)], close=True, dxfattribs=da)
-    for y in (-20, -40, -60):
-        b.add_line((0, y), (150, y), dxfattribs=da)
-    b.add_line((96.9, 0), (96.9, -80), dxfattribs=da)
-    for i, s in enumerate(('Hat uzunluğu:', 'Modülasyon Aralığı:', 'Kcal/h:', 'Isıtma Devresi-No.:')):
-        _yazi(b, s, (5, -15 - 20 * i), YAZI_H, 2)
-    for i, tag in enumerate(('UZ', 'AR', 'YER', 'NO1')):
-        _attdef(b, tag, (146, -15 - 20 * i), YAZI_H, 2, TA.BOTTOM_RIGHT)
-    for tag in ('MAHAL', 'NO', 'DERECE', 'ALAN', 'BORU'):
-        _attdef(b, tag, (5, -95), 5, 2, TA.LEFT, gizli=True)
-    # mahal etiketi: yuvarlatılmış kutu 68,4 × 48,9 + 3 halka (sarı-cyan-cyan-sarı), orta şerit
-    b = doc.blocks.new('ROTAS-YI-MAHAL')
-    for k, renk in enumerate((2, 4, 4, 2)):
-        d = 0.5 * k
-        pts = yuvarlak_dikd(34.21 + d, 24.44 + d, 6.0 + d)
-        b.add_lwpolyline(pts, format='xyb', close=True, dxfattribs={'color': renk})
-    h = b.add_hatch(color=2)
-    h.paths.add_polyline_path([(-28.2, -0.75), (28.2, -0.75), (28.2, 0.75), (-28.2, 0.75)], is_closed=True)
-    b.add_lwpolyline([(-28.2, -0.75), (28.2, -0.75), (28.2, 0.75), (-28.2, 0.75)], close=True, dxfattribs={'color': 2})
-    _attdef(b, 'DERECE', (0, 12.5), 12.0, 4, TA.MIDDLE_CENTER)
-    _attdef(b, 'NO', (0, -12.5), 12.0, 1, TA.MIDDLE_CENTER)
-    _attdef(b, 'MAHAL', (0, -30), 5, 2, TA.MIDDLE_CENTER, gizli=True)
-    _attdef(b, 'ALAN', (0, -30), 5, 2, TA.MIDDLE_CENTER, gizli=True)
+    """devre etiketi (MTY-ETIKET) ve mahal etiketi (MTY-RADYATOR MAHAL) = kullanıcının bloklarının birebir saf geometri
+    kopyaları ROTAS-YI-ETIKET / ROTAS-YI-MAHAL (yi_bloklar.py). ETIKET ekleme noktası tablonun sol üst köşesi
+    (150 × 80, aşağı), MAHAL kutu merkezi."""
+    import yi_bloklar as YB
+    YB.hazirla(doc)
 
 
 def ekle(msp, ad, p, katman, attr, olcek=1.0, dondur=0):
@@ -285,6 +249,15 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
 
 
 AYAKLAR = True             # 15.10 (D): planda kollektör bağlantıları zorunlu
+# (kollektör sırası, hol modu: 'iki' iki yönlü demet / True sahte hol ucu / False, kombi hattı, yay sırası)
+# (kollektör sırası, hol modu: True sahte hol ucu / False / 'iki' iki yönlü demet, kombi hattı, yay sırası,
+#  kombi ters: kombi hattı mutfak geçişinin öbür yarısından). 'iki' ve kombi ters tur 6'da D7 için denendi, yararı
+#  olmadı (D7 kombi hattı açık madde) -> aday listesinde değil, YI_ADAY_EK=1 ile eklenir.
+ADAYLAR = ((0, True, True, 0, False), (0, True, True, 1, False), (0, True, True, 2, False), (0, False, True, 0, False),
+           (1, True, True, 0, False), (2, True, True, 0, False), (0, True, False, 0, False))
+if os.environ.get('YI_ADAY_EK'):
+    ADAYLAR = ADAYLAR[:-1] + ((0, True, True, 0, True), (0, True, True, 1, True), (0, 'iki', True, 0, False)) + \
+        ADAYLAR[-1:]
 
 
 def tam_devre(c):
@@ -319,15 +292,16 @@ def ayaklari_kur(k, K, odalar, yasak):
                 o['H'], o['tasarim'], o['ek_eng'], o['ayak_sira'] = (yedek[id(o)][0], copy.deepcopy(yedek[id(o)][1]),
                                                                      yedek[id(o)][2], yedek[id(o)][3])
         en = None
-        adaylar = ((0, True, True, 0), (0, True, True, 1), (0, True, True, 2), (0, False, True, 0), (1, True, True, 0),
-                   (2, True, True, 0), (0, True, False, 0))
-        for ks, sh, kombili, ys in adaylar:
+        adaylar = ADAYLAR
+        if os.environ.get('YI_ADAY'):                 # geliştirme: yalnız seçilen adaylar (ör. "0,1")
+            adaylar = [ADAYLAR[int(i)] for i in os.environ['YI_ADAY'].split(',')]
+        for ks, sh, kombili, ys, kt in adaylar:
             # kollektör yeri / sahte hol ucu (en uzun 1./2./3. kapısız yay) adayları; son çare kombi hattı yok
             geri_yukle()
             n_ek = {}
             for tur in range(3):
-                D_ = A.Daire(K, dno, od, hol, kb if kombili else None, None, yasak, kol_sira=ks, sahte_hol=sh,
-                             yay_sira=ys)
+                D_ = A.Daire(K, dno, od, hol, kb if kombili else None, None, yasak, kol_sira=ks, sahte_hol=sh == True,
+                             yay_sira=ys, iki_yon=sh == 'iki', kombi_ters=kt)
                 sonuc = D_.coz()
                 if sonuc is None:
                     break
@@ -362,8 +336,8 @@ def ayaklari_kur(k, K, odalar, yasak):
                       list(D_.uyari))
             if puan >= 0.6 or (puan >= 0 and ys == 2):
                 break
-            log('kat %s D%d: aday (kollektör %d, sahte hol %s, yay %d, kombi %s): bağlı %d/%d, hol %.1f m, puan %.2f' % (
-                k, dno, ks, sh, ys, kombili, n_bag, n_tum, hol_L if sonuc is not None else 0, puan))
+            log('kat %s D%d: aday (kollektör %d, sahte hol %s, yay %d, kombi %s, kombi ters %s): bağlı %d/%d, hol %.1f m, puan %.2f' % (
+                k, dno, ks, sh, ys, kombili, kt, n_bag, n_tum, hol_L if sonuc is not None else 0, puan))
         puan, ks, tas, sonuc, uyari = en
         for o, (H_, t_, e_) in zip(od, tas):
             o['H'], o['tasarim'], o['ek_eng'] = H_, t_, e_
@@ -894,8 +868,15 @@ def kollektor_ciz(msp, KT, engel_tum):
                          (p1[0] + ic[0] * d - u[0] * 4, p1[1] + ic[1] * d - u[1] * 4), dxfattribs={'layer': L_KOL})
         n = len(devs)
         W = sum(c['W'] for c in devs)
+        D_ = A.KOL_DERIN
+        # ağızlar: devre başına gidiş + dönüş ağzı (bar -> dolap önü kısa çizgi), ağız sayısı = devre sayısı
+        for t_ in sorted(A.KOL_PAY + A.RES * (s_ - 2 * A.YEDEK) for c in devs for s_ in c['agiz']):
+            q0 = (k0[0] + u[0] * t_ + ic[0] * 6.5, k0[1] + u[1] * t_ + ic[1] * 6.5)
+            q1 = (k0[0] + u[0] * t_ + ic[0] * D_, k0[1] + u[1] * t_ + ic[1] * D_)
+            msp.add_line(q0, q1, dxfattribs={'layer': L_KOL})
+            msp.add_circle(q0, 0.8, dxfattribs={'layer': L_KOL})
         # etiket: dolabın yanında, boru / yazı üstüne binmeden (iki satır, h 10)
-        s1 = 'KOLLEKTÖR %d AĞIZ' % n
+        s1 = 'KOLLEKTÖR K%s — %d AĞIZ' % (str(dno).lstrip('D'), n)
         s2 = '%.1fW-%%%%C32' % W
         w = max(len(s1), len(s2) - 2) * 10 * 0.65 * 0.95 + 6
         h = 2 * 10 + 10
