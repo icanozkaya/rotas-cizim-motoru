@@ -9,3 +9,5 @@ DEĞİŞTİRME YETKİSİ VERİRİM. BAŞKA KONUŞMADA AÇSAM DA BU SİSTEMİ KUL
 - Bu motorların tarzı/kuralları kullanıcının yazılı yetkisi olmadan DEĞİŞTİRİLMEZ. Yeni proje = aynı motor, yeni mimari.
 - Kurallar: README.md en üstteki kural blokları (D, C, B, 14.10). Teslim öncesi kontrolör onayı (`motor/kontrolor/`).
 - Bilinen açık maddeler (kullanıcı yetkisiyle yapılacak): ILERLEME_NOTU.md.
+
+- EK KURALLAR (altyapı/rögar, vaziyet, yağmur sarnıcı, merkezi sistem, havalandırma): `STANDART_KURALLAR_ALTYAPI_SARNIC.md` — kullanıcı kaydı 15.10.2026 21:27, sihhi2/yerden2 ile BİRLİKTE uygulanır.

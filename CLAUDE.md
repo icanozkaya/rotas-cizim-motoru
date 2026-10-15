@@ -1,7 +1,7 @@
 # ROTAŞ çizim motoru — oturum başı talimatı
 
 ## STANDART SİSTEM (kullanıcı kaydı 15.10.2026) — HER OTURUMDA GEÇERLİ
-Sıhhi tesisat ve yerden ısıtma projeleri YALNIZ bu sistemle yapılır: `motor/sihhi2/` + `motor/yerden2/` (+ `motor/kontrolor/` onayı), referans çıktılar `proje/STANDART/`. Kurallar README.md en üst bloklarında. Kullanıcı yetki vermeden motorun tarzı/kuralları değiştirilmez; yeni proje gelince aynı motor yeni mimariyle çalıştırılır. Kazan dairesi: `motor/deneme/kazan_dairesi/plan_kesit.py` (onaylı). Teslim yalnız DXF (+ hesap Excel).
+Sıhhi tesisat ve yerden ısıtma projeleri YALNIZ bu sistemle yapılır: `motor/sihhi2/` + `motor/yerden2/` (+ `motor/kontrolor/` onayı), referans çıktılar `proje/STANDART/`. Kurallar README.md en üst bloklarında. Kullanıcı yetki vermeden motorun tarzı/kuralları değiştirilmez; yeni proje gelince aynı motor yeni mimariyle çalıştırılır. Kazan dairesi: `motor/deneme/kazan_dairesi/plan_kesit.py` (onaylı). Altyapı/rögar, vaziyet, yağmur sarnıcı, merkezi sistem ek kuralları: `proje/STANDART/STANDART_KURALLAR_ALTYAPI_SARNIC.md`. Teslim yalnız DXF (+ hesap Excel).
 
 
 Bu depo Can Özkaya'nın (ROTAŞ Mühendislik) mekanik proje çizim motorudur. Yeni oturumda:
