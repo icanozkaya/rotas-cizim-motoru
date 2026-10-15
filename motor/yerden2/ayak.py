@@ -446,11 +446,52 @@ class Daire:
             if P.distance(q) < 20 and Hh.distance(q) < 35:
                 ad.append(q)
         if not ad:
-            return None
+            return self.aciklik(o)
         # duvar boşluğunu köprüleyen kapı (iki mahale de değen) önce; eşitlikte ana kapıya yakın olan
         ka = o.get('kapi')
         return min(ad, key=lambda q: (round(P.distance(q) + Hh.distance(q), 0),
                                       q.centroid.distance(Point(ka)) if ka else 0.0))
+
+    def aciklik(self, o):
+        """kapısız geçiş (duvar boşluğu): iki mahal arasındaki şeridin mimari çizgi kesmeyen parçası"""
+        if not hasattr(self, '_acik'):
+            self._acik = {}
+        if id(o) in self._acik:
+            return self._acik[id(o)]
+        if not hasattr(self, '_mim'):
+            gs = []
+            for a in self.K.R:
+                g = MY._geom(a)
+                if g is not None and not g.is_empty:
+                    gs.append(g)
+            self._mim = unary_union(gs)
+        P, Hh = o['poly'], self.hol['poly']
+        # duvarsız ortak kenar (iki poligon ≤ 3 cm): açık geçiş
+        ortak = P.buffer(3, join_style=2).intersection(Hh.buffer(3, join_style=2))
+        if not ortak.is_empty:
+            q = ortak.envelope
+            x0, y0, x1, y1 = q.bounds
+            if max(x1 - x0, y1 - y0) >= 60:
+                self._acik[id(o)] = q
+                log('D%d %s: duvarsız geçiş %s' % (self.dno, o.get('zon', o['ad']), [round(v) for v in q.bounds]))
+                return q
+        serit = P.buffer(30, join_style=2).intersection(Hh.buffer(30, join_style=2)).difference(
+            unary_union([P, Hh]).buffer(-1))
+        en = None
+        if not serit.is_empty:
+            bos = serit.difference(self._mim.intersection(serit.buffer(5)).buffer(2.0))
+            for q in _parca(bos.buffer(0)):
+                x0, y0, x1, y1 = q.bounds
+                if min(x1 - x0, y1 - y0) < 8 or max(x1 - x0, y1 - y0) < 60:
+                    continue
+                if q.distance(P) > 3 or q.distance(Hh) > 3:
+                    continue
+                if en is None or q.area > en.area:
+                    en = q
+        self._acik[id(o)] = en
+        if en is not None:
+            log('D%d %s: kapısız geçiş %s' % (self.dno, o.get('zon', o['ad']), [round(v) for v in en.bounds]))
+        return en
 
     def esik(self, kp, o):
         """kapı poligonu (kanat süpürme alanı) + duvar boşluğu (eşik): kapının dik kutusu hol tarafına uzatılır"""
@@ -565,14 +606,26 @@ class Daire:
             self.hol_hazir = True
             self.uyari = [u for u in self.uyari if 'hol serpantini' not in u]
             log('D%d: hol devresi demetle kapalı -> hepsi hol serpantiniyle birlikte yeniden' % self.dno)
+            import copy
+            yedek = (list(self.ayaklar), self.dolu.copy(), dict(self.slot_sahip), copy.copy(self.kombi_hat),
+                     list(self.uyari))
             self.dolu, self.slot_sahip = dolu_pre.copy(), dict(sahip_pre)
             devs2 = devs + [(o, c) for c in o['tasarim']['devreler']]
-            if not self._yerlestir_ayir(devs2):
-                self.uyari.append('D%d %s: hol devresi kollektöre bağlanamadı (holde ayaksız)' % (self.dno, o.get('zon', o['ad'])))
-                o['tasarim'] = dict(o['tasarim'], devreler=[])
-                self.dolu, self.slot_sahip = dolu_pre.copy(), dict(sahip_pre)
+            n_uy = len(self.uyari)
+            ok2 = self._yerlestir_ayir(devs2)
+            tam = ok2 and len(self.ayaklar) == len(devs2) - (1 if getattr(self, 'kombi_c', None) and
+                                                               any(c is self.kombi_c for _, c in devs2) else 0) \
+                and len(self.uyari) == n_uy
+            if not tam:
+                # kısmi kalırsa ilk (hol devresiz, tam) çözüme dön
+                self.ayaklar, self.dolu, self.slot_sahip, self.kombi_hat, self.uyari = yedek
                 self.hol_hazir = False
-                self._yerlestir_ayir(devs)
+                o['tasarim'] = dict(o['tasarim'], devreler=[])
+        bagli = {id(a['c']) for a in self.ayaklar}
+        for o in self.odalar:
+            if o['tasarim']['devreler'] and all(id(c) in bagli for c in o['tasarim']['devreler']):
+                ad = o.get('zon', o['ad'])
+                self.uyari = [u for u in self.uyari if not (('%s:' % ad) in u and 'erişim yok' in u)]
         if not self.hol['tasarim']['devreler'] or not any(a['o'] is self.hol for a in self.ayaklar):
             if not any('hol' in u for u in self.uyari):
                 self.uyari.append('D%d %s: hol devresi kurulamadı (hol ayak demetiyle ısınır)' % (self.dno, self.hol.get('zon', self.hol['ad'])))
@@ -609,7 +662,11 @@ class Daire:
         if not self.ayaklari_yerlestir(devs):
             return False
         if getattr(self, 'kombi_hat', None):
-            ka = next(a for a in self.ayaklar if a['c'] is self.kombi_c)
+            ka = next((a for a in self.ayaklar if a['c'] is self.kombi_c), None)
+            if ka is None:
+                self.uyari.append('D%d: kombi hattı kollektöre bağlanamadı' % self.dno)
+                self.kombi_hat = None
+                return True
             self.ayaklar = [a for a in self.ayaklar if a['c'] is not self.kombi_c]
             kx, ky = self.kombi[0], self.kombi[1]
             self.kombi_hat = dict(gidis=[(kx, ky)] + ka['g'][0], donus=[(kx, ky)] + ka['d'][0],
@@ -693,17 +750,29 @@ class Daire:
         self.hol_uclar = []
         sabit = getattr(self, 'kombi_slot', None) if getattr(self, 'kombi_hat', None) else None
         ik = next((k for k, q in enumerate(term) if q[2] == 'kombi'), None)
+        # geçerli ağız çiftleri (ağız ve ön düğümü holde, duvar içinde değil)
+        if not hasattr(self, '_gecerli'):
+            Am = self.G.maske(self.hol['poly'].buffer(-DUVAR, join_style=2))
+            self._gecerli = [Am[self.slot_ij[s_]] and Am[self.slot_on[s_]] for s_ in range(N)]
+        gc = self._gecerli
+        ust = [(a, a - 1) for a in range(N - 1, 0, -2)]          # yukarıdan aşağı çiftler
         if sabit is not None and ik is not None:
             hi, lo = max(sabit), min(sabit)
-            bas = [(hi + 2 * (ik - k), hi + 2 * (ik - k) - 1) for k in range(ik)]
-            son = [(lo - 1 - 2 * k, lo - 2 - 2 * k) for k in range(len(term) - ik - 1)]
+            yukari = [(a, a - 1) for a in range(hi + 2, N, 2) if a < N and gc[a] and gc[a - 1]]
+            asagi = [(a, a - 1) for a in range(lo - 1, 0, -2) if gc[a] and gc[a - 1]]
+            bas = yukari[:ik][::-1]
+            if len(bas) < ik:
+                bas = [(hi + 2 * (ik - k), hi + 2 * (ik - k) - 1) for k in range(ik)]
+            son = asagi[:len(term) - ik - 1]
             ciftler = bas + [tuple(sabit)] + son
         else:
-            s0 = N - 2 - 2 * YEDEK
-            ciftler = [(s0 - 2 * k, s0 - 2 * k - 1) for k in range(len(term))]
-        if any(min(c_) < 0 or max(c_) > N - 1 for c_ in ciftler):
-            log('UYARI: D%d ağız sayısı yetmedi' % self.dno)
-            ciftler = [(max(0, min(N - 1, a)), max(0, min(N - 1, b))) for a, b in ciftler]
+            gecerli = [pr for pr in ust if gc[pr[0]] and gc[pr[1]]]
+            # kullanılacak çiftler: geçerlilerin ortası (yedekler iki uçta kalır)
+            fazla = max(0, len(gecerli) - len(term))
+            ciftler = gecerli[fazla // 2: fazla // 2 + len(term)]
+        if len(ciftler) < len(term):
+            log('UYARI: D%d geçerli ağız sayısı yetmedi' % self.dno)
+            ciftler = list(ciftler) + [(0, 1)] * (len(term) - len(ciftler))
         if DEBUG:
             log('atama', [(round(t), round(t2), tur, o.get('zon', o['ad']) if o else '-', pr) for (t, t2, tur, o, c), pr in zip(term, ciftler)], 'P', round(P), 'yon', yon)
         for (t, t2, tur, o, c), pair in zip(term, ciftler):
@@ -780,7 +849,9 @@ class Daire:
                 return (i - dj * yan, j + di * yan) in hedef
             hi = [h[0] for h in hedef]
             hj = [h[1] for h in hedef]
-            bas_b = set(self.uc_dugumleri(E1, ser))
+            dE = math.hypot(E0[0] - E1[0], E0[1] - E1[1])
+            uzak = dE > 20.0                      # basamaklı beslemede uçlar ayrık (ör. 41 cm)
+            bas_b = set(self.uc_dugumleri(E1, ser, dE + 2.6 if uzak else 7.6))
             r = astar_cift(G, ser, bas, hedef_ok, yan, ucuz, ceza, (min(hi), max(hi), min(hj), max(hj)) if hedef else None,
                            bas_b, 0.7 if ceza is None else UCUZ_DEMET, donus, yasla)
             if r is None:
@@ -792,6 +863,11 @@ class Daire:
             ga = sade(self._uc_bag(E0, pa[0], yon0) + pa[1:] + (son_ek(yol[-1]) if son_ek else []))
             gb = sade(self._uc_bag(E1, pb[0], yon1) + pb[1:] + (son_ek(bk[-1]) if son_ek else []))
             LA, LB = LineString(ga), LineString(gb)
+            if uzak:
+                # uzun uç bağlantısı serpantinlere değmesin (uç noktası hariç)
+                jog = LineString(gb[:3]).difference(Point(E1).buffer(3.5))
+                if jog.distance(self.serp_geo()) < 3.0:
+                    continue
             if LA.distance(LB) < 3.0 or not LA.is_simple or not LB.is_simple:
                 if DEBUG:
                     log('cift red', yan, round(LA.distance(LB), 2), LA.is_simple, LB.is_simple, ga[:4], gb[:4])
@@ -869,6 +945,12 @@ class Daire:
             A = unary_union([A, gecis.buffer(14, cap_style=2)])
         A = A.buffer(-DUVAR, join_style=2).union(Pk.buffer(16))
         serb = G.maske(A) & ~self.engel_transit(transit) & ~self.kol_engel
+        if getattr(self, 'kombi_slot', None) is None:
+            # mutfak hole kapısız: kombi çifti kollektörün kombiye yakın ucuna
+            N = len(self.slot_ij)
+            d0 = Point(self.kol['slotlar'][2 * YEDEK]).distance(Pk)
+            d1 = Point(self.kol['slotlar'][N - 1 - 2 * YEDEK]).distance(Pk)
+            self.kombi_slot = (2 * YEDEK + 1, 2 * YEDEK) if d0 <= d1 else (N - 2 * YEDEK - 1, N - 2 * YEDEK - 2)
         sl = list(self.kombi_slot)
         ucuz = np.zeros_like(serb)
         for o in transit:
@@ -941,20 +1023,31 @@ class Daire:
         return m, kp
 
     def _erisim_var(self, o):
-        """mahalin TÜM devrelerinin uç çiftleri birlikte (birbirini kesmeden) kapı eşiğine ulaşabiliyor mu"""
+        """mahalin TÜM devrelerinin uç çiftleri birlikte (birbirini kesmeden) kapı eşiğine ulaşabiliyor mu.
+        Her devre için yalnız kendi uçları açık; öbür devrelerin serpantini (uçları dahil) engel."""
         G = self.G
-        m, kp = self._oda_ici_serbest(o)
+        kp = self.kapi_poly(o)
         if kp is None:
             return False
         es = self.esik(kp, o)
-        kap = set(tuple(p) for p in np.argwhere(G.maske(es) & m & ~G.maske(o['poly'].buffer(-2))))
+        A = unary_union([o['poly'], es]).buffer(-DUVAR, join_style=2)
+        taban = G.maske(A) & ~self.dolu
+        devs = o['tasarim']['devreler']
+        ser_c = {}
+        for c in devs:
+            ls = [self.kirp_uc(c2) if c2 is c else S.cizgi(c2['pts'], 4) for c2 in devs]
+            ser_c[id(c)] = taban & ~G.yakin(unary_union(ls), SERP_ARA)
+        Hm = G.maske(self.hol['poly'].buffer(-DUVAR, join_style=2))
+        kap = set(tuple(p) for p in np.argwhere(G.maske(es) & taban & Hm))
+        if not kap:
+            kap = set(tuple(p) for p in np.argwhere(G.maske(es) & taban & ~G.maske(o['poly'].buffer(-2))))
         if not kap:
             return False
-        devs = o['tasarim']['devreler']
         for sira in (devs, devs[::-1]):
-            mm = m.copy()
+            kul = np.zeros_like(taban)
             tamam = True
             for c in sira:
+                mm = ser_c[id(c)] & ~kul
                 r = self.cift_yol(c['pts'][0][:2], c['pts'][-1][:2], mm, kap, None, None,
                                   self.uc_yonu(c, True), self.uc_yonu(c, False))
                 if r is None:
@@ -962,7 +1055,7 @@ class Daire:
                     break
                 for q in dugumler(sade(r[3])) + dugumler(sade(r[4])):
                     if 0 <= q[0] < G.nx and 0 <= q[1] < G.ny:
-                        mm[q] = False
+                        kul[q] = True
             if tamam:
                 o['ayak_sira'] = [id(c) for c in sira]       # kapıdan ilk girilmesi gereken devre önce
                 return True
@@ -971,21 +1064,39 @@ class Daire:
         return False
 
     def besleme_kirp(self, o, t=15.0):
-        """besleme ucunu (parmaklara dik ilk segment) t cm kısalt: köşedeki öbür uca (parmak ucu) kapı tarafından
-        yol açılır. Uygulanabilir değilse False."""
+        """besleme ucunu (parmaklara dik ilk segment) yol boyunca t cm kısalt (basamaklı beslemede köşeden dönerek):
+        köşedeki öbür uca (parmak ucu) kapı tarafından yol açılır. Uygulanamazsa False."""
         yeni = []
         for c in o['tasarim']['devreler']:
             p = [list(q) for q in c['pts']]
+            tamam = False
             for ilk in (True, False):
-                a, b = (p[0], p[1]) if ilk else (p[-1], p[-2])
-                if abs(b[0] - a[0]) < abs(b[1] - a[1]):            # dikey uç = besleme
-                    L = abs(b[1] - a[1])
-                    if L < t + 8 or (b[2] if not ilk else a[2]) != 0:
-                        return False
-                    sgn = 1 if b[1] > a[1] else -1
-                    a[1] += sgn * t
+                q = p if ilk else p[::-1]
+                a, b = q[0], q[1]
+                if abs(b[0] - a[0]) >= abs(b[1] - a[1]):
+                    continue                                  # yatay uç = parmak, kırpılmaz
+                kalan = t
+                k = 0
+                while k < len(q) - 1:
+                    bulge = q[k][2] if ilk else q[k + 1][2]
+                    if abs(bulge) > 1e-9:
+                        break
+                    L = math.hypot(q[k + 1][0] - q[k][0], q[k + 1][1] - q[k][1])
+                    if L > kalan + 8.0:
+                        f = kalan / L
+                        nx_ = q[k][0] + (q[k + 1][0] - q[k][0]) * f
+                        ny_ = q[k][1] + (q[k + 1][1] - q[k][1]) * f
+                        q = [[nx_, ny_, 0.0]] + q[k + 1:]
+                        tamam = True
+                        break
+                    kalan -= L
+                    k += 1
+                if tamam:
+                    p = q if ilk else q[::-1]
                     break
-            yeni.append([tuple(q) for q in p])
+            if not tamam:
+                return False
+            yeni.append([tuple(v) for v in p])
         for c, p in zip(o['tasarim']['devreler'], yeni):
             c['pts'] = p
             c['L'] = S.uzunluk(p)
@@ -1170,11 +1281,39 @@ class Daire:
             if DEBUG:
                 for q in np.argwhere(occ > 1):
                     log('çakışma', G.xy(*q), [r['o'].get('zon', r['o']['ad']) for r in rota.values() if tuple(q) in r['dugum']])
-            self.uyari.append('D%d: ayaklar yerleşemedi' % self.dno)
-            self.ayaklar = []
-            if DEBUG:
+            if DEBUG == 'mz':
                 self.ayaklar = [dict(o=r['o'], c=r['c'], g=(r['g'], 0), d=(r['d'], 0)) for r in rota.values()]
-            return False
+                return False
+            # kısmi çözüm: çakışan çiftler çıkarılır, sonra sabit engelle tek tek yeniden denenir
+            while (occ > 1).any():
+                say_ = {k: sum(1 for q in r['dugum'] if occ[q] > 1) for k, r in rota.items()}
+                k = max(say_, key=say_.get)
+                for q in rota[k]['dugum']:
+                    occ[q] -= 1
+                del rota[k]
+            self.dolu = dolu0.copy()
+            self.slot_sahip = dict(sahip0)
+            for r in rota.values():
+                for q in r['dugum']:
+                    self.dolu[q] = True
+                for s_ in r['slot']:
+                    self.slot_sahip[s_] = (r['o'].get('zon', r['o']['ad']), r['c'])
+            for o, c in devs:
+                if id(c) in rota:
+                    continue
+                r = self.cift(c['pts'][0][:2], c['pts'][-1][:2], taban[id(c)], list(range(len(self.slot_ij))), None,
+                              self.uc_yonu(c, True), self.uc_yonu(c, False))
+                if r is None:
+                    self.uyari.append('D%d %s: devre ayağı kollektöre bağlanamadı' % (self.dno, o.get('zon', o['ad'])))
+                    continue
+                r['o'], r['c'] = o, c
+                rota[id(c)] = r
+                for s_ in r['slot']:
+                    self.slot_sahip[s_] = (o.get('zon', o['ad']), c)
+            self.ayaklar = [dict(o=r['o'], c=r['c'], g=(r['g'], r['slot'][0]), d=(r['d'], r['slot'][1]),
+                                 dugum=r['dugum']) for r in (rota[id(c)] for o, c in devs if id(c) in rota)]
+            log('D%d: kısmi çözüm %d/%d' % (self.dno, len(rota), len(devs)))
+            return True
         log('D%d: ayaklar %d turda yerleşti (müzakere)' % (self.dno, tur + 1))
         self.dolu = dolu0.copy()
         for o, c in devs:

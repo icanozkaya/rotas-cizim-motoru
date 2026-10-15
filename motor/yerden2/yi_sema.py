@@ -47,37 +47,74 @@ def son_daire_genislik(n):
     return PANEL0 + PANEL_ADIM * (n - 1) + 166.0
 
 
+PW = 129.283765942615      # kullanıcının *U108 bloğu genişliği (−20 … 129,28)
+PI = 124.283765942615
+PB = 114.283765942615
+
+
+def _tarama(msp, pts, desen, olcek, renk):
+    h = msp.add_hatch(color=renk, dxfattribs={'layer': DET})
+    h.set_pattern_fill(desen, scale=olcek)
+    h.paths.add_polyline_path(pts, is_closed=True)
+    return h
+
+
 def panel(msp, Px, Y0, d):
-    """döşeme kesiti sembolü (1:1), referans *U108 ölçüleri"""
-    # duvar kesiti
-    _pl(msp, [(Px - 20, Y0), (Px - 10, Y0), (Px - 10, Y0 + 60), (Px - 20, Y0 + 60)], DET, 8, True)
-    h = msp.add_hatch(color=8, dxfattribs={'layer': DET})
-    h.set_pattern_fill('ANSI31', scale=0.6)
-    h.paths.add_polyline_path([(Px - 20, Y0), (Px - 10, Y0), (Px - 10, Y0 + 60), (Px - 20, Y0 + 60)], is_closed=True)
-    # şap
-    sap = [(Px + 8, Y0), (Px + 124, Y0), (Px + 124, Y0 + 20), (Px + 8, Y0 + 20)]
-    _pl(msp, sap, DET, 8, True)
-    h = msp.add_hatch(color=8, dxfattribs={'layer': DET})
-    h.set_pattern_fill('AR-SAND', scale=0.15)
-    h.paths.add_polyline_path(sap, is_closed=True)
-    # döşeme üst çizgileri
-    msp.add_line((Px - 20, Y0 + 60), (Px + 129, Y0 + 60), dxfattribs={'layer': DET, 'color': 7})
-    msp.add_line((Px - 20, Y0 + 55), (Px + 129, Y0 + 55), dxfattribs={'layer': DET, 'color': 8})
-    msp.add_line((Px + 129, Y0 + 55), (Px + 129, Y0 + 60), dxfattribs={'layer': DET, 'color': 7})
-    # boru ilmeği: gidiş (kırmızı) üstte, dönüş (turuncu) altta, yuvarlak köşe
-    t = math.tan(math.radians(22.5))
-    msp.add_lwpolyline([(Px - 5, Y0 + 50, 0), (Px + 112, Y0 + 50, -t), (Px + 119, Y0 + 43, 0), (Px + 119, Y0 + 37.5, 0)],
-                       format='xyb', dxfattribs={'layer': DET, 'color': 10})
-    msp.add_lwpolyline([(Px + 119, Y0 + 37.5, 0), (Px + 119, Y0 + 32, -t), (Px + 112, Y0 + 25, 0), (Px, Y0 + 25, 0)],
-                       format='xyb', dxfattribs={'layer': DET, 'color': 30})
-    # yazılar (referans öznitelik konumları)
-    _t(msp, d['zon'], (Px + 3, Y0 + 31), 15, 2, DET)
-    _t(msp, '%d%%%%DC' % d['sic'], (Px + 94, Y0 + 33), 10, 2, DET)
-    _t(msp, '%.1f W' % d['W'], (Px + 12, Y0 + 70), 10, 2, DET)
-    _t(msp, '%.2f m' % d['L_m'], (Px + 64, Y0 + 70), 10, 2, DET)
-    _t(msp, 'DEVRE', (Px + 12, Y0 + 100), 10, 2, DET)
-    _t(msp, str(d['no']), (Px + 85, Y0 + 100), 10, 2, DET)
-    _t(msp, 'PEX BORU, 16 x 2.0', (Px + 4, Y0 - 13), 7, 2, DET)
+    """Döşeme kesiti devre paneli — kullanıcının new_block *U108 bloğunun saf geometri kopyası (1:1, cm):
+    sol duvar (−20…−10 beton ayak, −20…−15 tuğla), sağ duvar (124,28…129,28), şap (5…129,28 × 0…20, AR-CONC),
+    döşeme üstü kesik çizgi bandı (55…60, ACAD_ISO08W100), boru ilmeği (gidiş 50 / dönüş 25, r 5 yaylar),
+    yazılar kullanıcının öznitelik yerlerinde: Zxx h15 (1,26; 31,86), °C h10 (94,35; 33,73), W h10 (14,5; 70),
+    m h10 (62,06; 70), ISIKAYBI h10 (14,15; 110) + devre no sağa dayalı (94,7; 110), PEX BORU, 16 x 2.0 h10 (4,3; −14,1)."""
+    X = lambda x: Px + x          # noqa: E731
+    Y = lambda y: Y0 + y          # noqa: E731
+    P = lambda x, y: (Px + x, Y0 + y)  # noqa: E731
+    # dış hat (kullanıcının bloğundaki iki polyline ve çizgiler)
+    msp.add_lwpolyline([P(-10, 0), P(-20, 0), P(-20, 60), P(PW, 60), P(PW, 0), P(5, 0), P(5, 20), P(PW, 20)],
+                       dxfattribs={'layer': DET, 'color': 7})
+    msp.add_lwpolyline([P(-10, 0), P(-10, 20), P(-15, 20), P(-20, 20)], dxfattribs={'layer': DET, 'color': 7})
+    msp.add_line(P(-20, 55), P(PW, 55), dxfattribs={'layer': DET, 'color': 7})
+    msp.add_line(P(-15, 55), P(-15, 20), dxfattribs={'layer': DET, 'color': 7})
+    msp.add_line(P(PI, 55), P(PI, 20), dxfattribs={'layer': DET, 'color': 7})
+    # taramalar
+    _tarama(msp, [P(5, 0), P(PW, 0), P(PW, 20), P(5, 20)], 'AR-CONC', 1.0, 15)
+    _tarama(msp, [P(-20, 0), P(-10, 0), P(-10, 20), P(-20, 20)], 'AR-CONC', 1.0, 15)
+    _tarama(msp, [P(-20, 20), P(-15, 20), P(-15, 55), P(-20, 55)], 'ANSI38', 25.0, 15)
+    _tarama(msp, [P(PI, 20), P(PW, 20), P(PW, 55), P(PI, 55)], 'ANSI38', 25.0, 15)
+    h = msp.add_hatch(color=7, dxfattribs={'layer': DET})
+    # ACAD_ISO08W100 (kullanıcının tanım satırı: 90°, aralık 4,49, çizgi 21,56 / −2,69 / 5,39 / −2,69)
+    bx = Px + (-135697.0398850483 % 4.49064449064449)
+    by = Y0 + (398444.736908284 % 32.33)
+    h.set_pattern_definition([[90.0, (bx, by), (-4.49064449064449, 0.0),
+                               [21.55509355509355, -2.694386694386694, 5.388773388773388, -2.694386694386694]]])
+    h.dxf.pattern_name = 'ACAD_ISO08W100'
+    h.dxf.pattern_angle = 90.0
+    h.dxf.pattern_scale = 0.898128898128898
+    h.paths.add_polyline_path([P(PW, 55), P(PW, 60), P(-20, 60), P(-20, 55)], is_closed=True)
+    # boru ilmeği: gidiş (ROTAS-ISITMA-GIDIS-BORU) / dönüş (ROTAS-ISITMA-DONUS-BORU), kullanıcının yayları
+    msp.add_line(P(0, 50), P(PB, 50), dxfattribs={'layer': G})
+    msp.add_arc(P(0, 45), 5, 90, 180, dxfattribs={'layer': G})
+    msp.add_arc(P(PB, 45), 5, 0, 90, dxfattribs={'layer': G})
+    msp.add_line(P(PB + 5, 37.5), P(PB + 5, 45), dxfattribs={'layer': G})
+    msp.add_line(P(5, 25), P(PB, 25), dxfattribs={'layer': DN})
+    msp.add_arc(P(5, 20), 5, 90, 180, dxfattribs={'layer': DN})
+    msp.add_arc(P(PB, 30), 5, 270, 360, dxfattribs={'layer': DN})
+    msp.add_line(P(PB + 5, 37.5), P(PB + 5, 30), dxfattribs={'layer': DN})
+    msp.add_line(P(0, 10), P(0, 20), dxfattribs={'layer': DN})
+    # yazılar (kullanıcının öznitelik konumları ve boyları; hepsi sarı, arial ×0,65)
+    _t(msp, d['zon'], P(1.26, 31.86), 15, 2, DET)
+    _t(msp, '%d%%%%DC' % d['sic'], P(94.35, 33.73), 10, 2, DET)
+    _t(msp, '%.1f W' % d['W'], P(14.5, 70.0), 10, 2, DET)
+    _t(msp, '%.2f m' % d['L_m'], P(62.06, 70.0), 10, 2, DET)
+    _t(msp, 'ISIKAYBI', P(14.15, 110.0), 10, 2, DET)
+    _t(msp, str(d['no']), P(94.7, 110.0), 10, 2, DET, TA.BOTTOM_RIGHT)
+    _t(msp, 'PEX BORU, 16 x 2.0', P(4.3, -14.1), 10, 2, DET)
+
+
+def hat_etiketi(msp, Px, yg, W):
+    """kullanıcının *U110 bloğu (×10): kılavuz (Px−15, yg) -> 6 yukarı -> 7,5 sola; yazı h10 sola dayalı kılavuzun solunda"""
+    x0 = Px - 15.0
+    msp.add_lwpolyline([(x0 - 7.5, yg + 6.0), (x0, yg + 6.0), (x0, yg)], dxfattribs={'layer': CAP, 'color': 41})
+    _t(msp, '%.1fW-%%%%C20' % W, (x0 - 14.0, yg + 1.0), 10, 41, CAP, TA.BOTTOM_RIGHT)
 
 
 def _r(msp, x0, y0, x1, y1, katman, renk):
@@ -228,10 +265,10 @@ def ciz(doc, msp, model):
                 Px = Kx + PANEL0 + PANEL_ADIM * i
                 panel(msp, Px, Y0, c)
                 yg, yd = Y0 - 20 - 10 * i, Y0 - 25 - 10 * i
-                _pl(msp, [(Px - 5, Y0 + 50), (Px - 5, yg), (Kx + 85 - 10 * i, yg), (Kx + 85 - 10 * i, Y0 + 19.6)], G)
-                _pl(msp, [(Px, Y0 + 25), (Px, yd), (Kx + 80 - 10 * i, yd), (Kx + 80 - 10 * i, Y0 + 19.6)], DN)
-                _t(msp, '%.1fW-%%%%C20' % c['W'], (Px - 15, yg + 1.5), 10, 41, CAP, TA.BOTTOM_RIGHT)
-                msp.add_line((Px - 13, yg + 1), (Px - 8, yg + 6), dxfattribs={'layer': CAP, 'color': 41})
+                # kullanıcının şeması: gidiş Px−5'ten (57,5) iner, dönüş Px'ten (22,5) iner
+                _pl(msp, [(Px - 5, Y0 + 57.5), (Px - 5, yg), (Kx + 85 - 10 * i, yg), (Kx + 85 - 10 * i, Y0 + 19.6)], G)
+                _pl(msp, [(Px, Y0 + 22.5), (Px, yd), (Kx + 80 - 10 * i, yd), (Kx + 80 - 10 * i, Y0 + 19.6)], DN)
+                hat_etiketi(msp, Px, yg, c['W'])
                 toplam_sema.append((kat['kat'], dd['no'], c['no'], c['W'], c['L_m']))
             Kx += daire_genislik(n)
     # başlık, lejant, notlar

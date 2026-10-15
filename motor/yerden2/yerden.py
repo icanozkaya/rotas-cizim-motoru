@@ -740,11 +740,99 @@ def etiketle(msp, KT, tum_borular):
 
 # ====================================================================== çizim
 def borulari_ciz(msp, KT):
+    """her devre tek açık polyline: kollektör ağzı -> gidiş ayağı -> serpantin -> dönüş ayağı -> ağız"""
     for o in KT['odalar']:
         for c in o['tasarim']['devreler']:
-            e = msp.add_lwpolyline([(x, y, b) for x, y, b in c['pts']], format='xyb',
-                                   dxfattribs={'layer': L_PEX, 'const_width': 0.0})
+            e = msp.add_lwpolyline(tam_devre(c), format='xyb', dxfattribs={'layer': L_PEX, 'const_width': 0.0})
             e.dxf.color = 256
+
+
+L_KOL = 'ROTAS-ISITMA-KOLLEKTOR'
+L_CIHAZ = 'ROTAS-ISITMA-CIHAZ'
+L_CAP = 'ROTAS-ISITMA-CAP'
+
+
+def _yazi_yeri(aday_merkez, w, h, engel, alan, adim=10.0, r_max=220.0):
+    """merkez etrafında (spiral) w×h kutunun engelsiz ve alan içinde olduğu en yakın yer"""
+    cx, cy = aday_merkez
+    en = None
+    r = 0.0
+    while r <= r_max:
+        n = max(1, int(2 * math.pi * r / adim)) if r > 0 else 1
+        for k in range(n):
+            a = 2 * math.pi * k / n
+            x, y = cx + r * math.cos(a), cy + r * math.sin(a)
+            b = box(x - w / 2, y - h / 2, x + w / 2, y + h / 2)
+            if alan.contains(b) and not b.intersects(engel):
+                return b
+        r += adim
+    return en
+
+
+def kollektor_ciz(msp, KT, engel_tum):
+    """planda kollektör dolabı (kullanılan ağızlar kadar), ağız sayısı + toplam W etiketi, kombi + kombi–kollektör
+    gidiş/dönüş hattı (sıhhi plandaki kombi yeri)"""
+    import ayak as A
+    K = KT['K']
+    say = 0
+    for dno, son in (KT.get('kollektorler') or {}).items():
+        if not son:
+            continue
+        kol = son['kollektor']
+        od = [o for o in KT['odalar'] if o['daire'] == dno]
+        devs = [c for o in od for c in o['tasarim']['devreler'] if c.get('ayak_g')]
+        if not devs:
+            continue
+        agizlar = [s_ for c in devs for s_ in c['agiz']]
+        kh = son.get('kombi_hat')
+        if kh:
+            agizlar += list(kh['slot'])
+        k0 = kol['yuz'][0]
+        u, ic = kol['u'], kol['ic']
+        ts = [A.KOL_PAY + A.RES * (s_ - 2 * A.YEDEK) for s_ in agizlar]
+        t0, t1 = min(ts) - 10.0, max(ts) + 10.0
+        p0 = (k0[0] + u[0] * t0, k0[1] + u[1] * t0)
+        p1 = (k0[0] + u[0] * t1, k0[1] + u[1] * t1)
+        D_ = A.KOL_DERIN
+        kutu = [p0, p1, (p1[0] + ic[0] * D_, p1[1] + ic[1] * D_), (p0[0] + ic[0] * D_, p0[1] + ic[1] * D_)]
+        msp.add_lwpolyline(kutu, close=True, dxfattribs={'layer': L_KOL})
+        # gidiş / dönüş barları (dolap içinde iki çizgi)
+        for d in (3.5, 6.5):
+            msp.add_line((p0[0] + ic[0] * d + u[0] * 4, p0[1] + ic[1] * d + u[1] * 4),
+                         (p1[0] + ic[0] * d - u[0] * 4, p1[1] + ic[1] * d - u[1] * 4), dxfattribs={'layer': L_KOL})
+        n = len(devs)
+        W = sum(c['W'] for c in devs)
+        # etiket: dolabın yanında, boru / yazı üstüne binmeden (iki satır, h 10)
+        s1 = 'KOLLEKTÖR %d AĞIZ' % n
+        s2 = '%.1fW-%%%%C32' % W
+        w = max(len(s1), len(s2) - 2) * 10 * 0.65 * 0.95 + 6
+        h = 2 * 10 + 10
+        hol = next(o for o in od if o['tur'] == 'hol')
+        mer = ((p0[0] + p1[0]) / 2 + ic[0] * 45, (p0[1] + p1[1]) / 2 + ic[1] * 45)
+        b = _yazi_yeri(mer, w, h, engel_tum, hol['poly'].buffer(-3))
+        if b is None:
+            b = _yazi_yeri(mer, w, h, engel_tum, hol['poly'].buffer(150))
+        if b is not None:
+            x0, y0, x1, y1 = b.bounds
+            _yazi(msp, s1, (x0 + 3, y1 - 12), 10, 41, katman=L_CAP)
+            _yazi(msp, s2, (x0 + 3, y1 - 27), 10, 41, katman=L_CAP)
+            engel_tum = engel_tum.union(b)
+        # kombi (sıhhi plandaki kombi kutusu) + hatlar
+        if kh:
+            kx, ky = kh['gidis'][0]
+            f = min((f for f in K.fx if f['kind'] == 'KOMBI'), key=lambda f: math.hypot(f['c'][0] - kx, f['c'][1] - ky),
+                    default=None)
+            bb = f.get('bb') if f else None
+            if bb:
+                x0, y0, x1, y1 = bb
+            else:
+                x0, y0, x1, y1 = kx - 20, ky - 15, kx + 20, ky + 15
+            msp.add_lwpolyline([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], close=True, dxfattribs={'layer': L_CIHAZ})
+            _yazi(msp, 'KOMBİ', ((x0 + x1) / 2, y1 + 4), 8, 2, ezdxf.enums.TextEntityAlignment.BOTTOM_CENTER, L_CIHAZ)
+            msp.add_lwpolyline(kh['gidis'], dxfattribs={'layer': 'ROTAS-ISITMA-GIDIS-BORU'})
+            msp.add_lwpolyline(kh['donus'], dxfattribs={'layer': 'ROTAS-ISITMA-DONUS-BORU'})
+        say += 1
+    return say
 
 
 def baslik(msp, k):
@@ -772,7 +860,16 @@ def model_yaz(KTS):
                 'alan_mimari_m2': o['alan_mimari'],
                 'isitma_alani_m2': round(o['H'].area / 1e4, 2), 'kose': o['tasarim']['kose'],
                 'bbox': [round(v, 1) for v in o['poly'].bounds],
-                'devreler': [{'no': c['no'], 'L_m': c['L_m'], 'W': c['W'], 'etiket': {'cep': 'cep', 'ic': 'maskeli', 'bos': 'bos'}.get(c.get('etiket_yer'), 'yok')} for c in o['tasarim']['devreler']]})
+                'devreler': [{'no': c['no'], 'L_m': c['L_m'], 'W': c['W'],
+                              'L_ayak_m': round((S.uzunluk(tam_devre(c)) - S.uzunluk(c['pts'])) / 100.0, 2), 'etiket': {'cep': 'cep', 'ic': 'maskeli', 'bos': 'bos'}.get(c.get('etiket_yer'), 'yok')} for c in o['tasarim']['devreler']]})
+        for dno, son in (KT.get('kollektorler') or {}).items():
+            dd = kat['daireler'].get(str(dno))
+            if dd is None:
+                continue
+            devs = [c for o in KT['odalar'] if o['daire'] == dno for c in o['tasarim']['devreler']]
+            dd['kollektor'] = {'agiz': len(devs), 'W': round(sum(c['W'] for c in devs), 1),
+                               'ayakli': sum(1 for c in devs if c.get('ayak_g')),
+                               'kombi_hatti': bool(son and son.get('kombi_hat'))}
         kat['isitilmayan'] = sorted({'%s (%s)' % (q['ad'].replace('\n', ' '), q['tur']) for q in KT['isitmasiz']})
         out['katlar'].append(kat)
     json.dump(out, open(CIKIS_JSON, 'w'), ensure_ascii=False, indent=1)
@@ -807,7 +904,11 @@ def main(argv=None):
         log('UYARI: --ayaklar henüz uygulanmadı (kullanıcının çiziminde planda ayak yok); yalnız şemada gösterilir')
     for KT in KTS:
         borulari_ciz(msp, KT)
-    tum = unary_union([S.cizgi(c['pts']).buffer(3) for KT in KTS for o in KT['odalar'] for c in o['tasarim']['devreler']])
+    tum = unary_union([S.cizgi(tam_devre(c)).buffer(3) for KT in KTS for o in KT['odalar'] for c in o['tasarim']['devreler']] +
+                      [LineString(h).buffer(3) for KT in KTS for son in (KT.get('kollektorler') or {}).values() if son
+                       and son.get('kombi_hat') for h in (son['kombi_hat']['gidis'], son['kombi_hat']['donus'])])
+    for KT in KTS:
+        kollektor_ciz(msp, KT, unary_union([tum, KT['yazi_u']]))
     for KT in KTS:
         KT['mimari'] = mimari_cizgi(KT['K'])
         KT['etiket_sayim'] = etiketle(msp, KT, tum)
