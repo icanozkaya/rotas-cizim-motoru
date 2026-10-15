@@ -1,0 +1,98 @@
+{
+ "proje": {
+  "sahip": "ENGİN KABA VE HİSS.",
+  "il": "SAKARYA",
+  "ilce": "ADAPAZARI",
+  "mahalle": "KARAPINAR",
+  "ada": "2750",
+  "parsel": "7",
+  "tarih": "15.10.2026"
+ },
+ "derinlik": 220,
+ "ara_duvar": 10,
+ "dis_duvar": 25,
+ "kisi": 10,
+ "Q": 800,
+ "kabin_gen": 120,
+ "kabin_der": 150,
+ "P_kabin": 550,
+ "kuyu_dibi": 1.5,
+ "son_doseme_alt": 12.45,
+ "son_doseme_kalinlik_oneri": 15,
+ "mimari_son_doseme_kalinlik": 15,
+ "mimari_kuyu_dibi": "-3,70 (1,50 m - uygun)",
+ "ana_durak_ustu": 2,
+ "kat_adedi": 4,
+ "kuyular": [
+  [
+   190,
+   null
+  ]
+ ],
+ "kiris_taraf": "sag",
+ "daireler": [
+  [
+   48,
+   2,
+   1
+  ]
+ ],
+ "mimari": {
+  "flat": "proje/ab2750_asansor/mimari/ab.flat.pkl",
+  "pencere": [
+   25590,
+   -35300,
+   33410,
+   -32250
+  ],
+  "olcek": 200,
+  "kat_adi": "A BLOK ZEMİN KAT PLANI",
+  "kuyu_kutulari": [
+   [
+    31916.2,
+    -34415.0,
+    32106.2,
+    -34195.0
+   ]
+  ],
+  "kapi_yonu": "-y"
+ },
+ "blok": "A",
+ "durak_kotlari": [
+  -2.2,
+  0.8,
+  3.8,
+  6.8
+ ],
+ "durak_adlari": [
+  "BODRUM (-2,20)",
+  "ZEMİN (+0,80)",
+  "1. KAT (+3,80)",
+  "2. KAT (+6,80)"
+ ],
+ "seyir": 9.0,
+ "kuyu_ustu": 5.65,
+ "olcu_notlari": [
+  "A BLOK ASANSÖR-2 (sağ çekirdek): bodruma iner; duraklar -2,20 / +0,80 / +3,80 / +6,80, seyir 9,00 m (bodrum ana durak altı, trafikte sayılmaz).",
+  "Kuyu dibi mimari kesitten -3,70 -> ilk durak -2,20 ile 1,50 m (imar min 1,40 m - uygun).",
+  "Kuyu 190 x 220 cm (yan perdeler 25 cm, arka tuğla duvar 15 cm); arka duvarda kiriş izdüşümü 10 cm -> kiriş altı derinlik 210 cm (mimaride net 4,00 m²). Tüm katlarda aynı yerde.",
+  "Mimaride kat kapısı K 100/210 yazılmış: kat kapıları 90/210 olarak düzeltildi (ROTAŞ standardı).",
+  "Kat yükseklikleri mimari kesitten ölçüldü: SBK +0,80 / +3,80 / +6,80, kat yüksekliği 3,00 m; çatı döşemesi +9,80 (durak değil).",
+  "Kuyu tavanı (asansör kulesi döşemesi) alt kotu +12,45, mimaride 15 cm; son durak +6,80 -> kuyu üst boşluğu 5,65 m (yeterli).",
+  "A blokta iki ayrı çekirdekte birer asansör vardır; trafik hesabı blok toplamı (48 adet 2+1) ve n = 2 ile yapılmıştır."
+ ],
+ "koordinasyon": [
+  "Asansör kuyusundan ve kuyu tavanından asansöre ait olmayan boru/kablo geçmez.",
+  "Kuyu dibine pis su süzgeci/bağlantısı yapılmaz; kuyu dibi su yalıtımlı.",
+  "Rögar ve altyapı hatları kuyu dibi altından ve asansör kapı önlerinden geçmez.",
+  "Ray konsolları için kuyu duvarları betonarme perde veya her katta betonarme hatıl olmalıdır (statik).",
+  "Asansör kuyusu ve önü ısıtılmaz; kuyu tavanında duman tahliye açıklığı bırakılır."
+ ],
+ "ana_durak_kotu": 0.8,
+ "son_kat_doseme_kotu": 9.8,
+ "dosya_adi": "KARAPINAR_2750-7_A_BLOK_ASANSOR-2_AVAN",
+ "n_asansor": 2,
+ "n_aciklama": "A blokta iki ayrı çekirdekte 2 adet tek asansör",
+ "tip_kapak": "MAKİNE DAİRESİZ TEK",
+ "yibf": "-"
+}

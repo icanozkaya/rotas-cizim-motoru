@@ -1,0 +1,94 @@
+{
+ "proje": {
+  "sahip": "ENGİN KABA VE HİSS.",
+  "il": "SAKARYA",
+  "ilce": "ADAPAZARI",
+  "mahalle": "KARAPINAR",
+  "ada": "2750",
+  "parsel": "7",
+  "tarih": "15.10.2026"
+ },
+ "derinlik": 200,
+ "ara_duvar": 10,
+ "dis_duvar": 25,
+ "kisi": 10,
+ "Q": 800,
+ "kabin_gen": 120,
+ "kabin_der": 150,
+ "P_kabin": 550,
+ "kuyu_dibi": 1.6,
+ "son_doseme_alt": 12.65,
+ "son_doseme_kalinlik_oneri": 15,
+ "mimari_son_doseme_kalinlik": 15,
+ "mimari_kuyu_dibi": "-0,85 (1,60 m - A blok kesitiyle aynı detay)",
+ "ana_durak_ustu": 2,
+ "kat_adedi": 3,
+ "kuyular": [
+  [
+   250,
+   null
+  ]
+ ],
+ "kiris_taraf": "sag",
+ "daireler": [
+  [
+   30,
+   2,
+   1
+  ]
+ ],
+ "mimari": {
+  "flat": "proje/ab2750_asansor/mimari/ab.flat.pkl",
+  "pencere": [
+   25300,
+   -27560,
+   30210,
+   -26000
+  ],
+  "olcek": 100,
+  "kat_adi": "B BLOK ZEMİN KAT PLANI",
+  "kuyu_kutulari": [
+   [
+    27171.6,
+    -26684.6,
+    27421.6,
+    -26484.6
+   ]
+  ],
+  "kapi_yonu": "-y"
+ },
+ "blok": "B",
+ "durak_kotlari": [
+  0.75,
+  3.75,
+  6.75
+ ],
+ "durak_adlari": [
+  "ZEMİN (+0,75)",
+  "1. KAT (+3,75)",
+  "2. KAT (+6,75)"
+ ],
+ "seyir": 6.0,
+ "kuyu_ustu": 5.9,
+ "olcu_notlari": [
+  "B BLOK ASANSÖR: duraklar +0,75 / +3,75 / +6,75 (mimari kot yazıları), kat yüksekliği 3,00 m, seyir 6,00 m; çatı döşemesi +9,75 (durak değil).",
+  "Kuyu 250 x 200 cm (yan perdeler 25 cm, arka tuğla 15 cm); arka kiriş izdüşümü 10 cm -> kiriş altı 190 cm (mimaride net 5,00 m²).",
+  "Mimaride kat kapısı K 100/210 yazılmış: kat kapıları 90/210 olarak düzeltildi (ROTAŞ standardı).",
+  "B blok kesitleri asansör kuyusundan geçmiyor: kuyu dibi ve kuyu tavanı ÖLÇÜLEREK alındı -> kuyu dibi -0,85 (1,60 m, A blok bodrumsuz kuyu detayı ile aynı; temel alt -1,45).",
+  "Kuyu tavanı alt +12,65 (kule üst kotu +13,35 - A blok kule detayı 0,70); son durak +6,75 -> üst boşluk 5,90 m. Mimarca kesitle teyit edilmeli."
+ ],
+ "koordinasyon": [
+  "Asansör kuyusundan ve kuyu tavanından asansöre ait olmayan boru/kablo geçmez.",
+  "Kuyu dibine pis su süzgeci/bağlantısı yapılmaz; kuyu dibi su yalıtımlı.",
+  "Rögar ve altyapı hatları kuyu dibi altından ve asansör kapı önlerinden geçmez.",
+  "Ray konsolları için kuyu duvarları betonarme perde veya her katta betonarme hatıl olmalıdır (statik).",
+  "Asansör kuyusu ve önü ısıtılmaz; kuyu tavanında duman tahliye açıklığı bırakılır."
+ ],
+ "ana_durak_kotu": 0.75,
+ "son_kat_doseme_kotu": 9.75,
+ "dosya_adi": "KARAPINAR_2750-7_B_BLOK_ASANSOR_AVAN",
+ "n_asansor": 1,
+ "n_aciklama": "tek asansör",
+ "tip_kapak": "MAKİNE DAİRESİZ TEK",
+ "yibf": "-"
+}

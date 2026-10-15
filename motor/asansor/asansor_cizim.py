@@ -788,9 +788,12 @@ def sembol(c, ad, X, Y, lay, ayna=False, olcek=1.0):
 def mimari_kopya(c, flat_pkl, pencere, ox, oy, kuyu_kutulari, h_max=30, K=None, kapi_yonu='+y'):
     fl = pickle.load(open(flat_pkl, 'rb'))
     x0, y0, x1, y1 = pencere
-    ins = lambda p: x0 <= p[0] <= x1 and y0 <= p[1] <= y1
+    # kuyu içindeki mimari çizim/yazılar (mimarın kabin çizimi, 'ASANSÖR' yazısı) atlanır: kuyu içi motorla çizilir
+    KB = [(q[0] + 1, q[1] + 1, q[2] - 1, q[3] - 1) for q in kuyu_kutulari] if K else []
+    kuyuda = lambda p: any(k0 <= p[0] <= k2 and k1 <= p[1] <= k3 for (k0, k1, k2, k3) in KB)
+    ins = lambda p: x0 <= p[0] <= x1 and y0 <= p[1] <= y1 and not kuyuda(p)
     sx = lambda p: (p[0] - x0 + ox, p[1] - y0 + oy)
-    ATLA = {'iç alan', 'ARABA', 'PV PANEL', 'YZ30', 'AUDIT_D_050129170658-0'}
+    ATLA = {'iç alan', 'ARABA', 'PV PANEL', 'YZ30', 'AUDIT_D_050129170658-0', 'Araba'}
     n = 0
     for r in fl:
         if r[1] in ATLA: continue
@@ -806,6 +809,9 @@ def mimari_kopya(c, flat_pkl, pencere, ox, oy, kuyu_kutulari, h_max=30, K=None, 
             if ins(p) and 6 <= h <= h_max:
                 s = re.sub(r'\\[AaCcFfHhQqTtWwpLlOo][^;]*;?', '', s).replace('{', '').replace('}', '').replace('\\P', ' ').strip()
                 if s and len(s) < 40 and not s.startswith('Taban') and not s.startswith('Duvar') and not s.startswith('Tavan'):
+                    # asansör kat kapısı her zaman 90/210 (mimarın yazdığı ölçü düzeltilir)
+                    if re.match(r'^K\s*\d{2,3}\s*/\s*\d{3}', s) and any(k0 - 60 <= p[0] <= k2 + 60 and k1 - 60 <= p[1] <= k3 + 60 for (k0, k1, k2, k3) in KB):
+                        s = 'K 90/210 (ASANSÖR)'
                     c.T('SCOTT-MIMARI', sx(p), s, h)
     ky = kuyu_yerlesim(K, None) if K else []
     for i, (a, b, cc, d, ad) in enumerate(kuyu_kutulari):
@@ -813,6 +819,12 @@ def mimari_kopya(c, flat_pkl, pencere, ox, oy, kuyu_kutulari, h_max=30, K=None, 
             k_ = ky[i]
             if kapi_yonu == '+x':
                 P = lambda u, v, a=a, b=b, k_=k_: sx((a + v, b + (u - k_['x0'])))
+                ang = 90
+            elif kapi_yonu == '-y':                       # kapı kutunun alt kenarında
+                P = lambda u, v, a=a, d=d, k_=k_: sx((a + (u - k_['x0']), d - v))
+                ang = 0
+            elif kapi_yonu == '-x':                       # kapı kutunun sol kenarında
+                P = lambda u, v, cc=cc, b=b, k_=k_: sx((cc - v, b + (u - k_['x0'])))
                 ang = 90
             else:
                 P = lambda u, v, a=a, b=b, k_=k_: sx((a + (u - k_['x0']), b + v))
@@ -832,7 +844,7 @@ def ciz(K, cikis):
     a = Asansor(proje=K['blok'], bina=K.get('bina', 'konut'), izul_sinif=K.get('izul_sinif', K.get('bina', 'konut')), b_toplam=K.get('b_toplam', 0), daireler=[tuple(d) for d in K.get('daireler', [])], durak=len(K['durak_kotlari']),
                 ana_durak_ustu=K['ana_durak_ustu'], kat_yuk=(K['durak_kotlari'][-1] - K.get('ana_durak_kotu', K['durak_kotlari'][0])) / K['ana_durak_ustu'], seyir=K['seyir'],
                 kisi=K['kisi'], Q=K['Q'], kabin_gen=int(K['kabin_gen'] * 10), kabin_der=int(K['kabin_der'] * 10),
-                n_asansor=len(K['kuyular']), kuyu_dibi=K['kuyu_dibi'], kuyu_ustu=K['kuyu_ustu'], P_kabin=K['P_kabin'], aski=aski,
+                n_asansor=K.get('n_asansor', len(K['kuyular'])), kuyu_dibi=K['kuyu_dibi'], kuyu_ustu=K['kuyu_ustu'], P_kabin=K['P_kabin'], aski=aski,
                 **({} if md else dict(halat_adet=K.get('halat_adet', 7), halat_cap=K.get('halat_cap', 6.5), halat_kgm=K.get('halat_kgm', 0.152), mrl=True)))
     r = hesapla(a)
     paftalar = []
@@ -932,7 +944,7 @@ def ciz(K, cikis):
              (K['b_aciklama'] + f"  ->  Σb = {f(r['sum_b'],0)} kişi") if K.get('b_aciklama') else (f"Daireler: " + ', '.join(f'{n} adet {yo}+{do}' for n, yo, do in K['daireler']) + f"  ->  Σb = {f(r['sum_b'],0)} kişi (Tablo-1: ilk yatak odası 2, diğer odalar 1)"),
              f"Durak kotları: " + ', '.join(f'{ad} {f(z)}' for ad, z in zip(K['durak_adlari'], K['durak_kotlari'])) + f"   Seyir = {f(K['seyir'])} m",
              f"Ana durak: Zemin kat. Ana durak üzerindeki kat sayısı N = {K['ana_durak_ustu']}" + ('  (bodrum durağı hesaba katılmaz)' if alt_kat < 0 else ''),
-             f"Ortalama kat yüksekliği h = (son durak - ana durak) / N = {f(a.kat_yuk)} m.  Asansör sayısı n = {len(ky)} (çift asansör)", '']
+             f"Ortalama kat yüksekliği h = (son durak - ana durak) / N = {f(a.kat_yuk)} m.  Asansör sayısı n = {a.n_asansor}" + (f" ({K['n_aciklama']})" if K.get('n_aciklama') else (" (çift asansör)" if a.n_asansor == 2 else "")), '']
     yy = yazi_blok(c, X0, Y1 - 5 * k, giris, 3.0 * k)
     yazi_blok(c, X0, yy, ['# ' + metin[0], '# ' + metin[1]] + metin[2:i2], 3.0 * k)
     p = yeni(50, 420, 'HESAP-2 KUVVET / MOTOR / KONTROLLER', 'alt'); k = p.k; X0, Y0, X1, Y1 = p.ic()

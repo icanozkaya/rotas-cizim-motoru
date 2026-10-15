@@ -157,3 +157,5 @@ Yazı yükseklikleri: hesap 12, kat adı 16, pafta başlığı 18–29,5, antet 
 - İş yeri / ofis binası: `bina: is_merkezi`, `izul_sinif: is_merkezi_tek`, `b_toplam` = ana durak üstündeki katların net çalışma alanı / 12 m² (mimari BB net alan tablosundan), `b_aciklama` metni hesap paftasına yazılır.
 - Durak olmayan geçiş kotları (teras vb.) `gecis_kotlari: [[kot, 'TERAS ... (DURAK YOK)']]` ile kesitte gösterilir.
 - Teslim: kullanıcı tercihi - **yalnız DXF** (DWG ve önizleme PDF gönderilmez).
+- Birden çok bloklu projede her blok (bloğun ayrı çekirdeklerdeki asansörleri de) ayrı set olarak çizilir; aynı bloktaki asansörler için trafik blok toplamı ve `n_asansor` ile yapılır (`n_aciklama`). Kapı yönü `kapi_yonu`: '+y' / '-y' / '+x' / '-x'. Konum planında kuyu içindeki mimari çizim ve yazılar atlanır, asansör kapı yazısı 'K 90/210' olarak düzeltilir.
+- Kesit kuyudan geçmiyorsa kotlar mimarideki kot yazılarından, kuyu dibi/kuyu tavanı aynı projedeki kuyudan geçen kesitin detayından ölçülerek alınır ve notta "ölçülerek alındı, teyit" yazılır (ör. Karapınar 2750/7 B blok).
