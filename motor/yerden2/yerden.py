@@ -319,11 +319,12 @@ def ayaklari_kur(k, K, odalar, yasak):
                 o['H'], o['tasarim'], o['ek_eng'], o['ayak_sira'] = (yedek[id(o)][0], copy.deepcopy(yedek[id(o)][1]),
                                                                      yedek[id(o)][2], yedek[id(o)][3])
         en = None
-        for ks in range(3):                     # kollektör yeri adayları (tam bağlanan ilk aday)
+        for ks, sh, kombili in ((0, True, True), (0, False, True), (1, True, True), (2, True, True), (0, True, False)):
+            # kollektör yeri / sahte hol ucu adayları; son çare kombi hattı sonra (devreler önce)
             geri_yukle()
             n_ek = {}
             for tur in range(3):
-                D_ = A.Daire(K, dno, od, hol, kb, None, yasak, kol_sira=ks)
+                D_ = A.Daire(K, dno, od, hol, kb if kombili else None, None, yasak, kol_sira=ks, sahte_hol=sh)
                 sonuc = D_.coz()
                 if sonuc is None:
                     break
@@ -345,7 +346,11 @@ def ayaklari_kur(k, K, odalar, yasak):
             n_tum = sum(len(o['tasarim']['devreler']) for o in od)
             n_bag = sum(1 for o in od for c in o['tasarim']['devreler'] if c.get('ayak_g'))
             kombi_ok = sonuc is not None and (kb is None or sonuc.get('kombi_hat'))
-            puan = (n_bag - n_tum) * 10 + (0 if kombi_ok else -5) if sonuc is not None else -999
+            if sonuc is not None and not kombili and kb is not None:
+                D_.uyari.append('D%d: kombi–kollektör hattı devre ayaklarıyla kesişmeden çizilemedi (planda kombi yeri '
+                                'işaretli, hat yok)' % dno)
+            hol_ok = bool(hol['tasarim']['devreler'])
+            puan = ((n_bag - n_tum) * 10 + (0 if kombi_ok else -5) + (0 if hol_ok else -3)) if sonuc is not None else -999
             if en is None or puan > en[0]:
                 en = (puan, ks, copy.deepcopy([(o['H'], o['tasarim'], o.get('ek_eng')) for o in od]), sonuc,
                       list(D_.uyari))

@@ -434,8 +434,9 @@ def yeniden_kur(o, ek, kapi, yasak, kapi_zorla=True, hedef_L=None, n_min=None):
 
 # ====================================================================== daire çözümü
 class Daire:
-    def __init__(self, K, dno, odalar, hol, kombi, diger_serp, yasak, kol_sira=0):
+    def __init__(self, K, dno, odalar, hol, kombi, diger_serp, yasak, kol_sira=0, sahte_hol=True):
         self.kol_sira = kol_sira
+        self.sahte_hol_izin = sahte_hol
         self.K = K
         self.dno = dno
         self.odalar = odalar            # bu dairenin ısıtılan mahalleri (o dict'leri; o['r'], o['eng'] var)
@@ -593,6 +594,10 @@ class Daire:
         for s_ in [k for k, v in self.slot_sahip.items() if v == 'hol']:
             del self.slot_sahip[s_]
         devs = [(o, c) for o in self.odalar if o is not self.hol for c in o['tasarim']['devreler']]
+        if getattr(self, 'hol_sahte', None):
+            devs.append((self.hol, self.hol_sahte))
+            for s_ in self.hol_uclar[0]:
+                self.slot_sahip.pop(s_, None)
         if getattr(self, 'kombi_hat', None):
             for q in self.kombi_dugum:
                 self.dolu[q] = False
@@ -669,6 +674,17 @@ class Daire:
     def _yerlestir_ayir(self, devs):
         if not self.ayaklari_yerlestir(devs):
             return False
+        hs = getattr(self, 'hol_sahte', None)
+        if hs is not None:
+            sa = next((a for a in self.ayaklar if a['c'] is hs), None)
+            self.ayaklar = [a for a in self.ayaklar if a['c'] is not hs]
+            if sa is not None:
+                for q in sa.get('dugum', []):
+                    self.dolu[q] = False
+                self.hol_uclar = [(sa['g'][1], sa['d'][1])]
+            self.uyari = [u for u in self.uyari if not (self.hol.get('zon', self.hol['ad']) + ':' in u and 'bağlanamadı' in u)]
+            for s_ in self.hol_uclar[0]:
+                self.slot_sahip[s_] = 'hol'
         if getattr(self, 'kombi_hat', None):
             ka = next((a for a in self.ayaklar if a['c'] is self.kombi_c), None)
             if ka is None:
@@ -751,11 +767,40 @@ class Daire:
         A1 = term[0][0] if term else P
         A0 = (P - gen - term[-1][0]) if term else P
         ileri_yon = (A0 >= A1) != ters          # True: k1 ucundan başla, hol k0 ucunda
-        hol_kayit = (0.0, 0.0, 'hol', self.hol, None)
-        if ileri_yon:
-            term.append(hol_kayit)
+        # hol devresi: kapısız en uzun sınır yayına; uzak uçtaki yay değilse o yaya sahte uç (20 cm içeri) konur ve
+        # sahte çift de demetle birlikte yönlendirilir (hol alanına koridor kalır)
+        ts = [q[0] for q in term]
+        sinir = [0.0] + ts + [P - gen]
+        yaylar = [(sinir[k + 1] - sinir[k], k) for k in range(len(sinir) - 1)]
+        L_, kmax = max(yaylar)
+        uzak_uc = (len(sinir) - 2) if ileri_yon else 0
+        self.hol_sahte = None
+        if kmax == uzak_uc or not term or not getattr(self, 'sahte_hol_izin', True):
+            hol_kayit = (0.0, 0.0, 'hol', self.hol, None)
+            if ileri_yon:
+                term.append(hol_kayit)
+            else:
+                term.insert(0, hol_kayit)
         else:
-            term.insert(0, hol_kayit)
+            hol_t = (sinir[kmax] + sinir[kmax + 1]) / 2
+            pt = Hb.interpolate((p1 + yon * hol_t) % P)
+            q1 = Hb.interpolate((p1 + yon * hol_t + 1.0) % P)
+            tx, ty = q1.x - pt.x, q1.y - pt.y
+            tl = math.hypot(tx, ty) or 1.0
+            nx_, ny_ = -ty / tl, tx / tl
+            if not self.hol['poly'].contains(Point(pt.x + nx_ * 10, pt.y + ny_ * 10)):
+                nx_, ny_ = -nx_, -ny_
+            if abs(nx_) >= abs(ny_):
+                nx_, ny_ = (1.0 if nx_ > 0 else -1.0), 0.0
+            else:
+                nx_, ny_ = 0.0, (1.0 if ny_ > 0 else -1.0)
+            E0 = self.G.xy(*self.G.ij(pt.x + nx_ * 25, pt.y + ny_ * 25))
+            tx_, ty_ = -ny_, nx_
+            E1 = (E0[0] + tx_ * 10, E0[1] + ty_ * 10)
+            self.hol_sahte = dict(pts=[(E0[0], E0[1], 0.0), (E0[0] + nx_ * 5, E0[1] + ny_ * 5, 0.0),
+                                       (E1[0] + nx_ * 5, E1[1] + ny_ * 5, 0.0), (E1[0], E1[1], 0.0)],
+                                  sahte=True, L=0.0)
+            term.insert(kmax, (hol_t, 0.0, 'hol', self.hol, self.hol_sahte))
         # yaslanma tarafı: kapıdan ağıza yürürken başlangıç ucu (k1 ya da k0) tarafındaki duvarlar
         ccw = Hb.is_ccw
         sol = ((yon == 1) == ccw)
@@ -799,6 +844,9 @@ class Daire:
                     self.sira.append((o, c))
             elif tur == 'hol':
                 self.hol_uclar = [pair]
+                if c is not None:
+                    self.atama[id(c)] = pair
+                    self.sira.append((o, c))
             else:
                 self.atama[id(c)] = pair
                 self.sira.append((o, c))
@@ -1486,6 +1534,8 @@ class Daire:
         uc = self.hol_uclar[0]
         ps = [G.xy(*self.slot_on[s_]) for s_ in uc]
         Pu = Point((ps[0][0] + ps[1][0]) / 2, (ps[0][1] + ps[1][1]) / 2)
+        if getattr(self, 'hol_sahte', None):
+            Pu = Point(self.hol_sahte['pts'][0][:2])
         parcalar = sorted([q for q in _parca(bos.buffer(0)) if q.area > 900], key=lambda g: -g.area)
         # önce ayrılmış ağızlara bitişik parça; sonra büyükten küçüğe diğer parçalar (boş herhangi bir ağız)
         aday = [q for q in parcalar if q.distance(Pu) < 30] + [q for q in parcalar if q.distance(Pu) >= 30]
