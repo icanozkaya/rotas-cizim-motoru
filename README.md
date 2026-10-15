@@ -2,6 +2,12 @@
 
 ROTAŞ Mühendislik — MTY CAD standardında sıhhi tesisat, yerden ısıtma, klima ve yağmur projesi üreten Python çizim motoru.
 
+## 15.10.2026 (E) YERDEN ISITMA ONAY + NOTLAR (kullanıcı kaydı) — sonraki dosyalarda uygulanır
+- Onaylı dosya ve tüm notlar: `proje/STANDART/STANDART_KURALLAR_YERDEN_ISITMA_15_10.md`.
+- Boru verimi 35 kcal/h·m; devre > 80 m → 2'ye böl; holde yerden ısıtma yok; Sakarya 3. bölge; proje bilgileri eksiksiz;
+  hazırlayan "TEKNİK RESSAM"; fontlar bozulmaz; her dairede kombi (duvar üstünde değil); kombi kesitleri eklenir;
+  merkezi sistemde kazan dairesi + kalorimetre. Sol mutfak serpantin hatası ve kombi yerleşimi motor düzeltmesi bekliyor.
+
 ## İçerik
 | Klasör | Ne var |
 |---|---|
