@@ -247,10 +247,17 @@ def birlestir(plan_dxf, sema_dxf, temel_dxf, cikti, bilgi=None, vaziyet=None, wc
     # temizlik: kullanılmayan MTY adlı tablo kayıtları (içe aktarılan altlıktan gelebilir)
     _mty_temizle(doc)
     doc.audit()
+    # kılavuz katmanı: yağmurla (ACI 3) karışmasın; siyah ekranda görünür açık gri (kontrolör tur 2, Y2).
+    # Birleştirmede ilk tanımlayan (detay lejantı, ACI 3) kazandığı için burada sabitlenir.
+    if 'ROTAS-SEMBOL-KILAVUZ' in doc.layers:
+        doc.layers.get('ROTAS-SEMBOL-KILAVUZ').dxf.color = KILAVUZ_RENK
     os.makedirs(os.path.dirname(os.path.abspath(cikti)), exist_ok=True)
     doc.saveas(cikti)
     log('%s: %d pafta, şerit %.0f × %.0f (%.1f s)' % (cikti, len(P), x - x0, SERIT_H, time.time() - t0))
     return dict(paftalar=P, uyarilar=U, adet=R['detay']['adet'], wc=R.get('wc'), genislik=x - x0)
+
+
+KILAVUZ_RENK = 9
 
 
 def _mty_temizle(doc):
