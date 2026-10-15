@@ -38,7 +38,8 @@ VARSAYILAN = {
     'duvar_serit': {'dogu': 253678.5, 'bati': 253672.5},
     'dirsek_y': {'dogu': -442440.0, 'bati': -442446.0},
     'ust_serit': {'dogu': 253661.0, 'bati': 253655.0},
-    'sebeke': [[254262.0, -442078.0], [253580.0, -442078.0], [253580.0, -442252.0], [253672.0, -442252.0]],
+    # tur 7: iniş '3' kapı no balonunun SOLUNDA (balon 253580,7…253624,7); yatay kısım balonun altında kesik (balon_kirp)
+    'sebeke': [[254262.0, -442078.0], [253576.0, -442078.0], [253576.0, -442252.0], [253672.0, -442252.0]],
     'sebeke_armatur_y': [-442112.0, -442130.0, -442148.0, -442166.0],
     'kapi_yasak_Z': [{'merkez': [253683.0, -442083.0], 'r': 100.0, 'aci': [180.0, 270.0]},
                      {'merkez': [253683.0, -442233.0], 'r': 50.0, 'aci': [90.0, 180.0]}],
@@ -228,10 +229,12 @@ def ciz(doc, eng, Ks, katlar, KATLAR, TASARIM, P_):
         o = K.off
         tr = lambda p: (p[0] + o, p[1])
         P['dunya'] = []
+        balon = balonlar(K)
         for pts, lay, ad in P['hatlar']:
             w = [tr(p) for p in pts]
-            msp.add_lwpolyline(w, dxfattribs={'layer': lay})
-            eng.ekle_cizgi(LineString(w))
+            for h in (balon_kirp(LineString(w), balon) if lay == L_SEB else [LineString(w)]):
+                msp.add_lwpolyline(list(h.coords), dxfattribs={'layer': lay})
+                eng.ekle_cizgi(h)
             P['dunya'].append((w, lay, ad))
         for b, p, rot, lay in P['semboller']:
             P_.ekle_insert(msp, b, tr(p), lay, rot=rot)
@@ -247,6 +250,24 @@ def ciz(doc, eng, Ks, katlar, KATLAR, TASARIM, P_):
             msp.add_lwpolyline([tr((sx0, sy0)), tr((sx1, sy0)), tr((sx1, sy1)), tr((sx0, sy1))], close=True,
                                dxfattribs={'layer': L_SAY, 'linetype': 'ROTAS_BASMA'})
     return kur
+
+
+def balonlar(K):
+    """mimari kapı/daire numara balonları (daire r 15–30): besleme / şebeke hattı balonun ÜSTÜNDEN geçmez (kontrolör tur 6
+    R3) — giriş holünden merdiven holüne tek geçit balon ile K1 kapı kanadı arasında kapalı; şebeke (döşeme altı) balonun
+    altında kesik çizilir (CAD'de yazı/sembol altı maske gibi)"""
+    out = []
+    for a in K.R:
+        if a[0] == 'C' and 15.0 <= a[2] <= 30.0:
+            out.append(Point(a[1][0]).buffer(a[2] + 1.5))
+    return unary_union(out) if out else None
+
+
+def balon_kirp(g, balon):
+    if balon is None or not g.intersects(balon):
+        return [g]
+    d = g.difference(balon)
+    return [q for q in getattr(d, 'geoms', [d]) if q.geom_type == 'LineString' and q.length > 0.5]
 
 
 def _hat_parcalari(pts):
