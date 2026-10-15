@@ -5,6 +5,9 @@ python3 motor/yerden2/yerden.py [--png] [--cep] [--ayaklar] [--yenile]
 python3 motor/yerden2/yi_kirp.py            # kontrolör tarzı yan yana kırpımlar (motor | kullanıcı) -> onizleme/kirp/
 python3 motor/yerden2/yi_onizleme.py        # yalnız önizleme (DXF üretilmişse)
 python3 motor/deneme/denetim/denetle.py proje/denemeler/yerden2/NB_YERDEN_ISITMA.dxf
+python3 motor/yerden2/yi_bloklar.py --cikar     # kullanıcının bloklarından ROTAS-YI- kütüphanesini yeniden üret
+python3 motor/yerden2/yi_blok_karsilastir.py    # blok başına kullanıcı | bizim yan yana + piksel F1
+python3 motor/yerden2/yi_kirp_kollektor.py      # her daire kollektör+ayak, şema kombi/kollektör/panel kırpımları
 ```
 | Seçenek | Ne yapar |
 |---|---|
@@ -226,3 +229,28 @@ Notlar:
   "PEX BORU, 16 x 2.0" h10 (4,3; −14,1). Bizim eklediğimiz "DEVRE" yazısı kaldırıldı.
 - Hat etiketi kullanıcının *U110'u: kılavuz (Px−15, yg) → 6 yukarı → 7,5 sola, "NNNN.NW-Ø20" h10 kılavuzun solunda.
 - Gidiş Px−5'ten (57,5), dönüş Px'ten (22,5) iner (kullanıcının şeması).
+
+## Tur 6 — 15.10 (D) ikinci ret: "Yerden ısıtmayı hiç ellememişsin, kollektör bağlantıları yok, bloklarımı bozmuşsun"
+### Bloklar kullanıcının bloklarından BİREBİR (`yi_bloklar.py`, kazan dairesi `bloklar_onayli.py` yöntemi)
+- `yi_bloklar.py --cikar` new_block'taki örnek yerleşimi okur; GÖRÜNEN nesneleri (invisible=1 nesneler ve gizli
+  öznitelikler hariç, iç içe INSERT açılır) yerleşimdeki görünüşüyle cm cinsinden `kutuphane/yerden/ROTAS_YI_BLOKLAR.dxf`
+  kütüphanesine yazar. Çalışma anında yalnız kütüphane okunur (MTY dosyası/adı/katmanı yok). Renkler çözülmüş sabit renk,
+  katman 0; boru çizgileri ROTAS-ISITMA-GIDIS/DONUS-BORU. Taramalar kullanıcının desen satırlarıyla birebir (ezdxf
+  HATCH.transform deseni kütüphaneden yeniden kurduğu için öteleme elle).
+- Bloklar: `ROTAS-YI-DEVRE-PANELI` (*U108), `ROTAS-YI-KOMBI-KOLLEKTOR` (*U127; n ≠ 9 ağızda STRETCH: soldaki ağız
+  birimleri silinir, sol uç kayar, kombi yerinde), `ROTAS-YI-MAHAL` (MTY-RADYATOR MAHAL), `ROTAS-YI-ETIKET`
+  (MTY-ETIKET; değerler kullanıcıdaki gibi sağ sütunda sağa yaslı, "W" sütun başında), `ROTAS-YI-HAT-ETIKETI` (*U110),
+  `ROTAS-YI-KOLLEKTOR-ETIKETI` (*U111). Şema paneli artık yalnız kullanıcının yazıları: Zxx, °C, W, m, ISIKAYBI, devre no,
+  PEX BORU (eski "DEVRE nn" yazısı yok).
+- Piksel karşılaştırma (`yi_blok_karsilastir.py`, siyah zemin, ±1 px; çıktı `kutuphane/arastirma/kontrol_png/yerden_tur5_uretici/blok_*.png`):
+  panel F1 0,999, kombi+kollektör 0,999, mahal 1,000, hat/kollektör etiketi 1,000, devre etiketi 0,69 (sol yazı sütunu
+  hariç 0,93): kullanıcının MTY-ETIKET'i aynalı yerleştirildiği için sabit yazıları ("Hat uzunluğu:" ...) ters görünür;
+  bizde aynı hücrede okunur.
+### Plan
+- Kollektör etiketi `KOLLEKTÖR Kn — m AĞIZ` (n = daire no, m = devre sayısı) + `ΣW-Ø32`; dolapta her ağızda kısa çıkış
+  çizgisi.
+- Devre no: daire içinde PLANDAKİ KOLLEKTÖR AĞIZ SIRASIYLA (gidiş ağzı slotu artan) -> şemadaki panel sırası (no azalan,
+  en büyük kollektöre en yakın) plandaki ağız sırasıyla aynı (model json `kollektor.plan_agiz_sirasi` / `sema_sirasi`).
+- D7 (2. kat) kombi hattı: mutfağın hole açılan geçişi kapı poligonu olarak tanınmıyor (duvarsız geçiş), kombi balkonda;
+  kombi çifti ile mutfak ayakları aynı geçişte düzlemsel sıraya giremiyor. Denenen ek adaylar (iki yönlü hol demeti,
+  kombi hattı geçişin öbür yarısından; `YI_ADAY_EK=1`) çözmedi -> açık madde (planda kombi işaretli, hat yok).

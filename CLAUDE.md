@@ -1,5 +1,9 @@
 # ROTAŞ çizim motoru — oturum başı talimatı
 
+## STANDART SİSTEM (kullanıcı kaydı 15.10.2026) — HER OTURUMDA GEÇERLİ
+Sıhhi tesisat ve yerden ısıtma projeleri YALNIZ bu sistemle yapılır: `motor/sihhi2/` + `motor/yerden2/` (+ `motor/kontrolor/` onayı), referans çıktılar `proje/STANDART/`. Kurallar README.md en üst bloklarında. Kullanıcı yetki vermeden motorun tarzı/kuralları değiştirilmez; yeni proje gelince aynı motor yeni mimariyle çalıştırılır. Kazan dairesi: `motor/deneme/kazan_dairesi/plan_kesit.py` (onaylı). Teslim yalnız DXF (+ hesap Excel).
+
+
 Bu depo Can Özkaya'nın (ROTAŞ Mühendislik) mekanik proje çizim motorudur. Yeni oturumda:
 1. `bash kurulum.sh` çalıştır (motor, MTY blokları, yamalı LibreDWG, ACadSharp DWG yazıcı, Excel şablonu, örnek dosya).
 2. **Kullanıcı yeni bir proje dosyası gönderdiğinde, işe başlamadan önce `ornekler/ORNEK_DUZEN.md`'yi oku ve ona hatırlat: istenen pafta düzeni ve çizim tarzı `new_block.dxf` örneğindeki gibidir.** Önizlemeler `ornekler/new_block_onizleme/` içinde.
