@@ -10,6 +10,30 @@ başlık `ZEMİN KAT PLANI.........ÖLÇEK: 1 / 50`) + `sihhi_model.json` (`MODE
 Sıfırdan yazıldı; eski `uctan_uca` tarz olarak kullanılmaz. Mimari tanıma: `mimari2.py` (+ kontrolörün `mimari_bilgi`
 sonucu `K.kb`; kolon/köşe doğrulaması kontrolörle aynı ölçüyle yapılır). Semboller saf geometri (MTY 0).
 
+## Tur 5 (15.10.2026) — kontrolör tur 4 RED (KONTROL_SIHHI_TUR4.md, E1 + E2) düzeltmeleri
+- **E1 duş teknesi kuralı** (genel): `tekne_poligonlari(doc, K)` (armatür kutusu ya da mimari dikdörtgen+köşegen;
+  K'de önbellek, `dus_tekneleri` yasağı da bundan) kat çiziminin başında `K.tekneler`. (1) EK yer süzgeci tekne
+  (+10 cm) içine düşerse `tekne_disi_suzgec`: tekne ile klozet arası, duvar dibine ~20 cm (1. kat D6 wc-duş
+  (255781,−442413) → (255834,−442390); kullanıcı 255830,−442404). (2) Aspiratör sembolü adayı tekne (+3 cm) içinde
+  olamaz. (3) `_pis_omurga` `_tekne_cezasi`: omurganın / başka armatür branşmanının tekne içindeki boyu 40/cm
+  (tekne 6 cm içeriden ölçülür: duvar dibi hattı tekne kasasının kenarından geçebilir); omurga teknenin kendi
+  giderinde bitiyorsa giderden kenara kadarki kısım serbest; başka armatür birleşimi tekne içinde +200. D6 wc-duş:
+  omurga P3 bağlantısından duvar dibi boyunca (y −442424), 45° ile lavabo düşeyine; klozet kısa yatay, tekne gideri
+  kenardan iner (kullanıcı gibi).
+- **E2 wc-lvb klozet 'Ø100 10 SB'**: (1) `klozet_yani_suzgec`: wc-lvb'de (duşsuz) EK süzgeç kolon→klozet düşey
+  hattının bandına ≤ 25 cm düşerse: dar taraf ≥ 17 cm ise duvar ile hat arasına (Z D1 → 253727,−442773), değilse
+  geniş tarafta hattan 22 cm (2. kat → 257849,−442776; eskiden klozet hattının 4 cm yanında paralel hat vardı).
+  (2) wc-lvb aspiratör sembolü klozet hattına ≥ 30 cm (etiket yeri). (3) Etiket onarımı: etiketsiz kalan Ø100
+  parçada yakındaki Ø50 etiketi geçici kaldırılır, önce Ø100 konur, sonra Ø50 yeniden; ikisi konamazsa eski hâl.
+  (4) Son çare yalnız klozet bağlantısı (Ø100, klozete ≤ 15 cm): hattın üstünde, mimari yazının üstüne binebilir
+  (`carp_haric(mimari_serbest=True)`; kullanıcı da 2. kat 'Ø100 10 SB'yi 'wc-lvb.' yazısının üstüne koyuyor).
+  Sembol / etiket / armatür / tarama yasağı aynı.
+- Ölçüm (tam şerit, aynı kontrolör koduyla): tur 4 dosyası 109 madde → 107 (T03 6→5: D6 wc-duş çapraz hattı yok,
+  T07 64→63); T04–T06, T08, T09, T12–T17 ✓ (değişmedi). etiket_kontrol E1/E3/E4/E5 0, E2 8→10 (yalnız 2. kat wc-lvb
+  'Ø100 10 SB' son çare). Değişen geometri yalnız: 1. kat D6 wc-duş, Z D1 + 2. kat wc-lvb süzgeci ve Z/1. kat wc+banyo
+  aspiratör sembolü (tekne kenarındaydı). Küçük duş (P9) tekne kuralı dışında (tur 4 K1 onaylı). Kırpımlar:
+  `kutuphane/arastirma/kontrol_png/sihhi_tur5_uretici/`.
+
 ## Tur 4 (15.10.2026) — kontrolör tur 3 RED (KONTROL_SIHHI_TUR3.md, R1–R4 + K1) düzeltmeleri
 - **R1 her pis su parçası etiketli**: etiket birimi artık çizgi SEGMENTİ (omurga birleşimlerinde ve köşelerde bölünür;
   ≥ 20 cm her segment kendi etiketi; < 20 cm uçlar isteğe bağlı). Kısa / kalabalık parçalar önce yer seçer.

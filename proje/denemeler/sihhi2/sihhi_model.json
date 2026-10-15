@@ -19,7 +19,7 @@
   },
   "hidrofor": false,
   "kaynak": "motor/sihhi2/plan.py",
-  "tarih": "15.10.2026 09:13"
+  "tarih": "15.10.2026 11:50"
  },
  "yuk_tablosu": {
   "LV": 0.75,
@@ -1733,8 +1733,8 @@
       }
      ],
      "suzgec": {
-      "x": 253747.0,
-      "y": -442777.0,
+      "x": 253726.6,
+      "y": -442773.0,
       "ek": true
      },
      "kolon": "P2",
@@ -2111,8 +2111,8 @@
      },
      "kolon": "P8",
      "aspirator": {
-      "x": 253125.0,
-      "y": -442217.0,
+      "x": 253057.0,
+      "y": -442133.0,
       "debi": 80,
       "saft": "Ş@253045,-442246"
      }
@@ -3891,14 +3891,14 @@
       }
      ],
      "suzgec": {
-      "x": 253747.3,
-      "y": -442413.0,
+      "x": 253800.0,
+      "y": -442390.0,
       "ek": true
      },
      "kolon": "P3",
      "aspirator": {
-      "x": 253727.0,
-      "y": -442353.0,
+      "x": 253795.0,
+      "y": -442337.0,
       "debi": 80,
       "saft": "Ş@253725,-442286"
      }
@@ -4850,7 +4850,7 @@
      "kolon": "P8",
      "aspirator": {
       "x": 253125.0,
-      "y": -442217.0,
+      "y": -442173.0,
       "debi": 80,
       "saft": "Ş@253045,-442246"
      }
@@ -7203,7 +7203,7 @@
       }
      ],
      "suzgec": {
-      "x": 253749.0,
+      "x": 253767.0,
       "y": -442775.7,
       "ek": true
      },
@@ -8729,8 +8729,7 @@
   "kat Z banyo aspiratör yazısı küçük (h 12, 3 satır)",
   "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253598, -443295) 21 cm",
   "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253535, -443295) 26 cm",
-  "kat Z pis su etiketi yerleşmedi: Ø100 10 SB @ (253735, -442785) 26 cm",
-  "kat Z pis su etiketi yerleşmedi: Ø100 12 SB @ (253735, -442754) 35 cm",
+  "kat Z pis su etiketi yerleşmedi: Ø100 12 SB @ (253735, -442752) 31 cm",
   "kat Z pis su etiketi yerleşmedi: Ø100 25 SB @ (253716, -442639) 48 cm",
   "kat Z pis su etiketi yerleşmedi: Ø100 25 SB @ (253414, -442639) 48 cm",
   "kat Z pis su etiketi yerleşmedi: Ø70 11 SB @ (252778, -441916) 70 cm",
@@ -8746,18 +8745,16 @@
   "kat 1 pis su etiketi yerleşmedi: Ø100 46 SB @ (255767, -442646) 46 cm",
   "kat 1 pis su etiketi yerleşmedi: Ø100 21 SB @ (255766, -442448) 47 cm",
   "kat 1 pis su etiketi yerleşmedi: Ø100 25 SB @ (255448, -442639) 48 cm",
-  "kat 1 pis su etiketi yerleşmedi: Ø100 12 SB @ (255808, -442394) 64 cm",
-  "kat 1 pis su etiketi yerleşmedi: Ø100 32 SB @ (255794, -442503) 79 cm",
+  "kat 1 pis su etiketi yerleşmedi: Ø100 14 SB @ (255786, -442424) 78 cm",
   "kat 1 D4 temiz su etiketi yerleşmedi (6.5 MB)",
   "kat 2 banyo aspiratör yazısı bitişik mahalde (kullanıcı gibi, ıslak hacim duvarına bitişik)",
   "kat 2 banyo aspiratör yazısı küçük (h 12, 3 satır)",
   "kat 2 wc-banyo aspiratör yazısı bitişik mahalde (kullanıcı gibi, ıslak hacim duvarına bitişik)",
   "kat 2 banyo aspiratör yazısı bitişik mahalde (kullanıcı gibi, ıslak hacim duvarına bitişik)",
   "kat 2 banyo aspiratör yazısı küçük (h 12, 3 satır)",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (257831, -442761) 28 cm",
+  "kat 2 pis su etiketi yerleşmedi: Ø50 4 SB @ (257833, -442742) 21 cm",
   "kat 2 pis su etiketi yerleşmedi: Ø100 25 SB @ (257496, -442639) 48 cm",
   "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (256930, -441971) 54 cm",
-  "kat 2 pis su etiketi yerleşmedi: Ø100 10 SB @ (257827, -442777) 60 cm",
   "kat 2 pis su etiketi yerleşmedi: Ø70 11 SB @ (256860, -441916) 70 cm",
   "kat 2 D7 temiz su etiketi yerleşmedi (6.5 MB)",
   "kat 2 D9 temiz su etiketi yerleşmedi (6.5 MB)"

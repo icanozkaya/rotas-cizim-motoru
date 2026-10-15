@@ -858,14 +858,42 @@ def _pis_omurga(K, oda, fx, C):
                 for j in range(i + 1, len(hat)):
                     if hat[i].crosses(hat[j]):
                         ceza += 500
+            c_tk = _tekne_cezasi(K, oda, sp, br, T)
+            ceza += c_tk
             boy = sp.length + sum(LineString(b['pts']).length for b in br if len(b['pts']) > 1)
             puan = boy + ceza
             if os.environ.get('S2_DEBUG_OMURGA'):
                 log('   OM', T['kind'], [tuple(round(v) for v in c) for c in pts], round(boy), round(ceza), 'ic', round(c_ic),
-                    'dis', round(c_dis))
+                    'dis', round(c_dis), 'tekne', round(c_tk), [(b['f']['kind'], [tuple(round(v) for v in c) for c in b['pts']]) for b in br])
             if iyi is None or puan < iyi['puan']:
                 iyi = dict(kolon=C, kollar={1: sp}, br=br, ring=None, oda=oda, puan=puan, dogrulanmadi=ceza >= 500)
     return iyi
+
+
+def _tekne_cezasi(K, oda, sp, br, T):
+    """tekne içinden yalnız teknenin KENDİ gider branşmanı geçer (kontrolör tur 4 E1): omurganın / başka armatür
+    branşmanının tekne içindeki boyu 40/cm cezalı. Omurga teknenin kendi giderinde bitiyorsa giderden tekne kenarına
+    kadarki kısım (≤ kısa kenarın yarısı + 5) serbest. Tekne kasası 6 cm içeriden ölçülür (duvar dibi hattı tekne kenarından
+    geçebilir, kullanıcı gibi); başka armatürün birleşimi tekne içinde olamaz."""
+    ceza = 0.0
+    for f_, pg in getattr(K, 'tekneler', []):
+        if not pg.intersects(oda['poly'].buffer(10)):
+            continue
+        ti = pg.buffer(-6, join_style=2)          # dış kasa çizgisi duvara dayalı: duvar dibi hattı (≤ 5 cm) serbest
+        if ti.is_empty:
+            continue
+        L = sp.intersection(ti).length
+        if T is f_:
+            x0, y0, x1, y1 = pg.bounds
+            L = max(0.0, L - (max(ti.exterior.distance(Point(f_['c'])), 0.5 * min(x1 - x0, y1 - y0)) + 5.0))
+        ceza += 40.0 * L
+        for b in br:
+            if b['f'] is f_ or len(b['pts']) < 2:
+                continue
+            ceza += 40.0 * LineString(b['pts']).intersection(ti).length
+            if ti.contains(Point(b['pts'][-1])):
+                ceza += 200.0
+    return ceza
 
 
 def _pis_sabit(K, oda, fx, ring, C):
@@ -1650,6 +1678,105 @@ def kucuk_dus_suzgeci(K, r, fo):
     return best[1] if best else None
 
 
+def tekne_ici(K, p, pay=0.0):
+    """p (nokta ya da geometri) bir duş teknesi / küvet poligonunun (pay kadar büyütülmüş) içinde mi"""
+    g = Point(p) if isinstance(p, tuple) else p
+    return any(pg.buffer(pay, join_style=2).intersects(g) if pay else pg.intersects(g)
+               for _, pg in getattr(K, 'tekneler', []))
+
+
+def tekne_disi_suzgec(K, r, fo):
+    """yer süzgeci tekne içine düşerse (1. kat D6 wc-duş): kullanıcı gibi teknenin DIŞINDA, tekne ile klozet arasında,
+    duvar dibine ~20 cm; tekneye ≥ 12 cm, armatürlere ≥ 25 cm, duvardan ≥ 12 cm (kontrolör tur 4 E1)."""
+    tk = [pg for f_, pg in getattr(K, 'tekneler', []) if f_ in fo or r['poly'].intersects(pg)]
+    if not tk:
+        return None
+    tu = unary_union(tk)
+    hedefler = [f for f in fo if f['kind'] == 'WC'] or [f for f in fo if f['kind'] in ('LV', 'EV')]
+    if not hedefler:
+        return None
+    w = min(hedefler, key=lambda f: tu.distance(Point(f['c'])))
+    a_ = nearest_points(tu, Point(w['c']))[0]
+    hedef = ((a_.x + w['c'][0]) / 2, (a_.y + w['c'][1]) / 2)
+    ic = r['poly'].buffer(-12, join_style=2)
+    kb = getattr(K, 'kb', None)
+    if kb is not None:
+        kbi = unary_union([q['poly'].buffer(-4) for q in kb['rooms'] if q.get('islak') and q['poly'].intersects(r['poly'])]
+                          or [Polygon()])
+        if not kbi.is_empty and not ic.intersection(kbi).is_empty:
+            ic = ic.intersection(kbi)
+    if ic.is_empty:
+        return None
+    yasak = tu.buffer(12, join_style=2)
+    x0, y0, x1, y1 = ic.bounds
+    best = None
+    for yy in np.arange(y0, y1 + 0.1, 2.0):
+        for xx in np.arange(x0, x1 + 0.1, 2.0):
+            q = Point(xx, yy)
+            if not ic.contains(q) or yasak.contains(q) or any(q.distance(Point(f['c'])) < 25 for f in fo):
+                continue
+            if K.kapi_u.distance(q) < 40:
+                continue
+            duvar = r['poly'].exterior.distance(q)
+            d = dist((xx, yy), hedef) + 0.6 * abs(duvar - 20.0)
+            if best is None or d < best[0]:
+                best = (d, (float(xx), float(yy)))
+    return best[1] if best else None
+
+
+def klozet_hatti(K, r, fo):
+    """kolon (kullanıcı ekseni) -> klozet: (C, W) ya da None (klozet yok / kolon komşu mahalde)"""
+    w = next((f for f in fo if f['kind'] == 'WC'), None)
+    if w is None:
+        return None
+    C = min(((q[0] + K.off, q[1]) for q in KOLON_SABIT.values()), key=lambda c: r['poly'].distance(Point(c)))
+    if r['poly'].distance(Point(C)) > 45:
+        return None
+    return C, w['c']
+
+
+def klozet_yani_suzgec(K, r, fo, p, CW):
+    """wc-lvb: EK süzgeç kolon -> klozet düşey hattının (C.x..W.x bandı) üstüne / dibine düşerse hattın DAR tarafına
+    (duvarla hat arasına) alınır; geniş taraf klozet 'Ø100 10 SB' etiketine kalır (kontrolör tur 4 E2). Topoloji aynı
+    kalır (omurga kolondan klozete, süzgeç kısa yatay branşman)."""
+    C, W = CW
+    if abs(W[1] - C[1]) < 2 * abs(W[0] - C[0]) or abs(W[1] - C[1]) < 40:      # yalnız düşey ağırlıklı hat
+        return None
+    bx0, bx1 = min(C[0], W[0]), max(C[0], W[0])
+    y_lo, y_hi = min(C[1], W[1]), max(C[1], W[1])
+    if not (y_lo <= p[1] <= y_hi) or not (bx0 - 25 <= p[0] <= bx1 + 25):
+        return None
+    ray_y = p[1]
+    poly = r['poly']
+    sol = LineString([(bx0, ray_y), (bx0 - 200, ray_y)]).intersection(poly.exterior)
+    sag = LineString([(bx1, ray_y), (bx1 + 200, ray_y)]).intersection(poly.exterior)
+    xs_sol = [q.x for q in getattr(sol, 'geoms', [sol]) if not q.is_empty and q.geom_type == 'Point']
+    xs_sag = [q.x for q in getattr(sag, 'geoms', [sag]) if not q.is_empty and q.geom_type == 'Point']
+    if not xs_sol or not xs_sag:
+        return None
+    g_sol, g_sag = bx0 - max(xs_sol), min(xs_sag) - bx1
+    if min(g_sol, g_sag) >= 30:
+        return None
+    if min(g_sol, g_sag) >= 17:          # dar taraf süzgece yeter: duvar ile hat arası (Z D1)
+        x = (bx0 + max(xs_sol)) / 2 if g_sol < g_sag else (bx1 + min(xs_sag)) / 2
+    elif max(g_sol, g_sag) >= 32:        # dar taraf süzgece de yetmez: geniş tarafta hattan 22 cm (2. kat wc-lvb)
+        x = bx0 - 22 if g_sol > g_sag else bx1 + 22
+    else:
+        return None
+    for dy in (0, -4, 4, -8, 8, -12, 12, -16, 16):
+        q = (x, p[1] + dy)
+        Q = Point(q)
+        kare = Q.buffer(7.5, cap_style=3)
+        if not poly.buffer(1).contains(kare) or K.kapi_u.distance(Q) < 40 or tekne_ici(K, kare, 2.0):
+            continue
+        if any(pg.intersects(kare) for pg in getattr(K, 'armatur_kutulari', [])):
+            continue
+        if any(Q.distance(Point(f['c'])) < 20 for f in fo if f['kind'] != 'YS'):
+            continue
+        return q
+    return None
+
+
 def ek_armaturler(K):
     """her ıslak hacimde 1 süzgeç; her dairede ÇM ve BM (mimaride yoksa EK)"""
     ekler = []
@@ -1693,6 +1820,15 @@ def ek_armaturler(K):
             p = kucuk_dus_suzgeci(K, r, fo)
             if p is None:
                 p = ek_nokta(r, [f for f in fo if f['kind'] != 'KOMBI'], K, 15.0, 28.0, ref)
+            if p and tekne_ici(K, p, 10.0):           # süzgeç tekne içine konmaz (kontrolör tur 4 E1)
+                p = tekne_disi_suzgec(K, r, fo) or p
+            kh = klozet_hatti(K, r, fo) if not any(f['kind'] == 'DUS' for f in fo) else None   # wc-lvb
+            if p and kh is not None:
+                p2 = klozet_yani_suzgec(K, r, fo, p, kh)
+                if p2 is not None:
+                    log('  süzgeç klozet hattının dar tarafına: %s D%s (%.0f, %.0f) -> (%.0f, %.0f)' % (
+                        r['name'], r['daire'], p[0], p[1], p2[0], p2[1]))
+                    p = p2
             if p:
                 f = dict(kind='YS', c=p, oda=r, ek=True)
                 K.fx.append(f)
@@ -1750,12 +1886,18 @@ def balon_yeri(c, eng, yasak, r=27.5, mesafeler=(55, 70, 85, 100, 115), disarida
     return None, None
 
 
-def carp_haric(eng, k, g, gevsek=False, diger=None):
+def carp_haric(eng, k, g, gevsek=False, diger=None, mimari_serbest=False):
     """etiket yazı kutusu çakışması; etiketin KENDİ hattı (g) ile kesişim sayılmaz.
     gevsek: başka boru hatlarının yazının altından geçmesine izin (kullanıcı çiziminde de var); yazı/sembol yasak,
-    duvar çizgisi üstüne kısmen binebilir (Engel.pis_yasak)"""
+    duvar çizgisi üstüne kısmen binebilir (Engel.pis_yasak).
+    mimari_serbest: mimari yazı (mahal adı / alan / kapı yazısı) üstüne binebilir — yalnız klozet bağlantısı son çare
+    (kullanıcı wc-lvb. klozet 'Ø100 10 SB' etiketini mahal yazısının üstüne koyuyor; kontrolör tur 4 E2)"""
     kb = k.buffer(MARJ, join_style=2)
-    if eng.carpar(kb, cizgi_tol=1e9) or eng.pis_yasak(k, diger):
+    haric = ()
+    if mimari_serbest:
+        eng._agac()
+        haric = tuple(eng.alan[i] for i in (eng._ta.query(kb) if eng._ta is not None else []) if i < eng.n_mimari)
+    if eng.carpar(kb, cizgi_tol=1e9, haric=haric) or eng.pis_yasak(k, diger):
         return True
     if gevsek:
         return False
@@ -1814,7 +1956,7 @@ def sahiplik_ok(U, g):
 
 
 def etiket_dene_pis(msp, eng, g, cap, sb, adaylar_t=(0.5, 0.42, 0.58, 0.34, 0.66, 0.26, 0.74, 0.18, 0.82, 0.1, 0.9),
-                    gevsek=False, disari=None):
+                    gevsek=False, disari=None, mimari_serbest=False):
     """pis su etiketi: hattın ÜZERİNDE (kanca ucu hatta), parça ortasında, hat yönünde döndürülmüş."""
     L = g.length
     if L < 1:
@@ -1845,7 +1987,9 @@ def etiket_dene_pis(msp, eng, g, cap, sb, adaylar_t=(0.5, 0.42, 0.58, 0.34, 0.66
                        and q.intersection(kb_).area > 0.05][:2]
                 hit += [('cizgi', [round(v) for v in q.bounds]) for q in eng.cizgi if q.intersects(kb_)][:3]
                 log('   DN', ad, round(t, 2), hit, eng.yasakta(unary_union(kut), 'etiket'),
-                    eng.carpar(kanca_u.buffer(0.4), cizgi_tol=1.0))
+                    eng.carpar(kanca_u.buffer(0.4), cizgi_tol=1.0), 'ch', [carp_haric(eng, k, g, gevsek, diger=PIS_SEG.get('diger')) for k in kut],
+                    'py', [eng.pis_yasak(k, PIS_SEG.get('diger')) for k in kut], 'sah', sahiplik_ok(sb_kutusu(e) or unary_union(kut), g),
+                    'dis', disari is not None and any(k.intersection(disari).area > 0.5 for k in kut))
             if os.environ.get('S2_DEBUG') and kut:
                 R = etiket_dene_pis.red
                 kb_ = unary_union(kut)
@@ -1865,10 +2009,20 @@ def etiket_dene_pis(msp, eng, g, cap, sb, adaylar_t=(0.5, 0.42, 0.58, 0.34, 0.66
                     R['armatur'] += 1
                 elif eng.carpar(kanca_u.buffer(0.4), cizgi_tol=1.0):
                     R['kanca'] += 1
+            if mimari_serbest and os.environ.get('S2_DEBUG') and kut:
+                kb_ = unary_union(kut).buffer(MARJ, join_style=2)
+                eng._agac()
+                hit = [(i < eng.n_mimari, [round(v) for v in eng.alan[i].bounds]) for i in eng._ta.query(kb_)
+                       if eng.alan[i].intersects(kb_) and eng.alan[i].intersection(kb_).area > 0.05]
+                ky = unary_union(kut)
+                log('   MS', ad, round(t, 2), hit, 'tarama', eng.yasakta(ky, 'tarama'), 'arm', eng.yasakta(ky, 'armatur'),
+                    'ortak', eng.yasakta(ky, 'ortak'), 'duvar', round(eng.duvar_orani(ky), 2),
+                    'sah', sahiplik_ok(sb_kutusu(e) or ky, g))
             if disari is not None and kut and any(k.intersection(disari).area > 0.5 for k in kut):
                 msp.delete_entity(e)
                 continue
-            if kut and not any(carp_haric(eng, k, g, gevsek, diger=PIS_SEG.get('diger')) for k in kut) and \
+            if kut and not any(carp_haric(eng, k, g, gevsek, diger=PIS_SEG.get('diger'), mimari_serbest=mimari_serbest)
+                               for k in kut) and \
                     (gevsek or not eng.carpar(kanca_u.buffer(0.4), cizgi_tol=1.0)) and sahiplik_ok(sb_kutusu(e) or unary_union(kut), g):
                 for k in kut:
                     eng.ekle_alan(k)
@@ -2161,6 +2315,10 @@ def _etiket_kisa_daire(msp, eng, K, g, satirlar, blok, katman, disari, rotlar, u
         kb = kutu.buffer(MARJ, join_style=2)
         if eng.carpar(kb, cizgi_tol=1e9) or eng.pis_yasak(kutu, PIS_SEG.get('diger')):
             red['alan'] += 1
+            dn = os.environ.get('S2_DEBUG_NOKTA')
+            if dn and g.centroid.distance(Point(*map(float, dn.split(',')))) < 8 and dd <= 30 and red['alan'] < 40:
+                hit = [[round(v) for v in q.bounds] for q in eng.alan if q.intersects(kb) and q.intersection(kb).area > 0.05][:2]
+                log('    DNK', dd, rot, k, [round(v) for v in kutu.bounds], hit, eng.pis_yasak(kutu, PIS_SEG.get('diger')))
             continue
         # kılavuz: yazı / sembol kesmez (boru hattının ve armatür çizgisinin üstünden geçebilir — eviye / lavabo
         # içindeki parçayı gösterir)
@@ -2345,6 +2503,11 @@ def kat_ciz(doc, eng, K, dur, onceki):
     k = K.k
     off = K.off
     K.saft_u = saft_poligonlari(K)
+    # tekne kuralları (süzgeç / aspiratör / omurga, kontrolör tur 4 E1): küçük duş (P9, < 2 m², teknesiz duş alanı;
+    # tur 4 K1 onaylı düzen) hariç
+    K.tekneler = [(f, pg) for f, pg in tekne_poligonlari(doc, K)
+                  if not (f.get('oda') is not None and 'duş' in f['oda']['name'] and f['oda']['poly'].area < 2.0e4)]
+    K.armatur_kutulari = [pg for _, pg in armatur_poligonlari(doc, K)]
     ek = ek_armaturler(K)
     for f in K.fx:                     # makine kutusu (bb yok): etiket üstüne binmez (kontrolör T07 armatür)
         if not f.get('bb') and f.get('kutu') is not None and f['kind'] in ('BM', 'CM'):
@@ -2551,6 +2714,10 @@ def kat_ciz(doc, eng, K, dur, onceki):
     engel_u = unary_union(engel_p) if engel_p else Polygon()
     for a_ in asp:
         r = a_['r']
+        fo_ = [f for f in K.fx if f['oda'] is r]
+        kh_ = klozet_hatti(K, r, fo_) if not any(f['kind'] == 'DUS' for f in fo_) else None
+        # wc-lvb: klozet bağlantı hattının yanı 'Ø100 10 SB' etiketine kalır (kontrolör tur 4 E2)
+        kh_ = LineString([kh_[0], (kh_[0][0], kh_[1][1]), kh_[1]]) if kh_ is not None else None
         ic = r['poly'].buffer(-15, join_style=2)
         if ic.is_empty:
             ic = r['poly'].buffer(-8, join_style=2)
@@ -2564,6 +2731,10 @@ def kat_ciz(doc, eng, K, dur, onceki):
                 if not ic.contains(q) or not r['poly'].contains(kare):
                     continue
                 if kare.intersects(engel_u) or eng.carpar(kare):
+                    continue
+                if any(kare.intersection(pg.buffer(-4, join_style=2)).area > 1.0 for _, pg in K.tekneler):
+                    continue                         # aspiratör sembolü tekne içine konmaz (kontrolör tur 4 E1)
+                if kh_ is not None and kh_.distance(kare) < 30:
                     continue
                 aday.append((dist((xx, yy), hedef), (xx, yy)))
         if not aday:
@@ -2750,9 +2921,8 @@ def daire_alani(K, p):
 _MIM_CIZGI = {}
 
 
-def dus_tekneleri(doc, eng, K):
-    """duş teknesi poligonları (mimari: dikdörtgen + köşegen) -> eng yasak 'tekne' (aspiratör notu üstüne binmez).
-    Armatür kutusu (bb) olan duşlarda kutu; olmayanlarda mimari çizgilerin poligonlaştırılmasıyla (0,3–1,6 m²)."""
+def _mim_cizgiler(doc):
+    """ROTAS-MIMARI çizgileri (parça listesi + STRtree), belge başına önbellek"""
     if id(doc) not in _MIM_CIZGI:
         from ezdxf import path as ezpath
         ls = []
@@ -2773,35 +2943,23 @@ def dus_tekneleri(doc, eng, K):
                     ls.append(LineString([a_, b_]))
         _MIM_CIZGI.clear()
         _MIM_CIZGI[id(doc)] = (ls, STRtree(ls) if ls else None)
-    ls, tr = _MIM_CIZGI[id(doc)]
+    return _MIM_CIZGI[id(doc)]
+
+
+def tekne_poligonlari(doc, K):
+    """duş teknesi / küvet poligonları: [(DUS armatürü, poligon)] — armatür kutusu (bb) ya da mimari çizgilerin
+    poligonlaştırılması (0,3–1,6 m², köşegenli). K'de önbellek. Kural (kontrolör tur 4 E1): yer süzgeci ve aspiratör
+    sembolü tekne içine konmaz; tekne içinden yalnız teknenin kendi gider branşmanı geçer."""
+    if getattr(K, '_tekneler', None) is not None and K._tekneler[0] == id(doc):
+        return K._tekneler[1]
     from shapely.ops import polygonize
-    n = 0
-    # klozet / lavabo kutusu (armatür kutusu tanınmamışsa): mimari çizgilerin poligonları, c'ye ≤ 5 cm, ≤ 0,5 m²,
-    # her yönde ≤ 90 cm -> 'armatur' yasağı (pis su etiketi klozet/lavabo üstüne binmez; R1)
-    for f in K.fx:
-        if f['kind'] not in ('WC', 'LV') or f.get('bb') or tr is None:
-            continue
-        c = f['c']
-        B = box(c[0] - 120, c[1] - 120, c[0] + 120, c[1] + 120)
-        loc = [ls[i] for i in tr.query(B)]
-        try:
-            polys = list(polygonize(unary_union(loc)))
-        except Exception:
-            continue
-        sec = []
-        for pg in polys:
-            x0, y0, x1, y1 = pg.bounds
-            if 0.01e4 < pg.area < 0.5e4 and x1 - x0 <= 90 and y1 - y0 <= 90 and pg.distance(Point(c)) <= 5:
-                sec.append(pg)
-        if sec:
-            eng.yasak_ekle(unary_union(sec).envelope.buffer(-1), 'armatur')
-            n += 1
+    ls, tr = _mim_cizgiler(doc)
+    out = []
     for f in K.fx:
         if f['kind'] != 'DUS':
             continue
         if f.get('bb'):
-            eng.yasak_ekle(box(*f['bb']), 'tekne')
-            n += 1
+            out.append((f, box(*f['bb'])))
             continue
         if tr is None:
             continue
@@ -2822,8 +2980,57 @@ def dus_tekneleri(doc, eng, K):
                    abs(l_.coords[0][0] - l_.coords[1][0]) > 5 and abs(l_.coords[0][1] - l_.coords[1][1]) > 5 for l_ in loc):
                 aday.append(pg)
         if aday:
-            eng.yasak_ekle(unary_union(aday).envelope.buffer(4, join_style=2), 'tekne')
+            out.append((f, unary_union(aday).envelope))
+    K._tekneler = (id(doc), out)
+    return out
+
+
+def armatur_poligonlari(doc, K):
+    """klozet / lavabo kutuları: armatür kutusu (bb) ya da mimari çizgilerin poligonları (c'ye ≤ 5 cm, ≤ 0,5 m², her
+    yönde ≤ 90 cm, zarf). K'de önbellek."""
+    if getattr(K, '_armkutu', None) is not None and K._armkutu[0] == id(doc):
+        return K._armkutu[1]
+    from shapely.ops import polygonize
+    ls, tr = _mim_cizgiler(doc)
+    out = []
+    for f in K.fx:
+        if f['kind'] not in ('WC', 'LV'):
+            continue
+        if f.get('bb'):
+            out.append((f, box(*f['bb'])))
+            continue
+        if tr is None:
+            continue
+        c = f['c']
+        B = box(c[0] - 120, c[1] - 120, c[0] + 120, c[1] + 120)
+        loc = [ls[i] for i in tr.query(B)]
+        try:
+            polys = list(polygonize(unary_union(loc)))
+        except Exception:
+            continue
+        sec = []
+        for pg in polys:
+            x0, y0, x1, y1 = pg.bounds
+            if 0.01e4 < pg.area < 0.5e4 and x1 - x0 <= 90 and y1 - y0 <= 90 and pg.distance(Point(c)) <= 5:
+                sec.append(pg)
+        if sec:
+            out.append((f, unary_union(sec).envelope))
+    K._armkutu = (id(doc), out)
+    return out
+
+
+def dus_tekneleri(doc, eng, K):
+    """duş teknesi poligonları -> eng yasak 'tekne' (aspiratör notu üstüne binmez); klozet/lavabo kutusu -> 'armatur'"""
+    n = 0
+    # klozet / lavabo kutusu (armatür kutusu tanınmamışsa) -> 'armatur' yasağı (pis su etiketi klozet/lavabo üstüne
+    # binmez; R1)
+    for f, pg in armatur_poligonlari(doc, K):
+        if not f.get('bb'):
+            eng.yasak_ekle(pg.buffer(-1), 'armatur')
             n += 1
+    for f, pg in tekne_poligonlari(doc, K):
+        eng.yasak_ekle(pg if f.get('bb') else pg.buffer(4, join_style=2), 'tekne')
+        n += 1
     return n
 
 
@@ -2953,7 +3160,7 @@ def kat_etiketle(doc, eng, K, kat, dur):
     PIS_SEG['agac'] = STRtree(tum) if tum else None
     balkon_u = unary_union([r['poly'].buffer(-3) for r in K.rooms if r['tip'] == 'balkon'] or [Polygon()])
     ortak_u = unary_union([r['poly'].buffer(-3) for r in K.rooms if r['tip'] == 'ortak'] or [Polygon()])
-    for pc in segler:
+    def _yerlestir(pc):
         mm_ = pc['g'].interpolate(0.5, normalized=True)
         PIS_SEG['diger'] = daire_alani(K, (mm_.x, mm_.y))               # yazı başka dairenin mahaline girmez
         dis_ = None if balkon_u.intersects(pc['g']) else balkon_u      # duş etiketi balkona çıkmaz (Y2a)
@@ -2971,13 +3178,93 @@ def kat_etiketle(doc, eng, K, kat, dur):
                 dis2 = unary_union([dis2, ortak_u, balkon_u])
                 e = etiket_kisa(msp, eng, K, pc['g'], {'C1': pc['cap'], 'M1': '%d SB' % pc['sb']},
                                 'ROTAS-S2-TS-CAP2', L_PCAP, None, disari=dis2)
+        return e
+
+    def _iz_yerlestir(pc):
+        """yerleştir + geri alınabilir iz (msp varlıkları, engel alan/çizgi indisleri)"""
+        n0, a0, c0 = len(msp), len(eng.alan), len(eng.cizgi)
+        e = _yerlestir(pc)
         if e is None:
+            return None
+        return dict(pc=pc, e=e, ent=[msp[i] for i in range(n0, len(msp))], alan=(a0, len(eng.alan)),
+                    cizgi=(c0, len(eng.cizgi)), kutu=unary_union(yazi_kutulari(e)))
+
+    BOS = Point(-1e9, -1e9).buffer(0.01)
+
+    def _geri_al(iz):
+        for x in iz['ent']:
+            if x.is_alive:
+                msp.delete_entity(x)
+        for i in range(*iz['alan']):
+            eng.alan[i] = BOS
+        for i in range(*iz['cizgi']):
+            eng.cizgi[i] = LineString([(-1e9, -1e9), (-1e9 + 0.01, -1e9)])
+        eng._ta = eng._tc = None
+
+    konan, eksik = [], []
+    for pc in segler:
+        iz = _iz_yerlestir(pc)
+        if iz is None:
             if pc['zorunlu']:
-                n_yok += 1
-                dur.uyari.append('kat %s pis su etiketi yerleşmedi: %s %d SB @ (%.0f, %.0f) %.0f cm' % (
-                    K.k, pc['cap'], pc['sb'], pc['g'].centroid.x, pc['g'].centroid.y, pc['g'].length))
+                eksik.append(pc)
         else:
-            n_ok += 1
+            konan.append(iz)
+    # klozet bağlantısı (Ø100) etiketsiz kaldıysa (kontrolör tur 4 E2, Z D1 / 2. kat wc-lvb): yakındaki Ø50 etiketi
+    # geçici kaldırılır, önce klozet etiketi konur, sonra kaldırılan etiket yeniden yerleştirilir; ikisi birden
+    # konamazsa eski hâl geri gelir (başka etiket kaybolmaz)
+    for pc in list(eksik):
+        if not pc['cap'].startswith('Ø100'):
+            continue
+        r_ = K.oda((pc['g'].centroid.x, pc['g'].centroid.y))
+        yakin = [iz for iz in konan if iz['pc']['cap'] == 'Ø50' and iz['kutu'].distance(pc['g']) < 45
+                 and (r_ is None or r_['poly'].buffer(30).intersects(iz['pc']['g']))]
+        yakin.sort(key=lambda iz: iz['kutu'].distance(pc['g']))
+        if os.environ.get('S2_DEBUG'):
+            log('   onarım yakın etiketler', r_ and r_['name'], [(iz['pc']['cap'], iz['pc']['sb'], round(iz['kutu'].distance(pc['g'])))
+                                         for iz in konan if iz['kutu'].distance(pc['g']) < 60])
+            log('   onarım aday %s %d SB @%.0f,%.0f: %s' % (pc['cap'], pc['sb'], pc['g'].centroid.x, pc['g'].centroid.y,
+                [(iz['pc']['cap'], iz['pc']['sb'], round(iz['kutu'].distance(pc['g']))) for iz in yakin]))
+        for iz in yakin[:3]:
+            _geri_al(iz)
+            yeni = _iz_yerlestir(pc)
+            if yeni is not None:
+                tekrar = _iz_yerlestir(iz['pc'])
+                if tekrar is not None:
+                    konan.remove(iz)
+                    konan += [yeni, tekrar]
+                    eksik.remove(pc)
+                    log('  etiket onarım: %s %d SB yerleşti, %s %d SB yeniden konuldu' % (
+                        pc['cap'], pc['sb'], iz['pc']['cap'], iz['pc']['sb']))
+                    break
+                _geri_al(yeni)
+            eski = _iz_yerlestir(iz['pc'])         # eski etiketi geri koy (aynı aday sırası: aynı yer)
+            if eski is not None:
+                konan[konan.index(iz)] = eski
+            else:
+                konan.remove(iz)
+                if iz['pc']['zorunlu']:
+                    eksik.append(iz['pc'])
+    # son çare (yalnız klozet bağlantısı Ø100, klozete ≤ 15 cm): hattın üstünde, mimari yazının üstüne binebilir
+    wc_c = [Point(f['c']) for f in K.fx if f['kind'] == 'WC']
+    for pc in list(eksik):
+        if not pc['cap'].startswith('Ø100') or not any(pc['g'].distance(q) <= 15 for q in wc_c):
+            continue
+        mm_ = pc['g'].interpolate(0.5, normalized=True)
+        PIS_SEG['diger'] = daire_alani(K, (mm_.x, mm_.y))
+        n0, a0, c0 = len(msp), len(eng.alan), len(eng.cizgi)
+        e = etiket_dene_pis(msp, eng, pc['g'], pc['cap'], pc['sb'], gevsek=True, disari=balkon_u, adaylar_t=T_GEVSEK,
+                            mimari_serbest=True)
+        if e is not None:
+            eksik.remove(pc)
+            konan.append(dict(pc=pc, e=e, ent=[msp[i] for i in range(n0, len(msp))], alan=(a0, len(eng.alan)),
+                              cizgi=(c0, len(eng.cizgi)), kutu=unary_union(yazi_kutulari(e))))
+            log('  etiket son çare (mimari yazı üstünde): %s %d SB @ (%.0f, %.0f)' % (
+                pc['cap'], pc['sb'], pc['g'].centroid.x, pc['g'].centroid.y))
+    for pc in eksik:
+        n_yok += 1
+        dur.uyari.append('kat %s pis su etiketi yerleşmedi: %s %d SB @ (%.0f, %.0f) %.0f cm' % (
+            K.k, pc['cap'], pc['sb'], pc['g'].centroid.x, pc['g'].centroid.y, pc['g'].length))
+    n_ok += len(konan)
     # temiz su etiketleri: daire girişi, ıslak hacim girişleri, hol ana hattı, kombi
     for dno, ts in kat['temiz'].items():
         disari_u = unary_union([r['poly'].buffer(-3) for r in K.rooms if r['tip'] in ('balkon', 'ortak')
