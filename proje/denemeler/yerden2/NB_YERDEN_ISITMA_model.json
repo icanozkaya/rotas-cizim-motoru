@@ -21,7 +21,7 @@
        "sic": 20,
        "alan_m2": 8.99,
        "alan_mimari_m2": 11.07,
-       "isitma_alani_m2": 7.83,
+       "isitma_alani_m2": 6.92,
        "kose": "NE",
        "bbox": [
         253566.0,
@@ -32,8 +32,9 @@
        "devreler": [
         {
          "no": 1,
-         "L_m": 48.24,
-         "W": 1688.4,
+         "L_m": 47.12,
+         "W": 1649.2,
+         "L_ayak_m": 4.53,
          "etiket": "maskeli"
         }
        ]
@@ -45,7 +46,7 @@
        "sic": 20,
        "alan_m2": 13.76,
        "alan_mimari_m2": 14.25,
-       "isitma_alani_m2": 13.6,
+       "isitma_alani_m2": 13.44,
        "kose": "SW",
        "bbox": [
         253874.0,
@@ -56,14 +57,16 @@
        "devreler": [
         {
          "no": 2,
-         "L_m": 42.89,
-         "W": 1501.2,
+         "L_m": 46.32,
+         "W": 1621.2,
+         "L_ayak_m": 11.79,
          "etiket": "maskeli"
         },
         {
          "no": 3,
-         "L_m": 39.17,
-         "W": 1371.0,
+         "L_m": 49.96,
+         "W": 1748.6,
+         "L_ayak_m": 11.39,
          "etiket": "maskeli"
         }
        ]
@@ -75,8 +78,8 @@
        "sic": 20,
        "alan_m2": 8.9,
        "alan_mimari_m2": 9.31,
-       "isitma_alani_m2": 8.78,
-       "kose": "NW",
+       "isitma_alani_m2": 8.48,
+       "kose": "SW",
        "bbox": [
         254010.0,
         -442856.0,
@@ -86,8 +89,9 @@
        "devreler": [
         {
          "no": 4,
-         "L_m": 52.88,
-         "W": 1850.8,
+         "L_m": 57.17,
+         "W": 2001.0,
+         "L_ayak_m": 6.53,
          "etiket": "maskeli"
         }
        ]
@@ -110,8 +114,9 @@
        "devreler": [
         {
          "no": 5,
-         "L_m": 53.32,
-         "W": 1866.2,
+         "L_m": 59.68,
+         "W": 2088.8,
+         "L_ayak_m": 6.36,
          "etiket": "maskeli"
         }
        ]
@@ -134,14 +139,16 @@
        "devreler": [
         {
          "no": 6,
-         "L_m": 59.14,
-         "W": 2069.9,
+         "L_m": 64.76,
+         "W": 2266.6,
+         "L_ayak_m": 5.62,
          "etiket": "maskeli"
         },
         {
          "no": 7,
-         "L_m": 62.03,
-         "W": 2171.1,
+         "L_m": 67.26,
+         "W": 2354.1,
+         "L_ayak_m": 5.22,
          "etiket": "maskeli"
         }
        ]
@@ -153,8 +160,8 @@
        "sic": 15,
        "alan_m2": 7.76,
        "alan_mimari_m2": 7.77,
-       "isitma_alani_m2": 7.61,
-       "kose": "SE",
+       "isitma_alani_m2": 1.17,
+       "kose": "NE",
        "bbox": [
         253694.0,
         -443010.0,
@@ -164,9 +171,10 @@
        "devreler": [
         {
          "no": 8,
-         "L_m": 43.5,
-         "W": 1522.5,
-         "etiket": "maskeli"
+         "L_m": 5.78,
+         "W": 202.3,
+         "L_ayak_m": 1.05,
+         "etiket": "bos"
         }
        ]
       },
@@ -188,13 +196,20 @@
        "devreler": [
         {
          "no": 9,
-         "L_m": 18.89,
-         "W": 661.1,
-         "etiket": "maskeli"
+         "L_m": 24.4,
+         "W": 854.0,
+         "L_ayak_m": 5.66,
+         "etiket": "bos"
         }
        ]
       }
-     ]
+     ],
+     "kollektor": {
+      "agiz": 9,
+      "W": 14785.8,
+      "ayakli": 9,
+      "kombi_hatti": true
+     }
     },
     "2": {
      "no": "D2",
@@ -206,7 +221,7 @@
        "sic": 20,
        "alan_m2": 9.05,
        "alan_mimari_m2": 11.07,
-       "isitma_alani_m2": 7.87,
+       "isitma_alani_m2": 5.75,
        "kose": "NW",
        "bbox": [
         253286.0,
@@ -217,8 +232,9 @@
        "devreler": [
         {
          "no": 10,
-         "L_m": 48.4,
-         "W": 1694.0,
+         "L_m": 39.26,
+         "W": 1374.1,
+         "L_ayak_m": 6.57,
          "etiket": "maskeli"
         }
        ]
@@ -230,7 +246,7 @@
        "sic": 20,
        "alan_m2": 13.64,
        "alan_mimari_m2": 14.25,
-       "isitma_alani_m2": 13.47,
+       "isitma_alani_m2": 13.33,
        "kose": "SE",
        "bbox": [
         252768.0,
@@ -241,14 +257,16 @@
        "devreler": [
         {
          "no": 11,
-         "L_m": 42.8,
-         "W": 1498.0,
+         "L_m": 46.36,
+         "W": 1622.6,
+         "L_ayak_m": 11.93,
          "etiket": "maskeli"
         },
         {
          "no": 12,
-         "L_m": 39.77,
-         "W": 1392.0,
+         "L_m": 50.69,
+         "W": 1774.1,
+         "L_ayak_m": 11.53,
          "etiket": "maskeli"
         }
        ]
@@ -260,8 +278,8 @@
        "sic": 20,
        "alan_m2": 8.89,
        "alan_mimari_m2": 9.31,
-       "isitma_alani_m2": 8.76,
-       "kose": "NE",
+       "isitma_alani_m2": 8.43,
+       "kose": "SE",
        "bbox": [
         252768.0,
         -442856.0,
@@ -271,8 +289,9 @@
        "devreler": [
         {
          "no": 13,
-         "L_m": 52.88,
-         "W": 1850.8,
+         "L_m": 57.21,
+         "W": 2002.4,
+         "L_ayak_m": 6.73,
          "etiket": "maskeli"
         }
        ]
@@ -295,8 +314,9 @@
        "devreler": [
         {
          "no": 14,
-         "L_m": 53.16,
-         "W": 1860.6,
+         "L_m": 59.2,
+         "W": 2072.0,
+         "L_ayak_m": 6.19,
          "etiket": "maskeli"
         }
        ]
@@ -319,14 +339,16 @@
        "devreler": [
         {
          "no": 15,
-         "L_m": 59.5,
-         "W": 2082.5,
+         "L_m": 65.32,
+         "W": 2286.2,
+         "L_ayak_m": 5.83,
          "etiket": "maskeli"
         },
         {
          "no": 16,
-         "L_m": 62.03,
-         "W": 2171.1,
+         "L_m": 67.46,
+         "W": 2361.1,
+         "L_ayak_m": 5.42,
          "etiket": "maskeli"
         }
        ]
@@ -338,8 +360,8 @@
        "sic": 15,
        "alan_m2": 7.83,
        "alan_mimari_m2": 7.77,
-       "isitma_alani_m2": 7.67,
-       "kose": "SW",
+       "isitma_alani_m2": 1.12,
+       "kose": "NW",
        "bbox": [
         253120.0,
         -443010.0,
@@ -349,9 +371,10 @@
        "devreler": [
         {
          "no": 17,
-         "L_m": 43.8,
-         "W": 1533.0,
-         "etiket": "maskeli"
+         "L_m": 5.24,
+         "W": 183.4,
+         "L_ayak_m": 1.05,
+         "etiket": "bos"
         }
        ]
       },
@@ -373,13 +396,20 @@
        "devreler": [
         {
          "no": 18,
-         "L_m": 19.17,
-         "W": 671.0,
-         "etiket": "maskeli"
+         "L_m": 24.94,
+         "W": 872.9,
+         "L_ayak_m": 5.92,
+         "etiket": "bos"
         }
        ]
       }
-     ]
+     ],
+     "kollektor": {
+      "agiz": 9,
+      "W": 14548.8,
+      "ayakli": 9,
+      "kombi_hatti": true
+     }
     },
     "3": {
      "no": "D3",
@@ -391,8 +421,8 @@
        "sic": 20,
        "alan_m2": 7.79,
        "alan_mimari_m2": 10.11,
-       "isitma_alani_m2": 7.23,
-       "kose": "SE",
+       "isitma_alani_m2": 4.26,
+       "kose": "SW",
        "bbox": [
         253484.0,
         -441874.0,
@@ -402,9 +432,10 @@
        "devreler": [
         {
          "no": 19,
-         "L_m": 39.16,
-         "W": 1370.6,
-         "etiket": "maskeli"
+         "L_m": 28.86,
+         "W": 1010.1,
+         "L_ayak_m": 7.78,
+         "etiket": "bos"
         }
        ]
       },
@@ -415,7 +446,7 @@
        "sic": 20,
        "alan_m2": 14.48,
        "alan_mimari_m2": 15.44,
-       "isitma_alani_m2": 14.32,
+       "isitma_alani_m2": 14.11,
        "kose": "SE",
        "bbox": [
         252768.0,
@@ -426,14 +457,16 @@
        "devreler": [
         {
          "no": 20,
-         "L_m": 43.8,
-         "W": 1533.0,
+         "L_m": 51.13,
+         "W": 1789.6,
+         "L_ayak_m": 13.89,
          "etiket": "maskeli"
         },
         {
          "no": 21,
-         "L_m": 42.82,
-         "W": 1498.7,
+         "L_m": 54.91,
+         "W": 1921.8,
+         "L_ayak_m": 12.69,
          "etiket": "maskeli"
         }
        ]
@@ -456,8 +489,9 @@
        "devreler": [
         {
          "no": 22,
-         "L_m": 53.12,
-         "W": 1859.2,
+         "L_m": 63.34,
+         "W": 2216.9,
+         "L_ayak_m": 10.22,
          "etiket": "maskeli"
         }
        ]
@@ -469,8 +503,8 @@
        "sic": 20,
        "alan_m2": 21.15,
        "alan_mimari_m2": 22.31,
-       "isitma_alani_m2": 20.95,
-       "kose": "SE",
+       "isitma_alani_m2": 18.93,
+       "kose": "SW",
        "bbox": [
         253772.0,
         -442040.0,
@@ -480,14 +514,16 @@
        "devreler": [
         {
          "no": 23,
-         "L_m": 65.76,
-         "W": 2301.6,
+         "L_m": 65.8,
+         "W": 2303.0,
+         "L_ayak_m": 4.6,
          "etiket": "maskeli"
         },
         {
          "no": 24,
-         "L_m": 61.02,
-         "W": 2135.7,
+         "L_m": 57.03,
+         "W": 1996.0,
+         "L_ayak_m": 3.5,
          "etiket": "maskeli"
         }
        ]
@@ -510,8 +546,9 @@
        "devreler": [
         {
          "no": 25,
-         "L_m": 46.26,
-         "W": 1619.1,
+         "L_m": 61.63,
+         "W": 2157.1,
+         "L_ayak_m": 15.52,
          "etiket": "maskeli"
         }
        ]
@@ -523,8 +560,8 @@
        "sic": 15,
        "alan_m2": 10.47,
        "alan_mimari_m2": 11.0,
-       "isitma_alani_m2": 10.28,
-       "kose": "SE",
+       "isitma_alani_m2": 4.95,
+       "kose": "NE",
        "bbox": [
         253030.0,
         -442058.0,
@@ -534,8 +571,9 @@
        "devreler": [
         {
          "no": 26,
-         "L_m": 57.11,
-         "W": 1998.8,
+         "L_m": 26.16,
+         "W": 915.6,
+         "L_ayak_m": 6.95,
          "etiket": "maskeli"
         }
        ]
@@ -547,8 +585,8 @@
        "sic": 24,
        "alan_m2": 3.47,
        "alan_mimari_m2": 4.37,
-       "isitma_alani_m2": 2.41,
-       "kose": "SW",
+       "isitma_alani_m2": 1.12,
+       "kose": "NW",
        "bbox": [
         253038.0,
         -442252.0,
@@ -558,13 +596,20 @@
        "devreler": [
         {
          "no": 27,
-         "L_m": 13.29,
-         "W": 465.1,
-         "etiket": "maskeli"
+         "L_m": 22.82,
+         "W": 798.7,
+         "L_ayak_m": 17.18,
+         "etiket": "bos"
         }
        ]
       }
-     ]
+     ],
+     "kollektor": {
+      "agiz": 9,
+      "W": 15108.8,
+      "ayakli": 9,
+      "kombi_hatti": true
+     }
     }
    },
    "isitilmayan": [
@@ -590,7 +635,7 @@
        "sic": 20,
        "alan_m2": 9.05,
        "alan_mimari_m2": 11.07,
-       "isitma_alani_m2": 7.87,
+       "isitma_alani_m2": 5.76,
        "kose": "NW",
        "bbox": [
         255320.0,
@@ -601,8 +646,9 @@
        "devreler": [
         {
          "no": 1,
-         "L_m": 48.44,
-         "W": 1695.4,
+         "L_m": 39.3,
+         "W": 1375.5,
+         "L_ayak_m": 6.57,
          "etiket": "maskeli"
         }
        ]
@@ -614,7 +660,7 @@
        "sic": 20,
        "alan_m2": 13.64,
        "alan_mimari_m2": 14.25,
-       "isitma_alani_m2": 13.47,
+       "isitma_alani_m2": 13.33,
        "kose": "SE",
        "bbox": [
         254802.0,
@@ -625,14 +671,16 @@
        "devreler": [
         {
          "no": 2,
-         "L_m": 42.8,
-         "W": 1498.0,
+         "L_m": 46.36,
+         "W": 1622.6,
+         "L_ayak_m": 11.93,
          "etiket": "maskeli"
         },
         {
          "no": 3,
-         "L_m": 39.77,
-         "W": 1392.0,
+         "L_m": 50.69,
+         "W": 1774.1,
+         "L_ayak_m": 11.53,
          "etiket": "maskeli"
         }
        ]
@@ -644,8 +692,8 @@
        "sic": 20,
        "alan_m2": 8.9,
        "alan_mimari_m2": 9.31,
-       "isitma_alani_m2": 8.78,
-       "kose": "NE",
+       "isitma_alani_m2": 8.46,
+       "kose": "SE",
        "bbox": [
         254802.0,
         -442856.0,
@@ -655,8 +703,9 @@
        "devreler": [
         {
          "no": 4,
-         "L_m": 52.88,
-         "W": 1850.8,
+         "L_m": 57.21,
+         "W": 2002.4,
+         "L_ayak_m": 6.69,
          "etiket": "maskeli"
         }
        ]
@@ -679,8 +728,9 @@
        "devreler": [
         {
          "no": 5,
-         "L_m": 53.16,
-         "W": 1860.6,
+         "L_m": 59.2,
+         "W": 2072.0,
+         "L_ayak_m": 6.19,
          "etiket": "maskeli"
         }
        ]
@@ -703,14 +753,16 @@
        "devreler": [
         {
          "no": 6,
-         "L_m": 59.1,
-         "W": 2068.5,
+         "L_m": 64.99,
+         "W": 2274.6,
+         "L_ayak_m": 5.89,
          "etiket": "maskeli"
         },
         {
          "no": 7,
-         "L_m": 61.92,
-         "W": 2167.2,
+         "L_m": 67.41,
+         "W": 2359.3,
+         "L_ayak_m": 5.49,
          "etiket": "maskeli"
         }
        ]
@@ -722,8 +774,8 @@
        "sic": 15,
        "alan_m2": 7.81,
        "alan_mimari_m2": 7.77,
-       "isitma_alani_m2": 7.66,
-       "kose": "SW",
+       "isitma_alani_m2": 1.12,
+       "kose": "NW",
        "bbox": [
         255154.0,
         -443010.0,
@@ -733,9 +785,10 @@
        "devreler": [
         {
          "no": 8,
-         "L_m": 43.8,
-         "W": 1533.0,
-         "etiket": "maskeli"
+         "L_m": 5.24,
+         "W": 183.4,
+         "L_ayak_m": 1.05,
+         "etiket": "bos"
         }
        ]
       },
@@ -757,13 +810,20 @@
        "devreler": [
         {
          "no": 9,
-         "L_m": 19.15,
-         "W": 670.2,
-         "etiket": "maskeli"
+         "L_m": 24.92,
+         "W": 872.2,
+         "L_ayak_m": 5.92,
+         "etiket": "bos"
         }
        ]
       }
-     ]
+     ],
+     "kollektor": {
+      "agiz": 9,
+      "W": 14536.1,
+      "ayakli": 9,
+      "kombi_hatti": true
+     }
     },
     "5": {
      "no": "D5",
@@ -775,8 +835,8 @@
        "sic": 20,
        "alan_m2": 7.67,
        "alan_mimari_m2": 10.11,
-       "isitma_alani_m2": 7.11,
-       "kose": "SE",
+       "isitma_alani_m2": 5.54,
+       "kose": "SW",
        "bbox": [
         255518.0,
         -441874.0,
@@ -786,8 +846,9 @@
        "devreler": [
         {
          "no": 10,
-         "L_m": 38.32,
-         "W": 1341.2,
+         "L_m": 36.32,
+         "W": 1271.2,
+         "L_ayak_m": 8.65,
          "etiket": "maskeli"
         }
        ]
@@ -799,7 +860,7 @@
        "sic": 20,
        "alan_m2": 14.47,
        "alan_mimari_m2": 15.44,
-       "isitma_alani_m2": 14.31,
+       "isitma_alani_m2": 14.11,
        "kose": "SE",
        "bbox": [
         254802.0,
@@ -810,14 +871,16 @@
        "devreler": [
         {
          "no": 11,
-         "L_m": 43.8,
-         "W": 1533.0,
+         "L_m": 44.83,
+         "W": 1569.0,
+         "L_ayak_m": 7.59,
          "etiket": "maskeli"
         },
         {
          "no": 12,
-         "L_m": 42.82,
-         "W": 1498.7,
+         "L_m": 48.49,
+         "W": 1697.2,
+         "L_ayak_m": 6.27,
          "etiket": "maskeli"
         }
        ]
@@ -840,8 +903,9 @@
        "devreler": [
         {
          "no": 13,
-         "L_m": 53.12,
-         "W": 1859.2,
+         "L_m": 56.74,
+         "W": 1985.9,
+         "L_ayak_m": 3.62,
          "etiket": "maskeli"
         }
        ]
@@ -853,7 +917,7 @@
        "sic": 20,
        "alan_m2": 21.12,
        "alan_mimari_m2": 22.31,
-       "isitma_alani_m2": 20.93,
+       "isitma_alani_m2": 20.69,
        "kose": "SW",
        "bbox": [
         255806.0,
@@ -864,14 +928,16 @@
        "devreler": [
         {
          "no": 14,
-         "L_m": 60.92,
-         "W": 2132.2,
+         "L_m": 64.17,
+         "W": 2246.0,
+         "L_ayak_m": 10.61,
          "etiket": "maskeli"
         },
         {
          "no": 15,
-         "L_m": 61.93,
-         "W": 2167.6,
+         "L_m": 70.67,
+         "W": 2473.5,
+         "L_ayak_m": 9.34,
          "etiket": "maskeli"
         }
        ]
@@ -894,8 +960,9 @@
        "devreler": [
         {
          "no": 16,
-         "L_m": 46.14,
-         "W": 1614.9,
+         "L_m": 55.18,
+         "W": 1931.3,
+         "L_ayak_m": 9.19,
          "etiket": "maskeli"
         }
        ]
@@ -907,8 +974,8 @@
        "sic": 15,
        "alan_m2": 10.74,
        "alan_mimari_m2": 11.0,
-       "isitma_alani_m2": 10.3,
-       "kose": "SE",
+       "isitma_alani_m2": 2.64,
+       "kose": "SW",
        "bbox": [
         255064.0,
         -442106.0,
@@ -918,9 +985,10 @@
        "devreler": [
         {
          "no": 17,
-         "L_m": 57.29,
-         "W": 2005.1,
-         "etiket": "maskeli"
+         "L_m": 12.84,
+         "W": 449.4,
+         "L_ayak_m": 5.53,
+         "etiket": "bos"
         }
        ]
       },
@@ -931,8 +999,8 @@
        "sic": 24,
        "alan_m2": 3.47,
        "alan_mimari_m2": 4.37,
-       "isitma_alani_m2": 2.41,
-       "kose": "SW",
+       "isitma_alani_m2": 1.14,
+       "kose": "NW",
        "bbox": [
         255072.0,
         -442252.0,
@@ -942,13 +1010,20 @@
        "devreler": [
         {
          "no": 18,
-         "L_m": 13.29,
-         "W": 465.1,
-         "etiket": "maskeli"
+         "L_m": 15.4,
+         "W": 539.0,
+         "L_ayak_m": 9.68,
+         "etiket": "bos"
         }
        ]
       }
-     ]
+     ],
+     "kollektor": {
+      "agiz": 9,
+      "W": 14162.5,
+      "ayakli": 9,
+      "kombi_hatti": true
+     }
     },
     "6": {
      "no": "D6",
@@ -960,7 +1035,7 @@
        "sic": 20,
        "alan_m2": 9.01,
        "alan_mimari_m2": 11.07,
-       "isitma_alani_m2": 7.83,
+       "isitma_alani_m2": 6.9,
        "kose": "NE",
        "bbox": [
         255600.0,
@@ -971,8 +1046,9 @@
        "devreler": [
         {
          "no": 19,
-         "L_m": 48.24,
-         "W": 1688.4,
+         "L_m": 47.23,
+         "W": 1653.0,
+         "L_ayak_m": 4.63,
          "etiket": "maskeli"
         }
        ]
@@ -984,7 +1060,7 @@
        "sic": 20,
        "alan_m2": 13.79,
        "alan_mimari_m2": 14.25,
-       "isitma_alani_m2": 13.62,
+       "isitma_alani_m2": 13.47,
        "kose": "SW",
        "bbox": [
         255910.0,
@@ -995,14 +1071,16 @@
        "devreler": [
         {
          "no": 20,
-         "L_m": 43.01,
-         "W": 1505.3,
+         "L_m": 46.44,
+         "W": 1625.4,
+         "L_ayak_m": 11.79,
          "etiket": "maskeli"
         },
         {
          "no": 21,
-         "L_m": 39.21,
-         "W": 1372.4,
+         "L_m": 50.0,
+         "W": 1750.0,
+         "L_ayak_m": 11.39,
          "etiket": "maskeli"
         }
        ]
@@ -1014,8 +1092,8 @@
        "sic": 20,
        "alan_m2": 8.92,
        "alan_mimari_m2": 9.31,
-       "isitma_alani_m2": 8.8,
-       "kose": "NW",
+       "isitma_alani_m2": 8.5,
+       "kose": "SW",
        "bbox": [
         256046.0,
         -442856.0,
@@ -1025,8 +1103,9 @@
        "devreler": [
         {
          "no": 22,
-         "L_m": 53.04,
-         "W": 1856.4,
+         "L_m": 57.33,
+         "W": 2006.5,
+         "L_ayak_m": 6.55,
          "etiket": "maskeli"
         }
        ]
@@ -1049,8 +1128,9 @@
        "devreler": [
         {
          "no": 23,
-         "L_m": 53.51,
-         "W": 1872.8,
+         "L_m": 59.87,
+         "W": 2095.4,
+         "L_ayak_m": 6.36,
          "etiket": "maskeli"
         }
        ]
@@ -1073,14 +1153,16 @@
        "devreler": [
         {
          "no": 24,
-         "L_m": 59.22,
-         "W": 2072.7,
+         "L_m": 64.84,
+         "W": 2269.4,
+         "L_ayak_m": 5.62,
          "etiket": "maskeli"
         },
         {
          "no": 25,
-         "L_m": 62.11,
-         "W": 2173.8,
+         "L_m": 67.34,
+         "W": 2356.9,
+         "L_ayak_m": 5.22,
          "etiket": "maskeli"
         }
        ]
@@ -1092,8 +1174,8 @@
        "sic": 15,
        "alan_m2": 7.76,
        "alan_mimari_m2": 7.77,
-       "isitma_alani_m2": 7.61,
-       "kose": "SE",
+       "isitma_alani_m2": 1.17,
+       "kose": "NE",
        "bbox": [
         255728.0,
         -443010.0,
@@ -1103,9 +1185,10 @@
        "devreler": [
         {
          "no": 26,
-         "L_m": 43.5,
-         "W": 1522.5,
-         "etiket": "maskeli"
+         "L_m": 5.78,
+         "W": 202.3,
+         "L_ayak_m": 1.05,
+         "etiket": "bos"
         }
        ]
       },
@@ -1116,8 +1199,8 @@
        "sic": 24,
        "alan_m2": 4.11,
        "alan_mimari_m2": 4.37,
-       "isitma_alani_m2": 2.93,
-       "kose": "NW",
+       "isitma_alani_m2": 2.58,
+       "kose": "SE",
        "bbox": [
         255734.0,
         -442716.0,
@@ -1127,13 +1210,20 @@
        "devreler": [
         {
          "no": 27,
-         "L_m": 16.0,
-         "W": 560.0,
+         "L_m": 19.74,
+         "W": 690.9,
+         "L_ayak_m": 5.86,
          "etiket": "maskeli"
         }
        ]
       }
-     ]
+     ],
+     "kollektor": {
+      "agiz": 9,
+      "W": 14649.8,
+      "ayakli": 9,
+      "kombi_hatti": true
+     }
     }
    },
    "isitilmayan": [
@@ -1170,8 +1260,9 @@
        "devreler": [
         {
          "no": 1,
-         "L_m": 45.65,
-         "W": 1597.8,
+         "L_m": 50.3,
+         "W": 1760.5,
+         "L_ayak_m": 4.65,
          "etiket": "maskeli"
         }
        ]
@@ -1183,7 +1274,7 @@
        "sic": 20,
        "alan_m2": 13.6,
        "alan_mimari_m2": 14.25,
-       "isitma_alani_m2": 13.44,
+       "isitma_alani_m2": 13.3,
        "kose": "SE",
        "bbox": [
         256850.0,
@@ -1194,14 +1285,16 @@
        "devreler": [
         {
          "no": 2,
-         "L_m": 42.54,
-         "W": 1488.9,
+         "L_m": 46.17,
+         "W": 1616.0,
+         "L_ayak_m": 11.93,
          "etiket": "maskeli"
         },
         {
          "no": 3,
-         "L_m": 39.38,
-         "W": 1378.3,
+         "L_m": 50.5,
+         "W": 1767.5,
+         "L_ayak_m": 11.53,
          "etiket": "maskeli"
         }
        ]
@@ -1213,8 +1306,8 @@
        "sic": 20,
        "alan_m2": 8.88,
        "alan_mimari_m2": 9.31,
-       "isitma_alani_m2": 8.76,
-       "kose": "NE",
+       "isitma_alani_m2": 8.45,
+       "kose": "SE",
        "bbox": [
         256850.0,
         -442856.0,
@@ -1224,8 +1317,9 @@
        "devreler": [
         {
          "no": 4,
-         "L_m": 52.8,
-         "W": 1848.0,
+         "L_m": 57.13,
+         "W": 1999.6,
+         "L_ayak_m": 6.69,
          "etiket": "maskeli"
         }
        ]
@@ -1248,8 +1342,9 @@
        "devreler": [
         {
          "no": 5,
-         "L_m": 53.12,
-         "W": 1859.2,
+         "L_m": 59.31,
+         "W": 2075.8,
+         "L_ayak_m": 6.34,
          "etiket": "maskeli"
         }
        ]
@@ -1272,14 +1367,16 @@
        "devreler": [
         {
          "no": 6,
-         "L_m": 58.58,
-         "W": 2050.3,
+         "L_m": 64.47,
+         "W": 2256.4,
+         "L_ayak_m": 5.89,
          "etiket": "maskeli"
         },
         {
          "no": 7,
-         "L_m": 61.8,
-         "W": 2163.0,
+         "L_m": 67.29,
+         "W": 2355.2,
+         "L_ayak_m": 5.49,
          "etiket": "maskeli"
         }
        ]
@@ -1291,8 +1388,8 @@
        "sic": 15,
        "alan_m2": 7.8,
        "alan_mimari_m2": 7.77,
-       "isitma_alani_m2": 7.64,
-       "kose": "SW",
+       "isitma_alani_m2": 1.24,
+       "kose": "NW",
        "bbox": [
         257204.0,
         -443010.0,
@@ -1302,9 +1399,10 @@
        "devreler": [
         {
          "no": 8,
-         "L_m": 43.61,
-         "W": 1526.3,
-         "etiket": "maskeli"
+         "L_m": 7.31,
+         "W": 255.8,
+         "L_ayak_m": 1.38,
+         "etiket": "bos"
         }
        ]
       },
@@ -1326,13 +1424,20 @@
        "devreler": [
         {
          "no": 9,
-         "L_m": 19.88,
-         "W": 695.8,
-         "etiket": "maskeli"
+         "L_m": 25.65,
+         "W": 897.8,
+         "L_ayak_m": 5.92,
+         "etiket": "bos"
         }
        ]
       }
-     ]
+     ],
+     "kollektor": {
+      "agiz": 9,
+      "W": 14984.6,
+      "ayakli": 9,
+      "kombi_hatti": false
+     }
     },
     "8": {
      "no": "D8",
@@ -1344,8 +1449,8 @@
        "sic": 20,
        "alan_m2": 7.47,
        "alan_mimari_m2": 10.11,
-       "isitma_alani_m2": 6.92,
-       "kose": "SE",
+       "isitma_alani_m2": 5.7,
+       "kose": "SW",
        "bbox": [
         257566.0,
         -441874.0,
@@ -1355,8 +1460,9 @@
        "devreler": [
         {
          "no": 10,
-         "L_m": 36.81,
-         "W": 1288.4,
+         "L_m": 35.8,
+         "W": 1253.0,
+         "L_ayak_m": 4.66,
          "etiket": "maskeli"
         }
        ]
@@ -1368,7 +1474,7 @@
        "sic": 20,
        "alan_m2": 14.46,
        "alan_mimari_m2": 15.44,
-       "isitma_alani_m2": 14.21,
+       "isitma_alani_m2": 14.16,
        "kose": "SE",
        "bbox": [
         256850.0,
@@ -1379,14 +1485,16 @@
        "devreler": [
         {
          "no": 11,
-         "L_m": 41.53,
-         "W": 1453.5,
+         "L_m": 44.62,
+         "W": 1561.7,
+         "L_ayak_m": 7.43,
          "etiket": "maskeli"
         },
         {
          "no": 12,
-         "L_m": 42.39,
-         "W": 1483.7,
+         "L_m": 48.55,
+         "W": 1699.2,
+         "L_ayak_m": 6.1,
          "etiket": "maskeli"
         }
        ]
@@ -1409,8 +1517,9 @@
        "devreler": [
         {
          "no": 13,
-         "L_m": 53.12,
-         "W": 1859.2,
+         "L_m": 56.64,
+         "W": 1982.4,
+         "L_ayak_m": 3.52,
          "etiket": "maskeli"
         }
        ]
@@ -1422,7 +1531,7 @@
        "sic": 20,
        "alan_m2": 21.02,
        "alan_mimari_m2": 22.31,
-       "isitma_alani_m2": 20.82,
+       "isitma_alani_m2": 20.76,
        "kose": "SW",
        "bbox": [
         257854.0,
@@ -1433,14 +1542,16 @@
        "devreler": [
         {
          "no": 14,
-         "L_m": 60.72,
-         "W": 2125.2,
+         "L_m": 71.87,
+         "W": 2515.5,
+         "L_ayak_m": 10.71,
          "etiket": "maskeli"
         },
         {
          "no": 15,
-         "L_m": 61.81,
-         "W": 2163.3,
+         "L_m": 62.83,
+         "W": 2199.0,
+         "L_ayak_m": 9.38,
          "etiket": "maskeli"
         }
        ]
@@ -1463,8 +1574,9 @@
        "devreler": [
         {
          "no": 16,
-         "L_m": 46.02,
-         "W": 1610.7,
+         "L_m": 55.06,
+         "W": 1927.1,
+         "L_ayak_m": 9.19,
          "etiket": "maskeli"
         }
        ]
@@ -1476,8 +1588,8 @@
        "sic": 15,
        "alan_m2": 10.73,
        "alan_mimari_m2": 11.0,
-       "isitma_alani_m2": 10.51,
-       "kose": "SE",
+       "isitma_alani_m2": 2.81,
+       "kose": "SW",
        "bbox": [
         257112.0,
         -442106.0,
@@ -1487,9 +1599,10 @@
        "devreler": [
         {
          "no": 17,
-         "L_m": 57.31,
-         "W": 2005.9,
-         "etiket": "maskeli"
+         "L_m": 12.88,
+         "W": 450.8,
+         "L_ayak_m": 5.53,
+         "etiket": "bos"
         }
        ]
       },
@@ -1500,8 +1613,8 @@
        "sic": 24,
        "alan_m2": 3.44,
        "alan_mimari_m2": 4.37,
-       "isitma_alani_m2": 2.37,
-       "kose": "SW",
+       "isitma_alani_m2": 2.06,
+       "kose": "NW",
        "bbox": [
         257122.0,
         -442252.0,
@@ -1511,13 +1624,20 @@
        "devreler": [
         {
          "no": 18,
-         "L_m": 13.15,
-         "W": 460.2,
-         "etiket": "maskeli"
+         "L_m": 15.11,
+         "W": 528.9,
+         "L_ayak_m": 8.98,
+         "etiket": "bos"
         }
        ]
       }
-     ]
+     ],
+     "kollektor": {
+      "agiz": 9,
+      "W": 14117.6,
+      "ayakli": 9,
+      "kombi_hatti": true
+     }
     },
     "9": {
      "no": "D9",
@@ -1529,7 +1649,7 @@
        "sic": 20,
        "alan_m2": 8.98,
        "alan_mimari_m2": 11.07,
-       "isitma_alani_m2": 7.8,
+       "isitma_alani_m2": 6.9,
        "kose": "NE",
        "bbox": [
         257662.0,
@@ -1540,8 +1660,9 @@
        "devreler": [
         {
          "no": 19,
-         "L_m": 47.99,
-         "W": 1679.7,
+         "L_m": 47.43,
+         "W": 1660.0,
+         "L_ayak_m": 4.83,
          "etiket": "maskeli"
         }
        ]
@@ -1553,7 +1674,7 @@
        "sic": 20,
        "alan_m2": 13.75,
        "alan_mimari_m2": 14.25,
-       "isitma_alani_m2": 13.58,
+       "isitma_alani_m2": 13.43,
        "kose": "SW",
        "bbox": [
         257956.0,
@@ -1564,14 +1685,16 @@
        "devreler": [
         {
          "no": 20,
-         "L_m": 42.8,
-         "W": 1498.0,
+         "L_m": 46.36,
+         "W": 1622.6,
+         "L_ayak_m": 11.88,
          "etiket": "maskeli"
         },
         {
          "no": 21,
-         "L_m": 39.04,
-         "W": 1366.4,
+         "L_m": 49.93,
+         "W": 1747.5,
+         "L_ayak_m": 11.49,
          "etiket": "maskeli"
         }
        ]
@@ -1583,8 +1706,8 @@
        "sic": 20,
        "alan_m2": 8.89,
        "alan_mimari_m2": 9.31,
-       "isitma_alani_m2": 8.77,
-       "kose": "NW",
+       "isitma_alani_m2": 8.51,
+       "kose": "SW",
        "bbox": [
         258094.0,
         -442856.0,
@@ -1594,8 +1717,9 @@
        "devreler": [
         {
          "no": 22,
-         "L_m": 52.8,
-         "W": 1848.0,
+         "L_m": 57.34,
+         "W": 2006.9,
+         "L_ayak_m": 6.75,
          "etiket": "maskeli"
         }
        ]
@@ -1618,8 +1742,9 @@
        "devreler": [
         {
          "no": 23,
-         "L_m": 53.28,
-         "W": 1864.8,
+         "L_m": 59.68,
+         "W": 2088.8,
+         "L_ayak_m": 6.4,
          "etiket": "maskeli"
         }
        ]
@@ -1642,14 +1767,16 @@
        "devreler": [
         {
          "no": 24,
-         "L_m": 58.1,
-         "W": 2033.5,
+         "L_m": 63.99,
+         "W": 2239.7,
+         "L_ayak_m": 5.89,
          "etiket": "maskeli"
         },
         {
          "no": 25,
-         "L_m": 61.8,
-         "W": 2163.0,
+         "L_m": 67.55,
+         "W": 2364.2,
+         "L_ayak_m": 5.75,
          "etiket": "maskeli"
         }
        ]
@@ -1661,8 +1788,8 @@
        "sic": 15,
        "alan_m2": 8.26,
        "alan_mimari_m2": 7.77,
-       "isitma_alani_m2": 8.07,
-       "kose": "SE",
+       "isitma_alani_m2": 1.1,
+       "kose": "NE",
        "bbox": [
         257776.0,
         -443010.0,
@@ -1672,9 +1799,10 @@
        "devreler": [
         {
          "no": 26,
-         "L_m": 44.15,
-         "W": 1545.2,
-         "etiket": "maskeli"
+         "L_m": 4.98,
+         "W": 174.3,
+         "L_ayak_m": 0.85,
+         "etiket": "bos"
         }
        ]
       },
@@ -1696,13 +1824,20 @@
        "devreler": [
         {
          "no": 27,
-         "L_m": 20.12,
-         "W": 704.2,
-         "etiket": "maskeli"
+         "L_m": 25.83,
+         "W": 904.0,
+         "L_ayak_m": 5.86,
+         "etiket": "bos"
         }
        ]
       }
-     ]
+     ],
+     "kollektor": {
+      "agiz": 9,
+      "W": 14808.0,
+      "ayakli": 9,
+      "kombi_hatti": true
+     }
     }
    },
    "isitilmayan": [

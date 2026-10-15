@@ -854,6 +854,7 @@ def kollektor_ciz(msp, KT, engel_tum):
             _yazi(msp, s1, (x0 + 3, y1 - 12), 10, 41, katman=L_CAP)
             _yazi(msp, s2, (x0 + 3, y1 - 27), 10, 41, katman=L_CAP)
             engel_tum = engel_tum.union(b)
+            KT['yasak'] = KT['yasak'].union(b.buffer(5))      # devre / mahal etiketleri buraya konmaz
         # kombi (sıhhi plandaki kombi kutusu) + hatlar
         if kh:
             kx, ky = kh['gidis'][0]

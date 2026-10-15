@@ -458,8 +458,14 @@ class Daire:
             return self.aciklik(o)
         # duvar boşluğunu köprüleyen kapı (iki mahale de değen) önce; eşitlikte ana kapıya yakın olan
         ka = o.get('kapi')
-        return min(ad, key=lambda q: (round(P.distance(q) + Hh.distance(q), 0),
-                                      q.centroid.distance(Point(ka)) if ka else 0.0))
+        en = min(ad, key=lambda q: (round(P.distance(q) + Hh.distance(q), 0),
+                                    q.centroid.distance(Point(ka)) if ka else 0.0))
+        if Hh.distance(en) > 15:
+            # kapı poligonu hole uzak (ör. duş kabini kapısı): duvardaki gerçek açıklık aranır
+            ac = self.aciklik(o)
+            if ac is not None:
+                return ac
+        return en
 
     def aciklik(self, o):
         """kapısız geçiş (duvar boşluğu): iki mahal arasındaki şeridin mimari çizgi kesmeyen parçası"""
@@ -646,6 +652,7 @@ class Daire:
         for s_ in [k for k, v in self.slot_sahip.items() if v == 'hol']:
             del self.slot_sahip[s_]
         sonuc['ayaklar'] = self.ayaklar
+        sonuc['kombi_hat'] = getattr(self, 'kombi_hat', None)
         return sonuc
 
     def _hol_erisilir(self, aday):

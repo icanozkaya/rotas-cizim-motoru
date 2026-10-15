@@ -138,6 +138,7 @@ def calistir(KTS, dxf_yol):
         'diger': hatalar[:20],
         'denetle': ozet,
     }
+    sonuc.update(ayak_kontrol(KTS))
     sonuc['yogunluk'] = yogunluk(KTS)
     try:
         import excel_yi
@@ -162,12 +163,73 @@ def calistir(KTS, dxf_yol):
     return sonuc
 
 
+def ayak_kontrol(KTS):
+    """15.10 (D) kollektör bağlantıları:
+      AYAK-0  ayaklı devre / toplam (her devre kollektöre bağlı mı)
+      AYAK-1  ayak–ayak, ayak–serpantin, ayak–kombi hattı kesişmesi (0 olmalı)
+      AYAK-2  farklı hatlar arası 4 cm'den yakın (üst üste binme) — 0 olmalı
+      AYAK-3  ayak duvarı yalnız kapı/geçişte keser (kapıdan geçiyor)
+      AYAK-4  ayak ısıtılmayan mahal (merdiven, başka daire, ıslak hacim dışı) / başka mahalden geçmiyor
+      AYAK-5  kombi–kollektör hattı var, kombi sıhhi plandaki yerde"""
+    from shapely.geometry import LineString
+    out = dict(ayak_bagli=0, ayak_toplam=0, ayak_kesisme=[], ayak_yakin=[], ayak_duvar=[], ayak_baska_mahal=[],
+               kombi_hatti=[], kombi_hatti_yok=[])
+    for KT in KTS:
+        K = KT['K']
+        kapilar = unary_union([q.buffer(12) for q in list(K.kapilar) + list(getattr(K, 'acikliklar', []))])
+        cizgiler = []
+        for o in KT['odalar']:
+            for c in o['tasarim']['devreler']:
+                out['ayak_toplam'] += 1
+                tam = LineString([p[:2] for p in Y.tam_devre(c)])
+                cizgiler.append(('devre %d' % c['no'], tam, o, c))
+                if not c.get('ayak_g'):
+                    continue
+                out['ayak_bagli'] += 1
+                hol = next((q for q in KT['odalar'] if q['daire'] == o['daire'] and q['tur'] == 'hol'), None)
+                ayak = unary_union([LineString(c['ayak_g']), LineString(c['ayak_d'])])
+                izin = unary_union([o['poly'].buffer(1.5)] + ([hol['poly'].buffer(1.5)] if hol else []))
+                dis = ayak.difference(izin)
+                if dis.length > 0.5:
+                    if not kapilar.covers(dis):
+                        out['ayak_duvar'].append((KT['kat'], c['no'], o['zon'], round(dis.length, 1)))
+                    # başka mahal / ısıtılmayan mahal
+                    for r in K.rooms:
+                        if r['poly'] is o['poly'] or (hol and r['poly'] is hol['poly']):
+                            continue
+                        if dis.intersection(r['poly'].buffer(-3)).length > 1.0:
+                            out['ayak_baska_mahal'].append((KT['kat'], c['no'], o['zon'], r['name'].replace('\n', ' ')))
+        for dno, son in (KT.get('kollektorler') or {}).items():
+            if son and son.get('kombi_hat'):
+                for h in (son['kombi_hat']['gidis'], son['kombi_hat']['donus']):
+                    cizgiler.append(('kombi D%d' % dno, LineString(h), None, None))
+                out['kombi_hatti'].append((KT['kat'], 'D%d' % dno))
+            else:
+                out['kombi_hatti_yok'].append((KT['kat'], 'D%d' % dno))
+        for i in range(len(cizgiler)):
+            for j in range(i + 1, len(cizgiler)):
+                a, b = cizgiler[i], cizgiler[j]
+                if a[1].distance(b[1]) > 6:
+                    continue
+                if a[1].intersects(b[1]):
+                    # aynı kombi çiftinin ortak başlangıcı (kombi noktası) hariç
+                    if a[0] == b[0] and a[0].startswith('kombi'):
+                        kes = a[1].intersection(b[1])
+                        if kes.geom_type == 'Point':
+                            continue
+                    out['ayak_kesisme'].append((KT['kat'], a[0], b[0]))
+                elif a[1].distance(b[1]) < 4.0 - 1e-6:
+                    out['ayak_yakin'].append((KT['kat'], a[0], b[0], round(a[1].distance(b[1]), 1)))
+    return out
+
+
 def yogunluk(KTS):
     """mahal başına boru yoğunluğu: m boru / mimari m² (kontrolörün ölçüsü) ve m / net ısıtma alanı"""
     out = []
     for KT in KTS:
         for o in KT['odalar']:
-            L = sum(c['L_m'] for c in o['tasarim']['devreler'])
+            # yoğunluk yalnız serpantin (ayaklar hariç)
+            L = sum(S.uzunluk(c['pts']) / 100.0 for c in o['tasarim']['devreler'])
             Am = o.get('alan_mimari') or o['alan']
             out.append(dict(kat=KT['kat'], zon=o['zon'], daire='D%d' % o['daire'], ad=o['ad'], tur=o['tur'],
                             alan_mimari=Am, alan_poligon=o['alan'], alan_net=round(o['H'].area / 1e4, 2),
