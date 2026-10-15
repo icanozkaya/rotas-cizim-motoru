@@ -10,6 +10,41 @@ başlık `ZEMİN KAT PLANI.........ÖLÇEK: 1 / 50`) + `sihhi_model.json` (`MODE
 Sıfırdan yazıldı; eski `uctan_uca` tarz olarak kullanılmaz. Mimari tanıma: `mimari2.py` (+ kontrolörün `mimari_bilgi`
 sonucu `K.kb`; kolon/köşe doğrulaması kontrolörle aynı ölçüyle yapılır). Semboller saf geometri (MTY 0).
 
+## Tur 4 (15.10.2026) — kontrolör tur 3 RED (KONTROL_SIHHI_TUR3.md, R1–R4 + K1) düzeltmeleri
+- **R1 her pis su parçası etiketli**: etiket birimi artık çizgi SEGMENTİ (omurga birleşimlerinde ve köşelerde bölünür;
+  ≥ 20 cm her segment kendi etiketi; < 20 cm uçlar isteğe bağlı). Kısa / kalabalık parçalar önce yer seçer.
+  Etiket boyu değişmedi (h 10, kullanıcı bloğu). Sıra: (1) hat üstünde, kanca hatta, başka hat kesmez; (2) başka
+  boru yazının altından geçebilir, etiket parçanın ucuna/uzantısına kayabilir (t 0…1); (3) kısa kılavuz ≤ 45 cm,
+  yazı parçaya ≤ 30 cm, aynı dairenin mahallerinde (kılavuz en çok bir ara duvar ≤ 25 cm keser); (4) sığmayan: kılavuz
+  ≤ 60 cm. **Sahiplik**: etiketin 'n SB' satırı (kontrolör ölçüsü) kendi parçasına en yakın pis su parçası olmalı.
+  **Yasaklar** (`Engel.pis_yasak`): yazı / sembol / mimari yazı / armatür / beton taraması / asansör / ortak alan /
+  başka daire; duvar çizgisi üstüne en çok yarısı binebilir (kullanıcı wc-lvb. etiketini duvara bindiriyor).
+  Mutfak tezgâhı (duvar katısı sanılan kalın parça, mutfak yanında) etiket yasağından çıkarıldı (kullanıcı mutfak
+  etiketlerini tezgâh üstüne koyuyor). Armatür kutusu tanınmayan klozet/lavabo: mimari çizgi poligonundan kutu
+  (`dus_tekneleri`). MTEXT mahal yazısı sütunda kayıyorsa kutu yüksekliği kayan satırları da kapsar.
+  Ölçüm: `python3 motor/sihhi2/etiketsiz_say.py [dxf ...] [--liste]` (parça ≥ 20 cm, 30 cm içinde 'n SB';
+  "sıkı" = etiket yalnız en yakın parçaya sayılır; kılavuzlu etiket ayrıca sayılır).
+- **R2 daire girişi şaftsız**: `saft_poligonlari` = havalandırma şaftları + 'k.bac.'/'en. odası' yazılı duvarla
+  çevrili < 1 m² hücre (1./2. kat k.bac. antre-kor. poligonuna karışıyordu) -> temiz su maliyeti sonsuz. Kapı yanı
+  dolu duvar adayı şafta < 25 cm ise **kapıdan giriş** (`kapi_girisi`): düşey merdiven holünde, şaftın uzak
+  tarafındaki kasanın 10 cm içinde (açıklık duvar katısından ölçülür), hat kapı açıklığından antreye (kullanıcının
+  1./2. kat D5/D8 yeri). Diğer dairelerin girişi değişmedi.
+- **R3 aspiratör notu**: debi kullanıcınınki gibi mahal adından — banyo 160, wc-banyo / wc+banyo / wc-duş 80
+  (`m3/h-50 pa`, Ø150 mm); model `hav_saftlari` debisi aynı değerden (Ş3 = 480). Tek tip h 15, sığmazsa h 12
+  (h 10/8 ve 2 satır kalktı). Not hat / yazı / sembol / duş teknesi (`tekne` yasağı: armatür kutusu ya da mimari
+  dikdörtgen + köşegen) üstüne binmez. Kendi ıslak hacmine sığmazsa kullanıcı gibi ıslak hacim duvarına ≤ 30 cm
+  bitişik aynı dairenin hol / kuru mahaline, kılavuzsuz (1. kat D5 wc-banyo -> oda, D6 wc-duş -> hol). 1. kat D6
+  wc-duş notu artık var.
+- **R4 BM görünür branşman** (`makine_bransmani`): omurga BM/ÇM kutusunun kenarından geçip ucunda bitiyorsa kutunun
+  omurgadan uzak yarısında bağlantı noktası + 45° kısa branşman (kullanıcının B.M. dairesi gibi); omurga o düğümde
+  biter. Z D2, 1. kat D4, 2. kat D7.
+- **K1 küçük duş (D3/D5/D8, P9)**: lavabo tezgâhı mahal poligonundan kesik olduğu için duvar dibi aday cezalıydı;
+  armatüre son 40 cm yaklaşım cezasız -> hat P9'dan duvar dibinden iner, alt duvar boyunca lavaboya (süzgeç
+  hattın üstünde, çapraz yok; Z duş doğrulaması da artık geçiyor).
+- Geliştirme: `S2_ADIM=kaydet|yukle` kat çizimi sonrası durumu `/tmp/claude-0/s2/adim.*`'a yazar / oradan yalnız
+  etiketleri yeniden çalıştırır. Karşılaştırma kırpımları: `python3 motor/sihhi2/kars_png.py` ->
+  `kutuphane/arastirma/kontrol_png/sihhi_tur4_uretici/`.
+
 ## Tur 3 (15.10.2026) — kontrolör tur 2 RED (KONTROL_SIHHI_TUR2.md, Y1–Y5) düzeltmeleri
 - **Y1** `_pis_omurga`: omurgaya bağlanamayan armatür artık adayı geçersiz kılar (+100000; eskiden +1000 ceza ile armatür
   SESSİZCE düşüyordu → 1./2. kat D5/D8 wc-banyo lavabosu bağlantısızdı). Lavabo 45° + dik branşmanla omurgaya bağlı;

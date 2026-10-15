@@ -365,6 +365,16 @@ def yazi_kutulari(e):
         pg = EK.glif_kutusu(e) or D.yazi_poligonu(e)
         if pg is not None and pg.is_valid:
             out.append(pg)
+        if e.dxftype() == 'MTEXT' and pg is not None and not e.dxf.get('rotation', 0) and \
+                pg.bounds[2] - pg.bounds[0] > pg.bounds[3] - pg.bounds[1]:
+            # sütun genişliğiyle KAYAN satırlar ('148m² / Döş. / Seramik'): glif kutusu tek satır sayar; yükseklik
+            # kontrolör kutusundan (kaydırma dahil), genişlik glif kutusundan
+            try:
+                pk = KUTU.yazi_kutusu(e)
+                if pk is not None and pk.is_valid and pk.bounds[1] < pg.bounds[1] - 1:
+                    out.append(box(pg.bounds[0], pk.bounds[1], pg.bounds[2], pg.bounds[3]))
+            except Exception:
+                pass
         if e.dxftype() != 'MTEXT':          # kontrolör kutusu da (TEXT alt uzantı); MTEXT'te sütun genişliği değil glif
             try:
                 pk = KUTU.yazi_kutusu(e)
@@ -800,6 +810,9 @@ def _pis_omurga(K, oda, fx, C):
     if not cs_:
         return None
     iyi = None
+    # küçük duş / wc-duş (D3/D5/D8, P9): kullanıcı hattı kolondan duvar dibinden iner, alt duvar boyunca lavaboya gider
+    # (kontrolör tur 3 K1: çapraz hat süzgecin üstünden geçiyordu)
+    kucuk_dus = 'duş' in oda['name'] and oda['poly'].area < 2.0e4
     hedefler = sorted(cs_, key=lambda f: -dist(C, f['c']))[:3]
     for T in hedefler:
         for pts in _omurga_adaylari(C, T['c']):
@@ -818,7 +831,10 @@ def _pis_omurga(K, oda, fx, C):
             c_ic = ceza
             muaf = min(Point(C).distance(oda['poly']) + 6.0, sp.length * 0.5)
             ic_kisim = substring(sp, muaf, sp.length)
-            ceza += 40.0 * ic_kisim.difference(ic).length
+            dis_kisim = ic_kisim.difference(ic)
+            if kucuk_dus:          # lavabo tezgâhı mahalden kesik: armatüre son yaklaşım (≤ 40 cm) cezasız
+                dis_kisim = dis_kisim.difference(Point(T['c']).buffer(40).intersection(oda['poly'].envelope))
+            ceza += 40.0 * dis_kisim.length
             c_dis = ceza - c_ic
             br = []
             for f in cs_:
@@ -1249,7 +1265,17 @@ def kapi_girisi(K, hol, ortak, tohum, saft):
     c = (rr.centroid.x, rr.centroid.y)
     if not hol['poly'].buffer(3).contains(Point(c[0] + n[0] * (Ln / 2 + 6), c[1] + n[1] * (Ln / 2 + 6))):
         n = (-n[0], -n[1])
-    uclar = [(c[0] + a[0] * s * (La / 2 - 8), c[1] + a[1] * s * (La / 2 - 8)) for s in (1, -1)]
+    # gerçek açıklık: duvar ekseni boyunca merkezden iki yana ilk duvar katısına kadar (kapı tanıması kaymış olabilir)
+    uclar = []
+    for s in (1, -1):
+        d_ = 0.0
+        while d_ < 130:
+            q_ = Point(c[0] + a[0] * s * (d_ + 1), c[1] + a[1] * s * (d_ + 1))
+            if K.S.contains(q_):
+                break
+            d_ += 1.0
+        d_ = max(d_ - 10.0, 0.0) if d_ < 130 else La / 2 - 8
+        uclar.append((c[0] + a[0] * s * d_, c[1] + a[1] * s * d_))
     m = max(uclar, key=lambda q: Point(q).distance(saft) if saft is not None and not saft.is_empty else 0)
     p = (m[0] + n[0] * Ln / 2, m[1] + n[1] * Ln / 2)
     q = (m[0] - n[0] * (Ln / 2 + 15), m[1] - n[1] * (Ln / 2 + 15))
@@ -1586,6 +1612,38 @@ def makine_ciz(msp, eng, f):
         eng.ekle_alan(pg)
 
 
+def kucuk_dus_suzgeci(K, r, fo):
+    """küçük duş / wc-duş (P9): pis su hattı kolondan duvar dibinden iner, lavabo hizasında alt duvar boyunca gider
+    (`_pis_omurga`, kucuk_dus). EK süzgeç bu hattın ÜSTÜNE düşmesin (kontrolör tur 3 K1 'süzgeç üstünden aşmadan'):
+    duş ile lavabo arasında, hatta ≥ 14 cm, duşa/lavaboya ≥ 25 cm, duvardan ≥ 10 cm; kısa dik branşmanla bağlanır."""
+    if 'duş' not in r['name'] or r['poly'].area >= 2.0e4:
+        return None
+    dus = next((f for f in fo if f['kind'] == 'DUS'), None)
+    lv = next((f for f in fo if f['kind'] == 'LV'), None)
+    if dus is None or lv is None:
+        return None
+    C = min(((q[0] + K.off, q[1]) for q in KOLON_SABIT.values()), key=lambda c: r['poly'].distance(Point(c)))
+    if r['poly'].distance(Point(C)) > 45:
+        return None
+    hat = LineString([C, (C[0], lv['c'][1]), lv['c']])
+    ic = r['poly'].buffer(-10, join_style=2)
+    if ic.is_empty:
+        return None
+    hedef = ((dus['c'][0] + lv['c'][0]) / 2, (dus['c'][1] + lv['c'][1]) / 2)
+    x0, y0, x1, y1 = ic.bounds
+    best = None
+    for yy in np.arange(y0, y1 + 0.1, 2.0):
+        for xx in np.arange(x0, x1 + 0.1, 2.0):
+            q = Point(xx, yy)
+            if not ic.contains(q) or hat.distance(q) < 14 or q.distance(Point(dus['c'])) < 25 or \
+                    q.distance(Point(lv['c'])) < 25:
+                continue
+            d = dist((xx, yy), hedef) + 0.5 * hat.distance(q)
+            if best is None or d < best[0]:
+                best = (d, (float(xx), float(yy)))
+    return best[1] if best else None
+
+
 def ek_armaturler(K):
     """her ıslak hacimde 1 süzgeç; her dairede ÇM ve BM (mimaride yoksa EK)"""
     ekler = []
@@ -1626,7 +1684,9 @@ def ek_armaturler(K):
         if not any(f['kind'] == 'YS' for f in fo):
             ref = next((f['c'] for f in fo if f['kind'] == 'DUS'), None) or \
                   next((f['c'] for f in fo if f['kind'] in ('WC', 'EV', 'LV')), None)
-            p = ek_nokta(r, [f for f in fo if f['kind'] != 'KOMBI'], K, 15.0, 28.0, ref)
+            p = kucuk_dus_suzgeci(K, r, fo)
+            if p is None:
+                p = ek_nokta(r, [f for f in fo if f['kind'] != 'KOMBI'], K, 15.0, 28.0, ref)
             if p:
                 f = dict(kind='YS', c=p, oda=r, ek=True)
                 K.fx.append(f)
