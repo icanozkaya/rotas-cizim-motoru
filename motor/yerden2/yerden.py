@@ -211,14 +211,10 @@ def mimari_kopyala(doc):
     for e in yeni:
         if e.dxftype() in ('TEXT', 'MTEXT'):
             e.dxf.layer = 'ROTAS-MIMARI-YAZI'
-            # Tur 4 E-1: MTEXT için yazi_poligonu sağa yaslı (attachment 3) yazıda kutuyu sola 100–240 cm taşırıyor
-            # ("asansör boşluğu" yazısı komşu wc+banyonun içine, "wc+banyo" yazısı duvarın dışına). MTEXT'te ölçülen
-            # kutu (yazi_kutusu) kullanılır; yoksa poligon.
             for f in ((D.yazi_kutusu, D.yazi_poligonu) if e.dxftype() == 'MTEXT' else (D.yazi_poligonu,)):
                 pg = f(e)
                 if pg is not None and pg.is_valid and not pg.is_empty:
                     kutular.append(pg)
-                    break
         else:
             e.dxf.layer = 'ROTAS-MIMARI'
         e.dxf.color = 256
@@ -279,7 +275,8 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
             c['no'] = devre_no
             c['L_m'] = round(c['L'] / 100.0, 2)
             c['W'] = round(W_M * c['L_m'], 1)
-    return dict(kat=k, K=K, odalar=odalar, isitmasiz=isitmasiz, yasak=yasak, yazi=yaz)
+    return dict(kat=k, K=K, odalar=odalar, isitmasiz=isitmasiz, yasak=yasak, yazi=yaz,
+                yazi_u=unary_union(yaz) if yaz else Polygon())
 
 
 ISLAK_ORAN = 3.0           # m/m² (mimari m²) — ıslak hacim doluluğu (kontrolör Y02)
@@ -350,7 +347,22 @@ def _aralik(a, b, s):
     return out or [(a + b) / 2]
 
 
-def yer_bul(boyutlar, anchor, kademeler, yasak, mimari=None, kendi=None, adim=10.0):
+def deger_sutunu(q, k=1.0):
+    """devre etiketi kutusunun (150×80·k, dönüşsüz) değer sütunu: ATTRIB yazıları (UZ, AR, YER, NO1) bu bölgede.
+    denetle.py yazı çakışmasını yalnız ATTRIB/TEXT kutularıyla ölçer; bloğun kendi sabit yazıları sayılmaz."""
+    x0, y0, x1, y1 = q.bounds
+    return box(x0 + 98 * k, y0 + 1, x1 - 1, y1 - 1)
+
+
+def mahal_yazilari(q, k=1.0):
+    """mahal etiketi (74×54·k) ATTRIB yazılarının (DERECE, NO; h 12, ortalı) bölgesi"""
+    c = q.centroid
+    return unary_union([box(c.x - 24 * k, c.y + (12.5 - 8) * k, c.x + 24 * k, c.y + (12.5 + 8) * k),
+                        box(c.x - 24 * k, c.y - (12.5 + 8) * k, c.x + 24 * k, c.y - (12.5 - 8) * k)])
+
+
+def yer_bul(boyutlar, anchor, kademeler, yasak, mimari=None, kendi=None, adim=10.0, sag_yasak=None, k=1.0,
+            ic_kutu=None):
     """Etiket yeri: YALNIZ kendi mahalinin içinde (kılavuz çizgisi yok — R3/R4).
     boyutlar: [(w, h, dönüş)], kademeler: [(bölge, mimari_cizgi_yasak)] sırayla denenir.
     Puan: anchor'a uzaklık (+ kendi devresinin borusunu örtmüyorsa ceza). -> (dikdörtgen, dönüş) | (None, None)"""
@@ -358,6 +370,7 @@ def yer_bul(boyutlar, anchor, kademeler, yasak, mimari=None, kendi=None, adim=10
     py = prep(yasak) if yasak is not None and not yasak.is_empty else None
     pm = prep(mimari) if mimari is not None and not mimari.is_empty else None
     pk = prep(kendi) if kendi is not None and not kendi.is_empty else None
+    ps = prep(sag_yasak) if sag_yasak is not None and not sag_yasak.is_empty else None
     ax, ay = anchor
     for bolge_, mim_yasak in kademeler:
         if bolge_ is None or bolge_.is_empty:
@@ -380,6 +393,8 @@ def yer_bul(boyutlar, anchor, kademeler, yasak, mimari=None, kendi=None, adim=10
                         continue
                     if py is not None and py.intersects(q):
                         continue
+                    if ps is not None and rot == 0 and ps.intersects((ic_kutu or deger_sutunu)(q, k)):
+                        continue
                     if mim_yasak and pm is not None and pm.intersects(q):
                         continue
                     best = (sk, q, rot)
@@ -388,7 +403,7 @@ def yer_bul(boyutlar, anchor, kademeler, yasak, mimari=None, kendi=None, adim=10
     return None, None
 
 
-def _oda_etiket_yerleri(o, yasak, mim, sira):
+def _oda_etiket_yerleri(o, yasak, mim, sira, yazi_u=None):
     """bir mahalin mahal + devre etiketi yerleri (çizmeden). sira: 'mahal_once' | 'devre_once'.
     -> (mahal_q | None, [(c, q, rot) ...], yasak, eksik_sayisi)"""
     P = o['poly']
@@ -401,11 +416,31 @@ def _oda_etiket_yerleri(o, yasak, mim, sira):
 
     def mahal(yasak):
         # Y-4: önce mimari çizgiye (vitrifiye, Ç.M., duvar) hiç değmeyen yer; sonra çizgi üstü (maske çizgiyi örtmez)
-        for k, temiz in ((1.0, True), (0.9, True), (0.8, True), (1.0, False), (0.8, False), (0.7, False)):
-            q, _ = yer_bul([(74 * k, 54 * k, 0)], (x, y + 100),
-                           [(Hn.buffer(-4, join_style=2), True)] if temiz else
-                           [(Hn.buffer(-2, join_style=2), False), (P.buffer(-3, join_style=2), False)], yasak, mim,
-                           adim=10.0 if k == 1 else 4.0)
+        # Ek (tur 4): çizgi üstü yerleşimde önce vitrifiye / Ç.M. / kapı kanadı engeline değmeyen yer (Z21: etiket
+        # Ç.M. kutusu kenarına binmesin); kapı kanadı çizgisi kesik maskeyle görünür kalır
+        eng_d = P.buffer(-3, join_style=2).difference(o['eng'].buffer(6, join_style=2)) if not o['eng'].is_empty \
+            else P.buffer(-3, join_style=2)
+        yu = yazi_u if yazi_u is not None and not yazi_u.is_empty else None
+        for k, temiz in ((1.0, True), (0.9, True), (0.8, True), (1.0, 'eng'), (0.9, 'eng'), (0.8, 'eng'),
+                         (1.0, 'yazi'), (0.9, 'yazi'), (0.8, 'yazi'), (1.0, False), (0.8, False), (0.7, False)):
+            if temiz == 'yazi':
+                # küçük ıslak hacim (kullanıcının Z07'si gibi): çerçeve mahal yazısının üstüne binebilir, yalnız
+                # 24°C / Z21 yazıları mimari yazıya değmez; vitrifiye/Ç.M./kapı kanadından yine uzak
+                if yu is None or o['tur'] != 'banyo':
+                    continue
+                q, _ = yer_bul([(74 * k, 54 * k, 0)], (x, y + 100), [(eng_d, False)],
+                               yasak.difference(yu.buffer(3.5, join_style=2)), mim, adim=4.0,
+                               sag_yasak=yu.buffer(1.0), k=k, ic_kutu=mahal_yazilari)
+                if q is not None:
+                    return q, k
+                continue
+            if temiz == 'eng':
+                kad = [(Hn.buffer(-2, join_style=2).intersection(eng_d), False), (eng_d, False)]
+            elif temiz:
+                kad = [(Hn.buffer(-4, join_style=2), True)]
+            else:
+                kad = [(Hn.buffer(-2, join_style=2), False), (P.buffer(-3, join_style=2), False)]
+            q, _ = yer_bul([(74 * k, 54 * k, 0)], (x, y + 100), kad, yasak, mim, adim=10.0 if k == 1 else 4.0)
             if q is not None:
                 return q, k
         return None, 1.0
@@ -461,8 +496,25 @@ def _oda_etiket_yerleri(o, yasak, mim, sira):
                     return q, (rot, k)
             if sadece_hiza:
                 return None, None
+        def islak_tam():
+            """E-1 (tur 4): küçük ıslak hacimde tam boy (×1,0) etiket kullanıcının çizimi gibi vitrifiye / Ç.M. /
+            mahal yazısının üstüne binebilir (kesik maske: çizgi ve yazı görünür). Yalnız değer sütunu (ATTRIB)
+            mimari yazıya değmez; tablo kutusu diğer etiketlerden yine ayrı."""
+            y_et = yasak.difference(yazi_u.buffer(3.5, join_style=2))
+            for kk in (1.0, 0.9, 0.85):
+                q, rot = yer_bul([(S.ETIKET_W * kk, S.ETIKET_H * kk, 0)], anc, [(P.buffer(-1, join_style=2), False)],
+                                 y_et, mim, kendi=g, adim=2.5, sag_yasak=yazi_u.buffer(1.0), k=kk)
+                if q is not None:
+                    return q, (rot, kk)
+            return None
+        islak_denendi = not (o['tur'] == 'banyo' and yazi_u is not None and not yazi_u.is_empty)
         for bant_mi in ((True, False) if bkut is not None else (False,)):
             for k, dn, temiz in sira:
+                if not islak_denendi and (k < 1 or dn):
+                    islak_denendi = True
+                    r_ = islak_tam()
+                    if r_ is not None:
+                        return r_
                 w, h = S.ETIKET_W * k, S.ETIKET_H * k
                 boy = [(w, h, 0)] if dn == 0 else [(h, w, 90)]
                 Bh = bolge(Hn.buffer(1)) if bant_mi else Hn.buffer(1)
@@ -534,16 +586,21 @@ def _deliksiz(g, derin=0):
     return out
 
 
-def maske_ciz(msp, q, mim, eng):
+def maske_ciz(msp, q, mim, eng, yazi=None):
     """Etiket maskesi (WIPEOUT). Kutunun altında mimari çizgi (vitrifiye, küvet, duş teknesi, Ç.M., duvar) yoksa tek
     dikdörtgen. Varsa (Y-4) maske = kutu − (çizgiler + 3 cm) − vitrifiye/tefriş alanı: boru örtülür, tefriş ve vitrifiye
     görünür kalır (README: yerden ısıtma paftasında tefriş silinmez). -> kesik maske mi"""
     x0, y0, x1, y1 = q.bounds
     alt = mim.intersection(q) if mim is not None and not mim.is_empty else None
-    if alt is None or alt.is_empty or alt.length < 1.0:
+    yz = yazi.intersection(q) if yazi is not None and not yazi.is_empty else None
+    if yz is not None and yz.area < 1.0:
+        yz = None
+    if (alt is None or alt.is_empty or alt.length < 1.0) and yz is None:
         msp.add_wipeout([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], dxfattribs={'layer': L_MASK})
         return False
-    m = q.difference(alt.buffer(3.0, cap_style=2, join_style=2))
+    m = q.difference(alt.buffer(3.0, cap_style=2, join_style=2)) if alt is not None and not alt.is_empty else q
+    if yz is not None:
+        m = m.difference(yz.buffer(1.0, join_style=2))        # mimari yazı (mahal adı, m²) maskelenmez
     if eng is not None and not eng.is_empty:
         m = m.difference(eng.buffer(1.0, join_style=2))
     for p in _deliksiz(m.buffer(0)):
@@ -566,7 +623,7 @@ def etiketle(msp, KT, tum_borular):
         en_iyi = None
         # iki sıra da denenir: önce eksik etiket, sonra (Ek) en küçük ölçek en büyük olan (yazı h 10'a yakın)
         for sira in ('mahal_once', 'devre_once'):
-            r = _oda_etiket_yerleri(o, yasak, mim, sira)
+            r = _oda_etiket_yerleri(o, yasak, mim, sira, KT.get('yazi_u'))
             olc = [k for c_, q_, (rt_, k) in r[1]] + [r[0][1]]
             r = r + ((r[3], -min(olc), -sum(olc)),)
             if en_iyi is None or r[4] < en_iyi[4]:
@@ -578,7 +635,7 @@ def etiketle(msp, KT, tum_borular):
             log('UYARI: mahal etiketi yeri yok: %s' % o['zon'])
         else:
             if mq.intersects(tum_borular):
-                maske_ciz(msp, mq, mim, o['eng'])
+                maske_ciz(msp, mq, mim, o['eng'], KT.get('yazi_u'))
                 say['mahal_maskeli'] += 1
             ekle(msp, 'ROTAS-YI-MAHAL', (mq.centroid.x, mq.centroid.y), L_MAH,
                  {'DERECE': '%d%%%%DC' % o['sic'], 'NO': o['zon'], 'MAHAL': o['ad'], 'ALAN': '%.2f' % o['alan']},
@@ -599,7 +656,8 @@ def etiketle(msp, KT, tum_borular):
                 say['kucuk'] = say.get('kucuk', 0) + 1
             x0, y0, x1, y1 = q.bounds
             if yer == 'ic':
-                c['maske_kesik'] = maske_ciz(msp, box(x0 - 2, y0 - 2, x1 + 2, y1 + 2), mim, o['eng'])
+                c['maske_kesik'] = maske_ciz(msp, box(x0 - 2, y0 - 2, x1 + 2, y1 + 2), mim, o['eng'],
+                                              KT.get('yazi_u'))
                 if c['maske_kesik']:
                     say['kesik_maske'] = say.get('kesik_maske', 0) + 1
             ekle(msp, 'ROTAS-YI-ETIKET', (x0, y1) if rot == 0 else (x0, y0), L_ET,

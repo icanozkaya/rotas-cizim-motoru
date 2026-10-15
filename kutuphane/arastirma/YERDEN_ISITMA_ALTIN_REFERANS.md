@@ -66,7 +66,12 @@ Kat planlarında mimari (MKDU0 katmanı: duvar, kapı, pencere, tefriş, vitrifi
 - **Isıtılan**: salon, yatak odası, oda, mutfak, banyo / wc+banyo (24 °C), **antre-koridor (15 °C, her dairede ayrı devre)**.
 - **Isıtılmayan**: balkon, yüklük, wc-lvb. (dar 1,9 m² WC), duş (üst daire D3'teki duş kabini mahali), asansör, merdiven, en. odası, bina girişi.
 - **Mutfak**: tezgah (evye+ocak bandı) ve buzdolabı altına boru girmez; parmaklar tezgah önünde biter, buzdolabı yanında kısalır (`03_mutfak_Z01…png`).
-- **Banyo**: klozet ve lavabo altına girilmez (Z07), duş teknesi/küvet kısmen örtülür (Z14) → motor: vitrifiye poligonları hariç.
+- **Banyo / wc+banyo** (kullanıcının çiziminden ölçülen, 15.10.2026 kontrolör tur 3 düzeltmesi; eski "klozet ve lavabo altına girilmez" ifadesi çizimle çelişiyordu):
+  - **Klozet önü / çanağı borulu**: ilmekler klozetin ön kısmının altından geçer, dönüşler çanağın içinde. Klozet dış çizgisi içindeki boru: wc+banyo (Z07 konumu) **1,27 m** (7,5 cm çevre şeridiyle 2,05 m), banyo Z14 **1,24 m**. Dönüş ekseni duvardan ≈ 17 cm (x 194,6; duvar 212); boş kalan yalnız duvara yaslı arka şerit (rezervuar). Besleme hattı arka şeritten de geçebilir (Z07: x 209,6).
+  - **Lavabo, duş teknesi, Ç.M. ve mek. havl. altı boş** (wc+banyo: lavabo içinde 0 m). Banyo Z14'te lavabo dış çizgisine 1,12 m giriyor (kısmi örtme kabul).
+  - Ç.M.'nin önündeki ince ön panel şeridi (≈ 5 cm) boru geçer: Z07 alt sırası y −167,8, gövde çizgisi −169.
+  - Islak hacimde duvar payı sıkı: boru ekseni duvardan 2,4–3,6 cm; doluluk wc+banyo 13,79 m / 4,37 m² (3,16 m/m²).
+  - Motor: klozet kutusu − arka şerit (12 cm) engel değil; lavabo, duş teknesi/küvet, Ç.M. gövdesi engel; ıslak hacimde kenar payı 7,5 → 2,5 cm'ye kadar denenir.
 - **Hol**: kapı önleri dâhil tamamı kaplanır; L biçimli holde tek polyline, parmak boyları değişerek L'yi doldurur (`07_hol_L_Z13…png`).
 - **Kapı süpürme alanı hariç tutulmaz** (Z05, Z02: parmaklar kapı önünden geçer).
 - Mahal yazıları, m², kapı/pencere ölçüleri, "kombi" yazısı, tefriş **aynen durur**.
@@ -189,7 +194,7 @@ Devre i (0 = ilk panel), panel x = Px, döşeme y = Y0, kollektör ref x = Kx:
 7. `PEX-7` Devre uzunluğu (yaylı polyline) ≤ 70 m hedef, kesinlikle ≤ 80 m; aşan mahal parmaklara paralel 2'ye bölünür; alt devrenin besleme hattı üst devreninkinden 30 cm içeride, uçlar aynı köşede. Test: her L ≤ 80; bölünmüş devre uçları arası x farkı 30.
 8. `PEX-8` Hiçbir iki devre / çizgi kesişmez ve üst üste binmez (shapely crosses = False, min mesafe ≥ 10 cm; besleme hattı–parmak 15).
 9. `PEX-9` Isıtılan: salon, oda, yatak odası, mutfak, banyo/wc+banyo (24), antre-koridor (15); ısıtılmayan: balkon, yüklük, wc-lvb ≤ 2 m², duş kabini, asansör, merdiven, ortak alan. Test: ısıtılmayan mahal poligonunda PEX yok.
-10. `PEX-10` Mutfak tezgah + buzdolabı, klozet, lavabo, duş teknesi poligonları hariç tutulur (parmak uçları onlardan 7,5 cm uzakta); kapı süpürme alanı hariç tutulmaz; L mahal tek polyline. Test: PEX ∩ tefriş poligonu = ∅.
+10. `PEX-10` Mutfak tezgah + buzdolabı, lavabo, duş teknesi/küvet, Ç.M. gövdesi poligonları hariç tutulur (kuru mahalde parmak uçları 7,5 cm uzakta; ıslak hacimde 2,5–7,5). **Klozetin önü / çanağı hariç tutulmaz** (kullanıcı çizimi: Z07 klozet içinde 1,27 m, Z14 1,24 m boru); yalnız duvar tarafındaki arka şerit (rezervuar) boş. Lavabo, duş teknesi ve Ç.M. altı boş (ölçü: kullanıcının wc+banyosunda lavabo içinde 0 m). Kapı süpürme alanı hariç tutulmaz; L mahal tek polyline. Test: PEX ∩ (tefriş − klozet önü) poligonu = ∅.
 11. `PEX-11` Mimari (MKDU0) olduğu gibi kalır: mahal adı, m², kapı/pencere ölçüleri, tefriş, "kombi" yazısı. Test: ısıtma paftasındaki MKDU0 varlık sayısı = sıhhi paftadaki.
 12. `PEX-12` Planda kollektör/kombi sembolü ve ayak çizilmez (referans davranışı). Ayak istenirse: 15 cm paralel çift, yalnız hol + kapı, hiçbir serpantini kesmez.
 

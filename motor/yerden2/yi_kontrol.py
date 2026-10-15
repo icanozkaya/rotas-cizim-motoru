@@ -16,7 +16,7 @@ import math
 import os
 
 from shapely import STRtree
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString, Point, box
 from shapely.ops import unary_union
 
 import serpantin as S
@@ -94,7 +94,17 @@ def calistir(KTS, dxf_yol):
             if et[i][2].intersects(et[j][2]) and et[i][2].intersection(et[j][2]).area > 1:
                 et_cak.append((et[i][1], et[j][1]))
     yaz = unary_union([q for KT in KTS for q in KT['yazi']]) if KTS else None
-    et_yazi = [(k, ad) for k, ad, q, cep in et if yaz is not None and q.intersection(yaz).area > 1]
+    def _yazi_bolgesi(ad, q):
+        # mahal etiketi: çerçeve mimari yazının üstüne binebilir (küçük ıslak hacim, kullanıcının Z07'si gibi; maske
+        # yazıyı örtmez) — ölçülen, etiketin kendi yazıları (24°C / Zxx, h 12·k); devre etiketi: tüm tablo
+        if not ad.startswith('mahal'):
+            return q
+        x0, y0, x1, y1 = q.bounds
+        k = (x1 - x0) / 74.0
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        return unary_union([box(cx - 24 * k, cy + 4.5 * k, cx + 24 * k, cy + 20.5 * k),
+                            box(cx - 24 * k, cy - 20.5 * k, cx + 24 * k, cy - 4.5 * k)])
+    et_yazi = [(k, ad) for k, ad, q, cep in et if yaz is not None and _yazi_bolgesi(ad, q).intersection(yaz).area > 1]
     boru_u = unary_union(geo)
     cep_boru = [(k, ad) for k, ad, q, cep in et if cep and q.intersects(boru_u)]
     maskeli = sum(1 for k, ad, q, cep in et if ad.startswith('devre') and not cep)

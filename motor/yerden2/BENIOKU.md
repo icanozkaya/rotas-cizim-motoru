@@ -20,7 +20,7 @@ tablosu, MMO yüzey sıcaklıkları). Bir koşu ≈ 30 s, `--png` ile ≈ 70 s, 
 ## Modüller
 | Dosya | Görev |
 |---|---|
-| `mimari_yi.py` | Mahal tanıma (`sihhi2/mimari2.Kat`), ısıtılan mahal ve sıcaklık, yüklük bölme, kapılar, tefriş engelleri, ısıtma bölgesi. Kapı kanadına değen kısa çizgiler ve kapı etiket dairesi (K2, r≈8) kapı parçasıdır; süpürme alanı engel değildir. Islak hacimde yalnız duş teknesi/küvet, klozet, lavabo (ve küçük süzgeç) hariç tutulur. Lavabo, içinde batarya daireleri olan küçük kutudan tanınır |
+| `mimari_yi.py` | Mahal tanıma (`sihhi2/mimari2.Kat`), ısıtılan mahal ve sıcaklık, yüklük bölme, kapılar, tefriş engelleri, ısıtma bölgesi. Kapı kanadına değen kısa çizgiler ve kapı etiket dairesi (K2, r≈8) kapı parçasıdır; süpürme alanı engel değildir. Islak hacimde duş teknesi/küvet, lavabo, Ç.M. gövdesi hariç tutulur; klozetin önü (çanak) hariç tutulmaz, yalnız duvar tarafındaki 12 cm arka şerit boş (tur 4). Lavabo, içinde batarya daireleri olan küçük kutudan tanınır |
 | `serpantin.py` | Meander. `kur()` satır fazını (0–12,5 cm) ve uç tarafında atlanan satır sayısını (0–6) tarayıp en çok boru veren düzeni seçer. `kur_merdiven()` tek devreli mahallerde **basamaklı besleme** kurar: besleme hattı her satır grubunda sol sınıra yaslanır, gruplar arasında kısa yatay bir basamakla kayar (klozet/lavabo yanı, L hol, kapı girintisi) |
 | `tasarim.py` | Köşe seçimi (kapıya en yakın köşe; kaplama en iyinin %97'sinden azsa daha iyi kaplayan köşe), devre sayısı, bant bölmesi. Tek devrede normal ve basamaklı düzenden uzun olanı alır |
 | `yerden.py` | Ana akış, numaralama, etiket yerleşimi, DXF |
@@ -146,3 +146,29 @@ Notlar:
   maske = kutu − (çizgiler + 3 cm) − vitrifiye alanı (`maske_ciz`, deliksiz parçalara bölünür). Maskelerin örttüğü
   mimari çizgi: 0 cm. İki yerleşim sırası denenir, en küçük ölçeği en büyük olan seçilir.
 - **K-1:** esas değişmedi; TEKNİK RAPOR 1.4'te negatif MODÜL / m² hücrelerinin nedeni yazılı.
+
+## Tur 4 değişiklikleri (kontrolör tur 3 RED: Y-2', E-1)
+- **Y-2' klozet önü borulu (kullanıcının çizimi):** `mimari_yi.klozet_onleri()` ıslak hacimde klozet kutusundan (+6 cm)
+  duvar tarafındaki `KLOZET_ARKA` = 12 cm şeridi dışındaki kısmı engelden çıkarır; ilmek dönüşleri çanağın içinde
+  (kullanıcı: dönüş ekseni duvardan ≈ 17 cm). Lavabo, duş teknesi/küvet, Ç.M. gövdesi ve mek. havl. altı boş.
+- **Klozet çentiği:** mahal tanıma klozet rezervuarı ile duş teknesi arasındaki 35 cm aralıklı paralel çizgileri duvar
+  sanıp poligondan 24×70 cm çentik çıkarıyordu; `islak_genislet()` klozet çevresindeki (≥ 15 cm genişlikte) çentikleri
+  mahale geri katar (kontrolörün mahal poligonu da bu zemini içeriyor).
+- **Ç.M. ön panel şeridi:** `cm_on_seridi()` Ç.M. kutusunun mahale bakan kenarındaki 3–8 cm'lik iç çizgiyle ayrılmış
+  şeridi engelden çıkarır (gövde çizgisinden 1,5 cm pay). Kullanıcının alt sırası da bu şeritten geçiyor (y −167,8,
+  gövde −169).
+- **Islak hacim payları:** kenar payı 7,5 → 6 / 5 / 4 / 3 / 2,5 cm denenir (kullanıcı banyoda 2,4–3,6 cm); `bolge()`
+  duvar sınırı `min(4, kenar)`; ıslak hacimde satır fazı 0,5 cm adımla taranır (`serpantin.FAZ_ADIM`).
+- **Sonuç (Y02, kontrolör poligonu):** Z21 13,27 m, 114 13,28 m, 214 13,14 m (eşik 13,11 m = 3,0 × 4,37). Klozet dış
+  çizgisi içinde 1,27 m (kullanıcı 1,27 m); lavabo, duş teknesi, Ç.M. gövdesi içinde 0.
+- **E-1 devre etiketi:** ıslak hacimde tam boy etiket vitrifiye / Ç.M. / mimari yazı üstüne binebilir (kesik maske;
+  maske artık mimari yazıyı da örtmez), yalnız değer sütunu (ATTRIB) mimari yazıya değmez. Z21 / 114 / 214'te
+  ×1,0 **yine sığmıyor**: denetle.py (`yazi_poligonu`, ezdxf make_primitive) komşu asansör boşluğundaki
+  "asansör boşluğu" MTEXT'ini 237 cm genişlikte ölçüyor (x 253148–253385, y −442119…−442172) ve kutu wc+banyonun
+  içine 64 cm giriyor. Bu bandın dışında 150×80 tablo mahale sığmıyor; en büyük T11-temiz ölçek ×0,7. Etiket ×0,7
+  kaldı (T11 0 FAIL). Karar ana oturum / kontrolörde (denetle MTEXT ölçüsü).
+- **Mahal etiketi:** önce vitrifiye / Ç.M. / kapı kanadı engelinden 6 cm uzak yer; küçük ıslak hacimde çerçeve mahal
+  yazısının üstüne binebilir (kullanıcının Z07'si gibi), yalnız 24 °C / Zxx yazıları mimari yazıya değmez. Z21 etiketi
+  artık Ç.M. kutusuna değmiyor.
+- **İki devreli mahal:** etiketler aynı x hizasında alt alta (18/18 mahal), her biri kendi bandında.
+- `yi_kirp.py`: tur 4 kırpımları 17–22 (`YI_KIRP_SADECE=17,18` ile yalnız seçilenler).
