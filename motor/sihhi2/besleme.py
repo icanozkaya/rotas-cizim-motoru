@@ -362,15 +362,15 @@ def _sayac_tablosu(msp, eng, K, P, kur, P_):
     """sayaç grubunun altında (hatsız boş yerde, merdiven holü) tablo: 'SU SAYAÇ GRUBU (9 AD.)' + her sıra
     'Dn  çap / MB' + depo kolonları. Kılavuz yok (her kılavuz besleme şeritlerini keserdi); tablo grubun hemen altında."""
     o = K.off
-    sat = ['SAYAÇ GRUBU %d AD. (üstten)' % P['sayac']['adet']]
+    sat = ['SAYAÇ GRUBU %d AD.' % P['sayac']['adet']]
     for dn in P['sayac']['satirlar']:
         d = kur['daireler'][dn]
         sat.append('%s %s / %s' % (dad(dn), P_.inc(d['mb']), P_.fmt_mb(d['mb'])))
     sat.append('DEPO KOL. %s' % P_.inc(kur['toplam']))
     h, ara = 8.0, 12.0
     sx0, sy0, sx1, sy1 = P['sayac']['kutu']
-    for dy in (-45, -55, -65, -80, -95, -110, -130, -160, -200, -240, -280, -320):
-        for x in (sx0 - 40, sx0 - 45, sx0 - 35, sx0 - 50, sx0 - 30, sx0 - 60, sx0 - 80, sx0 - 100):
+    for dy in (-45, -50, -55, -60, -65, -72, -80, -95, -110, -130, -160, -200, -240, -280, -320):
+        for x in (sx0 - 40, sx0 - 45, sx0 - 35, sx0 - 50, sx0 - 30, sx0 - 55, sx0 - 25, sx0 - 60, sx0 - 80, sx0 - 100):
             y_ust = sy0 + dy
             ents = []
             for i, s in enumerate(sat):

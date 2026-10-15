@@ -19,7 +19,7 @@
   },
   "hidrofor": false,
   "kaynak": "motor/sihhi2/plan.py",
-  "tarih": "15.10.2026 11:50"
+  "tarih": "15.10.2026 14:27"
  },
  "yuk_tablosu": {
   "LV": 0.75,
@@ -222,7 +222,7 @@
      },
      "kolon": "P6",
      "aspirator": {
-      "x": 253385.0,
+      "x": 253369.0,
       "y": -442693.0,
       "debi": 80,
       "saft": "Ş@253405,-442736"
@@ -777,11 +777,7 @@
        "ek": false
       }
      ],
-     "suzgec": {
-      "x": 253475.0,
-      "y": -443292.9,
-      "ek": true
-     },
+     "suzgec": null,
      "kolon": "P4"
     }
    ],
@@ -1207,7 +1203,7 @@
      },
      "kolon": "P3",
      "aspirator": {
-      "x": 253747.0,
+      "x": 253763.0,
       "y": -442693.0,
       "debi": 80,
       "saft": "Ş@253725,-442736"
@@ -1527,11 +1523,7 @@
        "ek": false
       }
      ],
-     "suzgec": {
-      "x": 253657.0,
-      "y": -443292.4,
-      "ek": true
-     },
+     "suzgec": null,
      "kolon": "P1"
     },
     {
@@ -2536,11 +2528,7 @@
        "ek": true
       }
      ],
-     "suzgec": {
-      "x": 253684.7,
-      "y": -441680.6,
-      "ek": true
-     },
+     "suzgec": null,
      "kolon": "P7"
     }
    ],
@@ -2934,7 +2922,7 @@
      },
      "kolon": "P6",
      "aspirator": {
-      "x": 253385.0,
+      "x": 253369.0,
       "y": -442693.0,
       "debi": 80,
       "saft": "Ş@253405,-442736"
@@ -3286,11 +3274,7 @@
        "ek": false
       }
      ],
-     "suzgec": {
-      "x": 253475.0,
-      "y": -443292.9,
-      "ek": true
-     },
+     "suzgec": null,
      "kolon": "P4"
     },
     {
@@ -4476,11 +4460,7 @@
        "ek": false
       }
      ],
-     "suzgec": {
-      "x": 253657.0,
-      "y": -443293.8,
-      "ek": true
-     },
+     "suzgec": null,
      "kolon": "P1"
     }
    ],
@@ -5113,11 +5093,7 @@
        "ek": true
       }
      ],
-     "suzgec": {
-      "x": 253685.0,
-      "y": -441681.6,
-      "ek": true
-     },
+     "suzgec": null,
      "kolon": "P7"
     },
     {
@@ -5676,7 +5652,7 @@
      },
      "kolon": "P6",
      "aspirator": {
-      "x": 253383.0,
+      "x": 253367.0,
       "y": -442693.0,
       "debi": 80,
       "saft": "Ş@253406,-442736"
@@ -6032,11 +6008,7 @@
        "ek": false
       }
      ],
-     "suzgec": {
-      "x": 253475.0,
-      "y": -443297.0,
-      "ek": true
-     },
+     "suzgec": null,
      "kolon": "P4"
     },
     {
@@ -6697,7 +6669,7 @@
      },
      "kolon": "P3",
      "aspirator": {
-      "x": 253747.0,
+      "x": 253763.0,
       "y": -442693.0,
       "debi": 80,
       "saft": "Ş@253726,-442736"
@@ -7025,11 +6997,7 @@
        "ek": false
       }
      ],
-     "suzgec": {
-      "x": 253657.0,
-      "y": -443293.5,
-      "ek": true
-     },
+     "suzgec": null,
      "kolon": "P1"
     },
     {
@@ -8030,11 +7998,7 @@
        "ek": true
       }
      ],
-     "suzgec": {
-      "x": 253685.0,
-      "y": -441680.0,
-      "ek": true
-     },
+     "suzgec": null,
      "kolon": "P7"
     }
    ],
@@ -8257,11 +8221,11 @@
    "gecis_katlari": [],
    "rogar": "R4",
    "sb_kat": [
-    10,
-    10,
-    10
+    8,
+    8,
+    8
    ],
-   "sb_toplam": 30,
+   "sb_toplam": 24,
    "cap": "Ø100",
    "mahal": {
     "Z": "mutfak D1",
@@ -8270,8 +8234,7 @@
    },
    "armatur_sirasi_sema": [
     "BM",
-    "EV",
-    "YS"
+    "EV"
    ]
   },
   {
@@ -8346,11 +8309,11 @@
    "gecis_katlari": [],
    "rogar": "R4",
    "sb_kat": [
-    10,
-    10,
-    10
+    8,
+    8,
+    8
    ],
-   "sb_toplam": 30,
+   "sb_toplam": 24,
    "cap": "Ø100",
    "mahal": {
     "Z": "mutfak D2",
@@ -8359,8 +8322,7 @@
    },
    "armatur_sirasi_sema": [
     "BM",
-    "EV",
-    "YS"
+    "EV"
    ]
   },
   {
@@ -8435,11 +8397,11 @@
    "gecis_katlari": [],
    "rogar": "R1",
    "sb_kat": [
-    10,
-    10,
-    10
+    8,
+    8,
+    8
    ],
-   "sb_toplam": 30,
+   "sb_toplam": 24,
    "cap": "Ø100",
    "mahal": {
     "Z": "mutfak D3",
@@ -8448,8 +8410,7 @@
    },
    "armatur_sirasi_sema": [
     "EV",
-    "BM",
-    "YS"
+    "BM"
    ]
   },
   {
@@ -8526,8 +8487,8 @@
    "sonraki": "R2",
    "cap": "Ø150",
    "egim": "%1",
-   "sb": 63,
-   "sb_kumulatif": 63
+   "sb": 57,
+   "sb_kumulatif": 57
   },
   {
    "no": "R2",
@@ -8541,7 +8502,7 @@
    "cap": "Ø150",
    "egim": "%1",
    "sb": 75,
-   "sb_kumulatif": 138
+   "sb_kumulatif": 132
   },
   {
    "no": "R3",
@@ -8558,7 +8519,7 @@
    "cap": "Ø150",
    "egim": "%1",
    "sb": 241,
-   "sb_kumulatif": 379
+   "sb_kumulatif": 373
   },
   {
    "no": "R4",
@@ -8572,8 +8533,8 @@
    "sonraki": "PB",
    "cap": "Ø150",
    "egim": "%1",
-   "sb": 60,
-   "sb_kumulatif": 439
+   "sb": 48,
+   "sb_kumulatif": 421
   },
   {
    "no": "PB",
@@ -8585,7 +8546,7 @@
    "cap": "Ø150",
    "egim": "%1",
    "sb": 0,
-   "sb_kumulatif": 439
+   "sb_kumulatif": 421
   }
  ],
  "yagmur": [
@@ -8645,7 +8606,11 @@
   }
  ],
  "temiz_su": {
-  "sebeke": null,
+  "sebeke": {
+   "x": 254262.0,
+   "y": -442078.0,
+   "yer": "bina girişi (döşeme altından)"
+  },
   "ana_sayac_cap": "1 1/2\"",
   "daire_mb": {
    "D2": 9.5,
@@ -8668,6 +8633,98 @@
    "D7": "1 1/4\"",
    "D9": "1 1/4\"",
    "D8": "1 1/4\""
+  },
+  "sayac_grubu": {
+   "kat": 0,
+   "yer": "zemin kat merdiven holü, bina girişi kapısı yanı (ortak alan)",
+   "adet": 9,
+   "sira": [
+    "D9",
+    "D6",
+    "D7",
+    "D4",
+    "D8",
+    "D5",
+    "D3",
+    "D2",
+    "D1"
+   ],
+   "dizilim": "vana – pislik tutucu – sayaç – çek valf – vana"
+  },
+  "kolon_kutusu": {
+   "x": 253672.0,
+   "kolonlar": {
+    "DOLUM": -442262.0,
+    "DONUS": -442270.0,
+    "D5": -442278.0,
+    "D8": -442286.0,
+    "D4": -442294.0,
+    "D7": -442302.0,
+    "D6": -442310.0,
+    "D9": -442318.0
+   },
+   "yer": "merdiven holü doğu duvarı (her katta aynı nokta)"
+  },
+  "depo_kolonlari": {
+   "dolum": "şebeke -> çatı deposu",
+   "donus": "çatı deposu -> sayaç kollektörü",
+   "by_pass": "çek valf (şebeke -> kollektör)"
+  },
+  "daire_besleme": {
+   "D2": {
+    "kat": 0,
+    "kolon": null,
+    "cap": "1 1/4\"",
+    "mb": 9.5
+   },
+   "D1": {
+    "kat": 0,
+    "kolon": null,
+    "cap": "1 1/4\"",
+    "mb": 9.5
+   },
+   "D3": {
+    "kat": 0,
+    "kolon": null,
+    "cap": "1 1/4\"",
+    "mb": 11.5
+   },
+   "D4": {
+    "kat": 1,
+    "kolon": "D4",
+    "cap": "1 1/4\"",
+    "mb": 9.5
+   },
+   "D6": {
+    "kat": 1,
+    "kolon": "D6",
+    "cap": "1 1/4\"",
+    "mb": 12.0
+   },
+   "D5": {
+    "kat": 1,
+    "kolon": "D5",
+    "cap": "1 1/4\"",
+    "mb": 11.5
+   },
+   "D7": {
+    "kat": 2,
+    "kolon": "D7",
+    "cap": "1 1/4\"",
+    "mb": 9.5
+   },
+   "D9": {
+    "kat": 2,
+    "kolon": "D9",
+    "cap": "1 1/4\"",
+    "mb": 9.5
+   },
+   "D8": {
+    "kat": 2,
+    "kolon": "D8",
+    "cap": "1 1/4\"",
+    "mb": 11.5
+   }
   }
  },
  "hav_saftlari": [
@@ -8729,11 +8786,10 @@
   "kat Z banyo aspiratör yazısı küçük (h 12, 3 satır)",
   "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253598, -443295) 21 cm",
   "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253535, -443295) 26 cm",
-  "kat Z pis su etiketi yerleşmedi: Ø100 12 SB @ (253735, -442752) 31 cm",
+  "kat Z pis su etiketi yerleşmedi: Ø50 4 SB @ (253736, -441812) 47 cm",
   "kat Z pis su etiketi yerleşmedi: Ø100 25 SB @ (253716, -442639) 48 cm",
   "kat Z pis su etiketi yerleşmedi: Ø100 25 SB @ (253414, -442639) 48 cm",
-  "kat Z pis su etiketi yerleşmedi: Ø70 11 SB @ (252778, -441916) 70 cm",
-  "kat Z pis su etiketi yerleşmedi: Ø50 2 SB @ (253622, -443293) 70 cm",
+  "kat Z pis su etiketi yerleşmedi: Ø70 11 SB @ (252778, -441919) 64 cm",
   "kat Z D2 temiz su etiketi yerleşmedi (6.5 MB)",
   "kat Z D1 temiz su etiketi yerleşmedi (6.5 MB)",
   "kat 1 banyo aspiratör yazısı bitişik mahalde (kullanıcı gibi, ıslak hacim duvarına bitişik)",
@@ -8753,9 +8809,9 @@
   "kat 2 banyo aspiratör yazısı bitişik mahalde (kullanıcı gibi, ıslak hacim duvarına bitişik)",
   "kat 2 banyo aspiratör yazısı küçük (h 12, 3 satır)",
   "kat 2 pis su etiketi yerleşmedi: Ø50 4 SB @ (257833, -442742) 21 cm",
+  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (256936, -441971) 43 cm",
   "kat 2 pis su etiketi yerleşmedi: Ø100 25 SB @ (257496, -442639) 48 cm",
-  "kat 2 pis su etiketi yerleşmedi: Ø50 2 SB @ (256930, -441971) 54 cm",
-  "kat 2 pis su etiketi yerleşmedi: Ø70 11 SB @ (256860, -441916) 70 cm",
+  "kat 2 pis su etiketi yerleşmedi: Ø70 11 SB @ (256860, -441919) 64 cm",
   "kat 2 D7 temiz su etiketi yerleşmedi (6.5 MB)",
   "kat 2 D9 temiz su etiketi yerleşmedi (6.5 MB)"
  ]

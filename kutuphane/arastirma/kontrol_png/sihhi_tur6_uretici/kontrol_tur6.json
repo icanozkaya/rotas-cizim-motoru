@@ -1,0 +1,326 @@
+{
+ "dxf": "proje/denemeler/sihhi2/NB_SIHHI_PAFTA_DENEME.dxf",
+ "K1": {
+  "Z": {
+   "kolon": 9,
+   "pis_cemberde_biten": 9,
+   "ic_kesisme": 0,
+   "ic_boy": 0,
+   "ornek": []
+  },
+  "1": {
+   "kolon": 9,
+   "pis_cemberde_biten": 8,
+   "ic_kesisme": 0,
+   "ic_boy": 0,
+   "ornek": []
+  },
+  "2": {
+   "kolon": 9,
+   "pis_cemberde_biten": 9,
+   "ic_kesisme": 0,
+   "ic_boy": 0,
+   "ornek": []
+  }
+ },
+ "K2": {
+  "Z": {
+   "kolon": 9,
+   "merkez_saft": 0,
+   "merkez_beton": 0,
+   "satir": [
+    {
+     "no": "P1",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P2",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P3",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P4",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P5",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P6",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P7",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 12.1,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P8",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P9",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    }
+   ]
+  },
+  "1": {
+   "kolon": 9,
+   "merkez_saft": 0,
+   "merkez_beton": 0,
+   "satir": [
+    {
+     "no": "P4",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P5",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P6",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P7",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 12.1,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P8",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P9",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P1",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P3",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P2",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    }
+   ]
+  },
+  "2": {
+   "kolon": 9,
+   "merkez_saft": 0,
+   "merkez_beton": 0,
+   "satir": [
+    {
+     "no": "P4",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P5",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P6",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P7",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 12.1,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P8",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P9",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P1",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P2",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    },
+    {
+     "no": "P3",
+     "merkez_saftta": false,
+     "merkez_betonda": false,
+     "cember_saft_cm2": 0.0,
+     "cember_beton_cm2": 0.0,
+     "kullanici_merkezi_sapma": 0.0
+    }
+   ]
+  }
+ },
+ "K3": {
+  "Z": {
+   "mutfak": 3,
+   "mutfak_suzgec": 0
+  },
+  "1": {
+   "mutfak": 3,
+   "mutfak_suzgec": 0
+  },
+  "2": {
+   "mutfak": 3,
+   "mutfak_suzgec": 0
+  }
+ },
+ "K4": {
+  "Z": {
+   "kolon_adet": 8,
+   "sayac_adet": 9,
+   "daire_girisi": 3,
+   "girisi_besleme_bagli": 3,
+   "kesisme": 0,
+   "ust_uste": 0,
+   "kapi_alani_cm": 0.0,
+   "sebeke_kapi_alani_cm": 0.0,
+   "duvar_cm": 0.0,
+   "sebeke_duvar_gecisi_cm": 43.3,
+   "beton_cm": 0.0,
+   "ortak_disi_cm": 5.0,
+   "kolon_hiza_disi": 0
+  },
+  "1": {
+   "kolon_adet": 8,
+   "sayac_adet": 0,
+   "daire_girisi": 3,
+   "girisi_besleme_bagli": 3,
+   "kesisme": 0,
+   "ust_uste": 0,
+   "kapi_alani_cm": 0.0,
+   "sebeke_kapi_alani_cm": 0,
+   "duvar_cm": 0.0,
+   "sebeke_duvar_gecisi_cm": 0,
+   "beton_cm": 0.0,
+   "ortak_disi_cm": 20.0,
+   "kolon_hiza_disi": 0
+  },
+  "2": {
+   "kolon_adet": 5,
+   "sayac_adet": 0,
+   "daire_girisi": 3,
+   "girisi_besleme_bagli": 3,
+   "kesisme": 0,
+   "ust_uste": 0,
+   "kapi_alani_cm": 0.0,
+   "sebeke_kapi_alani_cm": 0,
+   "duvar_cm": 0.0,
+   "sebeke_duvar_gecisi_cm": 0,
+   "beton_cm": 0.0,
+   "ortak_disi_cm": 0.0,
+   "kolon_hiza_disi": 0
+  }
+ }
+}

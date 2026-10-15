@@ -363,8 +363,8 @@
    "egim": "%1",
    "olcu_1": "70x70",
    "olcu_2": "h:-70cm",
-   "sb": 63,
-   "sb_kumulatif": 63
+   "sb": 57,
+   "sb_kumulatif": 57
   },
   {
    "no": "R2",
@@ -380,7 +380,7 @@
    "olcu_1": "70x70",
    "olcu_2": "h:-70cm",
    "sb": 75,
-   "sb_kumulatif": 138
+   "sb_kumulatif": 132
   },
   {
    "no": "R3",
@@ -399,7 +399,7 @@
    "olcu_1": "70x70",
    "olcu_2": "h:-70cm",
    "sb": 241,
-   "sb_kumulatif": 379
+   "sb_kumulatif": 373
   },
   {
    "no": "R4",
@@ -415,8 +415,8 @@
    "egim": "%1",
    "olcu_1": "70x70",
    "olcu_2": "h:-70cm",
-   "sb": 60,
-   "sb_kumulatif": 439
+   "sb": 48,
+   "sb_kumulatif": 421
   },
   {
    "no": "PB",
@@ -429,7 +429,7 @@
    "olcu_1": "80x80",
    "olcu_2": "h:-80cm",
    "sb": 0,
-   "sb_kumulatif": 439
+   "sb_kumulatif": 421
   }
  ],
  "pafta": [
