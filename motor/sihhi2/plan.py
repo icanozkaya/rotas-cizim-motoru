@@ -197,7 +197,7 @@ class Engel:
 
     def etiket_carpar(self, pg, tur='etiket'):
         """etiket yazı kutusu: marjlı kutu engellere + yasak alanlara"""
-        return self.carpar(pg.buffer(MARJ, join_style=2)) or self.yasakta(pg, tur)
+        return self.carpar(pg.buffer(MARJ, join_style=2)) or self.yasakta(pg, tur) or self.yasakta(pg, 'armatur')
 
     def carpar(self, pg, alan_tol=0.05, cizgi_tol=0.3, haric=()):
         self._agac()
@@ -297,14 +297,16 @@ def bloklar(doc):
     b.add_lwpolyline([(-27, -27), (27, -27), (27, 27), (-27, 27)], close=True)
     b.add_circle((0, 0), 17.0)
     # pis su çap etiketi (kanca + "Ø50" / "2 SB"); U: yazı hattın üstünde, A: altında
-    for ad, s in (('ROTAS-S2-PS-CAP-U', 1), ('ROTAS-S2-PS-CAP-A', -1)):
+    for ad, s, yon in (('ROTAS-S2-PS-CAP-U', 1, 1), ('ROTAS-S2-PS-CAP-A', -1, 1),
+                       ('ROTAS-S2-PS-CAP-UL', 1, -1), ('ROTAS-S2-PS-CAP-AL', -1, -1)):
         b = B.new(ad)
         b.add_line((0, 0), (0, 16 * s))
-        b.add_line((0, 16 * s), (34, 16 * s))
+        b.add_line((0, 16 * s), (34 * yon, 16 * s))
         ycap = 18.0 if s > 0 else -14.0
         ysb = 4.0 if s > 0 else -28.0
-        b.add_attdef('CAP', (2, ycap), dxfattribs={'height': ETIKET_H, 'style': 'ROTAS-YAZI', 'width': 0.8})
-        b.add_attdef('SB', (2, ysb), dxfattribs={'height': ETIKET_H, 'style': 'ROTAS-YAZI', 'width': 0.8})
+        x0 = 2.0 if yon > 0 else -32.0          # L: kanca sola, yazı kancanın üstünde sola doğru (okuma yönü aynı)
+        b.add_attdef('CAP', (x0, ycap), dxfattribs={'height': ETIKET_H, 'style': 'ROTAS-YAZI', 'width': 0.8})
+        b.add_attdef('SB', (x0, ysb), dxfattribs={'height': ETIKET_H, 'style': 'ROTAS-YAZI', 'width': 0.8})
     # temiz su etiketi (4 / 2 satır, yatay, satır aralığı 15)
     b = B.new('ROTAS-S2-TS-CAP4')
     for i, t in enumerate(('C1', 'M1', 'C2', 'M2')):
@@ -326,14 +328,22 @@ def yazi_kutulari(e):
     out = []
     if e.dxftype() == 'INSERT':
         for a in e.attribs:
+            if a.is_invisible:
+                continue
             pg = EK.glif_kutusu(a) or D.yazi_poligonu(a)
             if pg is not None and pg.is_valid:
                 out.append(pg)
+            try:
+                pk = KUTU.yazi_kutusu(a)
+                if pk is not None and pk.is_valid and pk.area > 0:
+                    out.append(pk)
+            except Exception:
+                pass
     else:                                   # gerçek glif kutusu (yazı tipi ölçüsü, döndürme dahil)
         pg = EK.glif_kutusu(e) or D.yazi_poligonu(e)
         if pg is not None and pg.is_valid:
             out.append(pg)
-        if e.dxftype() == 'MTEXT' or e.dxf.layer.startswith('ROTAS-MIMARI'):   # kontrolör kutusu (MTEXT sütun genişliği)
+        if e.dxftype() != 'MTEXT':          # kontrolör kutusu da (TEXT alt uzantı); MTEXT'te sütun genişliği değil glif
             try:
                 pk = KUTU.yazi_kutusu(e)
                 if pk is not None and pk.is_valid and pk.area > 0:
@@ -777,6 +787,11 @@ def _pis_omurga(K, oda, fx, C):
             if sp.length < 1:
                 continue
             ceza = 0.0
+            ic30 = oda['poly'].buffer(-30, join_style=2)
+            if not ic30.is_empty:                  # oda ortasından uzun çapraz hat yok (kontrolör T03: > 100 cm)
+                Lic = sp.intersection(ic30).length
+                if Lic > 85:
+                    ceza += 8.0 * (Lic - 85)
             muaf = min(Point(C).distance(oda['poly']) + 6.0, sp.length * 0.5)
             ic_kisim = substring(sp, muaf, sp.length)
             ceza += 40.0 * ic_kisim.difference(ic).length
@@ -1563,6 +1578,9 @@ def balon_yeri(c, eng, yasak, r=27.5, mesafeler=(55, 70, 85, 100, 115), disarida
             if disarida is not None and not disarida.contains(Point(p)):
                 continue
             if eng.carpar(pg.buffer(MARJ)) or eng.yasakta(pg, 'balon', tol=duvar_tol) or eng.yasakta(pg, 'asansor'):
+                if os.environ.get('S2_DEBUG_BALON') and tercih is not None and dd <= math.hypot(*tercih) + 1:
+                    log('   BAL', round(p[0]), round(p[1]), eng.carpar(pg.buffer(MARJ), cizgi_tol=1e9),
+                        eng.carpar(pg.buffer(MARJ)), eng.yasakta(pg, 'balon', tol=duvar_tol), eng.yasakta(pg, 'asansor'))
                 continue
             kil = LineString([(c[0] + 16 * math.cos(a), c[1] + 16 * math.sin(a)),
                               (p[0] - r * math.cos(a), p[1] - r * math.sin(a))])
@@ -1571,6 +1589,26 @@ def balon_yeri(c, eng, yasak, r=27.5, mesafeler=(55, 70, 85, 100, 115), disarida
                 continue
             return p, kil
     return None, None
+
+
+def carp_haric(eng, k, g):
+    """etiket yazı kutusu çakışması; etiketin KENDİ hattı (g) ile kesişim sayılmaz"""
+    kb = k.buffer(MARJ, join_style=2)
+    if eng.carpar(kb, cizgi_tol=1e9) or eng.yasakta(k, 'etiket') or eng.yasakta(k, 'armatur'):
+        return True
+    eng._agac()
+    gb = g.buffer(1.0)
+    cd = [eng.cizgi[i] for i in (eng._tc.query(kb) if eng._tc is not None else [])] + eng.cizgi[eng._nc:]
+    for c in cd:
+        if not c.intersects(kb):
+            continue
+        x = c.intersection(kb)
+        if x.is_empty or (x.length <= 0.3 and x.geom_type != 'Point'):
+            continue
+        if gb.contains(x):
+            continue
+        return True
+    return False
 
 
 def etiket_dene_pis(msp, eng, g, cap, sb, adaylar_t=(0.5, 0.42, 0.58, 0.34, 0.66, 0.26, 0.74, 0.18, 0.82, 0.1, 0.9)):
@@ -1588,21 +1626,52 @@ def etiket_dene_pis(msp, eng, g, cap, sb, adaylar_t=(0.5, 0.42, 0.58, 0.34, 0.66
             ang -= 180
         elif ang <= -90:
             ang += 180
-        for ad in ('ROTAS-S2-PS-CAP-U', 'ROTAS-S2-PS-CAP-A'):
+        for ad in ('ROTAS-S2-PS-CAP-U', 'ROTAS-S2-PS-CAP-A', 'ROTAS-S2-PS-CAP-UL', 'ROTAS-S2-PS-CAP-AL'):
             e = ekle_insert(msp, ad, (a.x, a.y), L_PCAP, rot=ang, attr={'CAP': cap, 'SB': '%d SB' % sb})
             kut = yazi_kutulari(e)
-            sg = 1 if ad.endswith('U') else -1
+            sg = 1 if ad.rstrip('L').endswith('U') else -1
+            yx = -1 if ad.endswith('L') else 1
             ca, sa = math.cos(math.radians(ang)), math.sin(math.radians(ang))
             T = lambda x, y: (a.x + x * ca - y * sa, a.y + x * sa + y * ca)  # noqa: E731
-            kanca = LineString([T(0, 0), T(0, 16 * sg), T(34, 16 * sg)])
-            kanca_u = LineString([T(0, 16 * sg), T(34, 16 * sg)])
-            if kut and not any(eng.etiket_carpar(k) for k in kut) and not eng.carpar(kanca_u.buffer(0.4), cizgi_tol=1.0):
+            kanca = LineString([T(0, 0), T(0, 16 * sg), T(34 * yx, 16 * sg)])
+            kanca_u = LineString([T(0, 16 * sg), T(34 * yx, 16 * sg)])
+            dn = os.environ.get('S2_DEBUG_NOKTA')
+            if dn and kut and g.centroid.distance(Point(*map(float, dn.split(',')))) < 8:
+                kb_ = unary_union(kut).buffer(MARJ, join_style=2)
+                hit = [('alan', [round(v) for v in q.bounds]) for q in eng.alan if q.intersects(kb_)
+                       and q.intersection(kb_).area > 0.05][:2]
+                hit += [('cizgi', [round(v) for v in q.bounds]) for q in eng.cizgi if q.intersects(kb_)][:3]
+                log('   DN', ad, round(t, 2), hit, eng.yasakta(unary_union(kut), 'etiket'),
+                    eng.carpar(kanca_u.buffer(0.4), cizgi_tol=1.0))
+            if os.environ.get('S2_DEBUG') and kut:
+                R = etiket_dene_pis.red
+                kb_ = unary_union(kut)
+                if eng.carpar(kb_.buffer(MARJ, join_style=2), cizgi_tol=1e9):
+                    R['alan'] += 1
+                    kk_ = kb_.buffer(MARJ, join_style=2)
+                    for g_ in eng.alan:
+                        if g_.intersects(kk_) and g_.intersection(kk_).area > 0.05:
+                            b_ = g_.bounds
+                            R['A%dx%d' % (round((b_[2] - b_[0]) / 10) * 10, round((b_[3] - b_[1]) / 10) * 10)] += 1
+                            break
+                elif eng.carpar(kb_.buffer(MARJ, join_style=2)):
+                    R['cizgi'] += 1
+                elif eng.yasakta(kb_, 'etiket'):
+                    R['duvar/ortak'] += 1
+                elif eng.yasakta(kb_, 'armatur'):
+                    R['armatur'] += 1
+                elif eng.carpar(kanca_u.buffer(0.4), cizgi_tol=1.0):
+                    R['kanca'] += 1
+            if kut and not any(carp_haric(eng, k, g) for k in kut) and not eng.carpar(kanca_u.buffer(0.4), cizgi_tol=1.0):
                 for k in kut:
                     eng.ekle_alan(k)
                 eng.ekle_cizgi(kanca)
                 return e
             msp.delete_entity(e)
     return None
+
+
+etiket_dene_pis.red = defaultdict(int)
 
 
 def etiket_kilavuzlu(msp, eng, a, satirlar, blok, katman, yasak=None, hks=(14, 24, 34, 48, 64, 82, 104, 130),
@@ -1697,7 +1766,7 @@ def etiket_halka(msp, eng, m, satirlar, blok, katman, mesafeler=(30, 40, 50, 62,
                         if g_.intersects(kb_):
                             log('      cizgi', [round(v) for v in g_.bounds], g_.geom_type); break
                 continue
-            if eng.yasakta(kutu, 'etiket'):
+            if eng.yasakta(kutu, 'etiket') or eng.yasakta(kutu, 'armatur'):
                 red['yasak'] += 1
                 continue
             q = nearest_points(kutu.exterior, Point(m))[0]
@@ -1776,7 +1845,11 @@ class Durum:
 
 def kat_yasaklari(eng, K):
     """etiket / balon konmayacak alanlar: duvar katısı, asansör boşluğu, (etiket için) merdiven ve armatür kutuları"""
-    for g in (K.S.geoms if hasattr(K.S, 'geoms') else [K.S]):
+    # merdiven basamakları (28 cm aralıklı paralel çizgi) duvar sanılır: merdiven içi duvar yasağından çıkarılır
+    merd = unary_union([r['poly'].buffer(-6) for r in K.rooms if r['tip'] == 'ortak'
+                        and 'asans' not in M2.MB.norm(r['name'])] or [Polygon()])
+    S_ = K.S.difference(merd) if not merd.is_empty else K.S
+    for g in (S_.geoms if hasattr(S_, 'geoms') else [S_]):
         g = g.buffer(-1.0)
         if not g.is_empty:
             eng.yasak_ekle(g, 'etiket')
@@ -1793,7 +1866,7 @@ def kat_yasaklari(eng, K):
         bb = f.get('bb')
         if bb and f['kind'] != 'KOMBI':
             try:
-                eng.yasak_ekle(box(bb[0], bb[1], bb[2], bb[3]).buffer(-2), 'etiket')
+                eng.yasak_ekle(box(bb[0], bb[1], bb[2], bb[3]).buffer(-2), 'armatur')
             except Exception:
                 pass
 
@@ -2054,12 +2127,23 @@ def aspirator_notu(msp, eng, K, a, dur):
     semb = [Point(q).buffer(13, cap_style=3) for q in ana['aday']]
     diger_islak = unary_union([q['poly'] for q in K.rooms if q is not r and q['tip'] in ('islak', 'mutfak')]
                               or [Polygon()])
+    def kb_daire(g):
+        kb_ = getattr(K, 'kb', None)
+        if kb_ is None:
+            return None
+        pt_ = g.representative_point()
+        rr = [q for q in kb_['rooms'] if q['poly'].contains(pt_)]
+        return rr[0].get('daire') if rr else None
+    d0 = kb_daire(r['poly'])
     alanlar = [(0, r['poly'].buffer(-3, join_style=2))]
     for q in K.rooms:
         if q is r or q['daire'] != r['daire'] or q['tip'] in ('islak', 'mutfak', 'ortak', 'balkon'):
             continue
+        if kb_daire(q['poly']) != d0:          # kontrolörün daire eşlemesi de aynı daire demeli
+            continue
         if q['poly'].distance(r['poly']) < 30:
             alanlar.append((1 if q['tip'] == 'hol' else 2, q['poly'].buffer(-3, join_style=2)))
+    alanlar.append((3, r['poly'].buffer(-3, join_style=2)))      # son çare: kendi mahalli, hat üstünden geçebilir
     alanlar.sort(key=lambda q: q[0])
     hedef = a['saft']['c'] if a['saft'] else tuple(r['poly'].centroid.coords[0])
     sec = None
@@ -2073,16 +2157,19 @@ def aspirator_notu(msp, eng, K, a, dur):
                 kb = shapely_translate(k0, xx, yy)
                 if not alan.contains(kb):
                     continue
-                if sira >= 1 and kb.distance(r['poly']) > 30:
+                if sira in (1, 2) and kb.distance(r['poly']) > 30:
                     continue
                 ad.append((dist((xx, yy), hedef), xx, yy, kb))
         ad.sort(key=lambda q: q[0])
         for _, xx, yy, kb in ad:
-            if eng.etiket_carpar(kb):
+            if sira == 3:
+                if eng.carpar(kb.buffer(MARJ, join_style=2), cizgi_tol=1e9) or eng.yasakta(kb, 'etiket'):
+                    continue
+            elif eng.etiket_carpar(kb):
                 continue
             for sp, sg in zip(ana['aday'], semb):
                 d = sg.distance(kb)
-                if d < MARJ or d > (25 if sira == 0 else 60) or eng.carpar(sg):
+                if d < MARJ or d > (25 if sira in (0, 3) else 60) or eng.carpar(sg):
                     continue
                 kil = None
                 if d > 6:
@@ -2147,9 +2234,9 @@ def kat_etiketle(doc, eng, K, kat, dur):
         ps = dict(no=no, kolon=kc)
         p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=TASARIM['balon_ofset'].get(no))
         if p is None:
-            p, kil = balon_yeri(ps['kolon'], eng, None, mesafeler=(55, 70, 85, 100, 120, 140))
-        if p is None:
             p, kil = balon_yeri(ps['kolon'], eng, islak_u, mesafeler=(55, 70, 85, 100, 120, 140, 165, 190), kil_tol=1e9)
+        if p is None:
+            p, kil = balon_yeri(ps['kolon'], eng, None, mesafeler=(55, 70, 85, 100, 120, 140))
         if p is None:          # balon duvar çizgisine kısmen değebilir (yazı/hat/asansöre değmez)
             p, kil = balon_yeri(ps['kolon'], eng, islak_u, mesafeler=(55, 70, 85, 100, 120, 140, 165, 190), kil_tol=1e9,
                                 duvar_tol=500.0)
@@ -2291,6 +2378,8 @@ def kat_etiketle(doc, eng, K, kat, dur):
             else:
                 n_ok += 1
         # daire girişi etiketi (G-H parçası): 1 1/4" / n MB
+    if os.environ.get('S2_DEBUG'):
+        log('  pis etiket red', dict(etiket_dene_pis.red))
     log('  etiket: %d yerleşti, %d yerleşmedi' % (n_ok, n_yok))
 
 
