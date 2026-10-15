@@ -48,6 +48,40 @@ def _parcalar(g):
     return [q for q in getattr(g, 'geoms', [g]) if q.geom_type == 'Polygon' and not q.is_empty]
 
 
+def _yari_duzlem_parca(P, p, oda_xy, pen=260.0, adim=2.0, kesit_max=140.0):
+    """Tur 3 Y-1: yatak odasından kapıyla açılan yüklük (kapı boşluğu duvarsız olduğundan iki mahal tek poligonda).
+    Etiket noktası p'nin çevresinde x/y eksenine dik kesitler (yarı düzlem) taranır: kesit çizgisinin poligonla kesişimi
+    ≤ 140 cm (80'lik kapı + kasa/duvar kalınlığı), kesilen parça p'yi içerir, oda etiketini içermez, tek parça ve
+    0,6–3,5 m² -> en büyük parça (kesit kapı eşiğinde). Morfolojik açma (eski yöntem) katlar arasında kararsızdı
+    (zemin katta bölüyor, 1. ve 2. katta bölmüyordu)."""
+    x0, y0, x1, y1 = P.bounds
+    best = None
+    for eks in 'xy':
+        for yon in (1, -1):
+            c = (p.x if eks == 'x' else p.y) - pen
+            son = (p.x if eks == 'x' else p.y) + pen
+            while c <= son:
+                if eks == 'x':
+                    ln = LineString([(c, y0 - 5), (c, y1 + 5)])
+                    yd = box(c, y0 - 5, x1 + 5, y1 + 5) if yon > 0 else box(x0 - 5, y0 - 5, c, y1 + 5)
+                else:
+                    ln = LineString([(x0 - 5, c), (x1 + 5, c)])
+                    yd = box(x0 - 5, c, x1 + 5, y1 + 5) if yon > 0 else box(x0 - 5, y0 - 5, x1 + 5, c)
+                c += adim
+                if P.intersection(ln).length > kesit_max:
+                    continue
+                q = P.intersection(yd)
+                ps = _parcalar(q)
+                if len(ps) != 1:
+                    continue
+                q = ps[0]
+                if not (6000 <= q.area <= 35000) or not q.buffer(15).contains(p) or q.buffer(5).contains(Point(oda_xy)):
+                    continue
+                if best is None or q.area > best.area:
+                    best = q
+    return best
+
+
 def yabanci_etiket_bol(K):
     """Bir mahal poligonu başka bir mahalin etiket noktasını içeriyorsa (kapıyla bağlı yüklük vb.) o kısmı ayır:
     80 cm açma ile kopan bileşen, etiketin olduğu taraf -> o mahale verilir."""
@@ -58,8 +92,8 @@ def yabanci_etiket_bol(K):
             p = Point(q['xy'])
             if not r['poly'].buffer(20).contains(p) or math.hypot(q['xy'][0] - r['xy'][0], q['xy'][1] - r['xy'][1]) < 80:
                 continue
-            parca = None
-            for rad in (40, 50, 60):
+            parca = _yari_duzlem_parca(r['poly'], p, r['xy'])
+            for rad in ((40, 50, 60) if parca is None else ()):
                 ac = r['poly'].buffer(-rad, join_style=2).buffer(rad, join_style=2)
                 for c in _parcalar(ac):
                     if c.buffer(30).contains(p) and not c.buffer(5).contains(Point(r['xy'])):
@@ -188,10 +222,33 @@ def engeller(K, r, res=2.0, islak=False):
     vit_u = unary_union(vit) if vit else Polygon()
     tut = []
     for q in _parcalar(eng):
-        if q.area < 3000 or (not vit_u.is_empty and q.intersection(vit_u).area > 50):
+        if q.area < 3000 or (not vit_u.is_empty and q.intersection(vit_u).area > 50) or _cm_kutusu(q):
             tut.append(q)
     tut += [q.intersection(P) for q in lav]
-    return unary_union(tut) if tut else Polygon()
+    # Tur 3 Y-2: çamaşır makinesi kutusu (fx 'CM' ya da 40-80 cm kare kapalı kutu) altına boru girmez (referansta
+    # Ç.M. altı boş; kontrolörün mahal poligonu da Ç.M. nişini dışarıda bırakıyor)
+    for f in getattr(K, 'fx', []):
+        if f['kind'] == 'CM' and f.get('bb') and P.buffer(10).contains(Point(f['c'])):
+            tut.append(box(*f['bb']).buffer(4, join_style=2).intersection(P))
+    if not tut:
+        return Polygon()
+    # vitrifiye payı: kutu + 4 cm yerine kutu + 1 cm (boru ekseni vitrifiyeden ≈ 7,5 cm, altı yine boş) -> ıslak hacimde
+    # serbest zemin daha çok dolar (Y-2)
+    return unary_union(tut).buffer(-ISLAK_PAY_AZALT, join_style=2).buffer(0)
+
+
+ISLAK_PAY_AZALT = 3.0
+
+
+def _cm_kutusu(q):
+    """kapalı, kareye yakın 40-80 cm kutu (çamaşır makinesi / dolap)"""
+    mrr = q.minimum_rotated_rectangle
+    if mrr.is_empty or mrr.geom_type != 'Polygon':
+        return False
+    cs = list(mrr.exterior.coords)
+    a = math.hypot(cs[1][0] - cs[0][0], cs[1][1] - cs[0][1])
+    b = math.hypot(cs[2][0] - cs[1][0], cs[2][1] - cs[1][1])
+    return 40 <= min(a, b) and max(a, b) <= 85 and q.area > 0.8 * mrr.area
 
 
 def lavabolar(K, P):
@@ -297,7 +354,7 @@ def _engeller(K, r, res=2.0):
     return unary_union([pg, ek]) if not ek.is_empty else pg
 
 
-def bolge(r, eng):
+def bolge(r, eng, kenar=None):
     """ısıtma bölgesi (boru ekseninin bulunabileceği alan): mahal - engel(+kenar) , duvardan KENAR içeride.
     Delik (duvara değmeyen engel) yatay doğrultuda en yakın kenara uzatılır: parmaklar tek aralıkta kalsın."""
     P = r['poly']
@@ -323,7 +380,8 @@ def bolge(r, eng):
         parca = dis.difference(unary_union(ek)).buffer(0)
         parca = max(_parcalar(parca), key=lambda q: q.area) if _parcalar(parca) else Polygon()
     H = parca
-    R = H.buffer(-(KENAR - 1.0), join_style=2)
+    kenar = KENAR if kenar is None else kenar
+    R = H.buffer(-(kenar - 1.0), join_style=2)
     R = R.buffer(-12, join_style=2).buffer(12, join_style=2)     # 24 cm'den dar dilleri at
     pr = _parcalar(R)
     if not pr:

@@ -177,7 +177,7 @@
        "sic": 24,
        "alan_m2": 4.85,
        "alan_mimari_m2": 5.36,
-       "isitma_alani_m2": 3.38,
+       "isitma_alani_m2": 3.39,
        "kose": "SE",
        "bbox": [
         253700.0,
@@ -188,9 +188,9 @@
        "devreler": [
         {
          "no": 9,
-         "L_m": 17.03,
-         "W": 596.1,
-         "etiket": "maskeli"
+         "L_m": 17.21,
+         "W": 602.4,
+         "etiket": "bos"
         }
        ]
       }
@@ -228,27 +228,27 @@
        "ad": "yatak od.",
        "tur": "oda",
        "sic": 20,
-       "alan_m2": 14.1,
+       "alan_m2": 13.64,
        "alan_mimari_m2": 14.25,
-       "isitma_alani_m2": 13.84,
-       "kose": "SW",
+       "isitma_alani_m2": 13.47,
+       "kose": "SE",
        "bbox": [
         252768.0,
         -442586.0,
-        253302.0,
+        253242.0,
         -442256.0
        ],
        "devreler": [
         {
          "no": 11,
-         "L_m": 41.72,
-         "W": 1460.2,
+         "L_m": 42.8,
+         "W": 1498.0,
          "etiket": "maskeli"
         },
         {
          "no": 12,
-         "L_m": 39.57,
-         "W": 1385.0,
+         "L_m": 39.77,
+         "W": 1392.0,
          "etiket": "maskeli"
         }
        ]
@@ -362,8 +362,8 @@
        "sic": 24,
        "alan_m2": 4.8,
        "alan_mimari_m2": 5.36,
-       "isitma_alani_m2": 3.29,
-       "kose": "SW",
+       "isitma_alani_m2": 3.44,
+       "kose": "NE",
        "bbox": [
         253258.0,
         -442712.0,
@@ -373,8 +373,8 @@
        "devreler": [
         {
          "no": 18,
-         "L_m": 16.03,
-         "W": 561.1,
+         "L_m": 17.47,
+         "W": 611.4,
          "etiket": "maskeli"
         }
        ]
@@ -547,8 +547,8 @@
        "sic": 24,
        "alan_m2": 3.47,
        "alan_mimari_m2": 4.37,
-       "isitma_alani_m2": 2.36,
-       "kose": "SW",
+       "isitma_alani_m2": 2.13,
+       "kose": "NW",
        "bbox": [
         253038.0,
         -442252.0,
@@ -558,9 +558,9 @@
        "devreler": [
         {
          "no": 27,
-         "L_m": 11.99,
-         "W": 419.7,
-         "etiket": "maskeli"
+         "L_m": 9.97,
+         "W": 349.0,
+         "etiket": "bos"
         }
        ]
       }
@@ -612,27 +612,27 @@
        "ad": "yatak od.",
        "tur": "oda",
        "sic": 20,
-       "alan_m2": 15.45,
+       "alan_m2": 13.64,
        "alan_mimari_m2": 14.25,
-       "isitma_alani_m2": 15.15,
-       "kose": "SW",
+       "isitma_alani_m2": 13.47,
+       "kose": "SE",
        "bbox": [
         254802.0,
         -442586.0,
-        255464.0,
+        255276.0,
         -442256.0
        ],
        "devreler": [
         {
          "no": 2,
-         "L_m": 41.72,
-         "W": 1460.2,
+         "L_m": 42.8,
+         "W": 1498.0,
          "etiket": "maskeli"
         },
         {
          "no": 3,
-         "L_m": 45.98,
-         "W": 1609.3,
+         "L_m": 39.77,
+         "W": 1392.0,
          "etiket": "maskeli"
         }
        ]
@@ -746,7 +746,7 @@
        "sic": 24,
        "alan_m2": 4.8,
        "alan_mimari_m2": 5.04,
-       "isitma_alani_m2": 3.28,
+       "isitma_alani_m2": 3.44,
        "kose": "SW",
        "bbox": [
         255292.0,
@@ -757,8 +757,8 @@
        "devreler": [
         {
          "no": 9,
-         "L_m": 16.02,
-         "W": 560.7,
+         "L_m": 16.63,
+         "W": 582.0,
          "etiket": "maskeli"
         }
        ]
@@ -931,8 +931,8 @@
        "sic": 24,
        "alan_m2": 3.47,
        "alan_mimari_m2": 4.37,
-       "isitma_alani_m2": 2.36,
-       "kose": "SW",
+       "isitma_alani_m2": 2.13,
+       "kose": "NW",
        "bbox": [
         255072.0,
         -442252.0,
@@ -942,9 +942,9 @@
        "devreler": [
         {
          "no": 18,
-         "L_m": 11.99,
-         "W": 419.7,
-         "etiket": "maskeli"
+         "L_m": 9.98,
+         "W": 349.3,
+         "etiket": "bos"
         }
        ]
       }
@@ -1116,8 +1116,8 @@
        "sic": 24,
        "alan_m2": 4.11,
        "alan_mimari_m2": 4.37,
-       "isitma_alani_m2": 2.61,
-       "kose": "SE",
+       "isitma_alani_m2": 2.77,
+       "kose": "NW",
        "bbox": [
         255734.0,
         -442716.0,
@@ -1127,8 +1127,8 @@
        "devreler": [
         {
          "no": 27,
-         "L_m": 12.17,
-         "W": 425.9,
+         "L_m": 14.99,
+         "W": 524.6,
          "etiket": "maskeli"
         }
        ]
@@ -1181,27 +1181,27 @@
        "ad": "yatak od.",
        "tur": "oda",
        "sic": 20,
-       "alan_m2": 15.45,
+       "alan_m2": 13.6,
        "alan_mimari_m2": 14.25,
-       "isitma_alani_m2": 15.15,
-       "kose": "SW",
+       "isitma_alani_m2": 13.44,
+       "kose": "SE",
        "bbox": [
         256850.0,
         -442588.0,
-        257528.0,
+        257324.0,
         -442254.0
        ],
        "devreler": [
         {
          "no": 2,
-         "L_m": 41.48,
-         "W": 1451.8,
+         "L_m": 42.54,
+         "W": 1488.9,
          "etiket": "maskeli"
         },
         {
          "no": 3,
-         "L_m": 45.87,
-         "W": 1605.4,
+         "L_m": 39.38,
+         "W": 1378.3,
          "etiket": "maskeli"
         }
        ]
@@ -1315,7 +1315,7 @@
        "sic": 24,
        "alan_m2": 4.79,
        "alan_mimari_m2": 5.04,
-       "isitma_alani_m2": 3.33,
+       "isitma_alani_m2": 3.49,
        "kose": "SE",
        "bbox": [
         257340.0,
@@ -1326,8 +1326,8 @@
        "devreler": [
         {
          "no": 9,
-         "L_m": 17.75,
-         "W": 621.2,
+         "L_m": 17.93,
+         "W": 627.5,
          "etiket": "maskeli"
         }
        ]
@@ -1500,8 +1500,8 @@
        "sic": 24,
        "alan_m2": 3.44,
        "alan_mimari_m2": 4.37,
-       "isitma_alani_m2": 2.33,
-       "kose": "SW",
+       "isitma_alani_m2": 2.11,
+       "kose": "NW",
        "bbox": [
         257122.0,
         -442252.0,
@@ -1511,9 +1511,9 @@
        "devreler": [
         {
          "no": 18,
-         "L_m": 12.01,
-         "W": 420.3,
-         "etiket": "maskeli"
+         "L_m": 9.83,
+         "W": 344.1,
+         "etiket": "bos"
         }
        ]
       }
@@ -1685,8 +1685,8 @@
        "sic": 24,
        "alan_m2": 4.82,
        "alan_mimari_m2": 5.04,
-       "isitma_alani_m2": 3.35,
-       "kose": "NW",
+       "isitma_alani_m2": 3.52,
+       "kose": "SE",
        "bbox": [
         257784.0,
         -442716.0,
@@ -1696,8 +1696,8 @@
        "devreler": [
         {
          "no": 27,
-         "L_m": 17.93,
-         "W": 627.5,
+         "L_m": 18.48,
+         "W": 646.8,
          "etiket": "maskeli"
         }
        ]

@@ -69,7 +69,7 @@ def kose_dene(R, kose, merkez, n_min):
     return dict(kose=kose, fr=fr, Rc=Rc, n=n, sonuc=r, maxL=L, toplam=top, uc=uc)
 
 
-def oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True):
+def oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True, islak=False):
     """oda: mahal kaydı; H: ısıtma alanı (duvar yüzü), R: boru ekseni bölgesi; kapi: (x, y) | None;
     yasak: etiket cebi için kaçınılacak alanlar (yazılar, etiketler) -> shapely geometri.
     Dönüş: dict | None"""
@@ -83,8 +83,16 @@ def oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True):
         adaylar = [a for a in (kose_dene(R, k, merkez, 1) for k in S.KOSELER) if a]
     if not adaylar:
         return None
-    eniyi = max(a['toplam'] for a in adaylar)
-    iyi = [a for a in adaylar if a['toplam'] >= KAPI_ORAN * eniyi]
+    if islak:
+        # ıslak hacim (Y-2): mahal içi boru en çok olan köşe; kapı tercihi yalnız eşitlikte
+        P5 = oda['poly'].buffer(5)
+        for a in adaylar:
+            a['ic'] = sum(a['fr'].dis(S.cizgi(p)).intersection(P5).length for p in a['sonuc']['devreler'])
+        eniyi = max(a['ic'] for a in adaylar)
+        iyi = [a for a in adaylar if a['ic'] >= eniyi - 1.0]
+    else:
+        eniyi = max(a['toplam'] for a in adaylar)
+        iyi = [a for a in adaylar if a['toplam'] >= KAPI_ORAN * eniyi]
     if kapi is not None:
         a = min(iyi, key=lambda a: (math.hypot(a['uc'][0] - kapi[0], a['uc'][1] - kapi[1]), -a['toplam']))
     else:

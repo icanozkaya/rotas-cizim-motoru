@@ -247,7 +247,9 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
         eng = MY.engeller(K, r, islak=(tur == 'banyo'))
         H, R = MY.bolge(r, eng)
         kapi = MY.ana_kapi(K, r, tur)
-        d = T.oda_tasarla(r, H, R, kapi, yasak, cep_ac)
+        d = T.oda_tasarla(r, H, R, kapi, yasak, cep_ac, islak=(tur == 'banyo'))
+        if tur == 'banyo':
+            H, R, d = islak_doldur(r, eng, kapi, yasak, cep_ac, (H, R, d), mimari_m2(K, r))
         if d is None:
             log('UYARI: %s kat %s daire %s %s (%.2f m²): devre kurulamadı' % (k, r['name'], r['daire'], tur, r['area']))
             isitmasiz.append(dict(ad=r['name'], poly=r['poly'], tur='kurulamadi'))
@@ -270,6 +272,38 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
             c['L_m'] = round(c['L'] / 100.0, 2)
             c['W'] = round(W_M * c['L_m'], 1)
     return dict(kat=k, K=K, odalar=odalar, isitmasiz=isitmasiz, yasak=yasak, yazi=yaz)
+
+
+ISLAK_ORAN = 3.0           # m/m² (mimari m²) — ıslak hacim doluluğu (kontrolör Y02)
+ISLAK_KENARLAR = (7.5, 6.0, 5.0)
+ISLAK_PAYI = 0.8           # m — kontrolörün mahal poligonu duvar/niş farkıyla ≈ 0,4 m daha az ölçüyor
+
+
+def _mahal_ici(d, P):
+    if d is None:
+        return 0.0
+    Pb = P.buffer(5)
+    return sum(S.cizgi(c['pts']).intersection(Pb).length for c in d['devreler']) / 100.0
+
+
+def islak_doldur(r, eng, kapi, yasak, cep_ac, ilk, am):
+    """Tur 3 Y-2: ıslak hacimde mahal içi boru ≥ 3,0 m/m² (mimari m²). Klozet, lavabo, duş teknesi/küvet ve Ç.M. altı
+    boş kalır. Duvar payı 7,5 ile eşik tutmazsa 6,0 / 5,0 cm denenir (yalnız ıslak hacim; kuru mahaller 7,5).
+    En çok mahal içi boru veren düzen seçilir; eşiği geçen ilk (en büyük paylı) düzen yeterlidir."""
+    H, R, d = ilk
+    esik = ISLAK_ORAN * (am or r['area'])
+    en = (_mahal_ici(d, r['poly']), H, R, d)
+    if en[0] >= esik + ISLAK_PAYI:
+        return H, R, d
+    for kn in ISLAK_KENARLAR[1:]:
+        H2, R2 = MY.bolge(r, eng, kenar=kn)
+        d2 = T.oda_tasarla(r, H2, R2, kapi, yasak, cep_ac, islak=True)
+        L2 = _mahal_ici(d2, r['poly'])
+        if d2 is not None and L2 > en[0] + 0.05:
+            en = (L2, H2, R2, d2)
+        if en[0] >= esik + ISLAK_PAYI:
+            break
+    return en[1], en[2], en[3]
 
 
 def mimari_cizgi(K):
@@ -357,28 +391,61 @@ def _oda_etiket_yerleri(o, yasak, mim, sira):
     eksik = 0
 
     def mahal(yasak):
-        for k in (1.0, 0.8):
+        # Y-4: önce mimari çizgiye (vitrifiye, Ç.M., duvar) hiç değmeyen yer; sonra çizgi üstü (maske çizgiyi örtmez)
+        for k, temiz in ((1.0, True), (0.9, True), (0.8, True), (1.0, False), (0.8, False), (0.7, False)):
             q, _ = yer_bul([(74 * k, 54 * k, 0)], (x, y + 100),
-                           [(Hn.buffer(-4, join_style=2), True), (Hn.buffer(-2, join_style=2), False)], yasak, mim,
+                           [(Hn.buffer(-4, join_style=2), True)] if temiz else
+                           [(Hn.buffer(-2, join_style=2), False), (P.buffer(-3, join_style=2), False)], yasak, mim,
                            adim=10.0 if k == 1 else 4.0)
             if q is not None:
                 return q, k
         return None, 1.0
 
-    def devre(c, yasak):
+    def bant(c):
+        """Y-3: devrenin kendi parmaklarının y aralığı (uzak devrenin köşeye inen ayakları hariç)"""
+        ys = []
+        pts = c['pts']
+        for i in range(len(pts) - 1):
+            (x1, y1, b), (x2, y2, _) = pts[i], pts[i + 1]
+            if abs(b) < 1e-9 and abs(y1 - y2) < 0.01 and abs(x2 - x1) > 30:
+                ys.append(y1)
+        if not ys:
+            return None
+        return min(ys) - S.ADIM / 2.0, max(ys) + S.ADIM / 2.0
+
+    def devre(c, yasak, hiza_x):
         g = S.cizgi(c['pts'])
         ux, uy = c['pts'][0][0], c['pts'][0][1]
-        cc = g.envelope.centroid
-        anc = ((ux + 2 * cc.x) / 3, (uy + 2 * cc.y) / 3)
-        # tam boy (yatay, sonra 90°), sığmazsa küçük ıslak hacimde 0,85 / 0,75 ölçek (yazı 8,5 / 7,5)
-        # sıra: yatay tam boy -> yatay 0,85 / 0,75 -> 90° (hol boyunca) -> en küçük ölçekler
-        sira = [(1.0, 0), (0.85, 0), (0.75, 0), (1.0, 90), (0.85, 90), (0.75, 90), (0.7, 0), (0.7, 90),
-                (0.65, 0), (0.65, 90)]
-        for k, dn in sira:
-            w, h = S.ETIKET_W * k, S.ETIKET_H * k
-            for boy in ([(w, h, 0)] if dn == 0 else [(h, w, 90)],):
-                q, rot = yer_bul(boy, anc, [(Hn.buffer(1), True), (Hn.buffer(1), False),
-                                            (P.buffer(-1, join_style=2), False)], yasak, mim, kendi=g, adim=5.0 if k < 1 else 10.0)
+        cok = len(o['tasarim']['devreler']) > 1
+        bt = bant(c) if cok else None
+        if bt is not None:
+            bx0, _, bx1, _ = P.bounds
+            bkut = box(bx0 - 5, bt[0], bx1 + 5, bt[1])
+            gb = g.intersection(bkut)
+            cc = (gb if not gb.is_empty else g).envelope.centroid
+            anc = ((ux + 2 * cc.x) / 3 if hiza_x is None else hiza_x, cc.y)
+        else:
+            bkut = None
+            cc = g.envelope.centroid
+            anc = ((ux + 2 * cc.x) / 3, (uy + 2 * cc.y) / 3)
+
+        def bolge(B):
+            return B if bkut is None else B.intersection(bkut)
+        # Y-4/Ek: tam boy (yazı h 10) önce; etiket kutusu hiçbir mimari çizgiye (küvet, duş teknesi, Ç.M., klozet,
+        # duvar) değmeyen serbest zeminde ve (Y-3) kendi devresinin bandında. Olmazsa 0,9 / 0,85 temiz; sonra tam boy
+        # çizgi üstü (maske çizgileri ve vitrifiyeyi açıkta bırakır, yalnız boruyu örter); en son küçük ölçek / 90°.
+        sira = [(1.0, 0, True), (0.9, 0, True), (0.85, 0, True), (1.0, 0, False), (0.9, 0, False), (0.85, 0, False),
+                (0.75, 0, True), (1.0, 90, True), (0.85, 90, True), (0.75, 0, False), (1.0, 90, False),
+                (0.85, 90, False), (0.75, 90, False), (0.7, 0, False), (0.7, 90, False), (0.65, 0, False),
+                (0.65, 90, False)]
+        for bant_mi in ((True, False) if bkut is not None else (False,)):
+            for k, dn, temiz in sira:
+                w, h = S.ETIKET_W * k, S.ETIKET_H * k
+                boy = [(w, h, 0)] if dn == 0 else [(h, w, 90)]
+                Bh = bolge(Hn.buffer(1)) if bant_mi else Hn.buffer(1)
+                Bp = bolge(P.buffer(-1, join_style=2)) if bant_mi else P.buffer(-1, join_style=2)
+                kad = [(Bh, True)] if temiz else [(Bh, False), (Bp, False)]
+                q, rot = yer_bul(boy, anc, kad, yasak, mim, kendi=g, adim=5.0 if k < 1 else 10.0)
                 if q is not None:
                     return q, (rot, k)
         return None, None
@@ -394,13 +461,48 @@ def _oda_etiket_yerleri(o, yasak, mim, sira):
                 yasak = yasak.union(mq.buffer(4))
         else:
             c = o['tasarim']['devreler'][int(ad[1:])]
-            q, rot = devre(c, yasak)
+            q, rot = devre(c, yasak, dv[0][1].centroid.x if dv else None)
             if q is None:
                 eksik += 1
                 continue
             dv.append((c, q, rot))
             yasak = yasak.union(q.buffer(4))
     return (mq, mk if mq is not None else 1.0), dv, yasak, eksik
+
+
+def _deliksiz(g, derin=0):
+    """delikli poligonu deliklerin ortasından dikey bölerek deliksiz parçalara ayır (WIPEOUT tek sınır ister)"""
+    from shapely.ops import split
+    out = []
+    for q in MY._parcalar(g):
+        if not q.interiors or derin > 6:
+            out.append(q)
+            continue
+        h = Polygon(q.interiors[0]).centroid
+        x0, y0, x1, y1 = q.bounds
+        for p in getattr(split(q, LineString([(h.x, y0 - 1), (h.x, y1 + 1)])), 'geoms', []):
+            out += _deliksiz(p, derin + 1)
+    return out
+
+
+def maske_ciz(msp, q, mim, eng):
+    """Etiket maskesi (WIPEOUT). Kutunun altında mimari çizgi (vitrifiye, küvet, duş teknesi, Ç.M., duvar) yoksa tek
+    dikdörtgen. Varsa (Y-4) maske = kutu − (çizgiler + 3 cm) − vitrifiye/tefriş alanı: boru örtülür, tefriş ve vitrifiye
+    görünür kalır (README: yerden ısıtma paftasında tefriş silinmez). -> kesik maske mi"""
+    x0, y0, x1, y1 = q.bounds
+    alt = mim.intersection(q) if mim is not None and not mim.is_empty else None
+    if alt is None or alt.is_empty or alt.length < 1.0:
+        msp.add_wipeout([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], dxfattribs={'layer': L_MASK})
+        return False
+    m = q.difference(alt.buffer(3.0, cap_style=2, join_style=2))
+    if eng is not None and not eng.is_empty:
+        m = m.difference(eng.buffer(1.0, join_style=2))
+    for p in _deliksiz(m.buffer(0)):
+        p = p.simplify(0.2)
+        if p.area < 30 or p.geom_type != 'Polygon':
+            continue
+        msp.add_wipeout([tuple(v) for v in list(p.exterior.coords)[:-1]], dxfattribs={'layer': L_MASK})
+    return True
 
 
 def etiketle(msp, KT, tum_borular):
@@ -424,9 +526,8 @@ def etiketle(msp, KT, tum_borular):
             say['mahal_yok'] += 1
             log('UYARI: mahal etiketi yeri yok: %s' % o['zon'])
         else:
-            x0, y0, x1, y1 = mq.bounds
             if mq.intersects(tum_borular):
-                msp.add_wipeout([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], dxfattribs={'layer': L_MASK})
+                maske_ciz(msp, mq, mim, o['eng'])
                 say['mahal_maskeli'] += 1
             ekle(msp, 'ROTAS-YI-MAHAL', (mq.centroid.x, mq.centroid.y), L_MAH,
                  {'DERECE': '%d%%%%DC' % o['sic'], 'NO': o['zon'], 'MAHAL': o['ad'], 'ALAN': '%.2f' % o['alan']},
@@ -447,8 +548,9 @@ def etiketle(msp, KT, tum_borular):
                 say['kucuk'] = say.get('kucuk', 0) + 1
             x0, y0, x1, y1 = q.bounds
             if yer == 'ic':
-                msp.add_wipeout([(x0 - 2, y0 - 2), (x1 + 2, y0 - 2), (x1 + 2, y1 + 2), (x0 - 2, y1 + 2)],
-                                dxfattribs={'layer': L_MASK})
+                c['maske_kesik'] = maske_ciz(msp, box(x0 - 2, y0 - 2, x1 + 2, y1 + 2), mim, o['eng'])
+                if c['maske_kesik']:
+                    say['kesik_maske'] = say.get('kesik_maske', 0) + 1
             ekle(msp, 'ROTAS-YI-ETIKET', (x0, y1) if rot == 0 else (x0, y0), L_ET,
                  {'UZ': '%.2f m' % c['L_m'], 'AR': '15.0', 'YER': '%.1f W' % c['W'], 'NO1': str(c['no']),
                   'MAHAL': o['ad'], 'NO': o['zon'], 'DERECE': '%d%%%%DC' % o['sic'], 'ALAN': '%.2f' % o['alan'],
