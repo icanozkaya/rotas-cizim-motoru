@@ -42,13 +42,19 @@
   "kesisme_ornek": [],
   "duzlem": 0,
   "duzlem_ornek": [],
-  "yazi": 0,
+  "yazi": 25,
   "yazi_mimari": 111,
-  "yazi_ornek": [],
+  "yazi_ornek": [
+   "ROTAS-MIMARI-YAZI \"banyo\" / 0 \"11\" (253265, -442516)",
+   "ROTAS-MIMARI-YAZI \"banyo\" / 0 \"1498.0 W\" (253265, -442516)",
+   "ROTAS-MIMARI-YAZI \"yüklük\" / 0 \"39.77 m\" (253230, -442301)",
+   "ROTAS-MIMARI-YAZI \"asansör \nboşluğu\" / 0 \"15.0\" (253267, -442145)",
+   "ROTAS-MIMARI-YAZI \"asansör \nboşluğu\" / 0 \"13.29 m\" (253267, -442145)"
+  ],
   "audit": 0,
   "audit_duzeltme": 0,
   "audit_ornek": [],
-  "gecti": true
+  "gecti": false
  },
  "yogunluk": [
   {

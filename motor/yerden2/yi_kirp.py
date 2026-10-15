@@ -129,7 +129,17 @@ def main(cikis=None):
         ('09_Z_D1_salon', bul('Z', ('D1', 'salon'))),
         ('10_1kat_D6_banyo_yatak', bul('1', ('D6', 'banyo'), ('D6', 'yatak'))),
         ('10b_1kat_D5_wcbanyo_hol', bul('1', ('D5', 'wc'), ('D5', 'antre'))),
+        # tur 4: kontrolör Y-2' / E-1 mahalleri (wc+banyo klozet önü, etiket ×1,0) ve iki devreli mahal etiket hizası
+        ('17_Z_wcbanyo_Z21', bul('Z', ('D3', 'wc'))),
+        ('18_1kat_wcbanyo_114', bul('1', ('D5', 'wc'))),
+        ('19_2kat_wcbanyo_214', bul('2', ('D8', 'wc'))),
+        ('20_Z_banyo_Z07_Z14', bul('Z', ('D1', 'banyo'), ('D2', 'banyo'))),
+        ('21_1kat_102_iki_devre', ['102']),
+        ('22_1kat_111_iki_devre', ['111']),
     ]
+    sadece = os.environ.get('YI_KIRP_SADECE')          # örn. "17,18,19": yalnız bu önekli kırpımlar
+    if sadece:
+        gruplar = [g for g in gruplar if g[0].split('_')[0] in sadece.split(',')]
     A = Cizici(DXF)
     R = Cizici(REF)
     for ad, zs in gruplar:
@@ -142,6 +152,9 @@ def main(cikis=None):
         yan_yana(cikis + '/_a.png', cikis + '/_b.png', '%s/%s.png' % (cikis, ad),
                  ('MOTOR: ' + ' '.join(zs), 'REFERANS (kullanıcı)'))
         print('[kirp]', ad, zs)
+    if sadece:
+        print('[kirp]', cikis)
+        return
     # şema
     sys.path.insert(0, BURASI)
     import yi_sema as SE

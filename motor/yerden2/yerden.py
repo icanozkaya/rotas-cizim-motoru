@@ -211,10 +211,14 @@ def mimari_kopyala(doc):
     for e in yeni:
         if e.dxftype() in ('TEXT', 'MTEXT'):
             e.dxf.layer = 'ROTAS-MIMARI-YAZI'
+            # Tur 4 E-1: MTEXT için yazi_poligonu sağa yaslı (attachment 3) yazıda kutuyu sola 100–240 cm taşırıyor
+            # ("asansör boşluğu" yazısı komşu wc+banyonun içine, "wc+banyo" yazısı duvarın dışına). MTEXT'te ölçülen
+            # kutu (yazi_kutusu) kullanılır; yoksa poligon.
             for f in ((D.yazi_kutusu, D.yazi_poligonu) if e.dxftype() == 'MTEXT' else (D.yazi_poligonu,)):
                 pg = f(e)
                 if pg is not None and pg.is_valid and not pg.is_empty:
                     kutular.append(pg)
+                    break
         else:
             e.dxf.layer = 'ROTAS-MIMARI'
         e.dxf.color = 256
@@ -388,6 +392,7 @@ def _oda_etiket_yerleri(o, yasak, mim, sira):
     """bir mahalin mahal + devre etiketi yerleri (çizmeden). sira: 'mahal_once' | 'devre_once'.
     -> (mahal_q | None, [(c, q, rot) ...], yasak, eksik_sayisi)"""
     P = o['poly']
+    yasak0 = yasak
     Hn = o['H']                                   # mahal - vitrifiye/tefriş
     x, y = o['xy']
     mq = None
@@ -417,7 +422,7 @@ def _oda_etiket_yerleri(o, yasak, mim, sira):
             return None
         return min(ys) - S.ADIM / 2.0, max(ys) + S.ADIM / 2.0
 
-    def devre(c, yasak, hiza_x):
+    def devre(c, yasak, hiza_x, hiza_k=1.0, sadece_hiza=False):
         g = S.cizgi(c['pts'])
         ux, uy = c['pts'][0][0], c['pts'][0][1]
         cok = len(o['tasarim']['devreler']) > 1
@@ -442,6 +447,20 @@ def _oda_etiket_yerleri(o, yasak, mim, sira):
                 (0.75, 0, True), (1.0, 90, True), (0.85, 90, True), (0.75, 0, False), (1.0, 90, False),
                 (0.85, 90, False), (0.75, 90, False), (0.7, 0, False), (0.7, 90, False), (0.65, 0, False),
                 (0.65, 90, False)]
+        # Ek (tur 4): iki devreli mahalde ikinci etiket kullanıcının çizimindeki gibi birincinin x hizasında, alt alta
+        # (aynı ölçek, dönüşsüz). Hizada kendi bandında yer yoksa eski arama.
+        if hiza_x is not None and bkut is not None:
+            for k, dn, temiz in [t for t in sira if t[1] == 0 and t[0] >= hiza_k - 1e-6]:
+                w, h = S.ETIKET_W * k, S.ETIKET_H * k
+                serit = box(hiza_x - w / 2 - 0.01, -1e9, hiza_x + w / 2 + 0.01, 1e9)
+                Bh = bolge(Hn.buffer(1)).intersection(serit)
+                Bp = bolge(P.buffer(-1, join_style=2)).intersection(serit)
+                kad = [(Bh, True)] if temiz else [(Bh, False), (Bp, False)]
+                q, rot = yer_bul([(w, h, 0)], anc, kad, yasak, mim, kendi=g, adim=5.0)
+                if q is not None and abs(q.centroid.x - hiza_x) < 0.5:
+                    return q, (rot, k)
+            if sadece_hiza:
+                return None, None
         for bant_mi in ((True, False) if bkut is not None else (False,)):
             for k, dn, temiz in sira:
                 w, h = S.ETIKET_W * k, S.ETIKET_H * k
@@ -465,12 +484,38 @@ def _oda_etiket_yerleri(o, yasak, mim, sira):
                 yasak = yasak.union(mq.buffer(4))
         else:
             c = o['tasarim']['devreler'][int(ad[1:])]
-            q, rot = devre(c, yasak, dv[0][1].centroid.x if dv else None)
+            hiza_k = dv[0][2][1] if dv and dv[0][2][0] == 0 else 1.0
+            q, rot = devre(c, yasak, dv[0][1].centroid.x if dv and dv[0][2][0] == 0 else None, hiza_k)
             if q is None:
                 eksik += 1
                 continue
             dv.append((c, q, rot))
             yasak = yasak.union(q.buffer(4))
+    # Ek (tur 4): iki (+) devreli mahalde etiketler kullanıcının çizimindeki gibi aynı x hizasında alt alta. İlk
+    # yerleşim hizasızsa ortak x taranır (5 cm adım): her etiket kendi bandında, aynı ölçekte; ilk yerlere en yakın x.
+    if len(dv) >= 2 and all(r_[0] == 0 for c_, q_, r_ in dv) and \
+            max(q_.centroid.x for c_, q_, r_ in dv) - min(q_.centroid.x for c_, q_, r_ in dv) > 0.5:
+        k0 = min(r_[1] for c_, q_, r_ in dv)
+        taban = yasak0.union(mq.buffer(4)) if mq is not None else yasak0
+        bx0, _, bx1, _ = P.bounds
+        w = S.ETIKET_W * k0
+        en = None
+        for hx in _aralik(bx0 + w / 2, bx1 - w / 2, 5.0):
+            yz, yeni = taban, []
+            for c_, q_, r_ in dv:
+                q2, r2 = devre(c_, yz, hx, k0, sadece_hiza=True)
+                if q2 is None or r2[1] < k0 - 1e-6:
+                    break
+                yeni.append((c_, q2, r2))
+                yz = yz.union(q2.buffer(4))
+            if len(yeni) != len(dv):
+                continue
+            puan = sum(q2.centroid.distance(q_.centroid) for (c_, q_, r_), (_, q2, _) in zip(dv, yeni))
+            if en is None or puan < en[0]:
+                en = (puan, yeni, yz)
+        if en is not None:
+            dv = en[1]
+            yasak = en[2]
     return (mq, mk if mq is not None else 1.0), dv, yasak, eksik
 
 
