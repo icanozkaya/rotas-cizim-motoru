@@ -13,8 +13,8 @@ aşağıdakiler SONRAKİ dosyalarda uygulanır.
 - Holde (antre-koridor) yerden ısıtma yapılmaz; ayaklar holden geçer.
 
 ## Hesap kuralları
-- Yerden ısıtma boru verimi: boru metresi başına 35 kcal/h (devre ısıl gücü = 35 kcal/h × L).
-  (Kullanıcının örneği "100 m boruya 350 kcal/h" yazdı; 35 × 100 = 3500 kcal/h — ilk dosyada kullanıcıya teyit ettir.)
+- Yerden ısıtma boru verimi: boru metresi başına 35 kcal/h (devre ısıl gücü = 35 kcal/h × L; 100 m → 3500 kcal/h —
+  kullanıcı 22:44 teyit etti, "350" yazım hatasıydı).
 - 80 m'yi geçen devre 2'ye bölünür (gerekirse daha fazla).
 - Isı kaybı hesabı ayrıca yapılır (kullanıcının ZEMİN/1 NK sayfa düzeni, kat yüksekliği projeden; verilmezse sorulur).
 - Sakarya = 3. BÖLGE (kullanıcı). Teknik rapor / kapak / ısı kaybı sayfalarında bölge 3 yazılır.
@@ -33,3 +33,14 @@ aşağıdakiler SONRAKİ dosyalarda uygulanır.
    (görsel: kutuphane/arastirma/geri_bildirim/RED_yerden_sol_mutfak_serpantin_bozuk_15_10.png).
 2. Bazı dairelerde kombi duvar üstüne binmiş, bazılarında kombi yok; 2. kat D7 kombi–kollektör hattı yok.
 3. Teknik raporda "2. bölge" ve hazırlayan unvanı — 3. bölge / teknik ressam olacak.
+
+## Kullanıcı kaydı 15.10.2026 22:44
+- **TÜM DOSYALARDA İLK ÖNCELİK: MİMARİYİ OKUMAK VE KOLON HATLARINI BELLİ ETMEK** (pis su / temiz su / yağmur kolonları,
+  ıslak hacimler, betonarme kolonlar, şaftlar). Sonra diğer okuma ve tasarım adımlarına geçilir.
+- U değerleri İZODER sisteminden (TS 825:2024, izoder.org.tr/ts825/<il>.pdf) alınır ve AŞILMAZ. Sakarya 3. bölge:
+  dış duvar 0,40 · tavan/çatı 0,30 · taban/döşeme 0,35 · pencere/kapı 1,8 W/m²K (g ≤ 0,45);
+  yüksek camlı (düşey yüzeyin ≥ %60'ı cam) yapıda 0,30 / 0,23 / 0,26 / 1,6.
+  Projenin İZODER hesabı gelirse oradaki değerler kullanılır, sınırı aşan değer sınıra indirilmez — yalıtım revizesi
+  için kullanıcıya bildirilir. Kod: `motor/yerden2/isi_kaybi.py` (TS825_2024, BOLGE=3, u_sec()).
+- 15.10 onaylı dosyada şablon U değerleri (duvar 0,479, pencere 2,40) kullanıldı — 3. bölge sınırlarının üstünde;
+  o dosya kullanıcı isteğiyle değiştirilmedi, sonraki dosyalarda yukarıdaki değerler kullanılır.

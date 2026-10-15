@@ -1,6 +1,7 @@
 # ROTAŞ çizim motoru — oturum başı talimatı
 
 ## STANDART SİSTEM (kullanıcı kaydı 15.10.2026) — HER OTURUMDA GEÇERLİ
+**Her dosyada İLK İŞ: mimariyi oku ve kolon hatlarını (pis/temiz su, yağmur, betonarme kolon, şaft) belirle; sonra devam et.** U değerleri İZODER / TS 825:2024 bölge sınırlarını aşmaz (Sakarya 3. bölge).
 Sıhhi tesisat ve yerden ısıtma projeleri YALNIZ bu sistemle yapılır: `motor/sihhi2/` + `motor/yerden2/` (+ `motor/kontrolor/` onayı), referans çıktılar `proje/STANDART/`. Kurallar README.md en üst bloklarında. Kullanıcı yetki vermeden motorun tarzı/kuralları değiştirilmez; yeni proje gelince aynı motor yeni mimariyle çalıştırılır. Kazan dairesi: `motor/deneme/kazan_dairesi/plan_kesit.py` (onaylı). Altyapı/rögar, vaziyet, yağmur sarnıcı, merkezi sistem ek kuralları: `proje/STANDART/STANDART_KURALLAR_ALTYAPI_SARNIC.md`. Sığınak havalandırma (duman tahliyeli): `motor/ab2750/siginak_hav.py`, referans `proje/STANDART/STANDART_SIGINAK_HAVALANDIRMA_ab2750.dxf` (çıkışlar perdede yan yana delik — kuranglez/baca mimaride yoksa çizilmez; bölmeli pantolon/dirsek; WC'lere anemostad — kullanıcı kaydı 15.10.2026). Yerden ısıtma onaylı dosya + notlar (35 kcal/h·m, hol yok, 3. bölge, teknik ressam, kombi kesiti): `proje/STANDART/STANDART_KURALLAR_YERDEN_ISITMA_15_10.md`. Teslim yalnız DXF (+ hesap Excel).
 
 

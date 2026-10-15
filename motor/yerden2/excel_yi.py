@@ -74,7 +74,7 @@ def _teknik_ik(ws):
             ws.cell(rr, cc).value = None
     ws['A33'] = '1.3.'
     ws['B33'] = 'Isı Kaybı Hesabı Esasları:'
-    sat = ['Dış hava sıcaklığı : %.0f °C (Sakarya / Adapazarı, TS 825 2. bölge)' % IK.T_DIS,
+    sat = ['Dış hava sıcaklığı : %.0f °C (Sakarya / Adapazarı, TS 825:2024 %d. bölge)' % (IK.T_DIS, IK.BOLGE),
            'Kat yüksekliği : %.2f m (duvar alanları bu yükseklikle hesaplanmıştır)' % IK.KAT_H,
            'Isı geçirme katsayıları (W/m²K) : dış duvar %.3f, pencere / balkon kapısı %.2f, toprağa oturan döşeme %.3f, '
            'çatı arası tavanı %.2f, iç duvar %.3f' % (IK.U['DD'], IK.U['ÇP'], IK.U['Dö'], IK.U['Ta'], IK.U['İD']),

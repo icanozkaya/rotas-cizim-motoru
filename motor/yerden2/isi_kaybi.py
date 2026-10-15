@@ -19,11 +19,32 @@ from shapely.geometry import Point, LineString
 from shapely.ops import unary_union
 
 KAT_H = 3.00            # m — kullanıcı: kat yüksekliği 3 m
-T_DIS = -3.0            # °C — Sakarya / Adapazarı dış tasarım sıcaklığı (TS 825 2. bölge)
+T_DIS = -3.0            # °C — Sakarya / Adapazarı dış tasarım sıcaklığı (TS 2164); TS 825:2024 3. bölge (kullanıcı)
 T_TOPRAK = 6.0
 T_ORTAK = 10.0          # merdiven / asansör (ısıtılmaz)
 T_HOL = 15.0            # daire içi hol (yerden ısıtma yok)
-U = {'DD': 0.479, 'ÇP': 2.40, 'BK': 2.40, 'Dö': 0.269, 'Ta': 0.30, 'İD': 0.814}
+# TS 825:2024 tavsiye edilen (aşılmayacak) U değerleri, W/m²K — İZODER il sayfaları (izoder.org.tr/ts825/<il>.pdf).
+# Kullanıcı 15.10.2026: Sakarya 3. bölge; U değerleri bu sınırları AŞMAYACAK. Projenin İZODER hesabı varsa oradaki
+# (daha küçük) değerler kullanılır: u_sec(proje_U) -> min(proje, sınır).
+TS825_2024 = {1: dict(DD=0.45, Ta=0.35, Dö=0.40, ÇP=1.8), 2: dict(DD=0.40, Ta=0.30, Dö=0.35, ÇP=1.8),
+              3: dict(DD=0.40, Ta=0.30, Dö=0.35, ÇP=1.8), 4: dict(DD=0.35, Ta=0.25, Dö=0.30, ÇP=1.8),
+              5: dict(DD=0.25, Ta=0.20, Dö=0.25, ÇP=1.8), 6: dict(DD=0.25, Ta=0.20, Dö=0.25, ÇP=1.8)}
+BOLGE = 3               # Sakarya (kullanıcı)
+
+
+def u_sec(bolge=BOLGE, proje=None):
+    """bölge sınırları; proje (İZODER) değerleri verilirse her eleman için min(proje, sınır)"""
+    s = TS825_2024[bolge]
+    u = {'DD': s['DD'], 'ÇP': s['ÇP'], 'BK': s['ÇP'], 'Dö': s['Dö'], 'Ta': s['Ta'], 'İD': 0.814}
+    for k, v in (proje or {}).items():
+        if k in u and v:
+            u[k] = min(v, u.get(k, v)) if k != 'İD' else v
+    return u
+
+
+U = u_sec()
+# 15.10.2026 onaylı dosyada kullanılan (şablon) değerler — yalnız kayıt için:
+U_15_10 = {'DD': 0.479, 'ÇP': 2.40, 'BK': 2.40, 'Dö': 0.269, 'Ta': 0.30, 'İD': 0.814}
 AD = {'DD': 'Dış duvar', 'ÇP': 'Pencere (PVC çift cam)', 'BK': 'Balkon kapısı (camlı)', 'Dö': 'Döşeme (toprak)',
       'Ta': 'Tavan (çatı arası)', 'İD': 'İç duvar'}
 ZD = 7                  # işletme zammı %

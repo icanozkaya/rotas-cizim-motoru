@@ -2,6 +2,8 @@
 
 ROTAŞ Mühendislik — MTY CAD standardında sıhhi tesisat, yerden ısıtma, klima ve yağmur projesi üreten Python çizim motoru.
 
+## 15.10.2026 (F) TÜM DOSYALARDA İLK ÖNCELİK: MİMARİYİ OKU, KOLON HATLARINI BELİRLE; U değerleri İZODER/TS 825:2024 (Sakarya 3. bölge: DD 0,40 / tavan 0,30 / taban 0,35 / pencere 1,8) aşılmaz — ayrıntı `proje/STANDART/STANDART_KURALLAR_YERDEN_ISITMA_15_10.md`
+
 ## 15.10.2026 (E) YERDEN ISITMA ONAY + NOTLAR (kullanıcı kaydı) — sonraki dosyalarda uygulanır
 - Onaylı dosya ve tüm notlar: `proje/STANDART/STANDART_KURALLAR_YERDEN_ISITMA_15_10.md`.
 - Boru verimi 35 kcal/h·m; devre > 80 m → 2'ye böl; holde yerden ısıtma yok; Sakarya 3. bölge; proje bilgileri eksiksiz;
