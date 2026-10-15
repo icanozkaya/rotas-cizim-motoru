@@ -1,6 +1,9 @@
 """Gerçek yazı kutusu: ezdxf.tools.text_size (yazı tipi ölçüsü: genişlik faktörü, büyük harf yüksekliği, alt uzantı)
 ile TEXT / ATTRIB / MTEXT kutusu; hizalama (halign/valign, MTEXT attachment_point) ve döndürme dahil.
 
+MTEXT genişliği satır satır gerçek yazı genişliğidir (mtext_olcu), sütun genişliği değil; denetle.yazi_poligonu
+da bu modülü kullanır (tek ölçü).
+
 Neden: `denetle.yazi_poligonu` (disassemble.make_primitive) MTEXT'te sütun genişliği/satır aralığıyla yanlış kutu veriyor
 (3 satırlık aspiratör notunda 96×170 yerine gerçek 138×65), TEXT'te alt uzantıyı (Ø, g, y ...) almıyor; sıhhi plan
 tur 1'de (KONTROL_SIHHI_PLAN_TUR1.md madde 4) 45° döndürülmüş çap etiketlerinin birbirine bindiği görülmedi."""
@@ -75,25 +78,68 @@ def text_kutusu(e):
     return pg if pg.is_valid and pg.area > 0 else None
 
 
+_BOSLUK = ('Space', 'NonBreakingSpace', 'Tabulator', 'EmptyBox')
+
+
+def _satir_genisligi(satir):
+    """text_layout satırının yazı genişliği: hücreler toplamı, sondaki boşluk hücreleri hariç"""
+    toplam = son = 0.0
+    for c in satir.cells():
+        toplam += c.total_width
+        if type(c).__name__ not in _BOSLUK:
+            son = toplam
+    return son
+
+
+def mtext_olcu(e):
+    """MTEXT'in GERÇEK ölçüsü (genişlik, yükseklik, satır sayısı) — denetle.py ve kontrolör ORTAK fonksiyonu.
+    Genişlik: ezdxf düzen motorunun (text_size.MTextSizeDetector, satır kaydırma dahil) satır satır en uzun satırı;
+    sütun genişliği (MTEXT `width`) DEĞİL. Ör. "asansör boşluğu" h 20: sütun 237,6 cm, gerçek 97,5 cm.
+    Yükseklik: düzenin sütun yüksekliği (satır aralığı dahil). Ölçülemezse tahmin (0,62·h·karakter)."""
+    s = e.plain_text() or ''
+    h = e.dxf.get('char_height', 2.5) or 2.5
+    anahtar = ('M', e.text, round(h, 3), round(e.dxf.get('width', 0) or 0, 3), e.dxf.get('style', 'Standard'),
+               round(e.dxf.get('line_spacing_factor', 1.0) or 1.0, 3))
+    if anahtar in _ONBELLEK:
+        return _ONBELLEK[anahtar]
+    satir = s.split('\n')
+    w = hh = None
+    n = len(satir)
+    if _TS is not None:
+        try:
+            sutunlar = list(_TS.MTextSizeDetector().measure(e))
+            gen, n, hh = [], 0, 0.0
+            for col in sutunlar:
+                hh = max(hh, col.total_height)
+                for par in col:
+                    for ln in par._lines:
+                        gen.append(_satir_genisligi(ln))
+                        n += 1
+            if len(sutunlar) > 1:      # çok sütunlu MTEXT: toplam sütun genişliği
+                ms = _TS.mtext_size(e)
+                w = ms.total_width
+            else:
+                w = max(gen) if gen else None
+        except Exception:
+            w = None
+    if not w or not hh:
+        w = max(len(x) for x in satir) * h * 0.62
+        hh = h * (1 + 1.667 * (len(satir) - 1))
+        n = len(satir)
+    _ONBELLEK[anahtar] = (w, hh, n)
+    return w, hh, n
+
+
 def mtext_kutusu(e):
+    """MTEXT kutusu: gerçek satır genişliği (mtext_olcu) + bağlama noktası (attachment_point) + döndürme
+    (text_direction / rotation)."""
     try:
         s = e.plain_text()
     except Exception:
         s = ''
     if not (s or '').strip():
         return None
-    h = e.dxf.get('char_height', 2.5) or 2.5
-    satir = s.split('\n')
-    w = hh = None
-    if _TS is not None:
-        try:
-            ms = _TS.mtext_size(e)
-            w, hh = ms.total_width, ms.total_height
-        except Exception:
-            w = None
-    if not w or not hh:
-        w = max(len(x) for x in satir) * h * 0.62
-        hh = h * (1 + 1.667 * (len(satir) - 1))
+    w, hh, _ = mtext_olcu(e)
     ap = e.dxf.get('attachment_point', 1)
     col, row = (ap - 1) % 3, (ap - 1) // 3
     x0 = (0.0, -0.5, -1.0)[col] * w

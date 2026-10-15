@@ -31,6 +31,9 @@ from shapely import STRtree
 from shapely.geometry import LineString, Point, Polygon, box
 
 KOK = Path(__file__).resolve().parents[3]
+if str(KOK / 'motor' / 'kontrolor') not in sys.path:
+    sys.path.insert(0, str(KOK / 'motor' / 'kontrolor'))
+import kutu as K  # noqa: E402  (ORTAK yazı kutusu: kontrolörle aynı ölçü)
 VARSAYILAN = KOK / 'proje' / 'denemeler'
 RAPOR = KOK / 'kutuphane' / 'arastirma' / 'DENETIM_RAPORU.md'
 UC_TOL = 15.0  # cm: bir borunun ucu kesişmeye bu kadar yakınsa bağlantı (T / ağız) sayılır
@@ -143,14 +146,15 @@ def yazi_kutusu(e):
 
 
 def yazi_poligonu(e):
-    """Yazının çizimdeki kutusu: ezdxf yazı tipi ölçüsüyle (disassemble.make_primitive — uctan_uca ykontrol4 ile
-    aynı yöntem); ölçülemezse tahmini kutu (0,8·h·karakter)."""
+    """Yazının çizimdeki kutusu — kontrolörle ORTAK ölçü (motor/kontrolor/kutu.py).
+    MTEXT: kutu.mtext_kutusu — satır satır gerçek yazı genişliği (ezdxf düzen motoru, kaydırma dahil), bağlama noktası,
+    döndürme. Eskiden disassemble.make_primitive sütun genişliğini veriyordu ("asansör boşluğu" 237 cm yerine 97 cm).
+    TEXT / ATTRIB: kutu.text_kutusu (ezdxf text_size: genişlik faktörü, büyük harf yüksekliği, alt uzantı, hizalama).
+    Ölçülemezse tahmini kutu (0,8·h·karakter)."""
     try:
-        v = [(p.x, p.y) for p in disassemble.make_primitive(e).vertices()]
-        if len(v) >= 4:
-            pg = Polygon(v)
-            if pg.is_valid and pg.area > 0:
-                return pg
+        pg = K.yazi_kutusu(e)
+        if pg is not None and pg.is_valid and pg.area > 0:
+            return pg
     except Exception:
         pass
     return yazi_kutusu(e)
