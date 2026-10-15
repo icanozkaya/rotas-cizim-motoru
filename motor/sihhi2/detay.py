@@ -127,6 +127,10 @@ ESDEGER = {
     'ROTAS-S2-KOLON-NO': 'ROTAS-SB-KOLON-NO',
     'ROTAS-S2-KOLON-NO-YAGMUR': 'ROTAS-SB-KOLON-YAGMUR',
     'ROTAS-S2-ASPIRATOR': 'ROTAS-HV-ASPIRATOR',
+    # 15.10 (D) planda sayaç grubu / şebeke girişi (besleme.py)
+    'ROTAS-S2-CEKVALF': 'ROTAS-SB-CEKVALF',
+    'ROTAS-S2-PISLIK-TUTUCU': 'ROTAS-SB-PISLIK-TUTUCU',
+    'ROTAS-S2-SU-OLCER': 'ROTAS-SB-SU-SAYACI',
 }
 # numara balonu: adet = farklı numara sayısı (aynı kolon her katta tekrar eder)
 NUMARALI = {'ROTAS-SB-KOLON-NO', 'ROTAS-SB-KOLON-YAGMUR', 'ROTAS-SB-KOLON-TEMIZ'}

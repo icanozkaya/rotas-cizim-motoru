@@ -10,6 +10,31 @@ başlık `ZEMİN KAT PLANI.........ÖLÇEK: 1 / 50`) + `sihhi_model.json` (`MODE
 Sıfırdan yazıldı; eski `uctan_uca` tarz olarak kullanılmaz. Mimari tanıma: `mimari2.py` (+ kontrolörün `mimari_bilgi`
 sonucu `K.kb`; kolon/köşe doğrulaması kontrolörle aynı ölçüyle yapılır). Semboller saf geometri (MTY 0).
 
+## Tur 6 (15.10.2026) — kullanıcı geri bildirimi (D) (README "15.10.2026 (D)", `RED_sihhi_pissu_kolon_icine_giriyor.png`)
+- **Pis su kolonu**: kullanıcının dinamik kolon bloğunda ekleme noktası borunun BAĞLANDIĞI nokta; sembolün (STM-PISSU-KOLON
+  r 10) merkezi ondan 15,9 cm içeride. Eskiden sembol bağlantı noktasına konuyordu -> P2/P5 'mek. havl.' şaftına, P3/P6
+  betonarmeye biniyordu ve hat sembolün ortasına giriyordu. `tasarim_cikar.py` artık `kolon_merkez`, `balon_ofset_merkez`,
+  `cati_merkez` yazar. plan.py: güzergâh yine bağlantı noktasından (kullanıcı), sembol `KOLON_MERKEZ`'de (kelepçe kolu bağlantıya
+  döndürülür), hat bağlantı noktasından dış çembere (r 10) kısa uzatılır (`kolon_baglantisi`) ve orada biter; çizimde tüm
+  pis su hatları kolon çemberleriyle kırpılır (`kolon_ici_kirp`). Kullanıcının merkezleri şaft hücresine / betonarmeye
+  girmiyor (P2/P5/P8 şaft hücresine teğet, P7 S05'e ~1 cm teğet — kullanıcının yeri, değiştirilmedi).
+- **Mutfakta yer süzgeci YOK**: `ek_armaturler` mutfağa süzgeç eklemez, mimari tanımanın bulduğu mutfak süzgeci atılır;
+  şema (`sema_ortak`) mutfak grubunda YS yok; kontrolör T09 mutfakta 0 ister.
+- **Daire beslemeleri / sayaç grubu planda** (`besleme.py`, yerleşim `tasarim_new_block.json` -> varsayılan `besleme.VARSAYILAN`):
+  şema ile aynı kurgu — şebeke (bina girişinden, döşeme altından, kesikli `ROTAS-SIHHI-SEBEKE`) -> vana–pislik tutucu–çek
+  valf–vana -> DEPO DOLUM kolonu; by-pass çek valf; DEPO DÖNÜŞ kolonu -> kollektör -> 9 sıra (vana–pislik tutucu–sayaç–çek
+  valf–vana; zemin merdiven holü, bina girişi kapısının ~1,5 m yanı, doğu duvarı) -> her daireye ayrı hat. Üst kat daireleri
+  TEMİZ SU KOLON KUTUSU'ndaki kendi kolonuyla (S10 yanı, her katta aynı nokta; sıra DOLUM, DÖNÜŞ, D5, D8, D4, D7, D6, D9)
+  çıkar, kapı yanındaki giriş işaretine. Şeritler 6 cm paralel, kesişmez (şerit sırası kurgu ile garanti), kapı açılım
+  alanına girmez. Etiket: her hat tek `Dn: 1 1/4" / 9.5 MB` (TS-CAP2), zeminde 'SAYAÇ GRUBU (9 AD.)' tablosu, sıra uçlarında
+  daire adı. Çatı: DOLUM/DÖNÜŞ kolonları mimarideki su deposu kutusuna (vana). Plan sayaç bloğu `ROTAS-S2-SU-OLCER`
+  (adında SAYAC yok: kontrolör şema paftasını sayaç sayısıyla da arıyor). Model: `temiz_su.sayac_grubu/kolon_kutusu/
+  daire_besleme/sebeke`.
+- Kontrol: `python3 motor/sihhi2/kontrol_tur6.py [DXF] [--onbellek Ks.pkl]` — K1 hat–kolon çemberi iç kesişme,
+  K2 kolon merkezi şaft hücresi / betonarme, K3 mutfak süzgeci, K4 besleme (sayaç adedi, bağlantı, kesişme, üst üste,
+  kapı alanı, duvar, ortak alan dışı, kolon hizası). Kırpımlar: `python3 motor/sihhi2/kars_png_tur6.py`
+  -> `kutuphane/arastirma/kontrol_png/sihhi_tur6_uretici/`.
+
 ## Tur 5 (15.10.2026) — kontrolör tur 4 RED (KONTROL_SIHHI_TUR4.md, E1 + E2) düzeltmeleri
 - **E1 duş teknesi kuralı** (genel): `tekne_poligonlari(doc, K)` (armatür kutusu ya da mimari dikdörtgen+köşegen;
   K'de önbellek, `dus_tekneleri` yasağı da bundan) kat çiziminin başında `K.tekneler`. (1) EK yer süzgeci tekne

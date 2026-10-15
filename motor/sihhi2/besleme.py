@@ -187,9 +187,8 @@ def _zemin(P, cfg, daireler, sira, kol_y, kat_dn, toplam, mb_fmt, inc):
     # ---- sayaç sıraları: kollektör -> vana – pislik tutucu – sayaç – çek valf – vana -> uç
     xb = cfg['sayac_bitis_x']
     for dn, y in zip(satirlar, ys):
-        for dx, b in ((7.5, B_VANA), (17.0, B_PISLIK), (27.5, B_OLCER), (38.0, B_CEK), (45.5, B_VANA)):
+        for dx, b in ((6.0, B_VANA), (14.0, B_PISLIK), (23.0, B_OLCER), (31.0, B_CEK), (39.0, B_VANA)):
             P['semboller'].append((b, (xk - dx, y), 180.0 if b in (B_CEK, B_PISLIK) else 0.0, L_SAY))
-        P['etiketler'].append(dict(tur='sira', ad=dn, p=(xb + 1.5, y + 1.6)))
     P['sayac'] = dict(adet=len(satirlar), satirlar=satirlar, ys=ys,
                       kutu=(xb - 1.0, ys[-1] - 5.0, xk + 2.5, ys[0] + 5.0))
     # ---- sıra uçlarından şeritlere
@@ -363,7 +362,7 @@ def _sayac_tablosu(msp, eng, K, P, kur, P_):
     """sayaç grubunun altında (hatsız boş yerde, merdiven holü) tablo: 'SU SAYAÇ GRUBU (9 AD.)' + her sıra
     'Dn  çap / MB' + depo kolonları. Kılavuz yok (her kılavuz besleme şeritlerini keserdi); tablo grubun hemen altında."""
     o = K.off
-    sat = ['SAYAÇ GRUBU (%d AD.)' % P['sayac']['adet']]
+    sat = ['SAYAÇ GRUBU %d AD. (üstten)' % P['sayac']['adet']]
     for dn in P['sayac']['satirlar']:
         d = kur['daireler'][dn]
         sat.append('%s %s / %s' % (dad(dn), P_.inc(d['mb']), P_.fmt_mb(d['mb'])))

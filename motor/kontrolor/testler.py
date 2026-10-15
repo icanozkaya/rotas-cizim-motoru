@@ -30,6 +30,7 @@ KORIDOR_ORTA_ORAN = 0.25      # koridor genişliğinde duvara en yakın oran (or
 KOLON_KOSE_MAX = 45.0         # pis su kolonu – ıslak hacim köşesi
 KOLON_MAHAL_PAY = 40.0        # kolon ıslak mahal poligonuna bu kadar yakınsa (duvar / tezgâh içi) o mahaldedir
 ARMATUR_BAG_TOL = 50.0        # armatür bağlantı noktası – pis su ağı
+KOLON_CEMBER_BAG = 13.0       # 15.10 (D): kolon dış çemberi (r 10) çevresinde biten hat ucu kolona bağlı
 ETIKET_H = (8.0, 12.0)        # etiket yazı yüksekliği (kullanıcı: çap bloğu 10)
 ETIKET_HAT_MIN = 8.0          # yazı kutusundan geçen hat boyu (cm): köşeye değen sayılmaz
 ETIKET_BOSLUK = 0.0           # etiket–etiket en az boşluk (cm); 0: yalnız gerçek örtüşme (kutu.py gerçek kutu)
@@ -265,6 +266,11 @@ def t02_pis_su_bransman(cz, kat, kb):
         n = en_yakin_kenar_dugumu(G, p, 40)
         if n is not None:
             kolon_d[n] = p
+        # kullanıcı 15.10 (D): hat kolon sembolünün İÇİNE girmez, dış çemberinde (r 10) biter -> çember çevresinde
+        # (≤ 13 cm) biten her hat ucu kolona bağlıdır (farklı yönlerden gelen kollar sembolde birleşir)
+        for q in list(G.nodes):
+            if math.hypot(q[0] - p[0], q[1] - p[1]) <= KOLON_CEMBER_BAG and G.degree(q) == 1:
+                kolon_d.setdefault(q, p)
     balon = cz.kolon_balonlari(w)
 
     def kolon_adi(p):
