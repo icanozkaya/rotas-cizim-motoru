@@ -67,11 +67,20 @@ def sb_kutulari(msp):
     return gs
 
 
+def kilavuzlar(msp):
+    out = []
+    for e in msp.query('LINE'):
+        if 'KILAVUZ' in e.dxf.layer.upper():
+            out.append(((e.dxf.start.x, e.dxf.start.y), (e.dxf.end.x, e.dxf.end.y)))
+    return out
+
+
 def say(yol, liste=False):
     doc = ezdxf.readfile(yol)
     msp = doc.modelspace()
     segs = segmentler(msp)
     kut = sb_kutulari(msp)
+    kils = kilavuzlar(msp)
     agac = STRtree(kut) if kut else None
     sonuc = {}
     for k, (x0, x1) in PAFTA.items():
@@ -87,6 +96,17 @@ def say(yol, liste=False):
             if ds:
                 dm = min(ds)[0]
                 kapsanan.update(i for d, i in ds if d <= dm + 1.0)
+        # kılavuzlu etiket: kılavuzun bir ucu parçanın üstünde (≤ 2 cm), öbür ucu 'n SB' etiketinde (≤ 15 cm; iki
+        # satırlı etiketin Ø satırına değebilir)
+        kil_kap = set()
+        for a, b in kils:
+            for u, v in ((a, b), (b, a)):
+                if not any(g.distance(Point(v)) <= 15 for g in kut if w.intersects(g)):
+                    continue
+                for i, s_ in enumerate(ps):
+                    if s_.distance(Point(u)) <= 2:
+                        kil_kap.add(i)
+        siki_k = [s for i, s in enumerate(ps) if i not in kapsanan and i not in kil_kap]
         siki = [s for i, s in enumerate(ps) if i not in kapsanan]
         yok = []
         for s in ps:
@@ -98,13 +118,14 @@ def say(yol, liste=False):
                         break
             if not ok:
                 yok.append(s)
-        sonuc[k] = (len(ps), yok, siki)
+        sonuc[k] = (len(ps), yok, siki, siki_k)
     print(os.path.basename(yol))
-    for k, (n, yok, siki) in sonuc.items():
-        print('  kat %s: parça %d, etiketsiz %d (>= 50 cm: %d); sıkı (etiket yalnız en yakın parçayı kapsar): %d' % (
-            k, n, len(yok), sum(1 for s in yok if s.length >= 50), len(siki)))
+    for k, (n, yok, siki, siki_k) in sonuc.items():
+        print('  kat %s: parça %d, etiketsiz %d (>= 50 cm: %d); sıkı (etiket yalnız en yakın parçayı kapsar): %d; '
+              'sıkı + kılavuzlu etiket sayılınca: %d' % (k, n, len(yok), sum(1 for s in yok if s.length >= 50), len(siki),
+                                                       len(siki_k)))
         if liste:
-            for s in siki:
+            for s in siki_k:
                 print('      %.0f cm @ (%.0f, %.0f)' % (s.length, s.centroid.x, s.centroid.y))
     return sonuc
 

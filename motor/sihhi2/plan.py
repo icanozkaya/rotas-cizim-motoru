@@ -1709,6 +1709,23 @@ def carp_haric(eng, k, g, gevsek=False, diger=None):
 
 
 PIS_SEG = {'segs': [], 'agac': None}
+T_GEVSEK = (0.5, 0.42, 0.58, 0.34, 0.66, 0.26, 0.74, 0.18, 0.82, 0.1, 0.9, 0.03, 0.97, 0.0, 1.0)
+
+
+def sb_kutusu(e):
+    """etiketin 'n SB' satırının kutusu (kontrolör ölçüsü: 30 cm içindeki 'n SB' yazısı en yakın parçaya sayılır)"""
+    for a in e.attribs:
+        if (a.dxf.text or '').strip().upper().endswith('SB'):
+            try:
+                pk = KUTU.yazi_kutusu(a)
+                if pk is not None and pk.is_valid and pk.area > 0:
+                    return pk
+            except Exception:
+                pass
+            pg = EK.glif_kutusu(a) or D.yazi_poligonu(a)
+            if pg is not None:
+                return pg
+    return None
 
 
 def sahiplik_ok(U, g):
@@ -1786,7 +1803,7 @@ def etiket_dene_pis(msp, eng, g, cap, sb, adaylar_t=(0.5, 0.42, 0.58, 0.34, 0.66
                 msp.delete_entity(e)
                 continue
             if kut and not any(carp_haric(eng, k, g, gevsek, diger=PIS_SEG.get('diger')) for k in kut) and \
-                    (gevsek or not eng.carpar(kanca_u.buffer(0.4), cizgi_tol=1.0)) and sahiplik_ok(unary_union(kut), g):
+                    (gevsek or not eng.carpar(kanca_u.buffer(0.4), cizgi_tol=1.0)) and sahiplik_ok(sb_kutusu(e) or unary_union(kut), g):
                 for k in kut:
                     eng.ekle_alan(k)
                 eng.ekle_cizgi(kanca)
@@ -1945,7 +1962,10 @@ def etiket_kisa(msp, eng, K, g, satirlar, blok, katman, oda_poly, mesafeler=(18,
     disari verilirse (pis su, R1): oda_poly yerine — yazı kutusu disari'ya (başka daire / ortak / balkon) girmez,
     parçaya ≤ 30 cm, kılavuz ≤ 45 cm ve en çok bir ara duvar (≤ 25 cm) keser; kılavuz başka hattı kesebilir."""
     if disari is not None:
-        return _etiket_kisa_daire(msp, eng, K, g, satirlar, blok, katman, disari, rotlar)
+        e = _etiket_kisa_daire(msp, eng, K, g, satirlar, blok, katman, disari, rotlar)
+        if e is None:          # sığmayan: kılavuz ≤ 60 cm (yazı parçadan uzakta; kılavuz parçaya iner)
+            e = _etiket_kisa_daire(msp, eng, K, g, satirlar, blok, katman, disari, rotlar, uzak=55.0, kil_max=KIL_MAX)
+        return e
     if oda_poly is None or oda_poly.is_empty:
         return None
     ic = oda_poly.buffer(-2, join_style=2)
@@ -2029,7 +2049,7 @@ def etiket_kisa(msp, eng, K, g, satirlar, blok, katman, oda_poly, mesafeler=(18,
 etiket_kisa.boylar = []
 
 
-def _etiket_kisa_daire(msp, eng, K, g, satirlar, blok, katman, disari, rotlar):
+def _etiket_kisa_daire(msp, eng, K, g, satirlar, blok, katman, disari, rotlar, uzak=30.0, kil_max=45.0):
     olc = {}
     for rot in rotlar:
         e = ekle_insert(msp, blok, (0, 0), katman, rot=rot, attr=satirlar)
@@ -2042,9 +2062,9 @@ def _etiket_kisa_daire(msp, eng, K, g, satirlar, blok, katman, disari, rotlar):
     gb = g.buffer(1.0)
     L = g.length
     adaylar = []
-    for tt in (0.5, 0.3, 0.7, 0.15, 0.85):
+    for tt in (0.5, 0.3, 0.7, 0.15, 0.85, 0.04, 0.96):
         m = g.interpolate(tt * L)
-        for dd in (16, 20, 25, 30, 36, 42, 50):
+        for dd in (16, 20, 25, 30, 36, 42, 50) + ((58, 66, 75) if uzak > 30 else ()):
             for rot in rotlar:
                 for k in range(24):
                     adaylar.append((dd, abs(tt - 0.5), rot, k, (m.x, m.y)))
@@ -2058,7 +2078,7 @@ def _etiket_kisa_daire(msp, eng, K, g, satirlar, blok, katman, disari, rotlar):
         p = (m[0] + dd * math.cos(a), m[1] + dd * math.sin(a))
         ins = (p[0] - cx, p[1] - cy)
         kutu = box(bx0 + ins[0] - 1, by0 + ins[1] - 1, bx1 + ins[0] + 1, by1 + ins[1] + 1)
-        if kutu.intersects(gb) or kutu.distance(g) > 30 or not sahiplik_ok(kutu, g):
+        if kutu.intersects(gb) or kutu.distance(g) > uzak or not (sahiplik_ok(kutu, g) if uzak <= 30 else True):
             red['uzak'] += 1
             continue
         if kutu.intersects(disari) or not bina.buffer(-2).contains(kutu):
@@ -2066,7 +2086,7 @@ def _etiket_kisa_daire(msp, eng, K, g, satirlar, blok, katman, disari, rotlar):
             continue
         q = nearest_points(kutu.exterior, Point(m))[0]
         kil = LineString([m, (q.x, q.y)])
-        if kil.length > 45 or kil.length < 3:
+        if kil.length > kil_max or kil.length < 3:
             red['boy'] += 1
             continue
         if K.kapi_u.intersects(kil) or K.S.intersection(kil).length > 25:
@@ -2076,14 +2096,16 @@ def _etiket_kisa_daire(msp, eng, K, g, satirlar, blok, katman, disari, rotlar):
         if eng.carpar(kb, cizgi_tol=1e9) or eng.pis_yasak(kutu, PIS_SEG.get('diger')):
             red['alan'] += 1
             continue
-        # kılavuz: yazı / sembol / armatür kesmez (başka boru hattının üstünden geçebilir)
+        # kılavuz: yazı / sembol kesmez (boru hattının ve armatür çizgisinin üstünden geçebilir — eviye / lavabo
+        # içindeki parçayı gösterir)
         kil_k = substring(kil, min(3.0, kil.length * 0.3), kil.length)
-        if eng.carpar(kil_k.buffer(0.3), cizgi_tol=1e9) or eng.yasakta(kil_k.buffer(0.3), 'armatur', tol=0.05):
+        if eng.carpar(kil_k.buffer(0.3), cizgi_tol=1e9):
             red['kil_kes'] += 1
             continue
         e = ekle_insert(msp, blok, ins, katman, rot=rot, attr=satirlar)
         kut2 = yazi_kutulari(e)
-        if any(eng.carpar(k2.buffer(MARJ, join_style=2), cizgi_tol=1e9) for k2 in kut2):
+        if any(eng.carpar(k2.buffer(MARJ, join_style=2), cizgi_tol=1e9) for k2 in kut2) or \
+                (uzak <= 30 and not sahiplik_ok(sb_kutusu(e) or kutu, g)):
             msp.delete_entity(e)
             continue
         for k2 in kut2:
@@ -2666,18 +2688,48 @@ def dus_tekneleri(doc, eng, K):
     """duş teknesi poligonları (mimari: dikdörtgen + köşegen) -> eng yasak 'tekne' (aspiratör notu üstüne binmez).
     Armatür kutusu (bb) olan duşlarda kutu; olmayanlarda mimari çizgilerin poligonlaştırılmasıyla (0,3–1,6 m²)."""
     if id(doc) not in _MIM_CIZGI:
+        from ezdxf import path as ezpath
         ls = []
-        for e in doc.modelspace().query('LINE'):
+        for e in doc.modelspace().query('LINE LWPOLYLINE ARC'):
             if e.dxf.layer != 'ROTAS-MIMARI':
                 continue
-            a_, b_ = e.dxf.start, e.dxf.end
-            if abs(a_.x - b_.x) + abs(a_.y - b_.y) >= 1:
-                ls.append(LineString([(a_.x, a_.y), (b_.x, b_.y)]))
+            if e.dxftype() == 'LINE':
+                a_, b_ = e.dxf.start, e.dxf.end
+                if abs(a_.x - b_.x) + abs(a_.y - b_.y) >= 1:
+                    ls.append(LineString([(a_.x, a_.y), (b_.x, b_.y)]))
+                continue
+            try:
+                vs = [(v.x, v.y) for v in ezpath.make_path(e).flattening(1.0)]
+            except Exception:
+                continue
+            for a_, b_ in zip(vs[:-1], vs[1:]):
+                if abs(a_[0] - b_[0]) + abs(a_[1] - b_[1]) >= 0.5:
+                    ls.append(LineString([a_, b_]))
         _MIM_CIZGI.clear()
         _MIM_CIZGI[id(doc)] = (ls, STRtree(ls) if ls else None)
     ls, tr = _MIM_CIZGI[id(doc)]
     from shapely.ops import polygonize
     n = 0
+    # klozet / lavabo kutusu (armatür kutusu tanınmamışsa): mimari çizgilerin poligonları, c'ye ≤ 5 cm, ≤ 0,5 m²,
+    # her yönde ≤ 90 cm -> 'armatur' yasağı (pis su etiketi klozet/lavabo üstüne binmez; R1)
+    for f in K.fx:
+        if f['kind'] not in ('WC', 'LV') or f.get('bb') or tr is None:
+            continue
+        c = f['c']
+        B = box(c[0] - 120, c[1] - 120, c[0] + 120, c[1] + 120)
+        loc = [ls[i] for i in tr.query(B)]
+        try:
+            polys = list(polygonize(unary_union(loc)))
+        except Exception:
+            continue
+        sec = []
+        for pg in polys:
+            x0, y0, x1, y1 = pg.bounds
+            if 0.01e4 < pg.area < 0.5e4 and x1 - x0 <= 90 and y1 - y0 <= 90 and pg.distance(Point(c)) <= 5:
+                sec.append(pg)
+        if sec:
+            eng.yasak_ekle(unary_union(sec).envelope.buffer(-1), 'armatur')
+            n += 1
     for f in K.fx:
         if f['kind'] != 'DUS':
             continue
@@ -2827,14 +2879,10 @@ def kat_etiketle(doc, eng, K, kat, dur):
             segler.append(dict(p, g=LineString([a, b]), zorunlu=False))
     # zor yerler önce: kısa ve kalabalık parçalar uzun parçalardan önce yer seçer (uzun parçada çok aday konum var)
     segler.sort(key=lambda p: (not p['zorunlu'], p['g'].length))
-    tum = []
-    for ps in kat['pisler']:
-        hatlar = list(ps['kollar'].values()) + [LineString(b['pts']) for b in ps['br'] if len(b['pts']) > 1]
-        if ps.get('misafir') and len(ps['baglanti']) > 1:
-            hatlar.append(LineString(ps['baglanti']))
-        for h_ in hatlar:
-            cs = list(h_.coords)
-            tum += [LineString([a, b]) for a, b in zip(cs[:-1], cs[1:]) if dist(a, b) >= 20.0]
+    tum = []            # çizimdeki gibi (omurga birleşim noktalarında bölünmüş) segmentler
+    for p in parcalar:
+        cs = list(p['g'].coords)
+        tum += [LineString([a, b]) for a, b in zip(cs[:-1], cs[1:]) if dist(a, b) >= 20.0]
     PIS_SEG['segs'] = tum
     PIS_SEG['agac'] = STRtree(tum) if tum else None
     balkon_u = unary_union([r['poly'].buffer(-3) for r in K.rooms if r['tip'] == 'balkon'] or [Polygon()])
@@ -2844,8 +2892,10 @@ def kat_etiketle(doc, eng, K, kat, dur):
         PIS_SEG['diger'] = daire_alani(K, (mm_.x, mm_.y))               # yazı başka dairenin mahaline girmez
         dis_ = None if balkon_u.intersects(pc['g']) else balkon_u      # duş etiketi balkona çıkmaz (Y2a)
         e = etiket_dene_pis(msp, eng, pc['g'], pc['cap'], pc['sb'], disari=dis_)
-        if e is None:       # hattın üstünde; başka boru yazının altından geçebilir (kullanıcı çizimi)
-            e = etiket_dene_pis(msp, eng, pc['g'], pc['cap'], pc['sb'], gevsek=True, disari=dis_)
+        if e is None:       # hattın üstünde; başka boru yazının altından geçebilir (kullanıcı çizimi); kısa parçada
+            # etiket parçanın ucuna / uzantısına kayabilir (kontrolör tur 3 önerisi)
+            e = etiket_dene_pis(msp, eng, pc['g'], pc['cap'], pc['sb'], gevsek=True, disari=dis_,
+                                adaylar_t=T_GEVSEK)
         if e is None and pc['zorunlu']:
             # dar hacim: kısa kılavuz (≤ 45 cm), yazı parçaya ≤ 30 cm; aynı dairenin mahallerinde (bitişik mahal
             # dahil, kılavuz en çok bir ara duvar keser); başka daire / ortak alan / balkon / duvar / yazı / armatür yok
