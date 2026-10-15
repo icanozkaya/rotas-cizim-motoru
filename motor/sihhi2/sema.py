@@ -324,11 +324,14 @@ def sebeke_sayac_depo(C, m, L, yt):
     C.yazi('Su Seviye', (dx1 + 22, dy0 + 120), 13.0, 'ROTAS-SIHHI-DEPO-YAZI')
     C.yazi('Göstergesi', (dx1 + 22, dy0 + 103), 13.0, 'ROTAS-SIHHI-DEPO-YAZI')
     # akış okları: şebeke girişinde →, her katta dolum ↑, dağıtım ↓
-    C.blok('ROTAS-SEMA-AKIS-OKU', (X0 + 30, Y0 - 12), L_SEM, rot=-90)
+    C.hat([(X0 + 46, ys + 14), (X0 + 74, ys + 14)], L_SEM, renk=5)          # kullanıcı: şebeke oku hattın üstünde
+    C.blok('ROTAS-SEMA-AKIS-OKU', (X0 + 74, ys + 14), L_SEM, rot=-90)
+    # kullanıcı (§5.4): iki düşeyin SOLUNDA, gövdeli ok (≈ 50 cm); dolum ↑ (X0+125), dağıtım ↓ (X0+158)
     for k in range(O.kat_sayisi(m)):
-        yy = Y0 + k * H + (200 if k else 260)
-        C.blok('ROTAS-SEMA-AKIS-OKU', (X0 + 112, yy), L_SEM)
-        C.blok('ROTAS-SEMA-AKIS-OKU', (X0 + 171, yy), L_SEM, rot=180)
+        yy = Y0 + k * H + (200 if k else 105)
+        for xo, yon in ((X0 + 125 - 11, 1), (X0 + 158 - 11, -1)):
+            C.hat([(xo, yy - 25 * yon), (xo, yy + 17 * yon)], L_SEM, renk=5)
+            C.blok('ROTAS-SEMA-AKIS-OKU', (xo, yy + 17 * yon), L_SEM, rot=0 if yon > 0 else 180)
     # SAYAÇ GRUBU: kollektör j, sıra i; sıra: vana(27) pislik(52) sayaç(74) çek valf(96) vana(121), uç 148
     kalan = n_d
     for j, xc in enumerate(kol_x):

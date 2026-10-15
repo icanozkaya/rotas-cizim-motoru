@@ -10,6 +10,31 @@ başlık `ZEMİN KAT PLANI.........ÖLÇEK: 1 / 50`) + `sihhi_model.json` (`MODE
 Sıfırdan yazıldı; eski `uctan_uca` tarz olarak kullanılmaz. Mimari tanıma: `mimari2.py` (+ kontrolörün `mimari_bilgi`
 sonucu `K.kb`; kolon/köşe doğrulaması kontrolörle aynı ölçüyle yapılır). Semboller saf geometri (MTY 0).
 
+## Tur 3 (15.10.2026) — kontrolör tur 2 RED (KONTROL_SIHHI_TUR2.md, Y1–Y5) düzeltmeleri
+- **Y1** `_pis_omurga`: omurgaya bağlanamayan armatür artık adayı geçersiz kılar (+100000; eskiden +1000 ceza ile armatür
+  SESSİZCE düşüyordu → 1./2. kat D5/D8 wc-banyo lavabosu bağlantısızdı). Lavabo 45° + dik branşmanla omurgaya bağlı;
+  P8 SB 25/25/25 = 75 (eski 25/23/23), şema bloğu modelden. `S2_DEBUG_OMURGA=1` aday dökümü.
+- **Y2 etiket**: pis su `Ø/SB` önce hattın üstünde (parça ortası, hat yönünde); sığmazsa yine hattın üstünde ama başka
+  boru yazının altından geçebilir (`gevsek`, kullanıcı çiziminde de var); sonra `etiket_kisa`: yazı KENDİ mahallinde,
+  kılavuz ≤ 60 cm (`KIL_MAX`), duvar/kapı/başka hat/sembol kesmez; o da olmazsa parça etiketsiz kalır (uyarı). Eski uzun
+  halka araması (35–300 cm) kat planında kullanılmıyor. Balkon içine etiket yok (hat balkonda değilse).
+  Temiz su `inç/MB` yatay; yatay hatta kanca hatta dik (31/22/14/40), düşey hatta kanca hat boyunca + 8 cm çentik
+  (kullanıcı bloğu döndürülmez). Kanca duvar/kapı kesmez; yazı başka daire/ortak/balkona girmez.
+- **Y2 balon**: P balonu önce kullanıcı ofsetinde (`tasarim_new_block.json` balon_ofset; mimari yazı ve merdiven basamağı
+  "duvarı" engel sayılmaz — kullanıcı P3/P5/P6'yı merdivende yazıların üstüne koyuyor), kılavuz ıslak hacimde ≤ 30 cm
+  (P9 duşu kesmez); yedek aramalar en çok 115–130 cm.
+- **Kılavuz rengi**: `ROTAS-SEMBOL-KILAVUZ` ACI 9 (açık gri; yağmur ACI 3 ile karışmaz). `pafta.py` birleştirmede
+  katman rengini sabitler (önce detay lejantı ACI 3 ile tanımlıyordu).
+- **Y3 aspiratör**: metin her yerde `Wc Aspiratörü / 160 m3/h-50 pa / Ø150 mm` (model debisi 80 × hacim değişmedi,
+  izometri için). Not YALNIZ kendi ıslak hacminde, hat/yazı/sembol kesmeden (h 15 → 12 → 10 → 8, 3 satır; sonra 2 satır);
+  olmazsa şaft grubundaki diğer ıslak hacim; o da olmazsa aynı dairenin bitişik HOL/antre'si, sembolden ≤ 60 cm kılavuz
+  (kapı/başka ıslak hacim kesmez; yatak odası yok). Kalan: 1. kat D6 wc-duş (komşusu yalnız yatak odası/merdiven) notsuz.
+- **Y4**: ıslak hacme giren temiz su çiftinin etiketi giriş noktasından ±15–70 cm'de, hattın üstünde.
+- Engel ekleri: küresel vana sembolü (6×6) ve kontrolörün eviye/BM/ÇM kutusu etiket engeli.
+- Ölçüm (tam şerit): kılavuz Z 26 / 1. kat 23 / 2. kat 25 (9 P + 9 YB balonu + 5–7 kısa etiket + 1 aspiratör), > 60 cm: 0,
+  en uzun 59,5. etiket_kontrol E1–E5 kat planında 0 / 8 (E2 = P3/P5/P6 balonu basamak no / "Döş.Mermer" üstünde,
+  kullanıcı ofseti) / 0 / 0 / 0. Kontrolör: T07 etiket–armatür 0, etiket–etiket 0; etiketsiz pis su parçası 26/29/27.
+
 ## Tur 2 (15.10.2026) — kontrolör RED (KONTROL_SIHHI_PLAN_TUR1.md) düzeltmeleri
 - **Tasarım girdisi** `tasarim_new_block.json` (`tasarim_cikar.py` üretir, kullanıcının MTY çiziminden YALNIZ kararlar):
   P1–P9 kolon eksenleri (her katta aynı nokta), çatı P/YB konumları, ÇM/BM bağlantı kutuları (kat bazında),
@@ -35,7 +60,7 @@ sonucu `K.kb`; kolon/köşe doğrulaması kontrolörle aynı ölçüyle yapılı
   (D3 duşu: 7,75 m² oda, yatak odası değil); kuru mahalde kapı açılım alanı +150 ceza; pis su hattına 14 cm yakın +6.
 - **Çatı planı paftası** (258656…260714): mimari çatı altlığı + P havalıkları + YB inişleri/balonları + çatı tipi
   fanlar (şaftlar) + eğim okları + kullanım su deposu notu; "ÇATI PLANI.........ÖLÇEK: 1 / 50". Lejant paftası kalktı.
-- Renkler: kılavuz 9, pafta yazısı 7 (ACI 250–255 / 8 yazı yok).
+- Renkler: kılavuz 9 (birleşik şeritte de 9, pafta.py), pafta yazısı 7 (ACI 250–255 / 8 yazı yok).
 - Geliştirme: `S2_ONBELLEK=<pickle {kat: Kat}>` mimari tanımayı atlar (~45 s kazanç); `S2_DEBUG=1` red nedenleri.
 
 ## Bilinen sınırlar (tur 2)

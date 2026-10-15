@@ -116,3 +116,7 @@ python3 motor/sihhi2/sema_kontrol.py [--png-yok]      # T07/T08/T11 ölçümü +
 - Kolon etiketleri, o kattan aşağıya kümülatif SB'yi gösterir; zemin etiketi kolon toplamıdır. Kullanıcının
   şemasında her kattaki kolon etiketi o katın değerini gösteriyor.
 - `ornek_model.json` yazılmadı: `sihhi_model.json` mevcuttu. Dosya yoksa `model_oku` bu yolu dener.
+
+## Tur 3 (15.10.2026)
+- Akış okları (kontrolör Y5, ALTIN §5.4): her kat bandında depo dolum düşeyinin (X0+125) solunda ↑, dağıtım düşeyinin
+  (X0+158) solunda ↓ gövdeli ok (≈ 50 cm); şebeke → oku giriş yatayının üstünde (kullanıcı çizimi gibi).

@@ -379,8 +379,8 @@
    "egim": "%1",
    "olcu_1": "70x70",
    "olcu_2": "h:-70cm",
-   "sb": 71,
-   "sb_kumulatif": 134
+   "sb": 75,
+   "sb_kumulatif": 138
   },
   {
    "no": "R3",
@@ -399,7 +399,7 @@
    "olcu_1": "70x70",
    "olcu_2": "h:-70cm",
    "sb": 241,
-   "sb_kumulatif": 375
+   "sb_kumulatif": 379
   },
   {
    "no": "R4",
@@ -416,7 +416,7 @@
    "olcu_1": "70x70",
    "olcu_2": "h:-70cm",
    "sb": 60,
-   "sb_kumulatif": 435
+   "sb_kumulatif": 439
   },
   {
    "no": "PB",
@@ -429,7 +429,7 @@
    "olcu_1": "80x80",
    "olcu_2": "h:-80cm",
    "sb": 0,
-   "sb_kumulatif": 435
+   "sb_kumulatif": 439
   }
  ],
  "pafta": [

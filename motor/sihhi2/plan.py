@@ -2004,11 +2004,19 @@ def kat_yasaklari(eng, K):
                 pass
 
 
+
 def kat_ciz(doc, eng, K, dur, onceki):
     msp = doc.modelspace()
     k = K.k
     off = K.off
     ek = ek_armaturler(K)
+    for f in K.fx:                     # makine kutusu (bb yok): etiket üstüne binmez (kontrolör T07 armatür)
+        if not f.get('bb') and f.get('kutu') is not None and f['kind'] in ('BM', 'CM'):
+            eng.yasak_ekle(f['kutu'].buffer(-2), 'armatur')
+    for f in (getattr(K, 'kb', None) or {}).get('fx', []):      # kontrolörün tanıdığı eviye/BM/ÇM yeri (aynı ölçü)
+        if f['kind'] in ('EV', 'BM', 'CM'):
+            g_ = box(*f['bb']) if f.get('bb') else Point(f['c']).buffer(18 if f['kind'] == 'EV' else 12)
+            eng.yasak_ekle(g_, 'armatur')
     log('kat %s: mahal %d, armatür %d (EK %d: %s)' % (k, len(K.rooms), len(K.fx), len(ek),
                                                      ', '.join('%s/%s' % (f['kind'], f['oda']['name']) for f in ek)))
     # ---------------- pis su (kolonlar: kullanıcının P1..P9 eksenleri, her katta aynı nokta)
@@ -2137,9 +2145,11 @@ def kat_ciz(doc, eng, K, dur, onceki):
             if f['kind'] == 'KOMBI':
                 continue
             ekle_insert(msp, 'ROTAS-S2-KURESEL-VANA', tap, 'ROTAS-SIHHI-SEMBOL')
+            eng.ekle_alan(Point(tap).buffer(6, cap_style=3))          # vana sembolü: etiket üstüne binmez
             dur.adet['ROTAS-S2-KURESEL-VANA'] += 1
             if f['kind'] in MB_H:
                 ekle_insert(msp, 'ROTAS-S2-KURESEL-VANA', (tap[0] + O_SICAK, tap[1] + O_SICAK), 'ROTAS-SIHHI-SEMBOL')
+                eng.ekle_alan(Point(tap[0] + O_SICAK, tap[1] + O_SICAK).buffer(6, cap_style=3))
                 dur.adet['ROTAS-S2-KURESEL-VANA'] += 1
     # ---------------- balkon süzgeci -> yağmur inişi
     balkon_s = []
@@ -2237,23 +2247,80 @@ def kat_ciz(doc, eng, K, dur, onceki):
             eng.ekle_alan(Point(q['p']).buffer(13, cap_style=3))
             dur.adet['ROTAS-S2-ASPIRATOR'] += 1
         aspirator.append(dict(r=ana['r'], p=ana['p'], debi=80 * len(gl), odalar=[q['r'] for q in gl], saft=ana['saft'],
-                              semboller=[(q['r'], q['p']) for q in gl], ana=ana))
+                              semboller=[(q['r'], q['p']) for q in gl], ana=ana, grup=gl))
     return dict(pisler=pisler, temiz=temizler, balkon=balkon_s, aspirator=aspirator, ek=ek)
 
 
 ASP_METIN = ('Wc Aspiratörü', '160 m3/h-50 pa', 'Ø150 mm')     # kullanıcının planı: her notta 160 (ALTIN §7)
-ASP_BICIM = ((15.0, 25.0, 3), (12.0, 20.0, 3), (10.0, 16.0, 3), (8.0, 13.0, 3))
+ASP_BICIM = ((15.0, 25.0, 3), (12.0, 20.0, 3), (10.0, 16.0, 3), (8.0, 13.0, 3), (10.0, 16.0, 2), (8.0, 13.0, 2))
 
 
 def aspirator_notu(msp, eng, K, a, dur):
     """'Wc Aspiratörü / 160 m3/h-50 pa / Ø150 mm' (TEXT, genişlik 0,8; kullanıcı biçimi): YALNIZ kendi ıslak hacminin
     İÇİNDE, hiçbir hat/yazı/sembolü kesmeden; aspiratör sembolü notun ≤ 25 cm yanında. Sığmazsa küçük yazı (h 12, 10)
     ve 2 satır. Komşu mahale (yatak odası, hol) taşınmaz (kontrolör tur 2, Y3)."""
-    r = a['r']
-    ana = a['ana']
-    semb = [Point(q).buffer(13, cap_style=3) for q in ana['aday']]
-    alan = r['poly'].buffer(-3, join_style=2)
+    sec = None
+    for ana in [a['ana']] + [q for q in a.get('grup', []) if q is not a['ana']]:
+        r = ana['r']
+        sec, ts, h, ara, ns = _asp_yer(msp, eng, ana, a, sabit=ana is not a['ana'])
+        if sec is not None:
+            break
+    if sec is None:
+        # oda tamamen dolu (mahal adı + hatlar): kullanıcı gibi aynı dairenin bitişik HOL/ANTRE'sinde, ıslak hacim
+        # duvarının dibinde; sembolden kısa kılavuz ≤ 60 cm (kapı, başka ıslak hacim, hat kesmez). Yatak odası yok.
+        ana = a['ana']
+        r = ana['r']
+        for q in K.rooms:
+            if q is r or q['daire'] != r['daire'] or q['tip'] != 'hol' or q['poly'].distance(r['poly']) > 30:
+                continue
+            sec, ts, h, ara, ns = _asp_yer(msp, eng, ana, a, komsu=q['poly'].buffer(-3, join_style=2), K=K)
+            if sec is not None:
+                break
+    if sec is None:
+        r, ana = a['r'], a['ana']
+        sp = ana['aday'][0]
+        ekle_insert(msp, 'ROTAS-S2-ASPIRATOR', sp, 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL')
+        eng.ekle_alan(Point(sp).buffer(13, cap_style=3))
+        dur.uyari.append('kat %s %s aspiratör yazısı yerleşmedi' % (K.k, r['name']))
+        return None
+    xx, yy, kb, sp, cx0, cy0, kil = sec
+    if kil is not None:
+        msp.add_line(kil.coords[0], kil.coords[-1], dxfattribs={'layer': L_KIL})
+        eng.ekle_cizgi(kil)
+        dur.uyari.append('kat %s %s aspiratör yazısı bitişik holde (kılavuz %.0f cm)' % (K.k, r['name'], kil.length))
+    for i, e in enumerate(ts):
+        e.dxf.insert = (xx - cx0, yy - cy0 - ara * i)
+        for g in yazi_kutulari(e):
+            eng.ekle_alan(g)
+    if ana is a['ana']:
+        a['p'] = sp
+    ana['p'] = sp
+    a['semboller'] = [(q_r, (sp if q_r is r else q_p)) for q_r, q_p in a['semboller']]
+    if ana is a['ana']:
+        ekle_insert(msp, 'ROTAS-S2-ASPIRATOR', sp, 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL')
+        eng.ekle_alan(Point(sp).buffer(13, cap_style=3))
+    else:                            # yazı gruptaki diğer ıslak hacimde (sembolü zaten çizili); ana mahal sembolü yazısız
+        sp0 = a['ana']['aday'][0]
+        ekle_insert(msp, 'ROTAS-S2-ASPIRATOR', sp0, 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL')
+        eng.ekle_alan(Point(sp0).buffer(13, cap_style=3))
+    if h < 15:
+        dur.uyari.append('kat %s %s aspiratör yazısı küçük (h %.0f, %d satır)' % (K.k, r['name'], h, ns))
+    return ts
+
+
+def _asp_yer(msp, eng, ana, a, sabit=False, komsu=None, K=None):
+    """bir ıslak hacimde aspiratör notu yeri: (sec, ts, h, ara, ns); sec None ise yazı yok.
+    sabit: sembol zaten çizili (ana['p']); yalnız onun yanına"""
+    r = ana['r']
+    adaylar_s = [ana['p']] if sabit else ana['aday']
+    semb = [Point(q).buffer(13, cap_style=3) for q in adaylar_s]
+    alan = r['poly'].buffer(-3, join_style=2) if komsu is None else komsu
     hedef = a['saft']['c'] if a['saft'] else tuple(r['poly'].centroid.coords[0])
+    if komsu is not None:
+        hedef = tuple(ana['p'])
+        diger_islak = unary_union([q['poly'].buffer(-2) for q in K.rooms if q is not r and q['tip'] in ('islak', 'mutfak')]
+                                  or [Polygon()])
+        kapi_b = K.kapi_u.buffer(8)
     sec = None
     for h, ara, ns in ASP_BICIM:
         satirlar = list(ASP_METIN) if ns == 3 else ['%s %s' % ASP_METIN[:2], ASP_METIN[2]]
@@ -2276,39 +2343,46 @@ def aspirator_notu(msp, eng, K, a, dur):
                 if alan.contains(kb):
                     ad.append((dist((xx, yy), hedef), xx, yy, kb))
         ad.sort(key=lambda q: q[0])
+        red = defaultdict(int)
+        red['aday'] = len(ad)
         for _, xx, yy, kb in ad:
             if eng.etiket_carpar(kb):
+                if os.environ.get('S2_DEBUG_ASP'):
+                    kk = kb.buffer(MARJ, join_style=2)
+                    if eng.carpar(kk, cizgi_tol=1e9):
+                        red['alan'] += 1
+                    elif eng.carpar(kk):
+                        red['cizgi'] += 1
+                    else:
+                        red['yasak'] += 1
                 continue
-            for sp, sg in zip(ana['aday'], semb):
+            red['bos'] += 1
+            if komsu is not None and (kb.intersects(kapi_b) or kb.distance(r["poly"]) > 40):
+                continue
+            for sp, sg in zip(adaylar_s, semb):
                 d = sg.distance(kb)
-                if d < MARJ or d > 35 or eng.carpar(sg):
+                if d < MARJ or d > (35 if komsu is None else KIL_MAX) or (not sabit and eng.carpar(sg)):
+                    red['sembol'] += 1
                     continue
-                sec = (xx, yy, kb, sp)
+                kil = None
+                if komsu is not None and d > 6:
+                    q1, q2 = nearest_points(sg, kb)
+                    kil = LineString([q1, q2])
+                    if kil.intersects(diger_islak) or kil.intersects(K.kapi_u) or \
+                            eng.carpar(kil.buffer(0.3), cizgi_tol=1e9):      # yazı/sembol kesmez (boru altından geçebilir)
+                        red['kil'] += 1
+                        continue
+                sec = (xx, yy, kb, sp, cx0, cy0, kil)
                 break
             if sec:
                 break
         if sec:
-            break
+            return sec, ts, h, ara, ns
+        if os.environ.get('S2_DEBUG_ASP'):
+            log('   ASP %s h%.0f/%d komsu=%s %s' % (r['name'], h, ns, komsu is not None, dict(red)))
         for e in ts:
             msp.delete_entity(e)
-    if sec is None:
-        sp = ana['aday'][0]
-        ekle_insert(msp, 'ROTAS-S2-ASPIRATOR', sp, 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL')
-        eng.ekle_alan(Point(sp).buffer(13, cap_style=3))
-        dur.uyari.append('kat %s %s aspiratör yazısı yerleşmedi' % (K.k, r['name']))
-        return None
-    xx, yy, kb, sp = sec
-    for i, e in enumerate(ts):
-        e.dxf.insert = (xx - cx0, yy - cy0 - ara * i)
-        for g in yazi_kutulari(e):
-            eng.ekle_alan(g)
-    ana['p'] = a['p'] = sp
-    a['semboller'] = [(q_r, (sp if q_r is r else q_p)) for q_r, q_p in a['semboller']]
-    ekle_insert(msp, 'ROTAS-S2-ASPIRATOR', sp, 'ROTAS-SIHHI-HAVALANDIRMA-SEMBOL')
-    eng.ekle_alan(Point(sp).buffer(13, cap_style=3))
-    if h < 15:
-        dur.uyari.append('kat %s %s aspiratör yazısı küçük (h %.0f, %d satır)' % (K.k, r['name'], h, ns))
-    return ts
+    return None, [], 0, 0, 0
 
 
 def daire_alani(K, p):
@@ -2350,6 +2424,9 @@ def kat_etiketle(doc, eng, K, kat, dur):
             p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=TASARIM['balon_ofset'].get(no), islak=islak_u,
                                 haric=mim_)
         if p is None:          # merdiven basamakları duvar katısı sanılabiliyor: kullanıcı ofsetinde duvar toleranslı
+            p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=TASARIM['balon_ofset'].get(no), islak=islak_u,
+                                duvar_tol=1e9, mesafeler=())        # önce yazıya binmeyen varyant
+        if p is None:
             p, kil = balon_yeri(ps['kolon'], eng, islak_u, tercih=TASARIM['balon_ofset'].get(no), islak=islak_u,
                                 haric=mim_, duvar_tol=1e9)
         if p is None:
