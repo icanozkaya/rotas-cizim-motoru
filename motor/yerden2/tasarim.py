@@ -69,19 +69,21 @@ def kose_dene(R, kose, merkez, n_min):
     return dict(kose=kose, fr=fr, Rc=Rc, n=n, sonuc=r, maxL=L, toplam=top, uc=uc)
 
 
-def oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True, islak=False):
-    """ıslak hacimde satır fazı 0,5 cm adımla taranır (tur 4 Y-2': 4,37 m² wc+banyoda 8 satırın sığdığı pencere 1 cm)."""
+def oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True, islak=False, kapi_zorla=False, n_min=None):
+    """ıslak hacimde satır fazı 0,5 cm adımla taranır (tur 4 Y-2': 4,37 m² wc+banyoda 8 satırın sığdığı pencere 1 cm).
+    kapi_zorla (15.10 D, ayaklar): uçlar kapıya en yakın köşede (kaplama yalnız eşitlikte, 50 cm kova).
+    n_min: en az devre sayısı (ayaklarla 80 m aşılırsa bir fazla bölme)."""
     if not islak:
-        return _oda_tasarla(oda, H, R, kapi, yasak, cep_ac, islak)
+        return _oda_tasarla(oda, H, R, kapi, yasak, cep_ac, islak, kapi_zorla, n_min)
     eski = S.FAZ_ADIM
     S.FAZ_ADIM = 0.5
     try:
-        return _oda_tasarla(oda, H, R, kapi, yasak, cep_ac, islak)
+        return _oda_tasarla(oda, H, R, kapi, yasak, cep_ac, islak, kapi_zorla, n_min)
     finally:
         S.FAZ_ADIM = eski
 
 
-def _oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True, islak=False):
+def _oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True, islak=False, kapi_zorla=False, n_min_ek=None):
     """oda: mahal kaydı; H: ısıtma alanı (duvar yüzü), R: boru ekseni bölgesi; kapi: (x, y) | None;
     yasak: etiket cebi için kaçınılacak alanlar (yazılar, etiketler) -> shapely geometri.
     Dönüş: dict | None"""
@@ -90,6 +92,8 @@ def _oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True, islak=False):
     m = R.centroid
     merkez = (round(m.x, 1), round(m.y, 1))
     n_min = 2 if oda['area'] >= IKI_DEVRE_M2 else 1
+    if n_min_ek:
+        n_min = max(n_min, n_min_ek)
     adaylar = [a for a in (kose_dene(R, k, merkez, n_min) for k in S.KOSELER) if a]
     if not adaylar and n_min == 2:
         adaylar = [a for a in (kose_dene(R, k, merkez, 1) for k in S.KOSELER) if a]
@@ -105,7 +109,14 @@ def _oda_tasarla(oda, H, R, kapi, yasak, cep_ac=True, islak=False):
     else:
         eniyi = max(a['toplam'] for a in adaylar)
         iyi = [a for a in adaylar if a['toplam'] >= KAPI_ORAN * eniyi]
-    if kapi is not None:
+    if kapi is not None and kapi_zorla:
+        def _uzak(a):
+            return math.hypot(a['uc'][0] - kapi[0], a['uc'][1] - kapi[1])
+        dmin = min(_uzak(a) for a in adaylar)
+        kova = 50.0 if kapi_zorla is True else float(kapi_zorla)
+        yakin = [a for a in adaylar if _uzak(a) <= dmin + kova]
+        a = max(yakin, key=lambda a: (a.get('ic', a['toplam']), -_uzak(a)))
+    elif kapi is not None:
         a = min(iyi, key=lambda a: (math.hypot(a['uc'][0] - kapi[0], a['uc'][1] - kapi[1]), -a['toplam']))
     else:
         a = max(iyi, key=lambda a: a['toplam'])

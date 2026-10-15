@@ -262,9 +262,13 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
         for c in d['devreler']:
             if c['cep'] is not None:
                 yasak = yasak.union(c['cep'].buffer(5))
+        am = mimari_m2(K, r)
         odalar.append(dict(ad=r['name'].replace('\n', ' '), daire=r['daire'], tur=tur, sic=sic, alan=round(r['area'], 2),
-                           alan_mimari=mimari_m2(K, r),
+                           alan_mimari=am, r=r,
+                           esik=(ISLAK_ORAN * (am or r['area']) + ISLAK_PAYI) * 100.0 if tur == 'banyo' else None,
                            poly=r['poly'], H=H, eng=eng, xy=r['xy'], kapi=kapi, tasarim=d))
+    # 15.10 (D): planda kollektör + kombi + devre ayakları (ayak.py); serpantinler gerekirse yeniden kurulur
+    kol = ayaklari_kur(k, K, odalar, yasak) if AYAKLAR else {}
     # numaralama: daire sırası, tür sırası, konum (yukarıdan aşağı, soldan sağa)
     odalar.sort(key=lambda o: (o['daire'], TUR_SIRA[o['tur']], -round(o['xy'][1] / 50), o['xy'][0]))
     devre_no = 0
@@ -276,8 +280,66 @@ def kat_tasarla(k, yazi_kutulari, yasak_ek, cep_ac=True):
             c['no'] = devre_no
             c['L_m'] = round(c['L'] / 100.0, 2)
             c['W'] = round(W_M * c['L_m'], 1)
-    return dict(kat=k, K=K, odalar=odalar, isitmasiz=isitmasiz, yasak=yasak, yazi=yaz,
+    return dict(kat=k, K=K, odalar=odalar, isitmasiz=isitmasiz, yasak=yasak, yazi=yaz, kollektorler=kol,
                 yazi_u=unary_union(yaz) if yaz else Polygon())
+
+
+AYAKLAR = True             # 15.10 (D): planda kollektör bağlantıları zorunlu
+
+
+def tam_devre(c):
+    """kollektör ağzı -> gidiş ayağı -> serpantin -> dönüş ayağı -> ağız: tek açık polyline (xyb)"""
+    if not c.get('ayak_g'):
+        return list(c['pts'])
+    g, d = c['ayak_g'], c['ayak_d']
+    serp = [tuple(p) for p in c['pts']]
+    serp[-1] = (serp[-1][0], serp[-1][1], 0.0)
+    return [(x, y, 0.0) for x, y in reversed(g[1:])] + serp + [(x, y, 0.0) for x, y in d[1:]]
+
+
+def ayaklari_kur(k, K, odalar, yasak):
+    """daire başına kollektör yeri, kombi hattı, ayaklar; devre boyu > 80 m ise mahal bir fazla devreye bölünüp
+    daire yeniden çözülür (en çok 3 tur)"""
+    import ayak as A
+    kat_off = {KATLAR.index(kk): getattr(MY.kat_oku(kk), 'off', 0.0) for kk in KATLAR}
+    kombiler = A.kombi_yerleri(kat_off)
+    out = {}
+    for dno in sorted({o['daire'] for o in odalar}):
+        od = [o for o in odalar if o['daire'] == dno]
+        hol = next((o for o in od if o['tur'] == 'hol'), None)
+        if hol is None:
+            log('UYARI: kat %s D%d: hol yok, ayak çizilmedi' % (k, dno))
+            continue
+        kb = kombiler.get(dno)
+        yedek = {id(o): (o['H'], o['tasarim'], o.get('ek_eng')) for o in od}
+        n_ek = {}
+        for tur in range(3):
+            D_ = A.Daire(K, dno, od, hol, kb, None, yasak)
+            sonuc = D_.coz()
+            for u in D_.uyari:
+                log('UYARI: kat %s %s' % (k, u))
+            if sonuc is None:
+                break
+            for a in sonuc['ayaklar']:
+                a['c']['ayak_g'] = a['g'][0]
+                a['c']['ayak_d'] = a['d'][0]
+                a['c']['agiz'] = (a['g'][1], a['d'][1])
+                a['c']['L_serp'] = S.uzunluk(a['c']['pts'])
+                a['c']['L'] = S.uzunluk(tam_devre(a['c']))
+            asan = [o for o in od if any(c['L'] > A.MAX_L for c in o['tasarim']['devreler'])]
+            if not asan:
+                break
+            for o in asan:
+                n_ek[id(o)] = len(o['tasarim']['devreler']) + 1
+                log('kat %s %s: ayaklarla devre > 80 m -> %d devre' % (k, o['ad'], n_ek[id(o)]))
+                y = A.yeniden_kur(o, o.get('ek_eng'), o['kapi'], yasak, kapi_zorla=True, n_min=n_ek[id(o)])
+                if y is not None:
+                    o['H'], o['tasarim'] = y['H'], y['tasarim']
+        out[dno] = sonuc
+        n = sum(len(o['tasarim']['devreler']) for o in od)
+        na = sum(1 for o in od for c in o['tasarim']['devreler'] if c.get('ayak_g'))
+        log('kat %s D%d: kollektör %d ağız, ayaklı devre %d/%d' % (k, dno, n, na, n))
+    return out
 
 
 ISLAK_ORAN = 3.0           # m/m² (mimari m²) — ıslak hacim doluluğu (kontrolör Y02)
