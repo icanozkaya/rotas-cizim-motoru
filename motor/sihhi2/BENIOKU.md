@@ -39,8 +39,9 @@ sonucu `K.kb`; kolon/köşe doğrulaması kontrolörle aynı ölçüyle yapılı
   omurgadan uzak yarısında bağlantı noktası + 45° kısa branşman (kullanıcının B.M. dairesi gibi); omurga o düğümde
   biter. Z D2, 1. kat D4, 2. kat D7.
 - **K1 küçük duş (D3/D5/D8, P9)**: lavabo tezgâhı mahal poligonundan kesik olduğu için duvar dibi aday cezalıydı;
-  armatüre son 40 cm yaklaşım cezasız -> hat P9'dan duvar dibinden iner, alt duvar boyunca lavaboya (süzgeç
-  hattın üstünde, çapraz yok; Z duş doğrulaması da artık geçiyor).
+  armatüre son 40 cm yaklaşım cezasız -> hat P9'dan duvar dibinden iner, alt duvar boyunca lavaboya (çapraz yok;
+  Z duş doğrulaması da artık geçiyor). EK süzgeç (`kucuk_dus_suzgeci`) hattın üstüne değil, kullanıcı gibi duş ile
+  lavabo arasına, hattan ≥ 14 cm içeri; ~15 cm dik branşmanla bağlanır (hat süzgecin üstünden aşmaz).
 - Geliştirme: `S2_ADIM=kaydet|yukle` kat çizimi sonrası durumu `/tmp/claude-0/s2/adim.*`'a yazar / oradan yalnız
   etiketleri yeniden çalıştırır. Karşılaştırma kırpımları: `python3 motor/sihhi2/kars_png.py` ->
   `kutuphane/arastirma/kontrol_png/sihhi_tur4_uretici/`.

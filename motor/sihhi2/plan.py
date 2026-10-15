@@ -1389,7 +1389,7 @@ def _temiz_su_daire(K, dno, fx, tohum, kuru_izin):
                 kapidan = kapi_girisi(K, h0, ortak, tohum, saft)
         if kapidan is not None:
             p, q, u = kapidan
-            Hn = (p[0] + u[0] * 12, p[1] + u[1] * 12)
+            Hn = (p[0] + u[0] * 30, p[1] + u[1] * 30)          # kapı kanadı bölgesinden düz çıkar (kullanıcı gibi)
             r_, c_ = g.rc(Hn)
             H = g.xy(r_, c_)
             G = (q[0], H[1]) if abs(u[0]) > abs(u[1]) else (H[0], q[1])
@@ -1627,6 +1627,12 @@ def kucuk_dus_suzgeci(K, r, fo):
         return None
     hat = LineString([C, (C[0], lv['c'][1]), lv['c']])
     ic = r['poly'].buffer(-10, join_style=2)
+    kb = getattr(K, 'kb', None)
+    if kb is not None:          # kontrolörün ıslak hacim poligonunda kalsın (1. kat wc-duş: yalnız lavabo tarafı)
+        kbi = unary_union([q['poly'].buffer(-4) for q in kb['rooms'] if q.get('islak') and q['poly'].intersects(r['poly'])]
+                          or [Polygon()])
+        if not kbi.is_empty and not ic.intersection(kbi).is_empty:
+            ic = ic.intersection(kbi)
     if ic.is_empty:
         return None
     hedef = ((dus['c'][0] + lv['c'][0]) / 2, (dus['c'][1] + lv['c'][1]) / 2)
