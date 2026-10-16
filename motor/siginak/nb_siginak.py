@@ -1003,6 +1003,12 @@ def kanal_etiketleri(ag):
             dik_etiket(ag, n, s1)
 
 
+CEVRE = box(357300, -615200, 359800, -609700)
+for c_, ad_, b_, h_, kod, gk in ((X_RE, 'EGZOZ', geg_b, geg_h, 'GSK-3', gsk_eg), (X_RT, 'TAZE HAVA', gth_b, gth_h, 'GSK-1', gsk_th),
+                                (X_RD, 'DUMAN', gdt_b, gdt_h, 'GSK-2', gsk_dt)):
+    if etiket((c_, Y_RS + 8), [f"{ad_} ↑ {b_}x{h_}"], 7.0, GEC,
+           alan=CEVRE, haric=box(c_ - b_ / 2, Y_RS - h_ / 2, c_ + b_ / 2, Y_RS + h_ / 2).union(gk), rmax=400) is None:
+        TXT((c_ - b_ / 2 - 3, Y_RS), f"{ad_} {b_}x{h_}", 5.0, GEC, TA.MIDDLE_RIGHT)
 for ag in (ta, du, eg):
     kanal_etiketleri(ag)
 
@@ -1035,10 +1041,6 @@ for s_ in ['CİHAZLAR — HEPSİ TAVANA ASILI (yere konmaz), sığınak içinde 
            f"DÖŞEME GEÇİŞLERİ (çelik kovan, zemin kotuna düşey baca): TAZE {gth_b}x{gth_h} / DUMAN {gdt_b}x{gdt_h} / EGZOZ {geg_b}x{geg_h} cm — v = 2,5 m/s"]:
     TXT((357850, _cy), s_, 9.0 if _cy == -614880 else 8.0, CHZ, TA.MIDDLE_LEFT); _cy -= 18
 _CIH1 = len(msp)
-for c_, ad_, b_, h_, kod, gk in ((X_RE, 'EGZOZ', geg_b, geg_h, 'GSK-3', gsk_eg), (X_RT, 'TAZE HAVA', gth_b, gth_h, 'GSK-1', gsk_th),
-                                (X_RD, 'DUMAN', gdt_b, gdt_h, 'GSK-2', gsk_dt)):
-    etiket((c_, Y_RS + 8), [f"{ad_} ↑ {b_}x{h_}"], 7.0, GEC,
-           alan=CEVRE, haric=box(c_ - b_ / 2, Y_RS - h_ / 2, c_ + b_ / 2, Y_RS + h_ / 2).union(gk), rmax=400)
 # kesişme notları (alttan geçen kanal kesikli)
 for ust, alt_, ad_u, ad_a, lay_ in ((U_ta, U_du, 'TAZE HAVA', 'DUMAN', DUM), (U_ta, U_eg, 'TAZE HAVA', 'EGZOZ', EGZ), (U_du, U_eg, 'DUMAN', 'EGZOZ', EGZ)):
     _kes = ust.intersection(alt_)
