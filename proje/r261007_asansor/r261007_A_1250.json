@@ -1,0 +1,91 @@
+{
+ "proje": {
+  "sahip": "FIELDS MİMARLIK VE TASARIM TİC. A.Ş.",
+  "il": "SAKARYA",
+  "ilce": "ADAPAZARI",
+  "mahalle": "KARAKAMIŞ",
+  "ada": "4265",
+  "parsel": "1",
+  "tarih": "16.10.2026"
+ },
+ "derinlik": 295,
+ "ara_duvar": 10,
+ "dis_duvar": 15,
+ "kisi": 16,
+ "Q": 1250,
+ "kabin_gen": 120,
+ "kabin_der": 230,
+ "P_kabin": 750,
+ "kuyu_dibi": 1.4,
+ "son_doseme_alt": 8.35,
+ "son_doseme_kalinlik_oneri": 15,
+ "mimari_son_doseme_kalinlik": 15,
+ "mimari_kuyu_dibi": "kuyudan geçen mimari kesit yok, imar min 1,40 m alındı - mimarla teyit",
+ "ana_durak_ustu": 1,
+ "kat_adedi": 2,
+ "kuyular": [
+  [
+   200,
+   null
+  ]
+ ],
+ "kiris_taraf": "sag",
+ "daireler": [],
+ "mimari": {
+  "flat": "proje/r261007_asansor/mimari/r.flat.pkl",
+  "pencere": [
+   50800,
+   2300,
+   52500,
+   3700
+  ],
+  "olcek": 100,
+  "kat_adi": "A BLOK ZEMİN KAT PLANI",
+  "kuyu_kutulari": [
+   [
+    51499.5,
+    2973.6,
+    51699.5,
+    3268.6
+   ]
+  ],
+  "kapi_yonu": "+y"
+ },
+ "blok": "A",
+ "durak_kotlari": [
+  0.0,
+  4.55
+ ],
+ "durak_adlari": [
+  "ZEMİN KAT (±0,00)",
+  "1. KAT (+4,55)"
+ ],
+ "seyir": 4.55,
+ "kuyu_ustu": 3.8,
+ "olcu_notlari": [
+  "A BLOK (İŞ MERKEZİ) ASANSÖR: duraklar ±0,00 (+26,75) / +4,55 (+31,30) - B-B kesiti ve 1. kat planı kot yazılarından; seyir 4,55 m. Çatı döşemesi +8,50 (durak değil).",
+  "Mimari alan tablosunda 1. kat döşeme kotu +4,00 (+30,50) yazılmış; kesit ve planlarda +4,55 (kaba +4,50): +4,55 esas alındı, mimarla teyit edilmeli.",
+  "Kuyu 200 x 295 cm (zemin ve 1. katta aynı; yan ve arka duvarlar 15 cm, kapı duvarı 15 cm). Arka duvarda kiriş izdüşümü 45 cm -> kiriş altı derinlik 250 cm. Mimar kabin 120x180 çizmiş; 1250 kg / 16 kişi kabin 120x230 alındı (2,76 m² ≤ EN 81-20 2,90 m²); kabin arkası arka kirişe 7 cm mesafede kalır.",
+  "Mimaride kat kapısı boşluğu 100 cm: kat kapıları 90/210 olarak düzeltildi (ROTAŞ standardı).",
+  "Kuyu dibi: mimaride asansör kuyusundan geçen kesit YOK (B-B kesiti çekirdeği kuyunun dışından keser). Kuyu dibi imar min 1,40 m (-1,40) alındı; radye üst kotu -1,95. Mimarla teyit edilmeli.",
+  "Kuyu tavanı = çekirdek çatı döşemesi (B-B kesitinden): üst +8,50, alt +8,35, mimaride 15 cm; son durak +4,55 -> kuyu üst boşluğu 3,80 m (MRL için yeterli). Arka kiriş alt kotu +7,70 (kabin arkasında, karşı ağırlık yanda)."
+ ],
+ "koordinasyon": [
+  "Asansör kuyusundan ve kuyu tavanından asansöre ait olmayan boru/kablo geçmez.",
+  "Kuyu dibine pis su süzgeci/bağlantısı yapılmaz; kuyu dibi su yalıtımlı.",
+  "Rögar ve altyapı hatları kuyu dibi altından ve asansör kapı önlerinden geçmez.",
+  "Mimaride kuyu duvarları 15 cm duvar olarak çizilmiş: makine konsolu ve ray ankrajları için yan duvarlar betonarme perde veya her katta betonarme hatıl olmalıdır (statik).",
+  "Asansör kuyusu ve önü ısıtılmaz; kuyu tavanında duman tahliye açıklığı bırakılır."
+ ],
+ "ana_durak_kotu": 0.0,
+ "son_kat_doseme_kotu": 8.5,
+ "dosya_adi": "ADAPAZARI_KARAKAMIS_4265-1_A_BLOK_ASANSOR_AVAN_1250KG",
+ "n_asansor": 1,
+ "n_aciklama": "tek asansör",
+ "tip_kapak": "MAKİNE DAİRESİZ TEK",
+ "yibf": "12.943,6 m²",
+ "bina": "is_merkezi",
+ "izul_sinif": "is_merkezi_tek",
+ "b_toplam": 60,
+ "b_aciklama": "İş merkezi: 1. kat mimari kullanım alanları net 11,2+234,1+247,8+44,2 = 537,3 m² + erkek/kadın mescit net 82,8+96,4 = 179,2 m² -> 716,5 m² / 12 m² (Tablo-1) = 59,7 -> 60 kişi (zemin kat ana durak, hesaba katılmaz)"
+}
