@@ -1,16 +1,16 @@
 # Deneme çıktıları denetim raporu
 
-Üretildi: 15.10.2026 05:00 — `python3 motor/deneme/denetim/denetle.py proje/denemeler/yerden2/NB_YERDEN_ISITMA.dxf`
+Üretildi: 16.10.2026 20:18 — `python3 motor/deneme/denetim/denetle.py proje/si_inak_siginak/SI_INAK_SIGINAK_HAVALANDIRMA.dxf`
 
 Kurallar: README en üst blok (14.10.2026 B): MTY bloğu/kalıntısı yok, katmanlar `ROTAS-`, boru atlatma (köprü) yok, elektrik kalemi yok, lejant zorunlu, "yetersiz" yazılmaz. Onaylı kazan dairesi için MTY istisnası **yok**; onaylı çizimdeki köprü/kesişmeler yalnız bilgi olarak verilir.
 
 **Sütunlar:** MTY = MTY kalıntısı toplamı (blok adı + blok içi katman + katman + çizgi tipi + yazı stili + blok ekleme + yazı); Önek = 0/Defpoints dışında ROTAS- olmayan katman; Köprü = boru katmanında atlatma yayı; Kesişme = köprüsüz boru-boru kesişmesi (pis su-temiz su hariç); Yazı = yazı-yazı çakışan çift; Pis/temiz (bilgi) = farklı düzlemdeki pis su-temiz su üst üste geçişi; Elek = elektrik/kablo/sinyal katmanındaki nesne + KABLO yazısı; Audit = ezdxf audit hatası; Yetersiz = "yetersiz/uygun değil" yazısı.
 
-## En yeni revizyonlar (1 dosya: 1 ✓, 0 ✗)
+## En yeni revizyonlar (1 dosya: 0 ✓, 1 ✗)
 
 | Dosya | Rev | Sonuç | MTY | Önek | Lejant | Köprü | Kesişme | Yazı | Elek | Audit | Yetersiz | Pis/temiz (bilgi) | Onaylı (bilgi) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| proje/denemeler/yerden2/NB_YERDEN_ISITMA.dxf | R1 | ✓ | 0 | 0 | ✓ | 0 | 0 | 0 | 0 | 0 | 0 |  |  |
+| proje/si_inak_siginak/SI_INAK_SIGINAK_HAVALANDIRMA.dxf | R1 | ✗ | 1 | 8 | ✓ | 0 | 0 | 10 | 0 | 0 | 0 |  |  |
 
 ## Eski revizyonlar (bilgi; yerini daha yeni R almış)
 
@@ -18,8 +18,10 @@ _(yok)_
 
 ## Ayrıntı — en yeni revizyonlar
 
-- **proje/denemeler/yerden2/NB_YERDEN_ISITMA.dxf**
-  - mimari altlığın kendi yazı çakışması (bilgi, mimar çizimi değiştirilmez): 111
+- **proje/si_inak_siginak/SI_INAK_SIGINAK_HAVALANDIRMA.dxf**
+  - MTY katman 1 — örn. katman: MTY-BORU
+  - ROTAS- olmayan katman: A-ANNO-TEXT, A-DOOR, A-FLOR-FIXT, A-WALL-SNWPNL, AS_KOT, MKDU0, MKDU0 @ 10, MTY-BORU
+  - yazı çakışması: MKDU0 "İ" / MKDU0 "R" (282854, -695923); MKDU0 "İ" / MKDU0 "R" (283087, -695318); MKDU0 "İ" / MKDU0 "YONEL KAPI 600x450" (275372, -694397); MKDU0 "İ" / MKDU0 "YONEL KAPI 300x400" (279161, -695038); MKDU0 "İ" / MKDU0 "YONEL KAPI 300x400" (279161, -695980)
 
 
 ## Sınırlar
