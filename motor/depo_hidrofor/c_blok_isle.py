@@ -129,18 +129,23 @@ def isle(c, H):
 
 
 def main():
+    """AutoCAD'de sorunsuz açılsın diye kullanıcının dosyası değiştirilmez: yeni R2018 belgeye mimarinin yalın
+    çizgileri (çizgi, poli, yay, daire, yazı, tarama) aynı koordinatta kopyalanır, mekanik çizim üstüne eklenir."""
+    from ezdxf import xref
     kaynak, cikis = sys.argv[1:3]
-    doc = ezdxf.readfile(kaynak)
-    for blk in doc.blocks:                       # dinamik blok uzantıları (bozuk sözlük üretmesin)
-        for e in [blk.block_record] + list(blk):
-            if e.has_extension_dict:
-                e.discard_extension_dict()
-    olcu0 = doc.header.get('$MEASUREMENT', 0)
-    doc.header['$MEASUREMENT'] = 1          # tarama desenleri metrik (ISO) tanımla çizilsin
+    src = ezdxf.readfile(kaynak)
+    doc = ezdxf.new('R2018', setup=True)
+    doc.header['$INSUNITS'] = 5
+    doc.header['$MEASUREMENT'] = 1
+    yalin = ('LINE', 'LWPOLYLINE', 'ARC', 'CIRCLE', 'TEXT', 'MTEXT', 'HATCH', 'ELLIPSE', 'SOLID')
+    n0 = len(doc.modelspace())
+    xref.load_modelspace(src, doc, filter_fn=lambda e: e.dxftype() in yalin)
+    for e in list(doc.modelspace())[n0:]:
+        if e.dxftype() == 'MTEXT':
+            e.dxf.discard('style') if False else None
     c = C(doc)
     H = DH.hesap()
     isle(c, H)
-    # pafta: ayrıntılar sağa
     ox, oy = 206600.0, -680800.0
     DH.plan(c, H, ox, oy)
     DH.kesit(c, H, ox + 900, oy)
@@ -148,9 +153,9 @@ def main():
     DH.hesap_tablolari(c, H, ox + 1750, oy + 600)
     DH.cerceve(c, ox - 480, oy - 1400, ox + 2380, oy + 780)
     c.tx('C BLOK SU DEPOSU — KULLANMA SUYU DEPOSU VE HİDROFOR AYRINTILARI', (ox - 470, oy + 800), 30, 'BASLIK', TA.BOTTOM_LEFT)
-    doc.header['$MEASUREMENT'] = olcu0
+    a = doc.audit()
     doc.saveas(cikis)
-    print('yazıldı', cikis)
+    print('yazıldı', cikis, 'audit', len(a.errors), len(a.fixes))
 
 
 if __name__ == '__main__':
