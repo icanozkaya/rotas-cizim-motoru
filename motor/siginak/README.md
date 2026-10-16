@@ -15,3 +15,9 @@
 - (16.10.2026 kullanıcı) "Brüt al" denirse projede yazan brüt alan (ör. 428,84 m²) doğrudan esas alınır; tablolarda net alan satırı gösterilmez.
 - (16.10.2026 kullanıcı) Çıkış delikleri (perde/döşeme geçişleri) küçültülebildiği kadar küçük: v ≤ 8 m/s sınırına en yakın, 10 cm adımlı en küçük kesit (2,5 m/s kuralı kaldırıldı).
 - (16.10.2026 kullanıcı) SHC, fanlar ve klapeler TAVANA ASILI tasarlanır, yere konmaz (şemada askılı gösterilir; SHC el kolu zincir/uzatma mili ile).
+
+## SI_INAK (market zemin kat, A-Z-16) — 16.10.2026
+- `si_mimari.py` → sığınak poligonu + kolon (ANSI33) / duvar (ANSI31) poligonları; `si_siginak.py` → `proje/si_inak_siginak/SI_INAK_SIGINAK_HAVALANDIRMA.dxf`
+- Kişi başı kural (debi.py): 618,2 m² → 619 kişi × 4,5 = 2.800 taze / 2.520 egzoz; duman h = 6,00 m (kullanıcı) × 10 = 37.500 m³/h
+- Çıkış: kullanıcının MTY-BORU işareti hizasında batı duvarından YATAY duvar geçişi ("duvardan atış"), yan yana, dışta panjur; kuranglez/baca yok
+- Kullanıcı mimarisi (kolonlar dahil) çıktının içinde; MTY-BORU işaretleri çıkarılır; AutoCAD-güvenli birleştirme `mimari_birlestir()`
