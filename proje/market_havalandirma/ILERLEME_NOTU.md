@@ -17,3 +17,6 @@ Plan: (1) Excel hesap  (2) KS kesit + yerleşim paftaları DXF  (3) kontrol + te
   KESİTLERİ, KESİTLER — CİHAZ VE KANAL YERLEŞİMİ) ve ISI_KAZANCI_VE_KLIMA_SANTRALI_HESABI.xlsx.
   Akış: zonlar.py → hesap_excel.py → recalc.py → hav_pafta.py. Sonuç: oda ısı kazancı 673 kW (m³ yöntemi),
   DX soğutma 300/280/280/300 kW, DX ısıtma 135/135/135/140 kW; projedeki "Q=200 kW" soğutmaya yetmiyor (×1,4–1,5).
+- 16.10.2026 19:20 — 3. aşama: fan hesabı (FAN HESABI sayfası: iç kayıplar + dış statik basınç, EC plug fan duvarı 4+4,
+  üfleme 940 Pa / 4×5,5 kW, dönüş 620 Pa / 4×4,0 kW, SFP4/SFP3), elektrik yükü tablosu yalnız elektrik güçleri
+  (ısıl kapasiteler çıkarıldı; ısıl değerler her yerde "kW ISIL"). Toplam kurulu elektrik 540,2 kW.

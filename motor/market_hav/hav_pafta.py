@@ -551,6 +551,28 @@ def ks_degerleri():
                     q_oda=v('Oda ısı kazancı (m³ yöntemi)'))
         if any(x is None for x in d[k].values()):
             raise SystemExit('Excel değerleri boş — önce recalc.py ile yeniden hesapla')
+    wb = load_workbook(HESAP_XLSX, data_only=True)
+    fs = wb['FAN HESABI']
+    fsat = {fs.cell(r, 1).value: r for r in range(1, 80)}
+    fv = lambda ad, col: fs.cell(fsat[ad], col).value
+    fan = dict(n=fv('Fan adedi (fan duvarı)', 2), qf=fv('Fan başına debi', 2),
+               dp_uf=fv('FAN TOPLAM BASINCI', 2), dp_do=fv('FAN TOPLAM BASINCI', 3),
+               esp_uf=fv('Dış statik basınç (seçim, 50 Pa’a yuvarlanmış)', 2),
+               esp_do=fv('Dış statik basınç (seçim, 50 Pa’a yuvarlanmış)', 3),
+               pm_uf=fv('Fan başına EC motor gücü (seçim)', 2), pm_do=fv('Fan başına EC motor gücü (seçim)', 3),
+               sfp_uf=fv('Özgül fan gücü SFP', 2), sfp_do=fv('Özgül fan gücü SFP', 3),
+               sk_uf=fv('SFP sınıfı', 2), sk_do=fv('SFP sınıfı', 3))
+    el = {}
+    es = wb['ELEKTRİK YÜKLERİ']
+    for r in range(5, 80):
+        kod = es.cell(r, 2).value
+        if kod:
+            el[kod] = es.cell(r, 6).value
+    for i, k in enumerate(['KS-1', 'KS-2', 'KS-3', 'KS-4']):
+        d[k]['fan'] = fan
+        d[k]['p_ks'] = el[k]
+        d[k]['p_du'] = el[f'DÜ-{i + 1}.1']
+    d['fan'] = fan
     return d
 
 
@@ -558,17 +580,18 @@ def elektrik_degerleri():
     from openpyxl import load_workbook
     ws = load_workbook(HESAP_XLSX, data_only=True)['ELEKTRİK YÜKLERİ']
     out = []
-    for r in range(5, 40):
+    for r in range(5, 80):
         no = ws.cell(r, 1).value
-        if isinstance(no, int):
-            out.append(dict(no=no, kod=ws.cell(r, 2).value, ad=ws.cell(r, 3).value, ps=ws.cell(r, 5).value,
-                            pi=ws.cell(r, 6).value, p=ws.cell(r, 7).value, i=ws.cell(r, 10).value,
-                            sig=ws.cell(r, 11).value))
-        elif ws.cell(r, 3).value == 'TOPLAM KURULU GÜÇ':
-            out.append(dict(no=None, kod='', ad='TOPLAM KURULU GÜÇ', ps=ws.cell(r, 5).value, pi=ws.cell(r, 6).value,
-                            p=ws.cell(r, 7).value, i=ws.cell(r, 10).value, sig=None))
+        ad = ws.cell(r, 3).value
+        if no is not None:
+            out.append(dict(no=no, kod=ws.cell(r, 2).value, ad=ad, adet=ws.cell(r, 4).value,
+                            pb=ws.cell(r, 5).value, p=ws.cell(r, 6).value, u=ws.cell(r, 7).value,
+                            i=ws.cell(r, 9).value, sig=ws.cell(r, 10).value))
+        elif ad == 'TOPLAM KURULU ELEKTRİK GÜCÜ':
+            out.append(dict(no=None, kod='', ad=ad, adet=None, pb=None, p=ws.cell(r, 6).value, u=None,
+                            i=ws.cell(r, 9).value, sig=None))
             break
-    if any(v is None for d in out for k, v in d.items() if k in ('p', 'i')):
+    if any(d['p'] is None for d in out):
         raise SystemExit('Elektrik değerleri boş — recalc.py çalıştır')
     return out
 
@@ -605,9 +628,10 @@ def santral_etiket(doc, ogeler, deger, kutular, elk=None):
         x = b[2] + 350
         satir = [(k, 50), ('ISI GERİ KAZANIMLI KLİMA SANTRALİ', 34),
                  (f'40.000 m³/h — TAZE HAVA {v["taze"]:,.0f} m³/h'.replace(',', '.'), 30),
-                 (f'DX SOĞUTMA {v["qs"]:.0f} kW / DX ISITMA {v["qi"]:.0f} kW', 30)]
+                 (f'DX SOĞUTMA {v["qs"]:.0f} kW (ISIL) / DX ISITMA {v["qi"]:.0f} kW (ISIL)', 30),
+                 (f'FANLAR: {v["fan"]["n"]:.0f}×{v["fan"]["pm_uf"]:.1f} + {v["fan"]["n"]:.0f}×{v["fan"]["pm_do"]:.1f} kW (ELEKTRİK)'.replace('.', ','), 30)]
         if elk:
-            nolar = {d['kod']: d['no'] for d in elk if d['no']}
+            nolar = {d['kod']: d['no'] for d in elk if isinstance(d['no'], int)}
             no_etiketi(msp, b[2] + 280, b[3] - 45, nolar[k], kutular)
             for j, r_ in enumerate(du[-1], 1):
                 no_etiketi(msp, r_[2] + 60, r_[3] + 55, nolar[f'DÜ-{i}.{j}'], kutular)
@@ -715,7 +739,7 @@ def lejant_ve_tablolar(doc, x0, y_ust, santraller, kutular, deger):
         yazi(msp, s, x0 + 1200, yc, 40, 'ML', kutular=kutular)
     # ---- CİHAZ LİSTESİ
     y = yb - 250
-    satirlar = [('NO', 'CİHAZ', 'DEBİ (m³/h)', 'SOĞUTMA (kW)', 'ISITMA (kW)', 'ADET')]
+    satirlar = [('NO', 'CİHAZ', 'DEBİ (m³/h)', 'SOĞ. (kW ISIL)', 'ISIT. (kW ISIL)', 'ADET')]
     for i in range(len(santraller)):
         v = deger[f'KS-{i + 1}']
         satirlar.append((f'KS-{i + 1}', 'ISI GERİ KAZANIMLI KLİMA SANTRALİ', '40.000', f'{v["qs"]:.0f}', f'{v["qi"]:.0f}', '1'))
@@ -754,23 +778,27 @@ NOTLAR = [
     'Klima santralleri ve dış üniteler titreşim takozlu beton kaide üzerine monte edilecektir.',
     'Soğutucu akışkan hatları üretici tablosuna göre çaplandırılacak, yalıtılacak ve azotla basınç testi yapılacaktır.',
     'Branşmanlar diğer sistemin ana kanalını kestiği yerde ana kanalın altından (geçiş alt kotu +4.00) geçirilecektir.',
+    'Santral fanları EC motorlu plug fan duvarı (bölme başına 4 fan) olacak, fan hızları otomasyonla sürekli ayarlanacaktır.',
 ]
 
 
 def elektrik_tablosu(msp, x0, y0, elk, kutular):
-    def f(v):
-        return '' if v is None else f'{v:.1f}'.replace('.', ',')
-    satirlar = [('NO', 'CİHAZ KODU', 'CİHAZ', 'SOĞ. (kW)', 'ISIT. (kW)', 'GÜÇ (kW)', 'AKIM (A)', 'SİG. (A)')]
+    def f(v, n=1):
+        return '' if v is None else f'{v:.{n}f}'.replace('.', ',')
+    satirlar = [('NO', 'KOD', 'CİHAZ / ELEKTRİK TÜKETİCİSİ', 'ADET', 'BİRİM (kW)', 'KURULU (kW)', 'GERİLİM',
+                 'AKIM (A)', 'SİG. (A)')]
     for d in elk:
-        satirlar.append(('' if d['no'] is None else str(d['no']), d['kod'] or '', d['ad'], f(d['ps']), f(d['pi']),
-                         f(d['p']), f(d['i']), '' if d['sig'] is None else f'{d["sig"]:.0f}'))
-    y = tablo(msp, x0, y0, [350, 600, 1800, 550, 550, 550, 600, 600], satirlar,
-              'ELEKTRİK YÜKÜ TABLOSU (400 V 3~)', h=30, sat_h=85, kutular=kutular)
-    yazi(msp, 'Numaralar plandaki daire içindeki cihaz numaralarıdır. Ayrıntı: ISI_KAZANCI_VE_KLIMA_SANTRALI_HESABI.xlsx',
-         x0, y - 50, 30, 'TL', K_TAB, kutular=kutular)
-    yazi(msp, 'İletken kesiti ve pano seçimi elektrik projesinde yapılacaktır.', x0, y - 110, 30, 'TL', K_TAB,
-         kutular=kutular)
-    return y - 150
+        satirlar.append(('' if d['no'] is None else str(d['no']), d['kod'] or '', d['ad'],
+                         '' if d['adet'] is None else f'{d["adet"]:.0f}', f(d['pb'], 2), f(d['p'], 2),
+                         '' if d['u'] is None else f'{d["u"]:.0f} V', f(d['i']),
+                         '' if d['sig'] is None else f'{d["sig"]:.0f}'))
+    y = tablo(msp, x0, y0, [350, 450, 2300, 300, 450, 500, 400, 450, 400], satirlar,
+              'ELEKTRİK YÜKÜ TABLOSU — YALNIZ ELEKTRİK GÜÇLERİ', h=26, sat_h=72, kutular=kutular)
+    for k, s_ in enumerate(('Isıtma / soğutma (ISIL) kapasiteleri bu tabloda yoktur; cihaz listesinde "kW ISIL" olarak verilmiştir.',
+                            'Alt satırlar (1.1, 1.2 …) santral içindeki tüketicilerdir; fan satırlarında akım ve sigorta fan başınadır.',
+                            'Numaralar plandaki daire içindeki cihaz numaralarıdır. İletken kesiti ve pano seçimi elektrik projesindedir.')):
+        yazi(msp, s_, x0, y - 45 - k * 55, 28, 'TL', K_TAB, kutular=kutular)
+    return y - 220
 
 
 def notlar(msp, x0, y0, x1, y1, kutular):
@@ -781,7 +809,7 @@ def notlar(msp, x0, y0, x1, y1, kutular):
     for no, s in enumerate(NOTLAR, 1):
         yazi(msp, f'{no}.', x0 + 60, y, 45, 'BL', K_NOT, kutular=kutular)
         yazi(msp, s, x0 + 200, y, 45, 'BL', K_NOT, kutular=kutular)
-        y -= 150
+        y -= 145
     y -= 80
     for s in ('DİKKAT: MİMARİ PROJENİN ONAY AŞAMASINDA YAPILACAK DEĞİŞİKLİKTEN FEN İŞLERİ MD. BİLGİLENDİRİLMESİ',
               'BU PROJE MÜELLİFİN İZNİ OLMADAN YAYINLANAMAZ-ÇOĞALTILAMAZ-KULLANILAMAZ-DEĞİŞTİRİLEMEZ.'):
