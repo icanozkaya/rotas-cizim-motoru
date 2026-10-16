@@ -19,12 +19,14 @@ import bloklar_onayli as BO   # noqa: E402  (onaylı saf geometri vana semboller
 
 # ------------------------------------------------------------------ tasarım verileri
 IC_X, IC_Y = 500.0, 500.0          # depo iç ölçüsü (25 m²)
-DUV = 30.0                         # betonarme perde
+DUV = 40.0                         # betonarme perde (mimari 40)
 PERDE = 20.0                       # göz ayırma perdesi
-TABAN_K = -585.0                   # taban üst kotu (cm, ±0.00'a göre) — mimari −5.85
-TAVAN_ALT = -285.0                 # depo tavanı alt kotu (iç yükseklik 300)
-TAVAN_T = 25.0
-SU_MAX = TABAN_K + 250.0           # maks. su (−3.35)
+SIFIR = 2675.0                     # ±0.00 = +26.75 (mimari)
+TABAN_K = -590.0                   # taban (döşeme) üst kotu −5.90 (+20.85) — mimari C BLOK SU DEPOSU
+TAVAN_ALT = -250.0                 # depo tavanı alt kotu (tavan üstü −2.10 = +24.65, mimari kesit)
+TAVAN_T = 40.0
+RADYE = 60.0                       # radye alt −6.50 (+20.25)
+SU_MAX = TABAN_K + 270.0           # maks. su (−3.20)
 SU_MIN = TABAN_K + 40.0            # min. su (emiş üstü)
 ARM = [('Duş teknesi', 8, 1.0), ('Termosifon', 16, 2.5), ('Eviye', 1, 0.5), ('Bulaşık makinesi', 1, 1.0),
        ('Klozet (rezervuarlı)', 20, 0.5), ('Lavabo', 24, 0.5), ('Engelli lavabo', 2, 0.5), ('Engelli klozet', 2, 0.5),
@@ -40,11 +42,16 @@ RENK = dict(DUVAR=8, TARAMA=8, SU=5, TS=5, EMIS=4, BASMA=1, TASMA=6, CIHAZ=3, YA
 
 
 # ------------------------------------------------------------------ hesap
+def ks(k):
+    """kot yazısı: −5.90 (+20.85)"""
+    return ('%+.2f (%+.2f)' % (k / 100.0, (k + SIFIR) / 100.0)).replace('-', '−')
+
+
 def hesap():
     T = sum(n * y for _, n, y in ARM)
     q = 0.25 * math.sqrt(T)
     Qh = q * 3.6
-    stat = 5.85 + KAT_H * (KAT_SAY - 1) + 2.20           # hidrofor (−5.85) → üst kat duş başlığı (+6,00 + 2,20)
+    stat = -TABAN_K / 100.0 + KAT_H * (KAT_SAY - 1) + 2.20           # hidrofor (−5.85) → üst kat duş başlığı (+6,00 + 2,20)
     kayip = 60 * 350 * 1.3 / 9807                         # kritik devre ≈ 60 m × 350 Pa/m × 1,3 (özel dirençler)
     akma, sayac, kol = 10.0, 5.0, 2.0
     Hm = stat + kayip + akma + sayac + kol
@@ -255,7 +262,7 @@ def plan(c, H, ox, oy):
     c.olcu((x0 - DUV, y0), (x0 - DUV, Y1), 40, '%d' % IC_Y)
     c.olcu((x0, y0 - DUV), (px, y0 - DUV), -40, '%d' % (px - x0))
     c.olcu((px + PERDE, y0 - DUV), (X1, y0 - DUV), -40, '%d' % (X1 - px - PERDE))
-    c.kot((px + PERDE + 20, y0 + 195), 'Taban üst −5.85 (+20.90)', 8)
+    c.kot((px + PERDE + 20, y0 + 195), 'Taban üst ' + ks(TABAN_K), 8)
     # kesit çizgisi A-A
     yk = y0 + 300
     for xx, yon in ((x0 - DUV - 60, 1), (X1 + DUV + 60, -1)):
@@ -309,7 +316,7 @@ def kesit(c, H, ox, oy):
         return oy + (k - TABAN_K)
     x0, X1 = ox, ox + IC_X
     px = x0 + (IC_X - PERDE) / 2
-    taban_alt = Z(TABAN_K - 35)
+    taban_alt = Z(TABAN_K - RADYE)
     tavan_ust = Z(TAVAN_ALT + TAVAN_T)
     # dış kabuk
     dis = [(x0 - DUV, taban_alt), (X1 + DUV, taban_alt), (X1 + DUV, tavan_ust), (x0 - DUV, tavan_ust)]
@@ -370,12 +377,12 @@ def kesit(c, H, ox, oy):
     c.boru([(hx, Z(TAVAN_ALT)), (hx, tavan_ust + 60), (hx + 15, tavan_ust + 75)], 'CIHAZ')
     c.tx('Ø100 havalık (sineklikli, dış havaya)', (hx + 18, tavan_ust + 75), 7)
     # kotlar
-    c.kot((X1 + DUV + 20, Z(TAVAN_ALT + TAVAN_T)), 'Depo tavanı üst −2.60')
-    c.kot((X1 + DUV + 20, Z(TAVAN_ALT)), 'Depo tavanı alt −2.85')
-    c.kot((X1 + DUV + 20, Z(SU_MAX)), 'Maks. su −3.35')
-    c.kot((X1 + DUV + 20, Z(SU_MIN)), 'Min. su −5.45')
-    c.kot((X1 + DUV + 20, Z(TABAN_K)), 'Taban üst −5.85 (+20.90)')
-    c.kot((X1 + DUV + 20, Z(TABAN_K - 35)), 'Radye alt −6.20')
+    c.kot((X1 + DUV + 20, Z(TAVAN_ALT + TAVAN_T)), 'Depo tavanı üst ' + ks(TAVAN_ALT + TAVAN_T))
+    c.kot((X1 + DUV + 20, Z(TAVAN_ALT)), 'Depo tavanı alt ' + ks(TAVAN_ALT))
+    c.kot((X1 + DUV + 20, Z(SU_MAX)), 'Maks. su ' + ks(SU_MAX))
+    c.kot((X1 + DUV + 20, Z(SU_MIN)), 'Min. su ' + ks(SU_MIN))
+    c.kot((X1 + DUV + 20, Z(TABAN_K)), 'Taban üst ' + ks(TABAN_K))
+    c.kot((X1 + DUV + 20, Z(TABAN_K - RADYE)), 'Radye alt ' + ks(TABAN_K - RADYE))
     # ölçüler
     c.olcu((X1 + DUV, Z(TABAN_K)), (X1 + DUV, Z(TAVAN_ALT)), -150, '%d' % (TAVAN_ALT - TABAN_K))
     c.olcu((X1 + DUV, Z(TABAN_K)), (X1 + DUV, Z(SU_MAX)), -110, '%d' % (SU_MAX - TABAN_K))
@@ -450,7 +457,7 @@ def hidrofor(c, H, ox, oy):
            (7, (pnx + 110, z0 + 400), pnx + 200), (8, (xs[-1] - 45, ze + 12), xs[-1] - 45)]
     for n, h_, bx_ in bal:
         c.balon(n, (bx_, zbal if n % 2 else zbal + 40), h_, 11)
-    c.kot((ox + W - 120, z0), '−5.85', 9)
+    c.kot((ox + W - 120, z0), ks(TABAN_K), 9)
     c.baslik('HİDROFOR GRUBU GÖRÜNÜŞÜ', 'ÖLÇEK: 1/25', (ox - 80, z0 + 640), 600)
     satir = [('NO', 'CİHAZ', 'ADET', 'TEKNİK ÖZELLİKLER'),
              ('1', 'Hidrofor pompası (dikey çok kademeli)', '2', 'Q=%d m³/h, H=%d mSS, %s kW, 1 asıl + 1 yedek' % (H['Qsec'], H['Halt'], ('%.1f' % H['motor']).replace('.', ','))),
@@ -495,7 +502,7 @@ def hesap_tablolari(c, H, ox, oy):
     r = [('HESAP ADIMI', 'DEĞER', 'BİRİM'),
          ('Debi Q = 0,25 x √ΣYB = 0,25 x √%s' % f(H['T']), f(H['q'], 3), 'l/s'),
          ('Debi', f(H['Qh']), 'm³/h'),
-         ('Statik yükseklik (hidrofor −5,85 → %d. kat duş +%s; %d kat, kat yük. %s m)' % (KAT_SAY, f(KAT_H * (KAT_SAY - 1) + 2.2), KAT_SAY, f(KAT_H)), f(H['stat']), 'mSS'),
+         ('Statik yükseklik (hidrofor %s → %d. kat duş +%s; %d kat, kat yük. %s m)' % (f(TABAN_K / 100.0), KAT_SAY, f(KAT_H * (KAT_SAY - 1) + 2.2), KAT_SAY, f(KAT_H)), f(H['stat']), 'mSS'),
          ('Kritik devre boru kayıpları (≈60 m x 350 Pa/m x 1,3)', f(H['kayip']), 'mSS'),
          ('Akma basıncı (duş) + sayaç kaybı', f(H['akma'] + H['sayac'], 1), 'mSS'),
          ('Hidrofor kollektörü / emme kayıpları', f(H['kol'], 1), 'mSS'),
@@ -505,7 +512,7 @@ def hesap_tablolari(c, H, ox, oy):
          ('SEÇİLEN HİDROFOR (1 asıl + 1 yedek)', '%d m³/h - %d mSS' % (H['Qsec'], H['Halt']), ''),
          ('Pompa motor gücü P = Q·H/(367·η), η = 0,60', '%s → %s kW' % (f(H['P']), f(H['motor'], 1)), 'pompa başına'),
          ('Membranlı tank (frekans konvertörlü sistem), ön basınç 0,9·Halt', '%d lt / %s bar' % (H['Vtank'], f(H['p0'], 1)), ''),
-         ('Depo: 2 göz x (2,40 x 5,00) m x %s m faydalı su' % f(H['hsu']), '≈ %d' % round(H['V']), 'm³'),
+         ('Depo: 2 göz x (%s x %s) m x %s m faydalı su' % (f((IC_X - PERDE) / 200.0), f(IC_Y / 100.0), f(H['hsu'])), '≈ %d' % round(H['V']), 'm³'),
          ('Depo / debi (tam kapasitede çalışma süresi)', f(H['V'] / H['Qh'], 1), 'saat')]
     tablo(c, r, (ox, yb - 30), [330, 110, 60], 16)
 
