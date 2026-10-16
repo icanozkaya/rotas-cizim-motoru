@@ -6,3 +6,6 @@
 - Perde geçiş (duvar açıklığı) ölçüsü: v = 2,5 m/s ile standart dikdörtgen (30×20 … 80×50).
 - Çıktı: her sığınak ayrı çerçevede cihaz listesi + yönetmelik tablosu + genel havalandırma tablosu; katmanlar ROTAS-HESAP-*.
 - Çizim standardı (15.10.2026): `motor/ab2750/siginak_hav.py` + `proje/STANDART/STANDART_SIGINAK_HAVALANDIRMA_ab2750.dxf` — tüm dış hava bağlantıları perdede yan yana geçiş (kuranglez mimaride yoksa çizilmez); WC'lere egzoz anemostadı; pantolonlarda ayırıcı bölme, dirseklerde yönlendirici kanat.
+- (16.10.2026 kullanıcı) Kanal hız seçimi: çok düşük kalma, 8 m/s'yi geçme, 8 m/s'ye yakın tut (kanallar küçük kalsın) — motorlarda vmax = 8,0.
+- (16.10.2026 kullanıcı) Çizilen tüm detaylar (şema, kesit, özel parça detayları, lejant, notlar, tablolar, plan) kare/çerçeve içine alınır.
+- (16.10.2026 kullanıcı) "Brüt al" denirse projede yazan brüt alan (ör. 428,84 m²) doğrudan esas alınır; tablolarda net alan satırı gösterilmez.

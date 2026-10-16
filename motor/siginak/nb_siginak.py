@@ -4,7 +4,7 @@
 Kullanıcı kuralları (motor/siginak/README.md):
   taze hava = alan x h x 4 /h -> 100'e yukarı; egzoz = seçilen taze havanın %10 eksiği;
   alan > 100 m² -> duman tahliye 10 /h -> 500'e yukarı; perde geçişi v = 2,5 m/s ile standart dikdörtgen.
-  BU PROJEDE alan = BRÜT (kullanıcı isteği 16.10.2026): 402,10 net + 4,26 mutfak nişi + 22,48 WC; h = 2,95 m.
+  BU PROJEDE alan = BRÜT 428,84 m² (kullanıcı 16.10.2026); h = 2,95 m.
 Girdi : /tmp/claude-0/ab/mim_fl.pkl (dwg2dxf + dxfparse düz liste, cp1254), /tmp/claude-0/ab/kat_A_B.json (mahal poligonları)
 Çıktı : proje/ab2750/AB2750_SIGINAK_HAVALANDIRMA.dxf  (R2010, cm, yalnız DXF)
 Kontrol: python3 siginak_hav.py --kontrol  (kolon/perde kesişimi, çizgi binmesi, yazı binmesi, açık kanal ucu, hesap tekrarı)
@@ -34,7 +34,7 @@ OLCU = [(30, 20), (40, 20), (40, 25), (40, 30), (50, 30), (50, 40), (60, 40), (6
         (80, 60), (100, 60), (100, 70), (100, 80), (120, 80), (140, 80), (140, 100), (160, 100), (180, 100), (200, 100)]
 KISI_M2 = 1.0           # kişi başına alan (kabul)
 KORUMA = 4.5            # >150 kişi: 4,5 m³/h-kişi (yönetmelik tablosu)
-A_NET, A_MUTFAK, A_WC = 402.10, 4.26, 22.48       # mimari: "402,10 m² (mutfak nişi 4,26 m² ve wc'lerin 22,48 m² düşülmüş halidir)"
+A_BRUT = 428.84                                   # kullanıcı: hesaba esas BRÜT alan 428,84 m²
 
 
 def yukari(q, adim):
@@ -53,13 +53,13 @@ def tr(v, n=2):
 
 
 def hesap():
-    A = round(A_NET + A_MUTFAK + A_WC, 2)            # BRÜT
+    A = A_BRUT                                       # BRÜT (kullanıcı)
     V = A * HN; qth = V * N_TH; qsec = yukari(qth, 100); qeg = int(round(qsec * 0.9))
     qdt = V * N_DT; qdts = yukari(qdt, 500)
     kisi = int(A // KISI_M2)
     return dict(ad='SIĞINAK', A=A, V=V, qth=qth, qsec=qsec, qeg=qeg, qdt=qdt, qdts=qdts, dt=A > ESIK,
                 gth=gecis(qsec), geg=gecis(qeg), gdt=gecis(qdts), kisi=kisi, qkor=kisi * KORUMA,
-                na=dict(net=A_NET, mutfak=A_MUTFAK, wc=A_WC, poligon=Polygon(MJ['sig'])))
+                na=dict(brut=A_BRUT, poligon=Polygon(MJ['sig'])))
 
 
 R = hesap()
@@ -76,7 +76,7 @@ KATMAN = {
     'ROTAS-HAV-TAZE-HAVA': 3, 'ROTAS-HAV-TAZE-HAVA-GIZLI': 3, 'ROTAS-HAV-EGZOZ': 4, 'ROTAS-HAV-EGZOZ-GIZLI': 4, 'ROTAS-HAV-DUMAN': 1, 'ROTAS-HAV-DUMAN-GIZLI': 1, 'ROTAS-HAV-CIHAZ': 6,
     'ROTAS-HAV-MENFEZ': 7, 'ROTAS-HAV-GECIS': 2, 'ROTAS-HAV-BACA': 8, 'ROTAS-HAV-OK': 7, 'ROTAS-HAV-YAZI': 7,
     'ROTAS-HAV-SEMA': 7, 'ROTAS-HAV-KOT': 7, 'ROTAS-HAV-LEJANT': 7, 'ROTAS-HAV-NOT': 7, 'ROTAS-HAV-BASLIK': 7,
-    'ROTAS-HESAP-CIZGI': 1, 'ROTAS-HESAP-YAZI': 7, 'ROTAS-HESAP-CERCEVE': 1,
+    'ROTAS-HAV-CERCEVE': 7, 'ROTAS-HESAP-CIZGI': 1, 'ROTAS-HESAP-YAZI': 7, 'ROTAS-HESAP-CERCEVE': 1,
 }
 for n, c in KATMAN.items():
     doc.layers.add(n, color=c, linetype='DASHED' if n.endswith('GIZLI') else 'Continuous')
@@ -261,9 +261,9 @@ ENGEL_MIM = MIM_CIZ + [g.exterior for g in KOLON_POLY]
 # ============================================================== KANAL AĞLARI
 # ağ tanımı: kök noktası, kenar listesi (ebeveyn->çocuk), menfezler (düğüm, taraf, debi)
 CFG = {
-    'taze': dict(lay=TAZE, vmax=4.5, hmax=400, onek='TM', ters=False, mv=2.0),
-    'egzoz': dict(lay=EGZ, vmax=4.5, hmax=400, onek='EM', ters=True, mv=2.0),
-    'duman': dict(lay=DUM, vmax=5.0, hmax=500, onek='DM', ters=True, mv=3.0),
+    'taze': dict(lay=TAZE, vmax=8.0, hmax=400, onek='TM', ters=False, mv=2.0),
+    'egzoz': dict(lay=EGZ, vmax=8.0, hmax=400, onek='EM', ters=True, mv=2.0),
+    'duman': dict(lay=DUM, vmax=8.0, hmax=500, onek='DM', ters=True, mv=3.0),
 }
 
 
@@ -1024,14 +1024,16 @@ etiket((SHC_C[0] - 50, SHC_C[1] + 30), ['SHC-1'], 9.0, CHZ, alan=SIG_ALAN.buffer
 if etiket((DF_C[0] - 62, DF_C[1]), ['DTF-1 (F400)'], 9.0, CHZ, oncelik=[(358340, -613620), (358340, -613600)], alan=SIG_ALAN.buffer(-1), haric=fan_dt, rmax=300) is None:
     TXT((DF_C[0] - 54, DF_C[1] + 48), 'DTF-1', 6.0, CHZ, TA.MIDDLE_LEFT, kayit=False)   # cihaz gövdesi içinde künye
 etiket((EF_C[0] + 40, EF_C[1]), ['EF-1'], 9.0, CHZ, alan=SIG_ALAN.buffer(-1), haric=fan_eg, rmax=250)
-_cy = -613000
+_cy = -614880
+_CIH0 = len(msp)
 for s_ in ['CİHAZLAR (sığınak içinde, çıkış hizasının altında):',
            f"SHC-1  SIĞINAK HAVALANDIRMA CİHAZI — el + motor tahrikli, toz (G4) + kum filtreli, by-pass damperli — NORMAL {tr(q_th, 0)} m³/h / KORUMA {tr(R['qkor'], 0)} m³/h",
            f"DTF-1  DUMAN TAHLİYE FANI (aksiyel, kanal tipi) — {tr(q_dt, 0)} m³/h — F400 (400 °C / 2 saat)",
            f"EF-1   KANAL TİPİ EGZOZ FANI — {tr(q_eg, 0)} m³/h",
            f"GSK-1/2/3  gaz sızdırmaz klape (el kumandalı), her döşeme geçişinin hemen altında",
            f"DÖŞEME GEÇİŞLERİ (çelik kovan, zemin kotuna düşey baca): TAZE {gth_b}x{gth_h} / DUMAN {gdt_b}x{gdt_h} / EGZOZ {geg_b}x{geg_h} cm — v = 2,5 m/s"]:
-    TXT((359330, _cy), s_, 9.0 if _cy == -613000 else 8.0, CHZ, TA.MIDDLE_LEFT); _cy -= 18
+    TXT((357850, _cy), s_, 9.0 if _cy == -614880 else 8.0, CHZ, TA.MIDDLE_LEFT); _cy -= 18
+_CIH1 = len(msp)
 for c_, ad_, b_, h_, kod, gk in ((X_RE, 'EGZOZ', geg_b, geg_h, 'GSK-3', gsk_eg), (X_RT, 'TAZE HAVA', gth_b, gth_h, 'GSK-1', gsk_th),
                                 (X_RD, 'DUMAN', gdt_b, gdt_h, 'GSK-2', gsk_dt)):
     etiket((c_, Y_RS + 8), [f"{ad_} ↑ {b_}x{h_}"], 7.0, GEC,
@@ -1051,8 +1053,9 @@ for ag in (ta, du, eg):
         etiket(pa, ['PANTOLON — AYIRICI BÖLME LEVHASI'], 6.5, ag.c['lay'], alan=SIG_ALAN.buffer(-1), haric=ag.U, rmax=300)
 
 # plan başlığı
+msp.add_lwpolyline([(357700, -615060), (359300, -615060), (359300, -609850), (357700, -609850)], close=True, dxfattribs={'layer': 'ROTAS-HAV-CERCEVE', 'const_width': 1.5})
 TXT((357850, -614800), 'BODRUM KAT SIĞINAK HAVALANDIRMA PLANI (DUMAN TAHLİYELİ)', 24, 'ROTAS-HAV-BASLIK', TA.MIDDLE_LEFT)
-TXT((357850, -614840), f"ÖLÇEK 1/50 — SIĞINAK BRÜT ALANI {tr(R['A'])} m² (net {tr(A_NET)} + mutfak nişi {tr(A_MUTFAK)} + WC {tr(A_WC)})  —  "
+TXT((357850, -614840), f"ÖLÇEK 1/50 — SIĞINAK BRÜT ALANI {tr(R['A'])} m²  —  "
                        f"TAZE HAVA {tr(q_th, 0)} m³/h  /  EGZOZ {tr(q_eg, 0)} m³/h  /  DUMAN TAHLİYE {tr(q_dt, 0)} m³/h", 10, 'ROTAS-HAV-BASLIK', TA.MIDDLE_LEFT)
 
 # ============================================================== BASINÇ KAYBI / FAN SEÇİMİ
@@ -1147,8 +1150,7 @@ def hesap_blok(x, y, r):
             HT(x + 30, y - RH / 2, a, H); HT(x + 20 + c1 + (W - 40 - c1) / 2, y - RH / 2, b, H, TA.MIDDLE_CENTER); y -= RH
         y -= 22
     kv(f"{r['ad']} GENEL HAVALANDIRMA HESABI",
-       [('Sığınak Net Alanı (mimari)', f"{tr(A_NET)} m²"), ('Mutfak Nişi + WC Alanları', f"{tr(A_MUTFAK)} + {tr(A_WC)} m²"),
-        ('Sığınak Brüt Alanı (hesaba esas)', f"{tr(r['A'])} m²"), ('Sığınak Yüksekliği', f"{tr(HN)} m"), ('Sığınak Hacmi', f"{tr(r['V'])} m³"),
+       [('Sığınak Brüt Alanı', f"{tr(r['A'])} m²"), ('Sığınak Yüksekliği', f"{tr(HN)} m"), ('Sığınak Hacmi', f"{tr(r['V'])} m³"),
         ('Hava Değişim Sayısı', f"{N_TH} defa/saat"), ('Taze Hava İçin Gerekli Hava', f"{tr(r['qth'])} m³/h"),
         ('Seçilen Taze Hava Debisi', f"{tr(r['qsec'], 0)} m³/h"), ('Egzoz Debisi (taze havadan %10 az)', f"{tr(r['qeg'], 0)} m³/h"),
         (f'Döşeme Geçişi - Taze Hava (v = {tr(V_GEC, 1)} m/s)', f"{r['gth'][0]} × {r['gth'][1]} cm"),
@@ -1462,7 +1464,7 @@ NOTLAR = [
     "Tüm dış hava bağlantıları mimarın gösterdiği hizada YAN YANA döşeme geçişleri ile düşey bacalarla doğrudan zemin kotuna çıkarılır (çıkış kesiti detayı); dış ağız düzeni mimari projeye göredir.",
     "Döşeme geçişlerinde betonarme dökülmeden önce plandaki ölçülerde çelik kovan yerleştirilecek, kovanlar ankrajlı ve su/gaz sızdırmaz yapılacaktır.",
     "Her döşeme geçişinin hemen altına sığınak iç tarafında el kumandalı gaz sızdırmaz klape (GSK) takılacaktır; fanlar ve SHC sığınak içindedir.",
-    "Hesaba esas alan BRÜT alandır: 402,10 m² net + 4,26 m² mutfak nişi + 22,48 m² WC = 428,84 m²; yükseklik 2,95 m (mimari).",
+    "Hesaba esas alan sığınak BRÜT alanıdır: 428,84 m²; yükseklik 2,95 m (mimari).",
     "WC hücrelerinin her birine egzoz hattından Ø160 tavan anemostadı (100 m³/h) bağlanmıştır.",
     "Duman tahliye fanı EN 12101-3 F400 (400 °C / 2 saat) sınıfında olacak ve yangın algılama sistemi ile otomatik devreye girecektir.",
     "Duman egzoz kanalları en az 1,0 mm galvaniz sacdan, askıları yangına dayanıklı olarak yapılacaktır.",
@@ -1483,11 +1485,29 @@ def notlar(x, y):
     return y
 
 
+# ============================================================== DETAY ÇERÇEVELERİ (kullanıcı: tüm detaylar kare içinde)
+
+
+def cer_bas():
+    return len(msp)
+
+
+def cer_bit(i0, pay=30.0, baslik=None, i1=None):
+    from ezdxf import bbox as _bb
+    ents = list(msp)[i0:i1]
+    if not ents:
+        return
+    ex = _bb.extents(ents, fast=True)
+    x0, y0, x1, y1 = ex.extmin[0] - pay, ex.extmin[1] - pay, ex.extmax[0] + pay, ex.extmax[1] + pay
+    msp.add_lwpolyline([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], close=True, dxfattribs={'layer': 'ROTAS-HAV-CERCEVE', 'const_width': 1.5})
+    return (x0, y0, x1, y1)
+
+
 # ============================================================== YERLEŞİM (bodrum pafta penceresinin boş sol kısmı)
 yb = hesap_blok(359950, -609950, R)
-x_sema_son = sema(361000, -610600)
-y_lj = lejant(361100, -610900)
-y_nt = notlar(362700, -610900)
+_i = cer_bas(); x_sema_son = sema(361000, -610600); cer_bit(_i)
+_i = cer_bas(); y_lj = lejant(361100, -610900); cer_bit(_i)
+_i = cer_bas(); y_nt = notlar(362700, -610900); cer_bit(_i)
 
 
 def menfez_satirlari():
@@ -1554,6 +1574,12 @@ def cikis_kesit(x0, yg):
 
 def detay_parca(cx, cy, baslik, kur, notlar_):
     """kanal özel parça detayı (1/20). kur(ag) ağacı kurar; ağ ölçüleri elle verilir"""
+    _i0 = cer_bas()
+    _detay_parca(cx, cy, baslik, kur, notlar_)
+    S_box(cx - 350, cy - 300, cx + 400, cy + 330, 'ROTAS-HAV-CERCEVE')
+
+
+def _detay_parca(cx, cy, baslik, kur, notlar_):
     S_T((cx - 330, cy + 300), baslik, 12, 'ROTAS-HAV-BASLIK')
     ag, ekle = kur()
     P, IC, FLN = ag.parca()
@@ -1671,6 +1697,7 @@ def detaylar(x0, y0):
     # 6) menfez bağlantısı (kanal yanağı)
     cx, cy = C[5]
     S_T((cx - 330, cy + 300), '6) KANAL YANAĞI MENFEZİ', 12, 'ROTAS-HAV-BASLIK')
+    S_box(cx - 350, cy - 300, cx + 400, cy + 330, 'ROTAS-HAV-CERCEVE')
     W6 = w(300)
     S_L((cx - 300, cy + W6 / 2), (cx + 300, cy + W6 / 2), TAZE); S_L((cx - 300, cy - W6 / 2), (cx + 300, cy - W6 / 2), TAZE)
     ml = w(300); mh = 30
@@ -1688,11 +1715,12 @@ def detaylar(x0, y0):
         S_T((cx - 330, yy), s_, 7.5, SL); yy -= 13
 
 
-x_det = cikis_kesit(361150, -613300)
+_i = cer_bas(); x_det = cikis_kesit(361150, -613300); cer_bit(_i)
 detaylar(364100, -611950)
 
 
-y_t = tablo(362700, y_nt - 30, 'MENFEZ ÇİZELGESİ', ['NO', 'MENFEZ', 'ÖLÇÜ (mm)', 'ADET', 'DEBİ (m³/h)', 'v (m/s)'],
+_i = cer_bas()
+y_t = tablo(362700, y_nt - 90, 'MENFEZ ÇİZELGESİ', ['NO', 'MENFEZ', 'ÖLÇÜ (mm)', 'ADET', 'DEBİ (m³/h)', 'v (m/s)'],
             menfez_satirlari(), [150, 260, 110, 70, 120, 90])
 
 
@@ -1701,10 +1729,13 @@ def bas_satir(tur, ad, kod):
     return [kod, ad, tr(b['L'], 1), tr(b['sur'], 0), tr(b['yer'], 0), tr(sum(b['sabit'].values()), 0), tr(b['top'], 0), str(b['sec'])]
 
 
-y_t2 = tablo(362700, y_t - 30, 'FAN BASINÇ HESABI (kritik hat: Σ R·L + Σ ζ·ρv²/2 + menfez/klape/baca; seçim = 1,1 x toplam, 50 Pa yukarı)',
+cer_bit(_i)
+_i = cer_bas()
+y_t2 = tablo(362700, y_t - 90, 'FAN BASINÇ HESABI (kritik hat: Σ R·L + Σ ζ·ρv²/2 + menfez/klape/baca; seçim = 1,1 x toplam, 50 Pa yukarı)',
              ['KOD', 'AĞ', 'L (m)', 'SÜRT. (Pa)', 'YEREL (Pa)', 'SABİT (Pa)', 'TOPLAM (Pa)', 'SEÇİLEN (Pa)'],
              [bas_satir('taze', 'TAZE HAVA (SHC-1)', 'SHC-1'), bas_satir('egzoz', 'EGZOZ (EF-1)', 'EF-1'), bas_satir('duman', 'DUMAN TAHLİYE (DTF-1)', 'DTF-1')],
              [70, 220, 80, 100, 100, 100, 110, 120])
+cer_bit(_i)
 
 
 def kanal_satirlari():
@@ -1724,14 +1755,16 @@ def kanal_satirlari():
     return rows
 
 
-y_t3 = tablo(359950, yb - 40, 'KANAL ÇİZELGESİ (v ≤ 4,5 m/s taze/egzoz, v ≤ 5,0 m/s duman)',
+_i = cer_bas()
+y_t3 = tablo(359950, yb - 60, 'KANAL ÇİZELGESİ (kanal hızı 8,0 m/s sınırına yakın seçildi, v ≤ 8,0 m/s)',
              ['AĞ', 'ÖLÇÜ (mm)', 'MAKS. DEBİ (m³/h)', 'v (m/s)', 'BOY (m)', 'SAC (mm)'], kanal_satirlari(), [120, 130, 180, 110, 110, 110])
+cer_bit(_i)
 
 # ============================================================== KAYDET
 doc.saveas(CIKTI)
 print('yazıldı:', CIKTI)
 print({k: (round(v, 2) if isinstance(v, float) else v) for k, v in R.items() if k not in ('na',)})
-print('alan bileşenleri:', A_NET, A_MUTFAK, A_WC, '-> brüt', R['A'])
+print('brüt alan:', R['A'])
 for t_, b in BAS.items():
     print(t_, {k: (round(v, 1) if isinstance(v, float) else v) for k, v in b.items()})
 print('adet:', ADET)

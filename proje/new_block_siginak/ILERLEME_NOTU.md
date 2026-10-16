@@ -11,3 +11,4 @@ Plan: motor/siginak/nb_mimari.py (mimari tanıma) -> motor/siginak/nb_siginak.py
 - 10:48 kullanıcı çıkış yerini gösterdi: alt salon üst kenarı x 358373..359159, y -613415..-613486 ("çıkışlar bu hizadan olacak zemin kotuna çıkacak direkt") -> döşemeden düşey baca (riser) yan yana.
 - Kullanıcı: "fanlar içerde kalacak şekilde yap" -> SHC/EF/DTF sığınak içinde, risere bağlı düşey (planda güneye) inişlerde; kesişmeler farklı kotta (alttaki kesikli) kabul.
 - Yerleşim v7: riser egzoz 358423 / taze 358530 / duman 358745; şerit hatları taze 358890, egzoz 358975, duman 359075; üst salon kolları taze -610670, duman -610600, egzoz WC kolu -610260.
+- 11:2x düzeltme: alan yalnız BRÜT 428,84 (tablolarda net satırı yok); tüm detaylar çerçeveli; kanal vmax 8 m/s (fan basınçları 300/350/300 Pa)
