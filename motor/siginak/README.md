@@ -1,6 +1,10 @@
 # Sığınak havalandırma hesabı (kullanıcı kuralı)
 - Alan: NET alan esas alınır (kullanıcı tercihi). Net yükseklik 3,00 m (şablon).
-- Taze hava = net alan × yükseklik × 4 defa/saat → 100'e yukarı yuvarlanır (seçilen).
+- **(16.10.2026 19:11 kullanıcı — GEÇERLİ KURAL) Taze hava KİŞİ SAYISINA göre:** kişi = brüt alan / 1 m²;
+  kişi başı ≤50 kişi 1,8 · 51–150 kişi 3,0 · >150 kişi 4,5 m³/h·kişi; taze = kişi × kişi başı → 100'e yukarı.
+  Egzoz ona orantılı: taze × 0,90. Hesap: `motor/siginak/debi.py` → `siginak_debileri(brut_alan, h)`.
+  Bu kural bundan sonraki projelerde uygulanır; önceki teslimler (new_block, AB2750) değiştirilmedi.
+- ~~Taze hava = net alan × yükseklik × 4 defa/saat~~ (eski kural, 16.10.2026 19:11 öncesi projeler).
 - Egzoz = seçilen taze havanın %10 eksiği.
 - Net alan > 100 m² ise duman tahliye (10 defa/saat, 500'e yuvarla) eklenir; değilse taze hava + egzoz yeterli.
 - Perde geçiş (duvar açıklığı) ölçüsü: v = 2,5 m/s ile standart dikdörtgen (30×20 … 80×50).
