@@ -978,9 +978,10 @@ def ciz(K, cikis):
     # ---------------- 6 KUYU PLANI 1/20
     p = yeni(20, 420, 'KUYU YERLEŞİM PLANI', 'alt'); k = p.k; X0, Y0, X1, Y1 = p.ic()
     toplam = ky[-1]['x0'] + ky[-1]['gen']
-    ox = X0 + (X1 - X0 - toplam) / 2 - 40; oy = Y0 + (Y1 - Y0) * 0.50
-    kuyu_plan(c, ox, oy, K, 1.0, True, 2.5 * k)
     D = K['derinlik']; tw = K['dis_duvar']
+    # derin kuyuda (ör. 295 cm) plan pafta üstünden taşmasın: üst ölçüler + kapı payı kadar aşağı al
+    ox = X0 + (X1 - X0 - toplam) / 2 - 40; oy = min(Y0 + (Y1 - Y0) * 0.50, Y1 - (D + tw + 80 + 6 * k))
+    kuyu_plan(c, ox, oy, K, 1.0, True, 2.5 * k)
     for k_ in ky:
         c.olcu('SCOTT-OLCU', (ox + k_['x0'], oy + D + tw), (ox + k_['x0'] + k_['gen'], oy + D + tw), 45, 2.2 * k, f"{k_['gen']:.0f} (kaba)")
         c.olcu('SCOTT-OLCU', (ox + k_['x0'] + SIVA, oy + D + tw), (ox + k_['x0'] + k_['gen'] - SIVA, oy + D + tw), 80, 2.2 * k,
@@ -988,12 +989,18 @@ def ciz(K, cikis):
     c.olcu('SCOTT-OLCU', (ox + toplam + tw, oy), (ox + toplam + tw, oy + D), -35, 2.2 * k, f'{D:.0f} (kaba)')
     c.olcu('SCOTT-OLCU', (ox + toplam + tw, oy + SIVA), (ox + toplam + tw, oy + D - SIVA), -70, 2.2 * k, f'net {D-2*SIVA:.0f}')
     tx = X0 + 2 * k
-    tablo(c, X0 + 20 * k, Y0 + 95 * k, [40 * k, 70 * k, 70 * k], [['', ky[0]['ad'], ky[-1]['ad'] if len(ky) > 1 else ''],
+    satir = [['', ky[0]['ad'], ky[-1]['ad'] if len(ky) > 1 else ''],
           ['Kuyu kaba (cm)', f"{ky[0]['gen']:.0f} x {D:.0f}", f"{ky[-1]['gen']:.0f} x {D:.0f}"],
           ['Kuyu net (cm)', f"{ky[0]['net']:.1f} x {D-2*SIVA:.1f}", f"{ky[-1]['net']:.1f} x {D-2*SIVA:.1f}"],
           ['Kabin (mm)', f"{K['kabin_gen']*10:.0f} x {K['kabin_der']*10:.0f}", f"{K['kabin_gen']*10:.0f} x {K['kabin_der']*10:.0f}"],
           ['Kapasite / hız', f"{K['Q']:.0f} kg / {f(r['V'])} m/s", f"{K['Q']:.0f} kg / {f(r['V'])} m/s"],
-          ['Kapı', '900 telesk. otomatik', '900 telesk. otomatik'], ['Askı / ray', f'{aski}/1  T89 + T50', f'{aski}/1  T89 + T50']], 2.2 * k)
+          ['Kapı', '900 telesk. otomatik', '900 telesk. otomatik'], ['Askı / ray', f'{aski}/1  T89 + T50', f'{aski}/1  T89 + T50']]
+    sg = [40 * k, 70 * k, 70 * k]
+    if len(ky) == 1:   # tek asansörde boş ikinci sütun yazılmaz
+        satir = [s_[:2] for s_ in satir]; sg = sg[:2]
+    # tablo kuyu planının altında kalır (derin kuyuda plan ile çakışmasın)
+    ty = min(Y0 + 95 * k, oy - tw - 45 - 3 * k)
+    tablo(c, X0 + 20 * k, ty, sg, satir, 2.2 * k)
     c.T('SCOTT-UYARI', (X0, Y1 - 6 * k), 'Kabin ve karşı ağırlık yerleşimi şematiktir; firma uygulama projesinde ray/konsol yerleri kesinleşecektir.', 2.3 * k)
     c.T('SCOTT-UYARI', (X0, Y1 - 11 * k), 'Ray konsolları için kuyu duvarları betonarme perde veya her katta betonarme hatıl olmalıdır (statik).', 2.3 * k)
 
@@ -1037,7 +1044,7 @@ def ciz(K, cikis):
 
     # ---------------- 7 KUYU DİBİ YÜKLERİ + SON DÖŞEME (motor asma) 1/20
     p = yeni(20, 594, 'KUYU DİBİ YÜKLERİ / ' + ('MAKİNE DAİRESİ PLANI' if md else 'SON DÖŞEME PLANI'), 'alt'); k = p.k; X0, Y0, X1, Y1 = p.ic()
-    ox = X0 + 40; oy = Y0 + (Y1 - Y0) / 2 - 60
+    ox = X0 + 40; oy = min(Y0 + (Y1 - Y0) / 2 - 60, Y1 - (K['derinlik'] + 70 + 6 * k))
     kuyu_plan(c, ox, oy, K, 1.0, False, 2.2 * k, True)
     P1 = r['P1_kabin_tampon'] / 2; P2 = r['P2_ka_tampon'] / 2
     for k_ in ky:

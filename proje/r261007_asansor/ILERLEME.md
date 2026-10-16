@@ -4,3 +4,5 @@
 - Kuyudan geçen kesit yok: kuyu dibi 1,40 varsayıldı (radye üstü -1,95).
 - Kuyu tavanı = çekirdek çatısı alt +8,35 / üst +8,50 (15 cm), üst boşluk 3,80.
 - Trafik: 60 kişi, I = 61,8 s > 50 s (iş merkezi tek) -> kullanıcıya bildirildi.
+- 16.10 17:30 kullanıcı: 1000 kg'a göre güncelle -> 13 kişi, kabin 120x200 (2,40 m²), P=650 kg, KA 1150 kg, 6,38 kW -> 7,5 kW; I = 72,4 s > 50 s.
+- Motor düzeltmesi: derin kuyuda (295) kuyu yerleşim ve kuyu dibi planları pafta üstünden taşmıyor; tablo plan altına alındı, tek asansörde boş sütun yok.
