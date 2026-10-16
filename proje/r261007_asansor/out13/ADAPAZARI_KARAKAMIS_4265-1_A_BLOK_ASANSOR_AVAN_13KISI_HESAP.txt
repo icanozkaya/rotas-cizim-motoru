@@ -1,0 +1,41 @@
+1. ASANSÖR AVAN PROJESİ
+1.1. ASANSÖR TRAFİK HESABI
+Binada bulunan toplam insan sayısı  B = Σb + n·Σb = 60 + 30%·60 = 78,0 kişi
+Ana durak üzerindeki kat adedi  N = 1   Kabin kapasitesi = 13 kişi (1000 kg)
+P  = %80 doluluk = 0,8 x 13 = 10,4 kişi
+H  = Ortalama en yüksek dönüş katı = 1,00
+S  = Ortalama durak adedi = 1,00
+V  = Kabin hızı = 1,00 m/s     h = Katlar arası mesafe = 4,55 m
+tv = h / V = 4,55 s
+ts = ta + tk + tg - tv = 2,3 + 2,9 + 7,0 - 4,55 = 7,65 s  (kapı 900 mm merkezden açılır, Tablo-4)
+tp = Kişi transfer zamanı = 2,2 s
+1.1.1. Asansörün Bir Seferi İçin Gerekli Seyir Zamanı
+T = 2·H·tv + (S+1)·ts + 2·P·tp = 2 x 1,00 x 4,55 + (1,00 + 1) x 7,65 + 2 x 10,4 x 2,2 = 70,2 s
+1.1.1.2. Gerekli Asansör Sayısının Hesabı
+R = 5 x 60 x P / T = 300 x 10,4 / 70,2 = 44,47 kişi (5 dakikada bir asansörün taşıdığı)
+L = B x k / R = 78,0 x 0,150 / 44,47 = 0,26  ->  1 adet asansör
+1.1.1.3. Bekleme Zamanı
+I = T / n = 70,2 / 1 = 70,2 s  > 50 s  UYGUN DEĞİL - asansör sayısı/hız/kapasite artırılmalı.
+Taşıma kapasitesi yeterli (L = 0,26 ≤ 1); bekleme aralığı sınırı aşılıyor (bkz. kontrol notları).
+
+1.2. ASANSÖR KUVVET HESABI
+Gk (kabin kütlesi) = 650 kg   Gy (beyan yükü) = 1.000 kg   q = 0,5
+Karşı ağırlık = Gk + q·Gy = 650 + 0,5 x 1.000 = 1.150 kg
+Halat: 7 x Ø6,5 mm çelik halat (gh = 0,152 kg/m), 2/1 askı
+Halat kütlesi Gh = gh x lh x nh = 0,152 x 19,7 x 7 = 21,0 kg
+1.2.1. Kuyu Alt Boşluğu Tabanına Gelen Kuvvetler
+P1 (kabin tamponu altı) = 4 x gn x (Gk + Gy) = 4 x 9,81 x (650 + 1.000) = 64.746 N
+P2 (karşı ağırlık tamponu altı) = 4 x gn x Gka = 4 x 9,81 x 1.150 = 45.126 N
+1.2.3. Makine Konsolu Üzerinden Kuyu Perdesine Etki Eden Kuvvetler (duvar konsollu, alttan sehpalı)
+F = gn x (Gmakina + Gsehpa + Gmontör + Gk + Gy + Gh + Gka) = 9,81 x (320 + 100 + 150 + 650 + 1.000 + 21 + 1.150) = 33.265 N
+1.2.4. Asansör Motor Gücü Hesabı
+Smaks (artan yük) = Gk + Gh + Gy - Gka = 521 kg   M = Smaks x D/2 = 62,5 kg.m
+N = (1/η) x S x V / 102 = (1/0,80) x 521 x 1,00 / 102 = 6,38 kW (8,6 HP)  ->  seçilen 7,5 kW
+13 kişilik 1,00 m/s hızında 7,5 kW lık 1 adet insan asansörü tesis edilecektir.
+ASANSÖR 7 x Ø6,5 mm (7 HALATLI), 2/1 ASKILI OLACAKTIR.
+
+KONTROLLER
+Kabin alanı 2,40 m² ≤ EN 81-20 en büyük 2,40 m² : UYGUN
+İmar (dar kenar ≥ 1,20 m, alan ≥ 1,80 m², kapı ≥ 0,90 m): UYGUN
+Eski TS yöntemi çapraz kontrol: TR=59,7 s, N=5,03 sefer/5dk, B3=65,3 > B2=9,0 : UYGUN
+Kuyu mesafesi ≈ kuyu dibi 1,40 + seyir 4,55 + kuyu üstü 3,80 = 9,75 m
