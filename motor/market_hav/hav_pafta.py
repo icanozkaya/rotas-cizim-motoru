@@ -555,11 +555,11 @@ def ks_degerleri():
     fs = wb['FAN HESABI']
     fsat = {fs.cell(r, 1).value: r for r in range(1, 80)}
     fv = lambda ad, col: fs.cell(fsat[ad], col).value
-    fan = dict(n=fv('Fan adedi (fan duvarı)', 2), qf=fv('Fan başına debi', 2),
+    fan = dict(n=fv('Fan / motor adedi', 2), qf=fv('Fan debisi', 2),
                dp_uf=fv('FAN TOPLAM BASINCI', 2), dp_do=fv('FAN TOPLAM BASINCI', 3),
                esp_uf=fv('Dış statik basınç (seçim, 50 Pa’a yuvarlanmış)', 2),
                esp_do=fv('Dış statik basınç (seçim, 50 Pa’a yuvarlanmış)', 3),
-               pm_uf=fv('Fan başına EC motor gücü (seçim)', 2), pm_do=fv('Fan başına EC motor gücü (seçim)', 3),
+               pm_uf=fv('Motor anma gücü (seçim)', 2), pm_do=fv('Motor anma gücü (seçim)', 3),
                sfp_uf=fv('Özgül fan gücü SFP', 2), sfp_do=fv('Özgül fan gücü SFP', 3),
                sk_uf=fv('SFP sınıfı', 2), sk_do=fv('SFP sınıfı', 3))
     el = {}
@@ -629,7 +629,7 @@ def santral_etiket(doc, ogeler, deger, kutular, elk=None):
         satir = [(k, 50), ('ISI GERİ KAZANIMLI KLİMA SANTRALİ', 34),
                  (f'40.000 m³/h — TAZE HAVA {v["taze"]:,.0f} m³/h'.replace(',', '.'), 30),
                  (f'DX SOĞUTMA {v["qs"]:.0f} kW (ISIL) / DX ISITMA {v["qi"]:.0f} kW (ISIL)', 30),
-                 (f'FANLAR: {v["fan"]["n"]:.0f}×{v["fan"]["pm_uf"]:.1f} + {v["fan"]["n"]:.0f}×{v["fan"]["pm_do"]:.1f} kW (ELEKTRİK)'.replace('.', ','), 30)]
+                 (f'FAN MOTORLARI: ÜFLEME {v["fan"]["pm_uf"]:.1f} kW + EMİŞ {v["fan"]["pm_do"]:.1f} kW (ELEKTRİK)'.replace('.', ','), 30)]
         if elk:
             nolar = {d['kod']: d['no'] for d in elk if isinstance(d['no'], int)}
             no_etiketi(msp, b[2] + 280, b[3] - 45, nolar[k], kutular)
@@ -778,7 +778,7 @@ NOTLAR = [
     'Klima santralleri ve dış üniteler titreşim takozlu beton kaide üzerine monte edilecektir.',
     'Soğutucu akışkan hatları üretici tablosuna göre çaplandırılacak, yalıtılacak ve azotla basınç testi yapılacaktır.',
     'Branşmanlar diğer sistemin ana kanalını kestiği yerde ana kanalın altından (geçiş alt kotu +4.00) geçirilecektir.',
-    'Santral fanları EC motorlu plug fan duvarı (bölme başına 4 fan) olacak, fan hızları otomasyonla sürekli ayarlanacaktır.',
+    'Her santralde bir üfleme ve bir emiş/egzoz fanı (2 motor) olacak, motorlar frekans konvertörüyle sürekli ayarlanacaktır.',
 ]
 
 
@@ -789,13 +789,13 @@ def elektrik_tablosu(msp, x0, y0, elk, kutular):
                  'AKIM (A)', 'SİG. (A)')]
     for d in elk:
         satirlar.append(('' if d['no'] is None else str(d['no']), d['kod'] or '', d['ad'],
-                         '' if d['adet'] is None else f'{d["adet"]:.0f}', f(d['pb'], 2), f(d['p'], 2),
+                         '' if d['adet'] is None else f'{d["adet"]:.0f}', ('' if d['pb'] is None else f(d['pb'], 3 if d['pb'] < 0.1 else 2)), f(d['p'], 2),
                          '' if d['u'] is None else f'{d["u"]:.0f} V', f(d['i']),
                          '' if d['sig'] is None else f'{d["sig"]:.0f}'))
     y = tablo(msp, x0, y0, [350, 450, 2300, 300, 450, 500, 400, 450, 400], satirlar,
               'ELEKTRİK YÜKÜ TABLOSU — YALNIZ ELEKTRİK GÜÇLERİ', h=26, sat_h=72, kutular=kutular)
     for k, s_ in enumerate(('Isıtma / soğutma (ISIL) kapasiteleri bu tabloda yoktur; cihaz listesinde "kW ISIL" olarak verilmiştir.',
-                            'Alt satırlar (1.1, 1.2 …) santral içindeki tüketicilerdir; fan satırlarında akım ve sigorta fan başınadır.',
+                            'Alt satırlar (1.1, 1.2 …) santral içindeki tüketicilerdir: üfleme motoru, emiş motoru, damper motorları, kontrol panosu.',
                             'Numaralar plandaki daire içindeki cihaz numaralarıdır. İletken kesiti ve pano seçimi elektrik projesindedir.')):
         yazi(msp, s_, x0, y - 45 - k * 55, 28, 'TL', K_TAB, kutular=kutular)
     return y - 220

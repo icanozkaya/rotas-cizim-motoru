@@ -27,7 +27,7 @@ STIL = 'ROTAS'
 UFLEME = [(0, 30, 'ÇIKIŞ'), (30, 100, 'SUSTURUCU'), (100, 250, 'ÜFLEME FANI'), (250, 300, 'DX ISITMA'),
           (300, 380, 'DX SOĞUTMA'), (380, 450, 'F7 FİLTRE'), (450, 530, 'KARIŞIM'), (530, 730, 'ISI GERİ KAZANIM'),
           (730, 790, 'G4 FİLTRE'), (790, 830, 'TAZE HAVA')]
-DONUS = [(0, 30, 'DÖNÜŞ'), (30, 90, 'G4 FİLTRE'), (90, 240, 'DÖNÜŞ FANI'), (240, 330, 'SUSTURUCU'),
+DONUS = [(0, 30, 'DÖNÜŞ'), (30, 90, 'G4 FİLTRE'), (90, 240, 'EMİŞ FANI'), (240, 330, 'SUSTURUCU'),
          (330, 450, 'SERVİS'), (450, 530, 'KARIŞIM'), (530, 730, 'ISI GERİ KAZANIM'), (730, 790, 'SERVİS'),
          (790, 830, 'EGZOZ')]
 L_KS, W_KS, H_KS, H_KAIDE = 830.0, 545.0, 220.0, 15.0
@@ -87,9 +87,9 @@ def ks_plan(m, b, no, deger, kutular):
             xx = x0 + s0 + 5 + k * 10
             m.add_line((xx, ym + 10), (xx, y1 - 10), dxfattribs={'layer': K_CIHAZ})
     # fan daireleri
-    for cx, ya, yb in ((x0 + 175, ym, y1), (x0 + 165, y0, ym)):          # fan duvarı (2 × 2): planda 2 fan
-        for f in (0.27, 0.73):
-            m.add_circle((cx, ya + (yb - ya) * f), 48, dxfattribs={'layer': K_CIHAZ})
+    for cx, ya, yb in ((x0 + 175, ym, y1), (x0 + 165, y0, ym)):          # bölme başına 1 fan + 1 motor
+        m.add_circle((cx, (ya + yb) / 2), 65, dxfattribs={'layer': K_CIHAZ})
+        m.add_circle((cx, (ya + yb) / 2), 18, dxfattribs={'layer': K_CIHAZ})
     # dış üniteler (kuzeyde, gövdeden 250 cm sonra) + soğutucu akışkan hatları
     du = []
     yd0 = y1 + 250
@@ -182,8 +182,7 @@ def ks_kesit_paftasi(m, x0, y0, w, h, deger, kutular):
     for s0, s1, ad in UFLEME:
         c.L(s0, ym, s0, W_KS)
         if ad == 'ÜFLEME FANI':
-            for f in (0.27, 0.73):
-                _fan(c, (s0 + s1) / 2, ym + (W_KS - ym) * f, 52)
+            _fan(c, (s0 + s1) / 2, (ym + W_KS) / 2, 68)
         elif ad in ('DX ISITMA', 'DX SOĞUTMA'):
             _batarya(c, s0 + 8, s1 - 8, ym + 12, W_KS - 12)
         elif 'FİLTRE' in ad:
@@ -197,9 +196,8 @@ def ks_kesit_paftasi(m, x0, y0, w, h, deger, kutular):
     for s0, s1, ad in DONUS:
         if ad != 'ISI GERİ KAZANIM':
             c.L(s0, 0, s0, ym)
-        if ad == 'DÖNÜŞ FANI':
-            for f in (0.27, 0.73):
-                _fan(c, (s0 + s1) / 2, ym * f, 52)
+        if ad == 'EMİŞ FANI':
+            _fan(c, (s0 + s1) / 2, ym / 2, 68)
         elif 'FİLTRE' in ad:
             _filtre(c, s0 + 15, s1 - 15, 10, ym - 10, 8)
         elif ad == 'SUSTURUCU':
@@ -249,9 +247,9 @@ def ks_kesit_paftasi(m, x0, y0, w, h, deger, kutular):
         c.L(s0, z0, s0, z1)
         mid = (s0 + s1) / 2
         if ad == 'ÜFLEME FANI':
-            for f in (0.28, 0.72):
-                _fan(c, mid, z0 + (z1 - z0) * f, 46)
-            c.L(s0 + 20, (z0 + z1) / 2, s1 - 20, (z0 + z1) / 2)
+            _fan(c, mid, (z0 + z1) / 2 + 12, 66)
+            c.R(s0 + 25, z0 + 12, s1 - 25, z0 + 28)
+            c.R(mid - 30, z0 + 28, mid + 30, z0 + 50)
         elif ad in ('DX ISITMA', 'DX SOĞUTMA'):
             _batarya(c, s0 + 8, s1 - 8, z0 + 30, z1 - 15)
         elif 'FİLTRE' in ad:
@@ -278,22 +276,20 @@ def ks_kesit_paftasi(m, x0, y0, w, h, deger, kutular):
     # ------------------------------------------------- B-B ENİNE KESİT (batarya hizası) + DÜ görünüşleri
     ex, ey = bx, y0 + 650
     DT._cerceve(m, ex - 650, ey - 300, ex + W_KS * K + 1000, ey + (H_KS + H_KAIDE) * K + 450, 13,
-                'KLİMA SANTRALİ B-B KESİTİ (FAN DUVARLARI)', '1/25', kutular)
+                'KLİMA SANTRALİ B-B KESİTİ (FAN BÖLÜMÜ)', '1/25', kutular)
     c = DT.Cz(m, ex, ey, K, kutular)
     c.R(-10, 0, W_KS + 10, H_KAIDE)
     c.tara([(-10, 0), (W_KS + 10, 0), (W_KS + 10, H_KAIDE), (-10, H_KAIDE)], 'AR-CONC', 0.5)
     c.R(0, z0, W_KS, z1)
     c.L(W_KS / 2, z0, W_KS / 2, z1)
-    for xa in (0.0, W_KS / 2):                                  # her bölmede 2 × 2 EC plug fan
-        c.L(xa + W_KS / 4, z0 + 8, xa + W_KS / 4, z1 - 8, DT.KAT_T)
-        c.L(xa + 8, (z0 + z1) / 2, xa + W_KS / 2 - 8, (z0 + z1) / 2, DT.KAT_T)
-        for fx in (0.25, 0.75):
-            for fz in (0.25, 0.75):
-                _fan(c, xa + W_KS / 2 * fx, z0 + (z1 - z0) * fz, 42)
-    c.T('DÖNÜŞ / EGZOZ FAN DUVARI', W_KS * 0.25, z1 + 15, h=26, al='BC')
-    c.T('ÜFLEME FAN DUVARI', W_KS * 0.75, z1 + 15, h=26, al='BC')
-    c.etiket('4 × EC PLUG FAN (2 × 2), FAN BAŞINA AYRI MOTOR', W_KS * 0.875, z0 + 150, W_KS + 40, z0 + 175)
-    c.etiket('FAN DUVARI BÖLME PANELİ + GERİ AKIŞ KLAPESİ', W_KS * 0.75, z0 + 105, W_KS + 40, z0 + 120)
+    for xa in (0.0, W_KS / 2):                                  # her bölmede 1 plug fan + 1 motor
+        xc = xa + W_KS / 4
+        _fan(c, xc, (z0 + z1) / 2 + 10, 85)
+        c.R(xa + 20, z0 + 12, xa + W_KS / 2 - 20, z0 + 28)         # motor-fan kaidesi + titreşim takozu
+    c.T('EMİŞ / EGZOZ FANI', W_KS * 0.25, z1 + 15, h=26, al='BC')
+    c.T('ÜFLEME FANI', W_KS * 0.75, z1 + 15, h=26, al='BC')
+    c.etiket('PLUG FAN + IE4 MOTOR (FREKANS KONVERTÖRLÜ)', W_KS * 0.75 + 40, z0 + 130, W_KS + 40, z0 + 175)
+    c.etiket('FAN-MOTOR KAİDESİ + TİTREŞİM TAKOZU', W_KS * 0.75, z0 + 20, W_KS + 40, z0 + 110)
     c.etiket('PANEL: 50 mm TAŞ YÜNÜ, ÇİFT CİDARLI', W_KS, z1 - 40, W_KS + 40, z1 - 5)
     c.olcu(0, -60, W_KS, -60, f'{W_KS:.0f}', ofs=0)
     # DÜ görünüşleri
@@ -335,13 +331,13 @@ def ks_kesit_paftasi(m, x0, y0, w, h, deger, kutular):
     satir.append(('', 'Isı geri kazanım (plakalı) verimi', *['%75'] * 4))
     satir.append(('', 'DX soğutma bataryası (kW ISIL)', *[f'{deger[k]["qs"]:.0f}' for k in keys]))
     satir.append(('', 'DX ısıtma bataryası (kW ISIL)', *[f'{deger[k]["qi"]:.0f}' for k in keys]))
-    satir.append(('FAN', 'Üfleme fan duvarı (adet × m³/h)', *[f'{fn["n"]:.0f} × {fn["qf"]:,.0f}'.replace(',', '.')] * 4))
+    satir.append(('FAN', 'Üfleme fanı debisi (m³/h)', *[f'{fn["qf"]:,.0f}'.replace(',', '.')] * 4))
     satir.append(('', 'Üfleme toplam / dış statik basınç (Pa)', *[f'{fn["dp_uf"]:.0f} / {fn["esp_uf"]:.0f}'] * 4))
-    satir.append(('', 'Üfleme EC motoru (kW ELEKTRİK)', *[f'{fn["n"]:.0f} × {fn["pm_uf"]:.1f}'.replace('.', ',')] * 4))
-    satir.append(('', 'Dönüş/egzoz fan duvarı (adet × m³/h)', *[f'{fn["n"]:.0f} × {fn["qf"]:,.0f}'.replace(',', '.')] * 4))
-    satir.append(('', 'Dönüş toplam / dış statik basınç (Pa)', *[f'{fn["dp_do"]:.0f} / {fn["esp_do"]:.0f}'] * 4))
-    satir.append(('', 'Dönüş EC motoru (kW ELEKTRİK)', *[f'{fn["n"]:.0f} × {fn["pm_do"]:.1f}'.replace('.', ',')] * 4))
-    satir.append(('', 'SFP üfleme / dönüş (W/(m³/s))', *[f'{fn["sfp_uf"]:.0f} ({fn["sk_uf"]}) / {fn["sfp_do"]:.0f} ({fn["sk_do"]})'] * 4))
+    satir.append(('', 'Üfleme fanı motoru (kW ELEKTRİK)', *[f'{fn["pm_uf"]:.1f}'.replace('.', ',')] * 4))
+    satir.append(('', 'Emiş / egzoz fanı debisi (m³/h)', *[f'{fn["qf"]:,.0f}'.replace(',', '.')] * 4))
+    satir.append(('', 'Emiş toplam / dış statik basınç (Pa)', *[f'{fn["dp_do"]:.0f} / {fn["esp_do"]:.0f}'] * 4))
+    satir.append(('', 'Emiş / egzoz fanı motoru (kW ELEKTRİK)', *[f'{fn["pm_do"]:.1f}'.replace('.', ',')] * 4))
+    satir.append(('', 'SFP üfleme / emiş (W/(m³/s))', *[f'{fn["sfp_uf"]:.0f} ({fn["sk_uf"]}) / {fn["sfp_do"]:.0f} ({fn["sk_do"]})'] * 4))
     satir.append(('', 'Santral kurulu elektrik gücü (kW ELEKTRİK)', *[f'{deger[k]["p_ks"]:.1f}'.replace('.', ',') for k in keys]))
     satir.append(('', 'Filtre taze / dönüş / üfleme', *['G4/G4/F7'] * 4))
     satir.append(('', 'Ölçü U×G×Y (cm)', *['830×545×220'] * 4))
@@ -374,7 +370,7 @@ def ks_kesit_paftasi(m, x0, y0, w, h, deger, kutular):
     notlar = ['Batarya kapasiteleri ISI_KAZANCI_VE_KLIMA_SANTRALI_HESABI.xlsx dosyasından alınmıştır.',
               'Dış ünite ısıtma kapasitesi −3 °C dış havada sağlanacak şekilde seçilecektir.',
               'Plakalı eşanjöre donma koruması için by-pass damperi konulacaktır.',
-              'Fanlar EC motorlu plug fan olup her bölmede 2 × 2 fan duvarı olarak düzenlenecek, her fana geri akış klapesi konulacaktır.',
+              'Santralde 2 fan motoru vardır: üfleme fanı ve emiş/egzoz fanı (plug fan, IE4 motor, frekans konvertörlü).',
               'Fan hızları basınç/debi sensörüyle sürekli ayarlanacak; filtre kirliliği fark basınç anahtarıyla izlenecektir.',
               'ISIL değerler (kW ısıl) ısıtma/soğutma kapasitesidir; ELEKTRİK değerleri ayrıca belirtilmiştir.',
               'Cihaz ölçüleri yaklaşık olup üretici seçimine göre kesinleşecektir.']

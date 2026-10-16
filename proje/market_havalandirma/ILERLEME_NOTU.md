@@ -20,3 +20,7 @@ Plan: (1) Excel hesap  (2) KS kesit + yerleşim paftaları DXF  (3) kontrol + te
 - 16.10.2026 19:20 — 3. aşama: fan hesabı (FAN HESABI sayfası: iç kayıplar + dış statik basınç, EC plug fan duvarı 4+4,
   üfleme 940 Pa / 4×5,5 kW, dönüş 620 Pa / 4×4,0 kW, SFP4/SFP3), elektrik yükü tablosu yalnız elektrik güçleri
   (ısıl kapasiteler çıkarıldı; ısıl değerler her yerde "kW ISIL"). Toplam kurulu elektrik 540,2 kW.
+- 16.10.2026 19:30 — kullanıcı: santralde 2 motor (1 üfleme + 1 emiş). Fan duvarı kaldırıldı: üfleme 1×40.000 m³/h, 940 Pa,
+  18,5 kW; emiş 1×40.000 m³/h, 620 Pa, 15 kW (plug fan, IE4, frekans konvertörlü, η 0,65, pay 1,10). Elektrik tablosu:
+  KS satırı adet 1 + birim güç; alt kodlar KS-n/ÜF, /EF, /DM, /DDC; damper 4 W (Belimo verisi), DDC 0,15 kW;
+  dış ünite EER 2,8 (Trane RAUX katalog 2,81). Toplam kurulu elektrik 549,1 kW.

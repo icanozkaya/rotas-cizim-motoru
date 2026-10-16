@@ -76,10 +76,10 @@ def varsayimlar(wb):
         ('Alan başı taze hava', 0.7, 'l/s·m²', 'TS EN 16798-1 az kirletici bina', 'q_alan'),
         ('Batarya emniyet payı', 1.10, '-', 'seçim = hesap × emniyet', 'emn'),
         ('Dış ünite ısıtma kapasitesi düşümü (−3 °C)', 0.80, '-', 'ısı pompası −3 °C dış havada nominal ısıtmanın ~%80’i', 'dus'),
-        ('FANLAR (EC PLUG FAN DUVARI)', None, None, None, None),
-        ('Bölme başına fan adedi (fan duvarı)', 4, 'adet', '2 × 2 dizi; bir fan arızasında %75 debi sürer', 'n_fan'),
-        ('Fan sistem verimi (çark + EC motor + sürücü)', 0.62, '-', 'EC plug fan, tasarım noktası (ihtiyatlı)', 'eta_fan'),
-        ('Motor seçim payı', 1.15, '-', 'emilen güç × pay → bir üst standart motor gücü', 'k_motor'),
+        ('FANLAR (SANTRALDE 2 MOTOR: 1 ÜFLEME + 1 EMİŞ/EGZOZ)', None, None, None, None),
+        ('Bölme başına fan / motor adedi', 1, 'adet', 'her bölmede tek fan + tek motor (üfleme ve emiş/egzoz)', 'n_fan'),
+        ('Fan sistem verimi (çark + motor + frekans konvertörü)', 0.65, '-', 'geriye eğik kanatlı plug fan, IE4 motor, frekans konvertörlü', 'eta_fan'),
+        ('Motor seçim payı', 1.10, '-', 'motor anma gücü ≥ mil gücü × 1,10 → bir üst IEC standart motor gücü', 'k_motor'),
         ('Kritik hat uzunluğu (santral → en uzak menfez)', 75, 'm', 'planda KS çıkışı → ana kanal → branşman sonu', 'L_kr'),
         ('Ortalama sürtünme kaybı', 0.6, 'Pa/m', 'galvaniz kanal, 3–6 m/s', 'R_ort'),
         ('Üfleme hattı yerel kayıp katsayıları toplamı Σζ', 6.0, '-', 'dirsekler, T, redüksiyonlar', 'z_uf'),
@@ -89,13 +89,13 @@ def varsayimlar(wb):
         ('Brandi (esnek bağlantı)', 10, 'Pa', '', 'dp_br'),
         ('Yangın damperi', 20, 'Pa', 'yangın bölmesi geçişlerinde', 'dp_yd'),
         ('Ana kanal hızı (1600×1200, 39.900 m³/h)', 5.77, 'm/s', 'KANAL HIZ KONTROL tablosu', 'v_ana'),
-        ('Damper motoru (taze, egzoz, karışım, by-pass)', 0.01, 'kW', 'adet başına, 24 V', 'P_dmp'),
-        ('Santral kontrol (DDC) panosu', 0.30, 'kW', 'santral başına', 'P_ddc'),
+        ('Damper motoru (taze, egzoz, karışım, by-pass)', 0.004, 'kW', '24 V; 20 Nm sınıfı ~2 W çalışma / 4 VA boyutlandırma (Belimo LM24A 5 Nm: 1 W / 2 VA)', 'P_dmp'),
+        ('Santral kontrol (DDC) panosu', 0.15, 'kW', 'DDC + sensörler + 24 V trafo (varsayım)', 'P_ddc'),
         ('ELEKTRİK', None, None, None, None),
-        ('Dış ünite soğutma verimi EER (35 °C dış hava)', 3.0, '-', 'hava kaynaklı DX ısı pompası (varsayım, üretici değeriyle değiştir)', 'EER'),
+        ('Dış ünite soğutma verimi EER (35 °C dış hava, fanlar dahil)', 2.8, '-', 'ısı pompalı hava soğutmalı kondenser ünitesi; Trane RAUX katalog EER 2,81 — üretici değeriyle değiştir', 'EER'),
         ('Dış ünite ısıtma verimi COP (−3 °C dış hava)', 2.6, '-', 'varsayım, üretici değeriyle değiştir', 'COP'),
         ('Besleme gerilimi (3 faz)', 400, 'V', '3~ 50 Hz', 'U_v'),
-        ('Güç faktörü — EC fanlı santral', 0.95, '-', '', 'cos_ks'),
+        ('Güç faktörü — frekans konvertörlü fan motorları', 0.95, '-', 'konvertör giriş güç faktörü', 'cos_ks'),
         ('Güç faktörü — inverter dış ünite', 0.92, '-', '', 'cos_du'),
         ('Sigorta seçim katsayısı', 1.25, '-', 'In ≥ 1,25 × I', 'k_sig'),
         ('KABUK (ISI KAYBI)', None, None, None, None),
@@ -354,22 +354,22 @@ FAN_BILESEN_UF = [('Taze hava panjuru + damperi', 40), ('G4 panel filtre (tasar�
 FAN_BILESEN_DO = [('Dönüş damperi', 20), ('G4 panel filtre (tasarım)', 100), ('Susturucu', 40),
                   ('Karışım bölmesi', 10), ('Plakalı ısı geri kazanım eşanjörü (kuru)', 120),
                   ('Egzoz damperi + panjur', 40), ('Gövde, giriş/çıkış kayıpları', 40)]
-MOTORLAR = '{{1.1,1.5,2.2,3,4,5.5,7.5,11,15,18.5,22}}'
+MOTORLAR = '{{1.1,1.5,2.2,3,4,5.5,7.5,11,15,18.5,22,30,37,45}}'
 
 
 def fan_hesabi(wb):
     from openpyxl.workbook.defined_name import DefinedName
     ws = wb.create_sheet('FAN HESABI')
-    ws['A1'] = 'KLİMA SANTRALİ FAN HESABI — ÜFLEME VE DÖNÜŞ/EGZOZ FAN DUVARLARI (EC PLUG FAN)'
+    ws['A1'] = 'KLİMA SANTRALİ FAN HESABI — ÜFLEME FANI VE EMİŞ / EGZOZ FANI (SANTRAL BAŞINA 2 MOTOR)'
     ws['A1'].font = Font(name=F, size=13, bold=True)
     ws['A2'] = ('Fan toplam basıncı = santral iç kayıpları + dış statik basınç (kanal). Emilen güç P = V·Δp/η. '
-                'Dört santral aynı fan seçimiyle donatılır (debi 40.000 m³/h). Tüm değerler ELEKTRİK gücüdür (kW).')
+                'Her santralde 2 motor vardır: üfleme fanı ve emiş/egzoz fanı. Dört santral aynı seçimle donatılır. Tüm güçler ELEKTRİK gücüdür (kW).')
     ws['A2'].font = Font(name=F, size=9, italic=True)
     ws.column_dimensions['A'].width = 56
     ws.column_dimensions['B'].width = 14
     ws.column_dimensions['C'].width = 14
     ws.column_dimensions['D'].width = 50
-    for j, b_ in enumerate(['BÜYÜKLÜK', 'ÜFLEME FANI', 'DÖNÜŞ / EGZOZ FANI', 'AÇIKLAMA']):
+    for j, b_ in enumerate(['BÜYÜKLÜK', 'ÜFLEME FANI', 'EMİŞ / EGZOZ FANI', 'AÇIKLAMA']):
         hucre(ws, f'{"ABCD"[j]}4', b_, KALIN, BASLIK, hiz='center')
     r = 5
     hucre(ws, f'A{r}', '— SANTRAL İÇ BASINÇ KAYIPLARI (Pa) —', KALIN, BASLIK)
@@ -397,14 +397,14 @@ def fan_hesabi(wb):
         ('FAN TOPLAM BASINCI', 'Pa', '=B{ic}+B{esps}', '=C{ic}+C{esps}', 'santral iç + dış statik'),
         ('— FAN SEÇİMİ —', None, None, None, None),
         ('Toplam hava debisi', 'm³/h', '=V_ks', '=V_ks', 'kullanıcı projesi'),
-        ('Fan adedi (fan duvarı)', 'adet', '=n_fan', '=n_fan', ''),
-        ('Fan başına debi', 'm³/h', '=B{q}/B{nf}', '=C{q}/C{nf}', ''),
+        ('Fan / motor adedi', 'adet', '=n_fan', '=n_fan', 'santral başına 1 üfleme + 1 emiş'),
+        ('Fan debisi', 'm³/h', '=B{q}/B{nf}', '=C{q}/C{nf}', ''),
         ('Toplam emilen elektrik gücü', 'kW', '=B{q}/3600*B{tp}/eta_fan/1000', '=C{q}/3600*C{tp}/eta_fan/1000',
          'P = V·Δp / η'),
-        ('Fan başına emilen elektrik gücü', 'kW', '=B{pt}/B{nf}', '=C{pt}/C{nf}', ''),
-        ('Fan başına EC motor gücü (seçim)', 'kW', f'=INDEX({MOTORLAR},MATCH(TRUE,INDEX({MOTORLAR}>=B{{pf}}*k_motor,0),0))',
+        ('Fan mil gücü (motor başına)', 'kW', '=B{pt}/B{nf}', '=C{pt}/C{nf}', ''),
+        ('Motor anma gücü (seçim)', 'kW', f'=INDEX({MOTORLAR},MATCH(TRUE,INDEX({MOTORLAR}>=B{{pf}}*k_motor,0),0))',
          f'=INDEX({MOTORLAR},MATCH(TRUE,INDEX({MOTORLAR}>=C{{pf}}*k_motor,0),0))', 'bir üst standart güç'),
-        ('Kurulu elektrik gücü (fan duvarı)', 'kW', '=B{nf}*B{pm}', '=C{nf}*C{pm}', 'elektrik yükü tablosuna'),
+        ('Kurulu elektrik gücü', 'kW', '=B{nf}*B{pm}', '=C{nf}*C{pm}', 'elektrik yükü tablosuna'),
         ('Özgül fan gücü SFP', 'W/(m³/s)', '=B{pt}*1000/(B{q}/3600)', '=C{pt}*1000/(C{q}/3600)', 'TS EN 16798-3'),
         ('SFP sınıfı', '-', '=IF(B{sfp}<=500,"SFP1",IF(B{sfp}<=750,"SFP2",IF(B{sfp}<=1250,"SFP3",IF(B{sfp}<=2000,"SFP4",IF(B{sfp}<=3000,"SFP5","SFP6")))))',
          '=IF(C{sfp}<=500,"SFP1",IF(C{sfp}<=750,"SFP2",IF(C{sfp}<=1250,"SFP3",IF(C{sfp}<=2000,"SFP4",IF(C{sfp}<=3000,"SFP5","SFP6")))))',
@@ -420,10 +420,10 @@ def fan_hesabi(wb):
         key = {'Santral iç kayıpları toplamı': 'ic', 'Ana kanal dinamik basıncı': 'pd', 'Sürtünme kaybı (L × R)': 'a',
                'Menfez + brandi + yangın damperi': 'b', 'Dış statik basınç (hesap)': 'esp',
                'Dış statik basınç (seçim, 50 Pa’a yuvarlanmış)': 'esps', 'FAN TOPLAM BASINCI': 'tp',
-               'Toplam hava debisi': 'q', 'Fan adedi (fan duvarı)': 'nf', 'Toplam emilen elektrik gücü': 'pt',
-               'Fan başına emilen elektrik gücü': 'pf', 'Fan başına EC motor gücü (seçim)': 'pm',
-               'Kurulu elektrik gücü (fan duvarı)': 'pk', 'Özgül fan gücü SFP': 'sfp',
-               'Fan ısısı (hava akımına geçen)': 'isi', 'Fan başına debi': 'qf', 'SFP sınıfı': 'sinif'}.get(ad)
+               'Toplam hava debisi': 'q', 'Fan / motor adedi': 'nf', 'Toplam emilen elektrik gücü': 'pt',
+               'Fan mil gücü (motor başına)': 'pf', 'Motor anma gücü (seçim)': 'pm',
+               'Kurulu elektrik gücü': 'pk', 'Özgül fan gücü SFP': 'sfp',
+               'Fan ısısı (hava akımına geçen)': 'isi', 'Fan debisi': 'qf', 'SFP sınıfı': 'sinif'}.get(ad)
         if key:
             adr[key] = r
         r += 1
@@ -459,7 +459,7 @@ def elektrik(wb):
     ws['A1'].font = Font(name=F, size=13, bold=True)
     ws['A2'] = ('Bu tabloda YALNIZ ELEKTRİK GÜÇLERİ vardır; ısıtma/soğutma (ısıl) kapasiteleri bu tabloda yer almaz. '
                 'Numaralar planda cihaz yanındaki daire içindeki numaralardır; alt satırlar (1.1, 1.2 …) cihazın '
-                'içindeki elektrik tüketicileridir. İletken kesiti ve pano seçimi elektrik projesinde yapılacaktır.')
+                'içindeki elektrik tüketicileridir (2 fan motoru, damper motorları, kontrol panosu). İletken kesiti ve pano seçimi elektrik projesinde yapılacaktır.')
     ws['A2'].font = Font(name=F, size=9, italic=True)
     bas = ['NO', 'CİHAZ KODU', 'CİHAZ / ELEKTRİK TÜKETİCİSİ', 'ADET', 'BİRİM ELEKTRİK GÜCÜ (kW)',
            'KURULU ELEKTRİK GÜCÜ (kW)', 'GERİLİM (V)', 'cos φ', 'AKIM (A)', 'SİGORTA (A)']
@@ -484,7 +484,7 @@ def elektrik(wb):
         hucre(ws, f'B{r}', kod, f_, fill, hiz='center')
         hucre(ws, f'C{r}', ad, f_, fill)
         hucre(ws, f'D{r}', adet, f_, fill, '0', 'right')
-        hucre(ws, f'E{r}', birim, f_, fill, '0.00', 'right')
+        hucre(ws, f'E{r}', birim, f_, fill, '0.000', 'right')
         hucre(ws, f'F{r}', toplam.format(r=r), f_, fill, '0.00', 'right')
         hucre(ws, f'G{r}', 230 if monofaze else '=U_v', f_, fill, '0', 'right')
         hucre(ws, f'H{r}', f'={cos}', f_, fill, '0.00', 'right')
@@ -498,16 +498,16 @@ def elektrik(wb):
     for i in range(4):
         c = 'CDEF'[i]
         ks = r
-        satir(no, f'KS-{i + 1}', 'ISI GERİ KAZANIMLI KLİMA SANTRALİ — SANTRAL PANOSU BESLEMESİ (TOPLAM)', None, None,
-              '=SUM(F{a}:F{b})'.replace('{a}', str(ks + 1)).replace('{b}', str(ks + 4)), 'cos_ks', True)
+        satir(no, f'KS-{i + 1}', 'ISI GERİ KAZANIMLI KLİMA SANTRALİ — SANTRAL PANOSU BESLEMESİ (TOPLAM)', 1,
+              '=SUM(F{a}:F{b})'.replace('{a}', str(ks + 1)).replace('{b}', str(ks + 4)), '=D{r}*E{r}', 'cos_ks', True)
         cihaz_satir.append(ks)
-        satir(f'{no}.1', '', 'Üfleme fanı — EC plug fan (fan duvarı; akım/sigorta fan başına)', '=n_fan', '=Pm_uf',
+        satir(f'{no}.1', f'KS-{i + 1}/ÜF', 'Üfleme fanı motoru — plug fan, IE4, frekans konvertörlü', '=n_fan', '=Pm_uf',
               '=D{r}*E{r}', 'cos_ks', birim_akim=True)
-        satir(f'{no}.2', '', 'Dönüş/egzoz fanı — EC plug fan (fan duvarı; akım/sigorta fan başına)', '=n_fan',
+        satir(f'{no}.2', f'KS-{i + 1}/EF', 'Emiş / egzoz fanı motoru — plug fan, IE4, frekans konvertörlü', '=n_fan',
               '=Pm_do', '=D{r}*E{r}', 'cos_ks', birim_akim=True)
-        satir(f'{no}.3', '', 'Damper motorları — taze hava, egzoz, karışım, by-pass (230/24 V trafo, panodan)', 4, '=P_dmp',
+        satir(f'{no}.3', f'KS-{i + 1}/DM', 'Damper motorları — taze hava, egzoz, karışım, by-pass (230/24 V trafo, panodan)', 4, '=P_dmp',
               '=D{r}*E{r}', 'cos_ks', monofaze=True)
-        satir(f'{no}.4', '', 'Santral kontrol (DDC) panosu (230 V)', 1, '=P_ddc', '=D{r}*E{r}', 'cos_ks', monofaze=True)
+        satir(f'{no}.4', f'KS-{i + 1}/DDC', 'Santral kontrol (DDC) panosu (230 V)', 1, '=P_ddc', '=D{r}*E{r}', 'cos_ks', monofaze=True)
         no += 1
         for j in (1, 2):
             rr = satir(no, f'DÜ-{i + 1}.{j}', 'DX DIŞ ÜNİTE (ISI POMPASI) — kompresör + kondenser fanları', 1,
@@ -544,13 +544,13 @@ def cihaz_listesi(wb):
         ('', '', 'DX soğutma bataryası ISIL kapasitesi', '={K}!{c}37', 'kW ısıl'),
         ('', '', 'DX ısıtma bataryası ISIL kapasitesi', '={K}!{c}45', 'kW ısıl'),
         ('', '', 'Yoğuşma suyu', '={K}!{c}36', 'l/h'),
-        ('', '', 'Üfleme fan duvarı: adet × debi', '=n_fan&" × "&TEXT(qf_fan,"#.##0")&" m³/h"', ''),
+        ('', '', 'Üfleme fanı (plug fan, 1 adet) debisi', '=qf_fan', 'm³/h'),
         ('', '', 'Üfleme fanı toplam basınç / dış statik basınç', '=TEXT(dp_uf,"0")&" / "&TEXT(esp_uf,"0")&" Pa"', ''),
-        ('', '', 'Üfleme fanı EC motor (fan başına)', '=Pm_uf', 'kW elektrik'),
-        ('', '', 'Dönüş/egzoz fan duvarı: adet × debi', '=n_fan&" × "&TEXT(qf_fan,"#.##0")&" m³/h"', ''),
-        ('', '', 'Dönüş fanı toplam basınç / dış statik basınç', '=TEXT(dp_do,"0")&" / "&TEXT(esp_do,"0")&" Pa"', ''),
-        ('', '', 'Dönüş fanı EC motor (fan başına)', '=Pm_do', 'kW elektrik'),
-        ('', '', 'Özgül fan gücü SFP (üfleme / dönüş)', '=TEXT(sfp_uf,"0")&" / "&TEXT(sfp_do,"0")&" W/(m³/s)"', ''),
+        ('', '', 'Üfleme fanı motoru (IE4, frekans konvertörlü)', '=Pm_uf', 'kW elektrik'),
+        ('', '', 'Emiş / egzoz fanı (plug fan, 1 adet) debisi', '=qf_fan', 'm³/h'),
+        ('', '', 'Emiş fanı toplam basınç / dış statik basınç', '=TEXT(dp_do,"0")&" / "&TEXT(esp_do,"0")&" Pa"', ''),
+        ('', '', 'Emiş / egzoz fanı motoru (IE4, frekans konvertörlü)', '=Pm_do', 'kW elektrik'),
+        ('', '', 'Özgül fan gücü SFP (üfleme / emiş)', '=TEXT(sfp_uf,"0")&" / "&TEXT(sfp_do,"0")&" W/(m³/s)"', ''),
         ('', '', 'Filtre (taze hava / dönüş / üfleme)', 'G4 / G4 / F7', ''),
         ('', '', 'Dış ölçü (U × G × Y) yaklaşık', '830×545×220', 'cm'),
         ('DÜ', 'DX DIŞ ÜNİTE (HAVA KAYNAKLI ISI POMPASI)', 'Adet (santral başına)', '={K}!{c}50', 'adet'),
