@@ -714,6 +714,44 @@ def kutu_cakisma(kutular):
     return n
 
 
+# ============================================================================================ temiz çıktı
+def temiz_kaydet(kaynak, yol):
+    """AutoCAD'in açamadığı ilişkisel nesneler (ACDBASSOC*, DIMASSOC, MLEADER bağları) taşınmasın diye çıktı
+    yeni bir R2010 belgesine aktarılır; MULTILEADER ve DIMENSION patlatılır (çizgi + yazı olarak aynı katmanda)."""
+    from ezdxf.addons import Importer
+    hedef = ezdxf.new('R2010', setup=True)
+    hedef.header['$INSUNITS'] = 5
+    hedef.header['$MEASUREMENT'] = 1
+    imp = Importer(kaynak, hedef)
+    imp.import_tables('*')
+    tm = hedef.modelspace()
+    normal, patlat = [], []
+    for e in kaynak.modelspace():
+        (patlat if e.dxftype() in ('MULTILEADER', 'DIMENSION', 'ACAD_PROXY_ENTITY') else normal).append(e)
+    imp.import_entities(normal, tm)
+    imp.finalize()
+    n = 0
+    for e in patlat:
+        try:
+            for v in e.virtual_entities():
+                if v.dxftype() in ('MTEXT', 'TEXT') and v.dxf.get('style') not in hedef.styles:
+                    v.dxf.style = 'Standard'
+                v.dxf.layer = e.dxf.layer
+                tm.add_entity(v)
+                n += 1
+        except Exception as ex:
+            log('  patlatılamadı', e.dxftype(), ex)
+    for e in tm:                                   # olmayan stil / çizgi tipi başvurularını düzelt
+        if e.dxf.hasattr('style') and e.dxf.style not in hedef.styles:
+            e.dxf.style = 'Standard'
+        if e.dxf.hasattr('linetype') and e.dxf.linetype not in hedef.linetypes:
+            e.dxf.linetype = 'BYLAYER'
+    a = hedef.audit()
+    log('temiz çıktı: aktarılan', len(normal), 'patlatılan', len(patlat), '→', n, '| audit hata', len(a.errors),
+        'düzeltme', len(a.fixes))
+    hedef.saveas(yol)
+
+
 # ============================================================================================ ana akış
 def main():
     doc = mimari_ac()
@@ -747,7 +785,7 @@ def main():
             if disarida <= 10:
                 log('  pafta dışı:', e.dxftype(), e.dxf.layer, [round(v) for v in b])
     log('pafta dışında kalan varlık:', disarida)
-    doc.saveas(CIKTI)
+    temiz_kaydet(doc, CIKTI)
     log('yazıldı:', CIKTI)
     return dict(kolon=n_kol, yazi=cak, pafta_yazi=n_p, disarida=disarida)
 
