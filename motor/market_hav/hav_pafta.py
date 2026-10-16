@@ -48,7 +48,7 @@ K_U, K_UC = 'MTY-UFLEME-KANALI', 'MTY-UFLEME-CAP'
 K_D, K_DC = 'MTY-DONUS-KANALI', 'MTY-DONUS-CAP'
 K_S = 'MTY-CIHAZ'
 K_LEJ = 'ROTAS-HAV-LEJANT'
-K_ELK = 'ROTAS-ELEKTRIK-NO'
+K_ELK = 'ROTAS-CIHAZ-NO'
 K_TAB = 'ROTAS-HAV-TABLO'
 K_NOT = 'ROTAS-HAV-NOT'
 YENI_KATMAN = {K_ELK: 1, K_U: 20, K_UC: 21, K_D: 4, K_DC: 110, K_S: 135, K_LEJ: 7, K_TAB: 7, K_NOT: 7}
@@ -768,7 +768,7 @@ def elektrik_tablosu(msp, x0, y0, elk, kutular):
               'ELEKTRİK YÜKÜ TABLOSU (400 V 3~)', h=30, sat_h=85, kutular=kutular)
     yazi(msp, 'Numaralar plandaki daire içindeki cihaz numaralarıdır. Ayrıntı: ISI_KAZANCI_VE_KLIMA_SANTRALI_HESABI.xlsx',
          x0, y - 50, 30, 'TL', K_TAB, kutular=kutular)
-    yazi(msp, 'Kablo kesiti ve pano seçimi elektrik projesinde yapılacaktır.', x0, y - 110, 30, 'TL', K_TAB,
+    yazi(msp, 'İletken kesiti ve pano seçimi elektrik projesinde yapılacaktır.', x0, y - 110, 30, 'TL', K_TAB,
          kutular=kutular)
     return y - 150
 
