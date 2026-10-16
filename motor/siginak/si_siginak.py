@@ -1759,65 +1759,128 @@ y_t3 = tablo(259800, yb - 60, 'KANAL ÇİZELGESİ (kanal hızı 8,0 m/s sınır�
 cer_bit(_i)
 
 # ============================================================== KAYDET
-def mimari_birlestir(bizim, yol):
-    """kullanıcının mimarisi (kolonlar dahil, MTY-BORU işaretleri hariç) + bizim çizim -> temiz R2010 (AutoCAD güvenli)"""
-    from ezdxf.addons import Importer
+def mimari_kopya(hedef):
+    """kullanıcının mimarisi (kolonlar dahil, MTY-BORU işaretleri hariç) bloklar patlatılarak SADE nesnelerle yeniden yazılır
+    (LINE/LWPOLYLINE/ARC/CIRCLE/TEXT/MTEXT/HATCH/SOLID; yazı stili Standard) — dwg2dxf kaynaklı tablo/stil/nesne
+    kalıntıları taşınmaz, AutoCAD güvenli."""
+    from ezdxf import path as _path
+    _xy = lambda v: (v[0], v[1])
     src = ezdxf.readfile(MIM_DXF)
-    hedef = ezdxf.new('R2010', setup=True)
-    hedef.header['$INSUNITS'] = 5; hedef.header['$MEASUREMENT'] = 1; hedef.header['$LUNITS'] = 2
-    tm = hedef.modelspace()
-    imp = Importer(src, hedef); imp.import_tables('*')
-    normal, patlat = [], []
-    for e in src.modelspace():
-        if e.dxf.layer == 'MTY-BORU':
-            continue
-        if e.dxftype() == 'INSERT' and e.dxf.name not in src.blocks:
-            continue
-        (patlat if e.dxftype() in ('MULTILEADER', 'DIMENSION', 'ACAD_PROXY_ENTITY') else normal).append(e)
-    imp.import_entities(normal, tm); imp.finalize()
-    for e in patlat:
+    m = hedef.modelspace()
+    renk = {L_.dxf.name: L_.color for L_ in src.layers}
+
+    def katman(ad):
+        ad = 'MKDU0' if ad in ('0', '') else ad
+        if ad not in hedef.layers:
+            hedef.layers.add(ad, color=8 if ad.startswith('MKDU0') else abs(renk.get(ad, 8)) or 8)
+        return ad
+
+    def gez(es, lay_ust=None):
+        for e in es:
+            t = e.dxftype()
+            if e.dxf.get('layer') == 'MTY-BORU':
+                continue
+            if t == 'INSERT':
+                if e.dxf.name not in src.blocks:
+                    continue
+                try:
+                    for a_ in e.attribs:
+                        yield a_, e.dxf.layer
+                    yield from gez(e.virtual_entities(), e.dxf.layer)
+                except Exception:
+                    pass
+            elif t in ('MULTILEADER', 'DIMENSION', 'LEADER'):
+                try:
+                    yield from gez(e.virtual_entities(), e.dxf.layer)
+                except Exception:
+                    pass
+            else:
+                yield e, lay_ust
+
+    n = 0
+    for e, lu in gez(src.modelspace()):
+        t = e.dxftype()
+        lay = e.dxf.get('layer', '0')
+        if lay in ('0', '') and lu:
+            lay = lu
+        at = {'layer': katman(lay)}
+        c = e.dxf.get('color', 256)
+        if c not in (0, 256):
+            at['color'] = c
         try:
-            for v in e.virtual_entities():
-                if v.dxftype() in ('MTEXT', 'TEXT') and v.dxf.get('style') not in hedef.styles:
-                    v.dxf.style = 'Standard'
-                v.dxf.layer = e.dxf.layer
-                tm.add_entity(v)
+            if t == 'LINE':
+                m.add_line(_xy(e.dxf.start), _xy(e.dxf.end), dxfattribs=at)
+            elif t == 'LWPOLYLINE':
+                pts = [(q[0], q[1], q[4]) for q in e.get_points('xyseb')]
+                if len(pts) > 1:
+                    x = m.add_lwpolyline(pts, format='xyb', close=e.closed, dxfattribs=at)
+                    if e.dxf.get('const_width', 0):
+                        x.dxf.const_width = e.dxf.const_width
+            elif t == 'POLYLINE':
+                pts = [(v.dxf.location[0], v.dxf.location[1], v.dxf.get('bulge', 0)) for v in e.vertices]
+                if len(pts) > 1:
+                    m.add_lwpolyline(pts, format='xyb', close=e.is_closed, dxfattribs=at)
+            elif t in ('SPLINE', 'ELLIPSE'):
+                pts = [(v[0], v[1]) for v in e.flattening(1.0)] if t == 'SPLINE' else [(v[0], v[1]) for v in e.flattening(1.0)]
+                if len(pts) > 1:
+                    m.add_lwpolyline(pts, dxfattribs=at)
+            elif t == 'ARC':
+                m.add_arc(_xy(e.dxf.center), e.dxf.radius, e.dxf.start_angle, e.dxf.end_angle, dxfattribs=at)
+            elif t == 'CIRCLE':
+                m.add_circle(_xy(e.dxf.center), e.dxf.radius, dxfattribs=at)
+            elif t in ('TEXT', 'ATTRIB'):
+                s_ = e.dxf.text
+                if not s_.strip() or (t == 'ATTRIB' and e.dxf.get('flags', 0) & 1):
+                    continue
+                at.update(style='Standard', height=e.dxf.height, rotation=e.dxf.get('rotation', 0.0), width=e.dxf.get('width', 1.0))
+                x = m.add_text(s_, dxfattribs=at)
+                x.dxf.insert = e.dxf.insert
+                hl, vl = e.dxf.get('halign', 0), e.dxf.get('valign', 0)
+                if hl or vl:
+                    x.dxf.halign = hl; x.dxf.valign = vl; x.dxf.align_point = e.dxf.get('align_point', e.dxf.insert)
+            elif t == 'MTEXT':
+                s_ = e.plain_text().strip()
+                if not s_:
+                    continue
+                at.update(style='Standard', char_height=e.dxf.char_height, attachment_point=e.dxf.get('attachment_point', 1),
+                          insert=e.dxf.insert)
+                if e.dxf.hasattr('rotation'):
+                    at['rotation'] = e.dxf.rotation
+                m.add_mtext(s_.replace('\n', '\\P'), dxfattribs=at)
+            elif t == 'SOLID':
+                m.add_solid([_xy(e.dxf.vtx0), _xy(e.dxf.vtx1), _xy(e.dxf.vtx2), _xy(e.dxf.vtx3)], dxfattribs=at)
+            elif t == 'HATCH':
+                yollar = []
+                for pth in _path.from_hatch(e):
+                    v = [(q[0], q[1]) for q in pth.flattening(1.0)]
+                    if len(v) > 2:
+                        yollar.append(v)
+                if not yollar:
+                    continue
+                h_ = m.add_hatch(dxfattribs=at)
+                for v in yollar:
+                    h_.paths.add_polyline_path(v, is_closed=True)
+                if e.dxf.solid_fill:
+                    h_.set_solid_fill(color=at.get('color', 256))
+                else:
+                    try:
+                        h_.set_pattern_fill(e.dxf.pattern_name, scale=e.dxf.get('pattern_scale', 1.0), angle=e.dxf.get('pattern_angle', 0.0))
+                    except Exception:
+                        h_.set_pattern_fill('ANSI31', scale=e.dxf.get('pattern_scale', 1.0))
+            else:
+                continue
+            n += 1
         except Exception as ex:
-            print('  patlatılamadı', e.dxftype(), ex)
-    for L_ in hedef.layers:
-        if L_.dxf.name == 'MKDU0':
-            L_.color = 8
-    imp2 = Importer(bizim, hedef); imp2.import_tables('*')
-    imp2.import_entities(list(bizim.modelspace()), tm); imp2.finalize()
-    gecersiz = {st.dxf.name for st in hedef.styles if not st.dxf.name.strip() or st.dxf.name.lower().endswith('.shx')}
-    yerler = [tm] + [b for b in hedef.blocks]
-    for yer in yerler:
-        for e in yer:
-            for x in [e] + (list(e.attribs) if e.dxftype() == 'INSERT' else []):
-                if x.dxf.hasattr('style') and (x.dxf.style in gecersiz or x.dxf.style not in hedef.styles):
-                    x.dxf.style = 'Standard'
-                if x.dxf.hasattr('linetype') and x.dxf.linetype not in hedef.linetypes:
-                    x.dxf.linetype = 'BYLAYER'
-    kul = {e.dxf.linetype for yer in yerler for e in yer if e.dxf.hasattr('linetype')} | {L_.dxf.linetype for L_ in hedef.layers}
-    for lt in list(hedef.linetypes):
-        if lt.pattern_tags.is_complex_type() and lt.dxf.name not in kul:
-            hedef.linetypes.remove(lt.dxf.name)
-    for ad in gecersiz:
-        try:
-            hedef.styles.remove(ad)
-        except Exception:
-            pass
-    try:
-        hedef.layers.remove('MTY-BORU')          # kullanıcının işaret katmanı (boş kaldı)
-    except Exception:
-        pass
-    hedef.audit()
-    if os.path.exists(yol):
-        os.remove(yol)
-    hedef.saveas(yol)
+            print('  mimari aktarılamadı', t, ex)
+    print('mimari sade nesne:', n)
 
 
-mimari_birlestir(doc, CIKTI)
+mimari_kopya(doc)
+if os.path.exists(CIKTI):
+    os.remove(CIKTI)
+doc.audit()
+doc.saveas(CIKTI)
+
 print('yazıldı:', CIKTI)
 print({k: (round(v, 2) if isinstance(v, float) else v) for k, v in R.items() if k not in ('na',)})
 print('brüt alan:', R['A'])
