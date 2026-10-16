@@ -1,0 +1,134 @@
+[
+ {
+  "ks": "KS-1",
+  "kod": "A-Z-13",
+  "ad": "MARKET SATIŞ ALANI",
+  "tip": "MARKET",
+  "alan": 1750.3,
+  "h": 6.0,
+  "cati": 1750.3,
+  "duvar_boy": 44.9,
+  "cam_boy": 0.0
+ },
+ {
+  "ks": "KS-1",
+  "kod": "A-Z-02",
+  "ad": "KORİDOR",
+  "tip": "KORİDOR",
+  "alan": 371.3,
+  "h": 4.5,
+  "cati": 371.3,
+  "duvar_boy": 0.0,
+  "cam_boy": 0.0
+ },
+ {
+  "ks": "KS-1",
+  "kod": "A-Z-05",
+  "ad": "İŞYERİ",
+  "tip": "İŞYERİ",
+  "alan": 265.2,
+  "h": 4.5,
+  "cati": 265.2,
+  "duvar_boy": 18.7,
+  "cam_boy": 18.7
+ },
+ {
+  "ks": "KS-2",
+  "kod": "A-Z-13",
+  "ad": "MARKET SATIŞ ALANI",
+  "tip": "MARKET",
+  "alan": 1617.3,
+  "h": 6.0,
+  "cati": 1617.3,
+  "duvar_boy": 42.5,
+  "cam_boy": 0.0
+ },
+ {
+  "ks": "KS-2",
+  "kod": "A-Z-02",
+  "ad": "KORİDOR",
+  "tip": "KORİDOR",
+  "alan": 330.2,
+  "h": 4.5,
+  "cati": 330.2,
+  "duvar_boy": 0.0,
+  "cam_boy": 0.0
+ },
+ {
+  "ks": "KS-2",
+  "kod": "A-Z-06",
+  "ad": "İŞYERİ",
+  "tip": "İŞYERİ",
+  "alan": 264.9,
+  "h": 4.5,
+  "cati": 264.9,
+  "duvar_boy": 18.7,
+  "cam_boy": 18.7
+ },
+ {
+  "ks": "KS-3",
+  "kod": "A-Z-13",
+  "ad": "MARKET SATIŞ ALANI",
+  "tip": "MARKET",
+  "alan": 1741.7,
+  "h": 6.0,
+  "cati": 1741.7,
+  "duvar_boy": 45.5,
+  "cam_boy": 0.0
+ },
+ {
+  "ks": "KS-3",
+  "kod": "A-Z-02",
+  "ad": "KORİDOR",
+  "tip": "KORİDOR",
+  "alan": 237.7,
+  "h": 4.5,
+  "cati": 237.7,
+  "duvar_boy": 0.0,
+  "cam_boy": 0.0
+ },
+ {
+  "ks": "KS-3",
+  "kod": "A-Z-09",
+  "ad": "İŞYERİ",
+  "tip": "İŞYERİ",
+  "alan": 220.7,
+  "h": 4.5,
+  "cati": 220.7,
+  "duvar_boy": 15.7,
+  "cam_boy": 15.7
+ },
+ {
+  "ks": "KS-4",
+  "kod": "A-Z-13",
+  "ad": "MARKET SATIŞ ALANI",
+  "tip": "MARKET",
+  "alan": 1885.3,
+  "h": 6.0,
+  "cati": 1885.3,
+  "duvar_boy": 87.3,
+  "cam_boy": 0.0
+ },
+ {
+  "ks": "KS-4",
+  "kod": "A-Z-02",
+  "ad": "KORİDOR",
+  "tip": "KORİDOR",
+  "alan": 211.5,
+  "h": 4.5,
+  "cati": 211.5,
+  "duvar_boy": 0.0,
+  "cam_boy": 0.0
+ },
+ {
+  "ks": "KS-4",
+  "kod": "A-Z-11",
+  "ad": "İŞYERİ",
+  "tip": "İŞYERİ",
+  "alan": 265.9,
+  "h": 4.5,
+  "cati": 265.9,
+  "duvar_boy": 18.7,
+  "cam_boy": 18.7
+ }
+]

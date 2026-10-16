@@ -36,11 +36,12 @@ sys.path.insert(0, BURASI)
 sys.path.insert(0, os.path.join(DEPO, 'motor', 'sihhi2'))
 import antet as AN          # noqa: E402
 import detaylar as DT       # noqa: E402
+import ks_cizim as KC       # noqa: E402
 
 PROJE = os.path.join(DEPO, 'proje', 'market_havalandirma')
 GIRDI_TEMIZ = os.path.join(PROJE, 'girdi', 'temiz_mimari.dxf')
 GIRDI_KANAL = os.path.join(PROJE, 'girdi', 'hav_kanal.dxf')
-CIKTI = os.path.join(PROJE, 'MARKET_HAVALANDIRMA_PROJESI.dxf')
+CIKTI = os.path.join(PROJE, 'MARKET_ISITMA_SOGUTMA_HAVALANDIRMA_PROJESI.dxf')
 
 # --------------------------------------------------------------------------------------------- katmanlar
 K_U, K_UC = 'MTY-UFLEME-KANALI', 'MTY-UFLEME-CAP'
@@ -66,15 +67,19 @@ Y0, SH = -600.0, 9900.0
 PAFTALAR = [  # (ad, x0, x1, başlık)
     ('ANTET', 26200.0, 28500.0, None),
     ('VAZIYET', 28500.0, 44000.0, 'VAZİYET PLANI  ÖLÇEK : 1/200'),
-    ('ZEMIN', 44000.0, 75600.0, 'ZEMİN KAT HAVALANDIRMA PLANI  ÖLÇEK : 1/100'),
+    ('ZEMIN', 44000.0, 75600.0, 'ZEMİN KAT ISITMA-SOĞUTMA VE HAVALANDIRMA PLANI  ÖLÇEK : 1/100'),
     ('KAT1', 75600.0, 99000.0, '1. KAT PLANI  ÖLÇEK : 1/100'),
     ('DETAY', 99000.0, 113000.0, 'HAVALANDIRMA TESİSATI DETAYLARI'),
+    ('KS', 113000.0, 124500.0, 'KLİMA SANTRALİ VE DIŞ ÜNİTE KESİTLERİ'),
+    ('KESIT', 124500.0, 152500.0, 'KESİTLER — CİHAZ VE KANAL YERLEŞİMİ'),
 ]
+GIRDI_KES = os.path.join(PROJE, 'girdi', 'KES_TLER.dxf')
+HESAP_XLSX = os.path.join(PROJE, 'ISI_KAZANCI_VE_KLIMA_SANTRALI_HESABI.xlsx')
 H_BASLIK = 80.0
 SILINECEK_BASLIK = {'ZEMİN KAT PLANI', 'Ö: 1/100', '1. KAT PLANI'}
 
 BILGI = {
-    'proje_turu': 'HAVALANDIRMA TESİSATI PROJESİ',
+    'proje_turu': 'ISITMA-SOĞUTMA VE HAVALANDIRMA TESİSATI PROJESİ',
     'il': '-', 'ilce': '-', 'belediye': '-', 'mahalle': '-', 'pafta': '-', 'ada': '-', 'parsel': '-',
     'proje_no': '-', 'emsal': '0.80',
     'yapi_sahibi': '-', 'yapi_sahibi_adres': '',
@@ -135,6 +140,7 @@ def mimari_ac():
 def katmanlari_hazirla(doc):
     AN.hazirla(doc)
     DT.katmanlar(doc)
+    KC.katmanlar(doc)
     for ad, renk in YENI_KATMAN.items():
         if ad not in doc.layers:
             doc.layers.add(ad, color=renk)
@@ -529,7 +535,27 @@ def gizli_kesisme(doc, kanallar):
 
 
 # ============================================================================================ 4. santral etiketleri
-def santral_etiket(doc, ogeler):
+def ks_degerleri():
+    """Excel hesabından (LibreOffice ile yeniden hesaplanmış) KS-1…KS-4 seçim değerleri."""
+    from openpyxl import load_workbook
+    ws = load_workbook(HESAP_XLSX, data_only=True)['KS HESABI']
+    sat = {ws.cell(r, 1).value: r for r in range(1, 80)}
+    d = {}
+    for i, k in enumerate(['KS-1', 'KS-2', 'KS-3', 'KS-4']):
+        col = 3 + i
+        v = lambda ad: ws.cell(sat[ad], col).value
+        d[k] = dict(qs=v('DX SOĞUTMA BATARYASI SEÇİM KAPASİTESİ'), qi=v('DX ISITMA BATARYASI SEÇİM KAPASİTESİ'),
+                    taze=v('Taze hava debisi (seçilen)'), du_qs=v('Modül başına soğutma kapasitesi (en az)'),
+                    du_qi=v('Modül başına nominal ısıtma kapasitesi (en az)'),
+                    q_oda=v('Oda ısı kazancı (m³ yöntemi)'))
+        if any(x is None for x in d[k].values()):
+            raise SystemExit('Excel değerleri boş — önce recalc.py ile yeniden hesapla')
+    return d
+
+
+def santral_etiket(doc, ogeler, deger, kutular):
+    """KS gövdelerini bulur, eski 'Q= 200kW' yazılarını kaldırır, ısı geri kazanımlı santral sembolünü, dış
+    üniteleri ve soğutucu akışkan hatlarını çizer, sağ yanına santral bilgisini yazar."""
     msp = doc.modelspace()
     govde = []
     for o in ogeler:
@@ -539,13 +565,26 @@ def santral_etiket(doc, ogeler):
             if 700 < b[2] - b[0] < 950 and 450 < b[3] - b[1] < 650:
                 govde.append(b)
     govde.sort()
+    for o in ogeler:                                       # gövde içindeki eski yazılar
+        e = o['e']
+        if o['sinif'] == 'T' and e.is_alive and e.dxftype() == 'TEXT':
+            x, y = e.dxf.insert[0], e.dxf.insert[1]
+            if any(b[0] < x < b[2] and b[1] < y < b[3] for b in govde):
+                msp.delete_entity(e)
+    du = []
     for i, b in enumerate(govde, 1):
-        t = msp.add_text(f'KS-{i}', height=50, dxfattribs={'layer': K_S, 'style': AN.STIL, 'width': 0.85})
-        t.set_placement(((b[0] + b[2]) / 2, b[3] + 25), align=TA.BOTTOM_CENTER)
-        t = msp.add_text('PAKET TİP KLİMA SANTRALİ', height=35,
-                         dxfattribs={'layer': K_S, 'style': AN.STIL, 'width': 0.8})
-        t.set_placement(((b[0] + b[2]) / 2, b[3] + 120), align=TA.BOTTOM_CENTER)
-    return govde
+        k = f'KS-{i}'
+        v = deger[k]
+        du.append(KC.ks_plan(msp, b, i, v, kutular))
+        x = b[2] + 260
+        satir = [(k, 50), ('ISI GERİ KAZANIMLI KLİMA SANTRALİ', 34),
+                 (f'40.000 m³/h — TAZE HAVA {v["taze"]:,.0f} m³/h'.replace(',', '.'), 30),
+                 (f'DX SOĞUTMA {v["qs"]:.0f} kW / DX ISITMA {v["qi"]:.0f} kW', 30)]
+        y = b[3] - 20
+        for s_, h in satir:
+            yazi(msp, s_, x, y, h, 'TL', K_S, 0.85, kutular)
+            y -= h + 30
+    return govde, du
 
 
 # ============================================================================================ 5. paftalar
@@ -592,7 +631,7 @@ HIZ_TABLOSU = [('1600x1200', 39900), ('1200x900', 22800), ('1000x800', 8550), ('
                ('900x450', 5700), ('600x450', 2850)]
 
 
-def lejant_ve_tablolar(doc, x0, y_ust, santraller, kutular):
+def lejant_ve_tablolar(doc, x0, y_ust, santraller, kutular, deger):
     """Zemin kat paftasının sol bölümü: LEJANT, CİHAZ LİSTESİ, KANAL HIZ KONTROL TABLOSU."""
     msp = doc.modelspace()
     W = 5600.0
@@ -600,12 +639,13 @@ def lejant_ve_tablolar(doc, x0, y_ust, santraller, kutular):
     sat = [('band', K_U, 'ÜFLEME (TAZE HAVA) KANALI'), ('band', K_D, 'DÖNÜŞ (EMİŞ) KANALI'),
            ('menfez', K_U, 'KANAL ALTI YUVARLAK ÜFLEME MENFEZİ'), ('menfez', K_D, 'KANAL ALTI YUVARLAK EMİŞ MENFEZİ'),
            ('etiket', K_UC, 'KANAL ÖLÇÜSÜ (mm) / MENFEZ DEBİSİ'), ('kanca', K_UC, 'KANAL DEBİSİ (m³/h)'),
-           ('santral', K_S, 'PAKET TİP KLİMA SANTRALİ (KS)')]
+           ('santral', K_S, 'ISI GERİ KAZANIMLI KLİMA SANTRALİ (KS), DX BATARYALI'),
+           ('du', K_S, 'DX DIŞ ÜNİTE (ISI POMPASI)'), ('sog', KC.K_SOG, 'SOĞUTUCU AKIŞKAN HATTI (GAZ + SIVI)')]
     sat_h = 170.0
     h_lej = 140 + len(sat) * sat_h + 60
     yb = y_ust - h_lej
     cerceve(msp, x0, yb, x0 + W, y_ust, K_LEJ)
-    yazi(msp, 'HAVALANDIRMA TESİSATI LEJANTI', x0 + W / 2, y_ust - 70, 55, 'MC', kutular=kutular)
+    yazi(msp, 'ISITMA-SOĞUTMA VE HAVALANDIRMA TESİSATI LEJANTI', x0 + W / 2, y_ust - 70, 55, 'MC', kutular=kutular)
     msp.add_line((x0, y_ust - 140), (x0 + W, y_ust - 140), dxfattribs={'layer': K_LEJ})
     for i, (tip, kat, s) in enumerate(sat):
         yc = y_ust - 140 - 60 - i * sat_h - sat_h / 2 + 30
@@ -627,14 +667,28 @@ def lejant_ve_tablolar(doc, x0, y_ust, santraller, kutular):
         elif tip == 'santral':
             msp.add_lwpolyline([(sx + 250, yc - 50), (sx + 650, yc - 50), (sx + 650, yc + 50), (sx + 250, yc + 50)],
                                close=True, dxfattribs={'layer': kat})
-            yazi(msp, 'KS', sx + 450, yc, 40, 'MC', kat)
+            msp.add_line((sx + 250, yc), (sx + 650, yc), dxfattribs={'layer': kat})
+            yazi(msp, 'KS', sx + 450, yc + 22, 26, 'MC', kat)
+        elif tip == 'du':
+            msp.add_lwpolyline([(sx + 330, yc - 30), (sx + 570, yc - 30), (sx + 570, yc + 30), (sx + 330, yc + 30)],
+                               close=True, dxfattribs={'layer': kat})
+            for fx in (sx + 395, sx + 505):
+                msp.add_circle((fx, yc), 24, dxfattribs={'layer': kat})
+        elif tip == 'sog':
+            for dy_ in (-8, 8):
+                msp.add_lwpolyline([(sx, yc + dy_), (sx + 900, yc + dy_)], dxfattribs={'layer': kat, 'ltscale': 0.5})
         yazi(msp, s, x0 + 1200, yc, 40, 'ML', kutular=kutular)
     # ---- CİHAZ LİSTESİ
     y = yb - 250
-    satirlar = [('NO', 'CİHAZ', 'HAVA DEBİSİ (m³/h)', 'KAPASİTE (kW)', 'ADET')]
+    satirlar = [('NO', 'CİHAZ', 'DEBİ (m³/h)', 'SOĞUTMA (kW)', 'ISITMA (kW)', 'ADET')]
     for i in range(len(santraller)):
-        satirlar.append((f'KS-{i + 1}', 'PAKET TİP KLİMA SANTRALİ', '40.000', '200', '1'))
-    y = tablo(msp, x0, y, [500, 2000, 1300, 1100, 700], satirlar, 'CİHAZ LİSTESİ', kutular=kutular)
+        v = deger[f'KS-{i + 1}']
+        satirlar.append((f'KS-{i + 1}', 'ISI GERİ KAZANIMLI KLİMA SANTRALİ', '40.000', f'{v["qs"]:.0f}', f'{v["qi"]:.0f}', '1'))
+    for i in range(len(santraller)):
+        v = deger[f'KS-{i + 1}']
+        satirlar.append((f'DÜ-{i + 1}.1/2', 'DX DIŞ ÜNİTE (MODÜL BAŞINA)', '-', f'{v["du_qs"]:.0f}',
+                         f'{v["du_qi"]:.0f}', '2'))
+    y = tablo(msp, x0, y, [700, 2100, 700, 750, 750, 500], satirlar, 'CİHAZ LİSTESİ', h=32, kutular=kutular)
     # ---- KANAL HIZ KONTROL TABLOSU
     y -= 250
     satirlar = [('KANAL ÖLÇÜSÜ (mm)', 'DEBİ (m³/h)', 'KESİT (m²)', 'HIZ (m/s)')]
@@ -662,6 +716,9 @@ NOTLAR = [
     'Kanal güzergâhları uygulamadan önce mimari, statik ve elektrik projeleriyle yerinde kontrol edilecektir.',
     'Kanal ölçüleri mm, debiler m³/h olarak verilmiş olup ölçüler imalattan önce yerinde teyit edilecektir.',
     'Tüm cihazlar üretici montaj talimatlarına uygun monte edilecek ve devreye alma testleri yapılacaktır.',
+    'Klima santralleri ve dış üniteler titreşim takozlu beton kaide üzerine monte edilecektir.',
+    'Soğutucu akışkan hatları üretici tablosuna göre çaplandırılacak, yalıtılacak ve azotla basınç testi yapılacaktır.',
+    'Branşmanlar diğer sistemin ana kanalını kestiği yerde ana kanalın altından (geçiş alt kotu +4.00) geçirilecektir.',
 ]
 
 
@@ -673,7 +730,7 @@ def notlar(msp, x0, y0, x1, y1, kutular):
     for no, s in enumerate(NOTLAR, 1):
         yazi(msp, f'{no}.', x0 + 60, y, 45, 'BL', K_NOT, kutular=kutular)
         yazi(msp, s, x0 + 200, y, 45, 'BL', K_NOT, kutular=kutular)
-        y -= 160
+        y -= 150
     y -= 80
     for s in ('DİKKAT: MİMARİ PROJENİN ONAY AŞAMASINDA YAPILACAK DEĞİŞİKLİKTEN FEN İŞLERİ MD. BİLGİLENDİRİLMESİ',
               'BU PROJE MÜELLİFİN İZNİ OLMADAN YAYINLANAMAZ-ÇOĞALTILAMAZ-KULLANILAMAZ-DEĞİŞTİRİLEMEZ.'):
@@ -681,7 +738,7 @@ def notlar(msp, x0, y0, x1, y1, kutular):
         y -= 120
 
 
-def paftala(doc, santraller):
+def paftala(doc, santraller, du, deger):
     msp = doc.modelspace()
     kutular = []
     for ad, x0, x1, baslik in PAFTALAR:
@@ -692,13 +749,22 @@ def paftala(doc, santraller):
     blk = antet_blok(doc)
     msp.add_blockref(blk.name, (26250.0, Y0 + 60), dxfattribs={'xscale': 2, 'yscale': 2, 'layer': 'ROTAS-ANTET'})
     # zemin kat sol bölüm: lejant + tablolar
-    lejant_ve_tablolar(doc, 44250.0, Y0 + SH - 300, santraller, kutular)
+    lejant_ve_tablolar(doc, 44250.0, Y0 + SH - 300, santraller, kutular, deger)
     # detay paftası: 4 × 3 hücre (10 detay + notlar)
     dx0, dy0 = 99250.0, Y0 + 350
     kut = DT.detay_paftasi(msp, dx0, dy0)
     kutular += kut
     # son sıradaki iki boş hücre: NOTLAR
     notlar(msp, dx0 + 2 * 3400, dy0, dx0 + 4 * 3400 - 100, dy0 + 3000, kutular)
+    # klima santrali / dış ünite kesitleri
+    KC.ks_kesit_paftasi(msp, 113000.0, Y0, 11500.0, SH, deger, kutular)
+    # bina kesitleri — cihaz ve kanal yerleşimi
+    if not os.path.exists(GIRDI_KES):
+        with lzma.open(GIRDI_KES + '.xz') as f, open(GIRDI_KES, 'wb') as g:
+            shutil.copyfileobj(f, g)
+    kes = ezdxf.readfile(GIRDI_KES)
+    ozet = KC.ag_ozeti(msp, sistem_no)
+    KC.kesitler_paftasi(msp, 124500.0, Y0, kes.modelspace(), ozet, santraller, du, kutular)
     return kutular
 
 
@@ -766,6 +832,8 @@ def temiz_kaydet(kaynak, yol):
             log('  stil silinemedi', repr(ad), ex)
     log('stil düzeltilen yazı:', duzeltilen, 'silinen geçersiz stil:', sorted(gecersiz))
     a = hedef.audit()
+    from collections import Counter as _C
+    log('  audit düzeltmeleri:', _C(f.message[:60] for f in a.fixes).most_common(5))
     log('temiz çıktı: aktarılan', len(normal), 'patlatılan', len(patlat), '→', n, '| audit hata', len(a.errors),
         'düzeltme', len(a.fixes))
     hedef.saveas(yol)
@@ -788,8 +856,10 @@ def main():
     log('yazı çakışması sonra:', cak)
     log('boşta kanca ucu:', kanca_kontrol(kancalar, kanallar))
     gizli_kesisme(doc, kanallar)
-    santraller = santral_etiket(doc, ogeler)
-    kut = paftala(doc, santraller)
+    deger = ks_degerleri()
+    kut = []
+    santraller, du = santral_etiket(doc, ogeler, deger, kut)
+    kut += paftala(doc, santraller, du, deger)
     n_p = kutu_cakisma(kut)
     log('pafta yazı çakışması:', n_p)
     # pafta dışı taşma kontrolü: her varlık bir pafta içinde mi
