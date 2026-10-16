@@ -741,11 +741,30 @@ def temiz_kaydet(kaynak, yol):
                 n += 1
         except Exception as ex:
             log('  patlatılamadı', e.dxftype(), ex)
-    for e in tm:                                   # olmayan stil / çizgi tipi başvurularını düzelt
-        if e.dxf.hasattr('style') and e.dxf.style not in hedef.styles:
-            e.dxf.style = 'Standard'
-        if e.dxf.hasattr('linetype') and e.dxf.linetype not in hedef.linetypes:
-            e.dxf.linetype = 'BYLAYER'
+    # geçersiz yazı stilleri: adı boş ya da dosya adı olan stil tablosu kayıtları AutoCAD'in açmasını engeller
+    gecersiz = {st.dxf.name for st in hedef.styles if not st.dxf.name.strip() or st.dxf.name.lower().endswith('.shx')}
+    duzeltilen = 0
+    yerler = [tm] + [b for b in hedef.blocks]
+    for yer in yerler:
+        for e in yer:
+            ler = [e] + (list(e.attribs) if e.dxftype() == 'INSERT' else [])
+            for x in ler:
+                if x.dxf.hasattr('style') and (x.dxf.style in gecersiz or x.dxf.style not in hedef.styles):
+                    x.dxf.style = 'Standard'
+                    duzeltilen += 1
+                if x.dxf.hasattr('linetype') and x.dxf.linetype not in hedef.linetypes:
+                    x.dxf.linetype = 'BYLAYER'
+    kullanilan_lt = {e.dxf.linetype for yer in yerler for e in yer if e.dxf.hasattr('linetype')}
+    kullanilan_lt |= {L.dxf.linetype for L in hedef.layers}
+    for lt in list(hedef.linetypes):
+        if lt.pattern_tags.is_complex_type() and lt.dxf.name not in kullanilan_lt:
+            hedef.linetypes.remove(lt.dxf.name)
+    for ad in gecersiz:
+        try:
+            hedef.styles.remove(ad)
+        except Exception as ex:
+            log('  stil silinemedi', repr(ad), ex)
+    log('stil düzeltilen yazı:', duzeltilen, 'silinen geçersiz stil:', sorted(gecersiz))
     a = hedef.audit()
     log('temiz çıktı: aktarılan', len(normal), 'patlatılan', len(patlat), '→', n, '| audit hata', len(a.errors),
         'düzeltme', len(a.fixes))

@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461330.745439815
+2461330.747534722
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461330.745451389
+2461330.747546296
   9
 $TDUUPDATE
  40
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{56CE0DA4-3F32-4C34-9954-FB0F245974E8}
+{0076B80F-7AE0-4AF3-B797-449ECC1DF6BE}
   9
 $VERSIONGUID
   2
-{D020F8DA-B9F4-4993-8A34-24DED25D1D27}
+{35981359-1C51-4003-9B1E-B675D741A910}
   9
 $EXTNAMES
 290
@@ -4059,7 +4059,7 @@ STYLE
 100
 AcDbSymbolTable
  70
-35
+33
   0
 STYLE
   5
@@ -4982,62 +4982,6 @@ ROTAS
 2.5
   3
 arial.ttf
-  4
-
-  0
-STYLE
-  5
-D5
-330
-5
-100
-AcDbSymbolTableRecord
-100
-AcDbTextStyleTableRecord
-  2
-simplex.shx
- 70
-0
- 40
-0.0
- 41
-1.0
- 50
-0.0
- 71
-0
- 42
-2.5
-  3
-simplex.shx
-  4
-
-  0
-STYLE
-  5
-D6
-330
-5
-100
-AcDbSymbolTableRecord
-100
-AcDbTextStyleTableRecord
-  2
-
- 70
-0
- 40
-0.0
- 41
-1.0
- 50
-0.0
- 71
-0
- 42
-2.5
-  3
-
   4
 
   0
@@ -397300,8 +397244,6 @@ AcDbText
 20.0
   1
 YER ALTI SU DEPOSU
-  7
-simplex.shx
  41
 0.8
 100
@@ -397688,8 +397630,6 @@ AcDbText
 20.0
   1
 SAÇAK H
-  7
-simplex.shx
  41
 0.8
 100
@@ -397718,8 +397658,6 @@ AcDbText
 20.0
   1
 İ
-  7
-
  41
 0.8
 100
@@ -397748,8 +397686,6 @@ AcDbText
 20.0
   1
 ZASI
-  7
-simplex.shx
  41
 0.8
 100
@@ -398136,8 +398072,6 @@ AcDbText
 20.0
   1
 ARAÇ G
-  7
-simplex.shx
  41
 0.8
 100
@@ -398166,8 +398100,6 @@ AcDbText
 20.0
   1
 İ
-  7
-
  41
 0.8
 100
@@ -398196,8 +398128,6 @@ AcDbText
 20.0
   1
 R
-  7
-simplex.shx
  41
 0.8
 100
@@ -398226,8 +398156,6 @@ AcDbText
 20.0
   1
 İŞ 
-  7
-
  41
 0.8
 100
@@ -398256,8 +398184,6 @@ AcDbText
 20.0
   1
 KAPISI
-  7
-simplex.shx
  41
 0.8
 100
@@ -398644,8 +398570,6 @@ AcDbText
 20.0
   1
 ARAÇ G
-  7
-simplex.shx
  41
 0.8
 100
@@ -398674,8 +398598,6 @@ AcDbText
 20.0
   1
 İ
-  7
-
  41
 0.8
 100
@@ -398704,8 +398626,6 @@ AcDbText
 20.0
   1
 R
-  7
-simplex.shx
  41
 0.8
 100
@@ -398734,8 +398654,6 @@ AcDbText
 20.0
   1
 İŞ 
-  7
-
  41
 0.8
 100
@@ -398764,8 +398682,6 @@ AcDbText
 20.0
   1
 KAPISI
-  7
-simplex.shx
  41
 0.8
 100
@@ -399152,8 +399068,6 @@ AcDbText
 20.0
   1
 ÇEKME SINIRI
-  7
-simplex.shx
  41
 0.8
 100
@@ -399540,8 +399454,6 @@ AcDbText
 20.0
   1
 SAÇAK H
-  7
-simplex.shx
  41
 0.8
 100
@@ -399570,8 +399482,6 @@ AcDbText
 20.0
   1
 İ
-  7
-
  41
 0.8
 100
@@ -399600,8 +399510,6 @@ AcDbText
 20.0
   1
 ZASI
-  7
-simplex.shx
  41
 0.8
 100
@@ -399988,8 +399896,6 @@ AcDbText
 20.0
   1
 YER ALTI SU DEPOSU
-  7
-simplex.shx
  41
 0.8
 100
@@ -401846,8 +401752,6 @@ AcDbText
 20.0
   1
 PARSEL SINIRI
-  7
-simplex.shx
  41
 0.8
 100
@@ -402234,8 +402138,6 @@ AcDbText
 20.0
   1
 ÇEKME SINIRI
-  7
-simplex.shx
  41
 0.8
 100
@@ -402622,8 +402524,6 @@ AcDbText
 20.0
   1
 PARSEL SINIRI
-  7
-simplex.shx
  41
 0.8
 100
@@ -403010,8 +402910,6 @@ AcDbText
 20.0
   1
 ÇEKME SINIRI
-  7
-simplex.shx
  41
 0.8
 100
@@ -403398,8 +403296,6 @@ AcDbText
 20.0
   1
 ÇEKME SINIRI
-  7
-simplex.shx
  41
 0.8
 100
@@ -403786,8 +403682,6 @@ AcDbText
 20.0
   1
 PARSEL SINIRI
-  7
-simplex.shx
  41
 0.8
 100
@@ -404174,8 +404068,6 @@ AcDbText
 20.0
   1
 SAÇAK H
-  7
-simplex.shx
  41
 0.8
 100
@@ -404204,8 +404096,6 @@ AcDbText
 20.0
   1
 İ
-  7
-
  41
 0.8
 100
@@ -404234,8 +404124,6 @@ AcDbText
 20.0
   1
 ZASI
-  7
-simplex.shx
  41
 0.8
 100
@@ -404624,8 +404512,6 @@ AcDbText
 20.0
   1
 SEKS
-  7
-simplex.shx
  41
 0.8
 100
@@ -404654,8 +404540,6 @@ AcDbText
 20.0
   1
 İ
-  7
-
  41
 0.8
 100
@@ -404684,8 +404568,6 @@ AcDbText
 20.0
   1
 YONEL KAPI 600x450
-  7
-simplex.shx
  41
 0.8
 100
@@ -405072,8 +404954,6 @@ AcDbText
 20.0
   1
 SEKS
-  7
-simplex.shx
  41
 0.8
 100
@@ -405102,8 +404982,6 @@ AcDbText
 20.0
   1
 İ
-  7
-
  41
 0.8
 100
@@ -405132,8 +405010,6 @@ AcDbText
 20.0
   1
 YONEL KAPI 300x400
-  7
-simplex.shx
  41
 0.8
 100
@@ -405522,8 +405398,6 @@ AcDbText
 20.0
   1
 SEKS
-  7
-simplex.shx
  41
 0.8
 100
@@ -405552,8 +405426,6 @@ AcDbText
 20.0
   1
 İ
-  7
-
  41
 0.8
 100
@@ -405582,8 +405454,6 @@ AcDbText
 20.0
   1
 YONEL KAPI 300x400
-  7
-simplex.shx
  41
 0.8
 100
@@ -407049,7 +406919,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-16T14:53:26.891519+00:00
+1.4.4 @ 2026-10-16T14:56:27.668382+00:00
   0
 VISUALSTYLE
   5
@@ -407761,7 +407631,7 @@ DictionaryVariables
 280
 0
   1
-1.4.4 @ 2026-10-16T14:53:27.744626+00:00
+1.4.4 @ 2026-10-16T14:56:28.474916+00:00
   0
 ENDSEC
   0
