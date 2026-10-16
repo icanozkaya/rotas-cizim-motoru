@@ -185,8 +185,8 @@ def kuyu_plan(c, ox, oy, K, s=1.0, detay=True, h=8.0, ad_goster=True):
     for k_ in ky:
         kx = k_['x0']
         kc = kabin_x0(K, k_) + K['kabin_gen'] / 2   # kabin ekseni
-        duvarlar.append((kx - (tw if k_ is ky[0] else 0), D, kc - 50, D + tw))
-        duvarlar.append((kc + 50, D, kx + k_['gen'] + (tw if k_ is ky[-1] else dw / 2), D + tw))
+        duvarlar.append((kx - (tw if k_ is ky[0] else 0), D, kc - (kg_(K) / 2 + 5), D + tw))
+        duvarlar.append((kc + kg_(K) / 2 + 5, D, kx + k_['gen'] + (tw if k_ is ky[-1] else dw / 2), D + tw))
     for (a, b, cc, d) in duvarlar:
         c.rect('SCOTT-DUVAR', X(a), Y(b), X(cc), Y(d))
         c.tara('SCOTT-TARAMA', X(a), Y(b), X(cc), Y(d), ara=6 * s if s >= 1 else 6)
@@ -214,6 +214,18 @@ def kuyu_plan(c, ox, oy, K, s=1.0, detay=True, h=8.0, ad_goster=True):
 # Gövde Ø42 cm, gövde boyu 45 cm, kasnak eni 12 cm, fren 8 cm. Kesin ölçüler seçilen firma makinesine göre.
 MRL = dict(r_tahrik=12.0, r_govde=21.0, govde_boy=45.0, kasnak_en=12.0, fren_boy=8.0, r_kasnak=10.6, r_ka=10.6,
            v_halat=20.0, kaide_h=16.0, ust_bosluk=30.0)
+
+
+def kg_(K):
+    """Kat/kabin kapısı net genişliği (cm). Varsayılan 90 (ROTAŞ standardı 90/210)."""
+    return K.get('kapi_gen', 90)
+
+
+def kapi_adi(K, buyuk=True):
+    """Kat/kabin kapısı tipi metni (json 'kapi_tip': teleskopik | merkezden)."""
+    m = K.get('kapi_tip', 'teleskopik')
+    t = {'teleskopik': 'teleskopik', 'merkezden': 'merkezden açılır'}[m]
+    return t.replace('i', 'İ').upper() if buyuk else t   # Türkçe büyük harf (i -> İ)
 
 
 def kuyu_ic_olcu(K, k_):
@@ -255,9 +267,13 @@ def kuyu_ic(c, K, k_, P, ang, h, detay=True, kapi=True):
     R('SCOTT-KABIN', kx0 + 2, ky0 + 2, kx1 - 2, ky1 - 2)
     R('SCOTT-KABIN', kx1 - 8, ky0 + 40, kx1 - 2, ky0 + 100)            # kabin butonyeri
     c.L('SCOTT-KABIN', P(kx0 + 2, ky0 + 2), P(kx1 - 2, ky1 - 2)); c.L('SCOTT-KABIN', P(kx0 + 2, ky1 - 2), P(kx1 - 2, ky0 + 2))
-    for yy in ((ky1 + 2, D + 2) if kapi else ()):                    # kabin + kat kapısı, teleskopik 2 kanat
-        R('SCOTT-KAPI', kc - 47, yy, kc + 2, yy + 3)
-        R('SCOTT-KAPI', kc - 2, yy + 3.5, kc + 47, yy + 6.5)
+    for yy in ((ky1 + 2, D + 2) if kapi else ()):                    # kabin + kat kapısı, 2 kanat
+        if K.get('kapi_tip', 'teleskopik') == 'merkezden':           # merkezden açılır: kanatlar ortadan iki yana
+            R('SCOTT-KAPI', kc - kg_(K) / 2 - 1, yy, kc - 0.5, yy + 3)
+            R('SCOTT-KAPI', kc + 0.5, yy, kc + kg_(K) / 2 + 1, yy + 3)
+        else:                                                         # teleskopik: iki kanat aynı yöne
+            R('SCOTT-KAPI', kc - kg_(K) / 2 - 2, yy, kc + 2, yy + 3)
+            R('SCOTT-KAPI', kc - 2, yy + 3.5, kc + kg_(K) / 2 + 2, yy + 6.5)
     R('SCOTT-KA', kax - kaw / 2, ym - 35, kax + kaw / 2, ym + 35)      # karşı ağırlık
     for yy in (ym - 41, ym + 41):                                    # T50 K.A. rayları
         R('SCOTT-RAY', kax - 2.5, yy - 2.5, kax + 2.5, yy + 2.5)
@@ -288,7 +304,7 @@ def kuyu_ic(c, K, k_, P, ang, h, detay=True, kapi=True):
         if not md:
             c.T('SCOTT-MOTOR', P(xs, vh - 22), 'MRL MAKİNE (duvar konsolunda)', h * 0.6, ang, 'TC')
             c.T('SCOTT-MOTOR', P(o['gu'], o['gv'] - 12), 'regülatör', h * 0.55, ang, 'TC')
-        c.T('SCOTT-KAPI', P(kc, D + K['dis_duvar'] + 8), 'KAT KAPISI 90/210 TELESKOPİK OTOMATİK', h * 0.75, ang, 'BC')
+        c.T('SCOTT-KAPI', P(kc, D + K['dis_duvar'] + 8), f'KAT KAPISI {kg_(K):.0f}/210 ' + kapi_adi(K) + ' OTOMATİK', h * 0.75, ang, 'BC')
     return o
 
 
@@ -362,7 +378,7 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
                 zb_ += 2.5
             # kabin: gövde, kabin kapısı, süspansiyon çerçevesi (üst köprü, dikmeler, alt şase), kasnaklar, paraşüt
             c.rect('SCOTT-KABIN', kx0, Z(zk), kx1, Z(zk + 2.40))
-            c.rect('SCOTT-KAPI', kc - 45, Z(zk + 0.03), kc + 45, Z(zk + 2.10)); c.L('SCOTT-KAPI', (kc, Z(zk + 0.03)), (kc, Z(zk + 2.10)))
+            c.rect('SCOTT-KAPI', kc - kg_(K) / 2, Z(zk + 0.03), kc + kg_(K) / 2, Z(zk + 2.10)); c.L('SCOTT-KAPI', (kc, Z(zk + 0.03)), (kc, Z(zk + 2.10)))
             c.rect('SCOTT-KABIN', kx0 + 5, Z(zk + 2.45), kx1 - 5, Z(zk + 2.60))
             c.rect('SCOTT-KABIN', kx0 + 5, Z(zk - 0.20), kx1 - 5, Z(zk - 0.05))
             for x_ in (kx0 + 5, kx0 + 11, kx1 - 11, kx1 - 5):
@@ -416,7 +432,7 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
             # kat kapıları (kabinin olmadığı duraklar); kuyu aydınlatması HER KATTA + kuyu dibi + tepe (sol yan duvarda)
             for z in K['durak_kotlari']:
                 if abs(z - zk) > 0.01:
-                    c.rect('SCOTT-KAPI', kc - 45, Z(z + 0.02), kc + 45, Z(z + 2.10)); c.L('SCOTT-KAPI', (kc, Z(z + 0.02)), (kc, Z(z + 2.10)))
+                    c.rect('SCOTT-KAPI', kc - kg_(K) / 2, Z(z + 0.02), kc + kg_(K) / 2, Z(z + 2.10)); c.L('SCOTT-KAPI', (kc, Z(z + 0.02)), (kc, Z(z + 2.10)))
             for z_ in isiklar:
                 q_ = (a + SIVA + 2.5, Z(z_)); c.C('SCOTT-ELEKTRIK', q_, 2.5)
                 c.L('SCOTT-ELEKTRIK', (q_[0] - 1.7, q_[1] - 1.7), (q_[0] + 1.7, q_[1] + 1.7)); c.L('SCOTT-ELEKTRIK', (q_[0] - 1.7, q_[1] + 1.7), (q_[0] + 1.7, q_[1] - 1.7))
@@ -439,7 +455,7 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
                        (kax + kw, Z(zka + 1.2), 'KARŞI AĞIRLIK (P + 0,5Q)'),
                        (kax + M['r_ka'], Z(zcw), 'K.A. KASNAĞI'),
                        (a + SIVA + 5, Z(K['durak_kotlari'][-2] + 1.5), 'KUYU AYDINLATMASI (her katta + dip + tepe, min 50 lüks)'),
-                       (kc + 45, Z(K['durak_kotlari'][-2] + 1.0), 'KAT KAPISI 900x2100 TELESKOPİK'),
+                       (kc + 45, Z(K['durak_kotlari'][-2] + 1.0), f'KAT KAPISI {kg_(K)*10:.0f}x2100 ' + kapi_adi(K)),
                        (gx + 6, Z(dip + 0.40), 'REGÜLATÖR GERGİ KASNAĞI + AĞIRLIĞI'),
                        (kc + 37, Z(dip + 0.3), 'KABİN TAMPONLARI'),
                        (kax + 5, Z(dip + 0.2), 'K.A. TAMPONU')]
@@ -524,7 +540,7 @@ def kesit_ic(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k):
                (ym + 35, Z(zka + 1.2), 'KARŞI AĞIRLIK'),
                (X(SIVA + 5), Z(K['durak_kotlari'][-2] + 1.5), 'KUYU AYDINLATMASI (her katta)'),
                (kpx + 14, Z(zk + 1.4), 'KUMANDA PANOSU (son durak)'),
-               (X(gen) + 13, Z(K['durak_kotlari'][-2] + 1.6), 'KAT KAPISI (teleskopik)'),
+               (X(gen) + 13, Z(K['durak_kotlari'][-2] + 1.6), 'KAT KAPISI (' + kapi_adi(K, False) + ')'),
                (gx + 6, Z(dip + 0.40), 'REGÜLATÖR GERGİ KASNAĞI'),
                (ym + 29, Z(dip + 0.3), 'KABİN TAMPONLARI'),
                (ym + 5, Z(dip + 0.2), 'K.A. TAMPONU'),
@@ -562,7 +578,7 @@ def kesit_ic_md(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k, zmd, zmt
                 zb_ += 2.5
             # kabin + çerçeve + paraşüt + üst halat bağlantısı
             c.rect('SCOTT-KABIN', kx0, Z(zk), kx1, Z(zk + 2.40))
-            c.rect('SCOTT-KAPI', kc - 45, Z(zk + 0.03), kc + 45, Z(zk + 2.10)); c.L('SCOTT-KAPI', (kc, Z(zk + 0.03)), (kc, Z(zk + 2.10)))
+            c.rect('SCOTT-KAPI', kc - kg_(K) / 2, Z(zk + 0.03), kc + kg_(K) / 2, Z(zk + 2.10)); c.L('SCOTT-KAPI', (kc, Z(zk + 0.03)), (kc, Z(zk + 2.10)))
             c.rect('SCOTT-KABIN', kx0 + 5, Z(zk + 2.45), kx1 - 5, Z(zk + 2.60))
             c.rect('SCOTT-KABIN', kx0 + 5, Z(zk - 0.20), kx1 - 5, Z(zk - 0.05))
             for x_ in (kx0 + 5, kx0 + 11, kx1 - 11, kx1 - 5):
@@ -605,7 +621,7 @@ def kesit_ic_md(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k, zmd, zmt
             c.P('SCOTT-YUK', [(kax - 5, Z(dip)), (kax - 5, Z(dip + 0.40)), (kax + 5, Z(dip + 0.40)), (kax + 5, Z(dip))])
             for z in K['durak_kotlari']:
                 if abs(z - zk) > 0.01:
-                    c.rect('SCOTT-KAPI', kc - 45, Z(z + 0.02), kc + 45, Z(z + 2.10)); c.L('SCOTT-KAPI', (kc, Z(z + 0.02)), (kc, Z(z + 2.10)))
+                    c.rect('SCOTT-KAPI', kc - kg_(K) / 2, Z(z + 0.02), kc + kg_(K) / 2, Z(z + 2.10)); c.L('SCOTT-KAPI', (kc, Z(z + 0.02)), (kc, Z(z + 2.10)))
                     c.C('SCOTT-MOTOR', (kc + 20, Z(z + 2.55)), 3)
             c.C('SCOTT-MOTOR', (kc + 20, Z(dip + 1.0)), 3); c.C('SCOTT-MOTOR', (kc + 20, Z(zk + 2.95)), 3)
             if i == len(ky) - 1:
@@ -628,7 +644,7 @@ def kesit_ic_md(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k, zmd, zmt
                        (kax + 2.5, Z(zka + hka + 1.5), 'K.A. RAYI T50'),
                        (kax + kw, Z(zka + 1.2), 'KARŞI AĞIRLIK (P + 0,5Q)'),
                        (kc + 23, Z(K['durak_kotlari'][-2] + 2.55), 'KUYU AYDINLATMASI (min 50 lüks)'),
-                       (kc + 45, Z(K['durak_kotlari'][-2] + 1.0), 'KAT KAPISI 900x2100 TELESKOPİK'),
+                       (kc + 45, Z(K['durak_kotlari'][-2] + 1.0), f'KAT KAPISI {kg_(K)*10:.0f}x2100 ' + kapi_adi(K)),
                        (gx + 6, Z(dip + 0.40), 'REGÜLATÖR GERGİ KASNAĞI + AĞIRLIĞI'),
                        (kc + 37, Z(dip + 0.3), 'KABİN TAMPONLARI'),
                        (kax + 5, Z(dip + 0.2), 'K.A. TAMPONU')]
@@ -698,7 +714,7 @@ def kesit_ic_md(c, K, tur, ky, xs0, Z, dip, tavan, ust_kat, alt_kat, k, zmd, zmt
                (ym + 43.5, Z(zka + hka + 2.0), 'K.A. RAYLARI T50'),
                (ym + 35, Z(zka + 1.2), 'KARŞI AĞIRLIK'),
                (X(SIVA + 33), Z(K['durak_kotlari'][-2] + 2.55), 'KUYU AYDINLATMASI'),
-               (X(gen) + 13, Z(K['durak_kotlari'][-2] + 1.6), 'KAT KAPISI 90/210 (teleskopik)'),
+               (X(gen) + 13, Z(K['durak_kotlari'][-2] + 1.6), f'KAT KAPISI {kg_(K):.0f}/210 (' + kapi_adi(K, False) + ')'),
                (gx + 6, Z(dip + 0.40), 'REGÜLATÖR GERGİ KASNAĞI'),
                (ym + 29, Z(dip + 0.3), 'KABİN TAMPONLARI'),
                (ym + 5, Z(dip + 0.2), 'K.A. TAMPONU'),
@@ -811,7 +827,7 @@ def mimari_kopya(c, flat_pkl, pencere, ox, oy, kuyu_kutulari, h_max=30, K=None, 
                 if s and len(s) < 40 and not s.startswith('Taban') and not s.startswith('Duvar') and not s.startswith('Tavan'):
                     # asansör kat kapısı her zaman 90/210 (mimarın yazdığı ölçü düzeltilir)
                     if re.match(r'^K\s*\d{2,3}\s*/\s*\d{3}', s) and any(k0 - 60 <= p[0] <= k2 + 60 and k1 - 60 <= p[1] <= k3 + 60 for (k0, k1, k2, k3) in KB):
-                        s = 'K 90/210 (ASANSÖR)'
+                        s = f'K {kg_(K) if K else 90:.0f}/210 (ASANSÖR)'
                     c.T('SCOTT-MIMARI', sx(p), s, h)
     ky = kuyu_yerlesim(K, None) if K else []
     for i, (a, b, cc, d, ad) in enumerate(kuyu_kutulari):
@@ -844,7 +860,7 @@ def ciz(K, cikis):
     a = Asansor(proje=K['blok'], bina=K.get('bina', 'konut'), izul_sinif=K.get('izul_sinif', K.get('bina', 'konut')), b_toplam=K.get('b_toplam', 0), daireler=[tuple(d) for d in K.get('daireler', [])], durak=len(K['durak_kotlari']),
                 ana_durak_ustu=K['ana_durak_ustu'], kat_yuk=(K['durak_kotlari'][-1] - K.get('ana_durak_kotu', K['durak_kotlari'][0])) / K['ana_durak_ustu'], seyir=K['seyir'],
                 kisi=K['kisi'], Q=K['Q'], kabin_gen=int(K['kabin_gen'] * 10), kabin_der=int(K['kabin_der'] * 10),
-                n_asansor=K.get('n_asansor', len(K['kuyular'])), kuyu_dibi=K['kuyu_dibi'], kuyu_ustu=K['kuyu_ustu'], P_kabin=K['P_kabin'], aski=aski,
+                n_asansor=K.get('n_asansor', len(K['kuyular'])), kuyu_dibi=K['kuyu_dibi'], kuyu_ustu=K['kuyu_ustu'], P_kabin=K['P_kabin'], aski=aski, kapi_tip=K.get('kapi_tip', 'teleskopik'), kapi_gen=int(kg_(K) * 10),
                 **({} if md else dict(halat_adet=K.get('halat_adet', 7), halat_cap=K.get('halat_cap', 6.5), halat_kgm=K.get('halat_kgm', 0.152), mrl=True)))
     r = hesapla(a)
     paftalar = []
@@ -898,7 +914,7 @@ def ciz(K, cikis):
           (195, 1128): proje['mahalle'], (195, 1093): proje['ada'], (195, 1058): proje['parsel'],
           (195, 1023): K.get('yibf', '-'), (195, 988): str(K['kat_adedi']), (195, 953): str(len(K['durak_kotlari'])),
           (790, 1198): f"{K['Q']:.0f} kg x {len(ky)}", (790, 1163): f"{f(r['V'])} m/s", (790, 1128): f"{f(K['seyir'])} m",
-          (790, 1093): '90 (teleskopik)', (790, 1058): ' + '.join(f"{k_['gen']:.0f}x{K['derinlik']:.0f}" for k_ in ky),
+          (790, 1093): f'{kg_(K):.0f} (' + kapi_adi(K, False) + ')', (790, 1058): ' + '.join(f"{k_['gen']:.0f}x{K['derinlik']:.0f}" for k_ in ky),
           (790, 1023): f"{K['kabin_gen']*10:.0f}x{K['kabin_der']*10:.0f}", (790, 988): f'{aski}/1', (790, 953): 'T89 / T50',
           (170, 249): f"{K['blok']} BLOK", (615, 248): K.get('tip_kapak', 'MAKİNE DAİRESİZ ÇİFT'), (783, 574): f"{proje['ilce']} BELEDİYESİ"}
     p = yeni(50, 210, 'KONTROL VE NOTLAR', 'ust'); k = p.k; X0, Y0, X1, Y1 = p.ic()
@@ -994,7 +1010,7 @@ def ciz(K, cikis):
           ['Kuyu net (cm)', f"{ky[0]['net']:.1f} x {D-2*SIVA:.1f}", f"{ky[-1]['net']:.1f} x {D-2*SIVA:.1f}"],
           ['Kabin (mm)', f"{K['kabin_gen']*10:.0f} x {K['kabin_der']*10:.0f}", f"{K['kabin_gen']*10:.0f} x {K['kabin_der']*10:.0f}"],
           ['Kapasite / hız', f"{K['Q']:.0f} kg / {f(r['V'])} m/s", f"{K['Q']:.0f} kg / {f(r['V'])} m/s"],
-          ['Kapı', '900 telesk. otomatik', '900 telesk. otomatik'], ['Askı / ray', f'{aski}/1  T89 + T50', f'{aski}/1  T89 + T50']]
+          ['Kapı', f'{kg_(K)*10:.0f} ' + kapi_adi(K, False) + ' otom.', f'{kg_(K)*10:.0f} ' + kapi_adi(K, False) + ' otom.'], ['Askı / ray', f'{aski}/1  T89 + T50', f'{aski}/1  T89 + T50']]
     sg = [40 * k, 70 * k, 70 * k]
     if len(ky) == 1:   # tek asansörde boş ikinci sütun yazılmaz
         satir = [s_[:2] for s_ in satir]; sg = sg[:2]
@@ -1008,21 +1024,22 @@ def ciz(K, cikis):
     p = yeni(20, 594, 'KAT KAPISI / KABİN / BUTONYER DETAYLARI', 'ust'); k = p.k; X0, Y0, X1, Y1 = p.ic()
     # kat kapısı görünüşü 90/210
     gx, gy = X0 + 50, Y0 + (Y1 - Y0) * 0.40
-    c.rect('SCOTT-DUVAR', gx - 40, gy, gx + 170, gy + 260)
-    c.rect('SCOTT-KAPI', gx + 20, gy, gx + 110, gy + 210)
-    c.L('SCOTT-KAPI', (gx + 65, gy), (gx + 65, gy + 210))
-    c.rect('SCOTT-KAPI', gx + 15, gy + 210, gx + 115, gy + 225)
-    c.rect('SCOTT-KAPI', gx + 125, gy + 100, gx + 137, gy + 125)
-    c.C('SCOTT-KAPI', (gx + 131, gy + 117), 2.2); c.C('SCOTT-KAPI', (gx + 131, gy + 108), 2.2)
-    c.T('SCOTT-YAZI', (gx + 140, gy + 112), 'çağrı butonu', 2.0 * k, 0, 'ML')
-    c.olcu('SCOTT-OLCU', (gx + 20, gy), (gx + 110, gy), -20, 2.0 * k, '90')
+    KG = kg_(K); e_ = KG - 90                                   # kapı 90'dan genişse görünüş sağa uzar
+    c.rect('SCOTT-DUVAR', gx - 40, gy, gx + 170 + e_, gy + 260)
+    c.rect('SCOTT-KAPI', gx + 20, gy, gx + 20 + KG, gy + 210)
+    c.L('SCOTT-KAPI', (gx + 20 + KG / 2, gy), (gx + 20 + KG / 2, gy + 210))
+    c.rect('SCOTT-KAPI', gx + 15, gy + 210, gx + 25 + KG, gy + 225)
+    c.rect('SCOTT-KAPI', gx + 125 + e_, gy + 100, gx + 137 + e_, gy + 125)
+    c.C('SCOTT-KAPI', (gx + 131 + e_, gy + 117), 2.2); c.C('SCOTT-KAPI', (gx + 131 + e_, gy + 108), 2.2)
+    c.T('SCOTT-YAZI', (gx + 140 + e_, gy + 112), 'çağrı butonu', 2.0 * k, 0, 'ML')
+    c.olcu('SCOTT-OLCU', (gx + 20, gy), (gx + 20 + KG, gy), -20, 2.0 * k, f'{KG:.0f}')
     c.olcu('SCOTT-OLCU', (gx + 20, gy), (gx + 20, gy + 210), 25, 2.0 * k, '210')
-    c.T('SCOTT-BASLIK', (gx - 40, gy - 45), 'KAT KAPISI GÖRÜNÜŞÜ (teleskopik otomatik, E120/EI60 yangın sınıfı)', 2.5 * k)
+    c.T('SCOTT-BASLIK', (gx - 40, gy - 45), 'KAT KAPISI GÖRÜNÜŞÜ (' + kapi_adi(K, False) + ' otomatik, E120/EI60 yangın sınıfı)', 2.5 * k)
     # kabin planı
-    kx, kyy = X0 + 245, gy + 40
+    kx, kyy = X0 + 245 + (kg_(K) - 90), gy + 40
     c.rect('SCOTT-KABIN', kx, kyy, kx + K['kabin_gen'], kyy + K['kabin_der'])
     c.rect('SCOTT-KABIN', kx + 3, kyy + 3, kx + K['kabin_gen'] - 3, kyy + K['kabin_der'] - 3)
-    c.L('SCOTT-KAPI', (kx + 15, kyy + K['kabin_der']), (kx + 105, kyy + K['kabin_der']))
+    c.L('SCOTT-KAPI', (kx + (K['kabin_gen'] - kg_(K)) / 2, kyy + K['kabin_der']), (kx + (K['kabin_gen'] + kg_(K)) / 2, kyy + K['kabin_der']))
     c.rect('SCOTT-KABIN', kx + K['kabin_gen'] - 10, kyy + 40, kx + K['kabin_gen'] - 3, kyy + 100)
     c.T('SCOTT-YAZI', (kx + K['kabin_gen'] - 14, kyy + 70), 'butonyer', 1.8 * k, 90, 'MC')
     c.L('SCOTT-KABIN', (kx + 3, kyy + 90), (kx + 3, kyy + 90))

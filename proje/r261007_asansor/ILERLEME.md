@@ -7,3 +7,4 @@
 - 16.10 17:30 kullanıcı: 1000 kg'a göre güncelle -> 13 kişi, kabin 120x200 (2,40 m²), P=650 kg, KA 1150 kg, 6,38 kW -> 7,5 kW; I = 72,4 s > 50 s.
 - Motor düzeltmesi: derin kuyuda (295) kuyu yerleşim ve kuyu dibi planları pafta üstünden taşmıyor; tablo plan altına alındı, tek asansörde boş sütun yok.
 - 16.10 17:30 kullanıcı: ek seçenek 1250 kg -> r261007_A_1250.json, 16 kişi, kabin 120x230 (2,76 m²), P=750, KA 1375, 7,92 kW -> 9,2 kW, I = 82,9 s; teslim _1250KG.dxf (1000 kg seti de duruyor).
+- 16.10 17:40 KARAR (kullanıcı): 800 kg / 10 kişi + 90/210 MERKEZDEN AÇILIR kapı -> I = 59,6 s (şartlı kabul, taahhütname). 1250 kg teslimi kaldırıldı (json alternatif olarak duruyor). Motor: json 'kapi_tip' (teleskopik|merkezden) ve 'kapi_gen' (cm, varsayılan 90) eklendi.

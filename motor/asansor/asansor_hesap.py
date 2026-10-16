@@ -233,7 +233,7 @@ def rapor(a: Asansor, r=None):
     L.append(f'S  = Ortalama durak adedi = {f(r["S"])}')
     L.append(f'V  = Kabin hızı = {f(r["V"])} m/s     h = Katlar arası mesafe = {f(a.kat_yuk)} m')
     L.append(f'tv = h / V = {f(r["tv"])} s')
-    L.append(f'ts = ta + tk + tg - tv = {f(r["ta"],1)} + {f(r["tk"],1)} + {f(r["tg"],1)} - {f(r["tv"])} = {f(r["ts"])} s')
+    L.append(f'ts = ta + tk + tg - tv = {f(r["ta"],1)} + {f(r["tk"],1)} + {f(r["tg"],1)} - {f(r["tv"])} = {f(r["ts"])} s  (kapı {a.kapi_gen} mm {"merkezden açılır" if a.kapi_tip == "merkezden" else a.kapi_tip}, Tablo-4)')
     L.append(f'tp = Kişi transfer zamanı = {f(r["tp"],1)} s')
     L.append('1.1.1. Asansörün Bir Seferi İçin Gerekli Seyir Zamanı')
     L.append(f'T = 2·H·tv + (S+1)·ts + 2·P·tp = 2 x {f(r["H"])} x {f(r["tv"])} + ({f(r["S"])} + 1) x {f(r["ts"])} + 2 x {f(r["P80"],1)} x {f(r["tp"],1)} = {f(r["T"],1)} s')
