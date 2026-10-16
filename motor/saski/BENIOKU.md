@@ -1,3 +1,5 @@
+**16.10.2026: Bu betiklerin çıktısı (SASKİ'yi temel paftalarına bölmek) KULLANICI TARAFINDAN REDDEDİLDİ.** Doğru mantık: `proje/STANDART/STANDART_KURALLAR_ALTYAPI_SARNIC.md` son bölüm. Hizalama kısmı (giriş yazısı + korelasyon) yeniden kullanılabilir — ama yön tersine: temel → SASKİ.
+
 # SASKİ onay dosyasını kullanıcının temel planına işleme (16.10.2026)
 
 1. `hiza_korelasyon.py SASKI.dxf TEMEL.dxf` → kayd.json: blok başına öteleme ince ayarı. Ölçek 4 (SASKİ birimi → cm;

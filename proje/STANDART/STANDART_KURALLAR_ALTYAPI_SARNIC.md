@@ -53,3 +53,26 @@ dikkate al, temel yerleşimleri, vaziyete işleme vesaire hepsini dikkate al ...
   ek DXF (motor/sarnic/c944_ek.py). Sığınak: `proje/ab2750/AB2750_SIGINAK_HAVALANDIRMA.dxf` (motor/ab2750/siginak_hav.py).
 - AB2750 sıhhi taslağı (`proje/ab2750/AB2750_SIHHI_TESISAT.dxf`) KONTROLSÜZ taslaktır; standart değildir — sihhi2 motoruyla
   yeniden üretilecek (kalan iş: motor/ab2750/BENIOKU.md İLERLEME NOTU).
+
+## SASKİ / ALTYAPI VAZİYET MANTIĞI — kullanıcı kaydı 16.10.2026 ("istediğim mantık buydu")
+Onaylı örnek: `proje/STANDART/STANDART_SASKI_ALTYAPI_VAZIYET_korucuk_3346_13.dxf` (Korucuk 3346/13, A-B-C-D blok),
+görseller `kutuphane/arastirma/geri_bildirim/ONAYLI_saski_altyapi_*.png`.
+YANLIŞ yapılan (16.10 ilk teslim): SASKİ çizimi blok blok temel paftalarına taşındı, kolon bağlantısı kurulmadı — REDDEDİLDİ.
+
+DOĞRU MANTIK:
+1. Taban çizim SASKİ (onaylı vaziyet) — kendi koordinatında ve ölçeğinde kalır. Kullanıcının TEMEL planındaki
+   bloklar (yalnız dış hat + pis su kolonları) "X BLOK GİRİŞ" yazılarıyla hizalanıp SASKİ vaziyetine TAŞINIR
+   (temel cm → SASKİ birimi; bu projede SASKİ 1 birim = 4 cm, temel ×0,25).
+2. Pis su KOLONLARI temel planından gelir; SASKİ'deki eski rögar dizisi esas alınmaz, ağ kolonlara göre YENİDEN kurulur.
+3. Rögarlar BİNA DIŞINDA, cepheye paralel bir hat üzerinde (cepheden ~1,5–2 m); her kolon branşmanının cepheden
+   çıktığı noktada bir rögar; köşe/yön değişiminde rögar. Rögar arası ~1,6–3 m (çıkış sıklığına göre), en çok ~10 m.
+4. Kolon → rögar branşmanı: kolondan kısa 45° ile cepheye DİK düz hat; iki komşu kolon tek branşmanda birleşip aynı
+   rögara iner. Kolon hangi cepheye yakınsa o cephedeki rögara bağlanır (orta kolonlar en yakın cepheye). Hatlar
+   yalnız dik ve 45° (yatay/düşey + 45° dirsek); hat üst üste binmez.
+5. Rögarlar cephe boyunca ana hatla birbirine bağlanır; ağ en yakın yol tarafındaki PARSEL BACASI (PB)'na akar;
+   PB SASKİ ana kanal bacasına (Ø200) bağlanır. Gerekirse birden fazla ağ / birden fazla PB (bu projede 2 PB).
+6. Numaralama: R1..Rn her ağda (PB'ye akan her dizide) ayrı; PB etiketi "PB".
+7. Etiketler: her rögarda "70x70 / h:-70cm"; her hat parçasında akış oku + "Ø150 / %1 EĞİM"; ana hat Ø150, %1.
+8. Bodrum ıslak hacmi / sığınak olan blokta PİS SU POMPASI (pompa rögarı) çizilir ve en yakın rögara basma hattıyla
+   bağlanır (D blokta 2 pompa).
+9. Kanal durum belgesi bilgileri (PB bağlantı kotu = yol kotu −80 cm, baca no, Ø200) vaziyette not olarak kalır.

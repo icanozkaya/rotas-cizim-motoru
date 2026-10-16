@@ -2,6 +2,8 @@
 
 ROTAŞ Mühendislik — MTY CAD standardında sıhhi tesisat, yerden ısıtma, klima ve yağmur projesi üreten Python çizim motoru.
 
+## 16.10.2026 (G) SASKİ ALTYAPI MANTIĞI — temel kolonları SASKİ vaziyetine taşı, rögar ağını kolonlara göre yeniden kur (cepheye paralel rögar hattı, kolondan cepheye dik branşman, PB'ye akış, "70x70 h:-70cm", "Ø150 %1 EĞİM") — ayrıntı `proje/STANDART/STANDART_KURALLAR_ALTYAPI_SARNIC.md` son bölüm, örnek `proje/STANDART/STANDART_SASKI_ALTYAPI_VAZIYET_korucuk_3346_13.dxf`
+
 ## 15.10.2026 (F) TÜM DOSYALARDA İLK ÖNCELİK: MİMARİYİ OKU, KOLON HATLARINI BELİRLE; U değerleri İZODER/TS 825:2024 (Sakarya 3. bölge: DD 0,40 / tavan 0,30 / taban 0,35 / pencere 1,8) aşılmaz — ayrıntı `proje/STANDART/STANDART_KURALLAR_YERDEN_ISITMA_15_10.md`
 
 ## 15.10.2026 (E) YERDEN ISITMA ONAY + NOTLAR (kullanıcı kaydı) — sonraki dosyalarda uygulanır
