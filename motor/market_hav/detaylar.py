@@ -419,7 +419,7 @@ def d9_santral(c):
     """Klima santrali – kanal esnek bağlantısı ve kaide, K=10."""
     # santral gövdesi
     c.R(-90, -40, -20, 60)
-    c.T('PAKET TİP', -55, 15, al='MC')
+    c.T('ISI GERİ KAZANIMLI', -55, 15, al='MC')
     c.T('KLİMA SANTRALİ', -55, 5, al='MC')
     # çıkış ağzı + brandi + kanal
     c.R(-20, 20, -16, 55)
