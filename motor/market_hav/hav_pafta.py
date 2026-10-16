@@ -48,9 +48,10 @@ K_U, K_UC = 'MTY-UFLEME-KANALI', 'MTY-UFLEME-CAP'
 K_D, K_DC = 'MTY-DONUS-KANALI', 'MTY-DONUS-CAP'
 K_S = 'MTY-CIHAZ'
 K_LEJ = 'ROTAS-HAV-LEJANT'
+K_ELK = 'ROTAS-ELEKTRIK-NO'
 K_TAB = 'ROTAS-HAV-TABLO'
 K_NOT = 'ROTAS-HAV-NOT'
-YENI_KATMAN = {K_U: 20, K_UC: 21, K_D: 4, K_DC: 110, K_S: 135, K_LEJ: 7, K_TAB: 7, K_NOT: 7}
+YENI_KATMAN = {K_ELK: 1, K_U: 20, K_UC: 21, K_D: 4, K_DC: 110, K_S: 135, K_LEJ: 7, K_TAB: 7, K_NOT: 7}
 KOLON_KATMAN = ('S-CONC', 'S-HTCH', 'S-STEL')
 SINIF_KAT = {'U': K_U, 'D': K_D, 'S': K_S}
 SINIF_YAZI = {'U': K_UC, 'D': K_DC, 'S': K_S}
@@ -553,7 +554,32 @@ def ks_degerleri():
     return d
 
 
-def santral_etiket(doc, ogeler, deger, kutular):
+def elektrik_degerleri():
+    from openpyxl import load_workbook
+    ws = load_workbook(HESAP_XLSX, data_only=True)['ELEKTRİK YÜKLERİ']
+    out = []
+    for r in range(5, 40):
+        no = ws.cell(r, 1).value
+        if isinstance(no, int):
+            out.append(dict(no=no, kod=ws.cell(r, 2).value, ad=ws.cell(r, 3).value, ps=ws.cell(r, 5).value,
+                            pi=ws.cell(r, 6).value, p=ws.cell(r, 7).value, i=ws.cell(r, 10).value,
+                            sig=ws.cell(r, 11).value))
+        elif ws.cell(r, 3).value == 'TOPLAM KURULU GÜÇ':
+            out.append(dict(no=None, kod='', ad='TOPLAM KURULU GÜÇ', ps=ws.cell(r, 5).value, pi=ws.cell(r, 6).value,
+                            p=ws.cell(r, 7).value, i=ws.cell(r, 10).value, sig=None))
+            break
+    if any(v is None for d in out for k, v in d.items() if k in ('p', 'i')):
+        raise SystemExit('Elektrik değerleri boş — recalc.py çalıştır')
+    return out
+
+
+def no_etiketi(msp, x, y, no, kutular):
+    """daire içinde cihaz (elektrik besleme) numarası"""
+    msp.add_circle((x, y), 42, dxfattribs={'layer': K_ELK})
+    yazi(msp, str(no), x, y, 40, 'MC', K_ELK, 0.85, kutular)
+
+
+def santral_etiket(doc, ogeler, deger, kutular, elk=None):
     """KS gövdelerini bulur, eski 'Q= 200kW' yazılarını kaldırır, ısı geri kazanımlı santral sembolünü, dış
     üniteleri ve soğutucu akışkan hatlarını çizer, sağ yanına santral bilgisini yazar."""
     msp = doc.modelspace()
@@ -576,10 +602,15 @@ def santral_etiket(doc, ogeler, deger, kutular):
         k = f'KS-{i}'
         v = deger[k]
         du.append(KC.ks_plan(msp, b, i, v, kutular))
-        x = b[2] + 260
+        x = b[2] + 350
         satir = [(k, 50), ('ISI GERİ KAZANIMLI KLİMA SANTRALİ', 34),
                  (f'40.000 m³/h — TAZE HAVA {v["taze"]:,.0f} m³/h'.replace(',', '.'), 30),
                  (f'DX SOĞUTMA {v["qs"]:.0f} kW / DX ISITMA {v["qi"]:.0f} kW', 30)]
+        if elk:
+            nolar = {d['kod']: d['no'] for d in elk if d['no']}
+            no_etiketi(msp, b[2] + 280, b[3] - 45, nolar[k], kutular)
+            for j, r_ in enumerate(du[-1], 1):
+                no_etiketi(msp, r_[2] + 60, r_[3] + 55, nolar[f'DÜ-{i}.{j}'], kutular)
         y = b[3] - 20
         for s_, h in satir:
             yazi(msp, s_, x, y, h, 'TL', K_S, 0.85, kutular)
@@ -640,7 +671,8 @@ def lejant_ve_tablolar(doc, x0, y_ust, santraller, kutular, deger):
            ('menfez', K_U, 'KANAL ALTI YUVARLAK ÜFLEME MENFEZİ'), ('menfez', K_D, 'KANAL ALTI YUVARLAK EMİŞ MENFEZİ'),
            ('etiket', K_UC, 'KANAL ÖLÇÜSÜ (mm) / MENFEZ DEBİSİ'), ('kanca', K_UC, 'KANAL DEBİSİ (m³/h)'),
            ('santral', K_S, 'ISI GERİ KAZANIMLI KLİMA SANTRALİ (KS), DX BATARYALI'),
-           ('du', K_S, 'DX DIŞ ÜNİTE (ISI POMPASI)'), ('sog', KC.K_SOG, 'SOĞUTUCU AKIŞKAN HATTI (GAZ + SIVI)')]
+           ('du', K_S, 'DX DIŞ ÜNİTE (ISI POMPASI)'), ('sog', KC.K_SOG, 'SOĞUTUCU AKIŞKAN HATTI (GAZ + SIVI)'),
+           ('elk', K_ELK, 'CİHAZ NUMARASI (ELEKTRİK YÜKÜ TABLOSU)')]
     sat_h = 170.0
     h_lej = 140 + len(sat) * sat_h + 60
     yb = y_ust - h_lej
@@ -674,6 +706,9 @@ def lejant_ve_tablolar(doc, x0, y_ust, santraller, kutular, deger):
                                close=True, dxfattribs={'layer': kat})
             for fx in (sx + 395, sx + 505):
                 msp.add_circle((fx, yc), 24, dxfattribs={'layer': kat})
+        elif tip == 'elk':
+            msp.add_circle((sx + 450, yc), 42, dxfattribs={'layer': kat})
+            yazi(msp, '1', sx + 450, yc, 40, 'MC', kat)
         elif tip == 'sog':
             for dy_ in (-8, 8):
                 msp.add_lwpolyline([(sx, yc + dy_), (sx + 900, yc + dy_)], dxfattribs={'layer': kat, 'ltscale': 0.5})
@@ -722,6 +757,22 @@ NOTLAR = [
 ]
 
 
+def elektrik_tablosu(msp, x0, y0, elk, kutular):
+    def f(v):
+        return '' if v is None else f'{v:.1f}'.replace('.', ',')
+    satirlar = [('NO', 'CİHAZ KODU', 'CİHAZ', 'SOĞ. (kW)', 'ISIT. (kW)', 'GÜÇ (kW)', 'AKIM (A)', 'SİG. (A)')]
+    for d in elk:
+        satirlar.append(('' if d['no'] is None else str(d['no']), d['kod'] or '', d['ad'], f(d['ps']), f(d['pi']),
+                         f(d['p']), f(d['i']), '' if d['sig'] is None else f'{d["sig"]:.0f}'))
+    y = tablo(msp, x0, y0, [350, 600, 1800, 550, 550, 550, 600, 600], satirlar,
+              'ELEKTRİK YÜKÜ TABLOSU (400 V 3~)', h=30, sat_h=85, kutular=kutular)
+    yazi(msp, 'Numaralar plandaki daire içindeki cihaz numaralarıdır. Ayrıntı: ISI_KAZANCI_VE_KLIMA_SANTRALI_HESABI.xlsx',
+         x0, y - 50, 30, 'TL', K_TAB, kutular=kutular)
+    yazi(msp, 'Kablo kesiti ve pano seçimi elektrik projesinde yapılacaktır.', x0, y - 110, 30, 'TL', K_TAB,
+         kutular=kutular)
+    return y - 150
+
+
 def notlar(msp, x0, y0, x1, y1, kutular):
     cerceve(msp, x0, y0, x1, y1, DT.KAT_C)
     msp.add_line((x0, y1 - 110), (x1, y1 - 110), dxfattribs={'layer': DT.KAT_C})
@@ -738,7 +789,7 @@ def notlar(msp, x0, y0, x1, y1, kutular):
         y -= 120
 
 
-def paftala(doc, santraller, du, deger):
+def paftala(doc, santraller, du, deger, elk):
     msp = doc.modelspace()
     kutular = []
     for ad, x0, x1, baslik in PAFTALAR:
@@ -749,7 +800,8 @@ def paftala(doc, santraller, du, deger):
     blk = antet_blok(doc)
     msp.add_blockref(blk.name, (26250.0, Y0 + 60), dxfattribs={'xscale': 2, 'yscale': 2, 'layer': 'ROTAS-ANTET'})
     # zemin kat sol bölüm: lejant + tablolar
-    lejant_ve_tablolar(doc, 44250.0, Y0 + SH - 300, santraller, kutular, deger)
+    y_alt = lejant_ve_tablolar(doc, 44250.0, Y0 + SH - 300, santraller, kutular, deger)
+    elektrik_tablosu(msp, 44250.0, y_alt - 200, elk, kutular)
     # detay paftası: 4 × 3 hücre (10 detay + notlar)
     dx0, dy0 = 99250.0, Y0 + 350
     kut = DT.detay_paftasi(msp, dx0, dy0)
@@ -858,8 +910,9 @@ def main():
     gizli_kesisme(doc, kanallar)
     deger = ks_degerleri()
     kut = []
-    santraller, du = santral_etiket(doc, ogeler, deger, kut)
-    kut += paftala(doc, santraller, du, deger)
+    elk = elektrik_degerleri()
+    santraller, du = santral_etiket(doc, ogeler, deger, kut, elk)
+    kut += paftala(doc, santraller, du, deger, elk)
     n_p = kutu_cakisma(kut)
     log('pafta yazı çakışması:', n_p)
     # pafta dışı taşma kontrolü: her varlık bir pafta içinde mi

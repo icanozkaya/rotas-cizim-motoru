@@ -77,6 +77,15 @@ def varsayimlar(wb):
         ('Alan başı taze hava', 0.7, 'l/s·m²', 'TS EN 16798-1 az kirletici bina', 'q_alan'),
         ('Batarya emniyet payı', 1.10, '-', 'seçim = hesap × emniyet', 'emn'),
         ('Dış ünite ısıtma kapasitesi düşümü (−3 °C)', 0.80, '-', 'ısı pompası −3 °C dış havada nominal ısıtmanın ~%80’i', 'dus'),
+        ('ELEKTRİK', None, None, None, None),
+        ('Dönüş/egzoz fanı gücü / üfleme fanı gücü', 0.80, '-', 'dönüş tarafı dış statik basınç daha düşük', 'k_donus'),
+        ('Santral otomasyon + damper motorları', 0.50, 'kW', 'santral başına (varsayım)', 'P_oto'),
+        ('Dış ünite soğutma verimi EER (35 °C dış hava)', 3.0, '-', 'hava kaynaklı DX ısı pompası (varsayım, üretici değeriyle değiştir)', 'EER'),
+        ('Dış ünite ısıtma verimi COP (−3 °C dış hava)', 2.6, '-', 'varsayım, üretici değeriyle değiştir', 'COP'),
+        ('Besleme gerilimi (3 faz)', 400, 'V', '3~ 50 Hz', 'U_v'),
+        ('Güç faktörü — EC fanlı santral', 0.95, '-', '', 'cos_ks'),
+        ('Güç faktörü — inverter dış ünite', 0.92, '-', '', 'cos_du'),
+        ('Sigorta seçim katsayısı', 1.25, '-', 'In ≥ 1,25 × I', 'k_sig'),
         ('KABUK (ISI KAYBI)', None, None, None, None),
         ('Çatı U değeri', 0.20, 'W/m²K', 'mimari İZOLASYON DEĞERLERİ notu (çatı ≤0,20)', 'U_cati'),
         ('Cephe U değeri', 0.25, 'W/m²K', 'mimari İZOLASYON DEĞERLERİ notu (cephe ≤0,25)', 'U_duvar'),
@@ -326,6 +335,64 @@ def ks_hesabi(wb, m0, m1):
     return ws
 
 
+def elektrik(wb):
+    ws = wb.create_sheet('ELEKTRİK YÜKLERİ')
+    ws['A1'] = 'ISITMA-SOĞUTMA VE HAVALANDIRMA CİHAZLARI ELEKTRİK YÜKÜ TABLOSU'
+    ws['A1'].font = Font(name=F, size=13, bold=True)
+    ws['A2'] = ('Cihaz numaraları planda cihaz yanındaki daire içindeki numaralarla aynıdır. Dış ünite gücü soğutma ve '
+                'ısıtma çekişinin büyüğüdür. Kablo kesiti ve pano seçimi elektrik projesinde yapılacaktır.')
+    ws['A2'].font = Font(name=F, size=9, italic=True)
+    bas = ['NO', 'CİHAZ KODU', 'CİHAZ', 'GÜÇ BİLEŞENLERİ', 'SOĞUTMA ÇEKİŞİ (kW)', 'ISITMA ÇEKİŞİ (kW)',
+           'ELEKTRİK GÜCÜ (kW)', 'GERİLİM (V)', 'cos φ', 'AKIM (A)', 'SİGORTA (A)']
+    gen = [7, 12, 40, 46, 14, 14, 14, 10, 8, 10, 11]
+    for j, (b_, w) in enumerate(zip(bas, gen)):
+        c = hucre(ws, f'{get_column_letter(j + 1)}4', b_, KALIN, BASLIK, hiz='center')
+        c.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        ws.column_dimensions[get_column_letter(j + 1)].width = w
+    ws.row_dimensions[4].height = 32
+    K = "'KS HESABI'"
+    r = 5
+    no = 1
+    sig = ('=INDEX({{6,10,16,20,25,32,40,50,63,80,100,125,160,200,250}},'
+           'MATCH(TRUE,INDEX({{6,10,16,20,25,32,40,50,63,80,100,125,160,200,250}}>=J{r}*k_sig,0),0))')
+    for i in range(4):
+        c = 'CDEF'[i]
+        satirlar = [(f'KS-{i + 1}', 'ISI GERİ KAZANIMLI KLİMA SANTRALİ',
+                     'üfleme EC fanı + dönüş EC fanı + otomasyon', '=P_fan*(1+k_donus)+P_oto', '=E{r}', 'cos_ks')]
+        for j in (1, 2):
+            satirlar.append((f'DÜ-{i + 1}.{j}', 'DX DIŞ ÜNİTE (ISI POMPASI)', 'kompresör + kondenser fanları',
+                             f'={K}!{c}51/EER', f'={K}!{c}52*dus/COP', 'cos_du'))
+        for kod, ad, bil, f_s, f_i, cos in satirlar:
+            hucre(ws, f'A{r}', no, KALIN, hiz='center')
+            hucre(ws, f'B{r}', kod, KALIN, hiz='center')
+            hucre(ws, f'C{r}', ad)
+            hucre(ws, f'D{r}', bil, Font(name=F, size=9))
+            hucre(ws, f'E{r}', f_s.format(r=r), fmt='0.0', hiz='right')
+            hucre(ws, f'F{r}', f_i.format(r=r), fmt='0.0', hiz='right')
+            hucre(ws, f'G{r}', f'=ROUND(MAX(E{r},F{r}),1)', KALIN, fmt='0.0', hiz='right')
+            hucre(ws, f'H{r}', '=U_v', fmt='0', hiz='right')
+            hucre(ws, f'I{r}', f'={cos}', fmt='0.00', hiz='right')
+            hucre(ws, f'J{r}', f'=G{r}*1000/(SQRT(3)*H{r}*I{r})', fmt='0.0', hiz='right')
+            hucre(ws, f'K{r}', sig.format(r=r), KALIN, fmt='0', hiz='right')
+            r += 1
+            no += 1
+    son = r - 1
+    hucre(ws, f'A{r}', None, fill=TOPLAM)
+    hucre(ws, f'B{r}', None, fill=TOPLAM)
+    hucre(ws, f'C{r}', 'TOPLAM KURULU GÜÇ', KALIN, TOPLAM)
+    hucre(ws, f'D{r}', None, fill=TOPLAM)
+    for c in 'EFGJ':
+        hucre(ws, f'{c}{r}', f'=SUM({c}5:{c}{son})', KALIN, TOPLAM, '#,##0.0', 'right')
+    for c in 'HIK':
+        hucre(ws, f'{c}{r}', None, fill=TOPLAM)
+    hucre(ws, f'C{r + 1}', 'EŞ ZAMANLI ÇEKİŞ (soğutma modu, eş zamanlılık 1,0)', KALIN)
+    hucre(ws, f'G{r + 1}', f'=E{r}', KALIN, None, '#,##0.0', 'right')
+    hucre(ws, f'C{r + 2}', 'EŞ ZAMANLI ÇEKİŞ (ısıtma modu)', KALIN)
+    hucre(ws, f'G{r + 2}', f'=F{r}', KALIN, None, '#,##0.0', 'right')
+    ws.freeze_panes = 'C5'
+    return ws
+
+
 def cihaz_listesi(wb):
     ws = wb.create_sheet('CİHAZ LİSTESİ')
     ws['A1'] = 'CİHAZ LİSTESİ'
@@ -344,7 +411,7 @@ def cihaz_listesi(wb):
         ('', '', 'DX ısıtma bataryası kapasitesi', '={K}!{c}45', 'kW'),
         ('', '', 'Yoğuşma suyu', '={K}!{c}36', 'l/h'),
         ('', '', 'Üfleme fanı (EC plug fan) elektrik gücü', '=P_fan', 'kW'),
-        ('', '', 'Dönüş/egzoz fanı (EC plug fan) elektrik gücü', '=ROUND(P_fan*0.8,1)', 'kW'),
+        ('', '', 'Dönüş/egzoz fanı (EC plug fan) elektrik gücü', '=ROUND(P_fan*k_donus,1)', 'kW'),
         ('', '', 'Filtre (taze hava / dönüş / üfleme)', 'G4 / G4 / F7', ''),
         ('', '', 'Dış ölçü (U × G × Y) yaklaşık', '830×545×220', 'cm'),
         ('DÜ', 'DX DIŞ ÜNİTE (HAVA KAYNAKLI ISI POMPASI)', 'Adet (santral başına)', '={K}!{c}50', 'adet'),
@@ -415,6 +482,7 @@ def main():
     m0, m1 = 5, 4 + len(zon)
     ks_hesabi(wb, m0, m1)
     cihaz_listesi(wb)
+    elektrik(wb)
     k = kontrol(wb)
     k['D10'] = f'=VARSAYIMLAR!E{tip_satir}'
     for ws in wb.worksheets:
