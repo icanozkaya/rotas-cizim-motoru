@@ -21,3 +21,8 @@
 - Kişi başı kural (debi.py): 618,2 m² → 619 kişi × 4,5 = 2.800 taze / 2.520 egzoz; duman h = 6,00 m (kullanıcı) × 10 = 37.500 m³/h
 - Çıkış: kullanıcının MTY-BORU işareti hizasında batı duvarından YATAY duvar geçişi ("duvardan atış"), yan yana, dışta panjur; kuranglez/baca yok
 - Kullanıcı mimarisi (kolonlar dahil) çıktının içinde; MTY-BORU işaretleri çıkarılır; AutoCAD-güvenli birleştirme `mimari_birlestir()`
+
+## KALICI KURAL — duman tahliye hızı (kullanıcı 16.10.2026 20:23)
+- Duman tahliye kanalları ve duvar/döşeme geçişleri **11–12 m/s** aralığında boyutlanır (`debi.HIZ['duman'] = 12`, `HIZ_DUMAN_ALT = 11`;
+  `si_siginak.kanal_sec_aralik` 50 mm adımlı en az çevreli kesiti 11 ≤ v ≤ 12 aralığından seçer). Taze hava / egzoz ≤ 8 m/s kalır.
+- SI_INAK: duman 37.500 m³/h → ana kanal 950x950 (11,54 m/s), kollar 11,0–11,6 m/s, duvar geçişi 150x60 (11,57 m/s), DTF-1 350 Pa.

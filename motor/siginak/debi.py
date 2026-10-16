@@ -12,6 +12,11 @@ Eski kural (hacim × 4 /h) 16.10.2026'dan önceki projelerde kaldı; yeni projel
 import math
 
 
+# kanal / duvar-döşeme geçişi hız sınırları (m/s) — kullanıcı 16.10.2026: duman tahliye 11–12 m/s, taze/egzoz ≤ 8 m/s
+HIZ = {'taze': 8.0, 'egzoz': 8.0, 'duman': 12.0}
+HIZ_DUMAN_ALT = 11.0
+
+
 def kisi_basi(kisi):
     return 1.8 if kisi <= 50 else 3.0 if kisi <= 150 else 4.5
 

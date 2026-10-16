@@ -10,3 +10,7 @@
 - [x] kontroller: kolon/duvar kesişimi 0, çizgi binmesi 0, yazı binmesi 0, boşta uç 0, ağlar arası kesişme 0, audit 0, maks hız 7,78/7,78/7,89 m/s
 - Sonuç: taze 2.800 (14 menfez, SHC-1 350 Pa) / egzoz 2.520 (12 menfez, EF-1 400 Pa) / duman 37.500 (12 menfez, DTF-1 200 Pa, F400)
 - Duvar geçişleri: DUMAN 190x70, TAZE 50x20, EGZOZ 30x30 cm (v ≤ 8 m/s)
+
+## Rev 2 (20:23) — kullanıcı: "DUMAN TAHLİYENİN HIZINI 11–12 M/S'YE GÖRE DÜZENLE, SONRAKİ DOSYALARDA KAYDET"
+- Duman kanalları 11,02–11,57 m/s (ana 950x950), duvar geçişi 150x60 (11,57 m/s), DTF-1 350 Pa; taze/egzoz değişmedi
+- Kalıcı: debi.HIZ / HIZ_DUMAN_ALT, README, CLAUDE.md

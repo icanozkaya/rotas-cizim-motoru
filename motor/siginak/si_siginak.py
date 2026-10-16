@@ -20,7 +20,7 @@ KOK = os.path.abspath(os.path.join(BURA, '..', '..'))
 sys.path.insert(0, os.path.join(KOK, 'motor', 'deneme', 'kanal'))
 sys.path.insert(0, BURA)
 import kanal as K                                    # kanal_sec, menfez_sec, surtunme (deneme/kanal modülü)
-from debi import siginak_debileri, kisi_basi
+from debi import siginak_debileri, kisi_basi, HIZ, HIZ_DUMAN_ALT
 
 PRJ = os.path.join(KOK, 'proje', 'si_inak_siginak')
 MIM_DXF = os.path.join(PRJ, 'si_mimari.dxf')
@@ -30,7 +30,7 @@ ALTLIK_KUTU = (259850, -698300, 261850, -694400)    # sığınak plan bölgesi (
 MJ = json.load(open(MIM_JSON))
 
 # ============================================================== HESAP (kullanıcı kuralı 16.10.2026: kişi başı)
-HN = 6.00; N_DT = 10; V_GEC = 8.0; ESIK = 100.0     # h = 6,00 m (kullanıcı)
+HN = 6.00; N_DT = 10; V_GEC = HIZ['taze']; V_DT = HIZ['duman']; ESIK = 100.0     # h = 6,00 m; duman 11–12 m/s (kullanıcı 16.10.2026)
 KISI_M2 = 1.0
 A_BRUT = 618.2                                      # mimari mahal kutusu: SIĞINAK A-Z-16 618,2 m² (brüt)
 X_IC = 260022.0                                     # batı duvarı iç yüzü (duvar 259947..260022)
@@ -41,9 +41,9 @@ def yukari(q, adim):
     return int(math.ceil(q / adim - 1e-9) * adim)
 
 
-def gecis(q):
-    """duvar geçişi: v ≤ V_GEC (8 m/s) sınırına en yakın, 10 cm adımlı en küçük kesit; yükseklik ≤ 70"""
-    a = q / 3600 / V_GEC * 1e4
+def gecis(q, v=None):
+    """duvar geçişi: v ≤ sınır (taze/egzoz 8, duman 12 m/s) sınırına en yakın, 10 cm adımlı en küçük kesit; yükseklik ≤ 70"""
+    a = q / 3600 / (v or V_GEC) * 1e4
     aday = [(b, h) for b in range(30, 210, 10) for h in range(20, 80, 10) if b >= h and b * h >= a]
     b, h = min(aday, key=lambda t: (t[0] * t[1], t[0] - t[1]))
     return b, h, a
@@ -59,7 +59,7 @@ def hesap():
     V = A * HN
     return dict(ad='SIĞINAK', A=A, V=V, kisi=d['kisi'], kb=d['kisi_basi'], qth=d['taze_hesap'], qsec=d['taze'], qeg=d['egzoz'],
                 qdt=V * N_DT, qdts=d['duman'], dt=A > ESIK,
-                gth=gecis(d['taze']), geg=gecis(d['egzoz']), gdt=gecis(d['duman']),
+                gth=gecis(d['taze']), geg=gecis(d['egzoz']), gdt=gecis(d['duman'], V_DT),
                 na=dict(brut=A_BRUT, poligon=Polygon(MJ['sig']).intersection(box(X_IC, -699000, 262000, -694000))))
 
 
@@ -291,8 +291,26 @@ ENGEL_MIM = MIM_CIZ + [g.exterior for g in KOLON_POLY]
 CFG = {
     'taze': dict(lay=TAZE, vmax=8.0, hmax=400, onek='TM', ters=False, mv=2.0),
     'egzoz': dict(lay=EGZ, vmax=8.0, hmax=400, onek='EM', ters=True, mv=2.0),
-    'duman': dict(lay=DUM, vmax=8.0, hmax=1000, onek='DM', ters=True, mv=3.0),
+    'duman': dict(lay=DUM, vmin=HIZ_DUMAN_ALT, vmax=V_DT, hmax=1000, onek='DM', ters=True, mv=3.0),
 }
+
+
+def kanal_sec_aralik(q, vmin, vmax, hmax, hmin=150):
+    """vmin verilirse (duman 11 m/s) vmin ≤ v ≤ vmax aralığında en az sac çevreli 50 mm adımlı kesit; yoksa K.kanal_sec"""
+    if vmin:
+        best = None
+        for h in range(hmin, hmax + 1, 50):
+            for w in range(h, 3001, 50):
+                if w / h > 4:
+                    break
+                v, r = K.surtunme(q, w, h)
+                if vmin <= v <= vmax:
+                    c = (2 * (w + h), -h, w, h, v, r)
+                    if best is None or c < best:
+                        best = c
+        if best:
+            return dict(w=best[2], h=best[3], v=best[4], R=best[5])
+    return K.kanal_sec(q, vmax, hmax=hmax, hmin=hmin)
 
 
 class Ag:
@@ -347,7 +365,7 @@ class Ag:
             if n == 'K':
                 continue
             q = self.Q[n] + sum(m[2] for m in self.menfez if m[0] == n) * 0  # kenar (ebe->n) debisi = alt ağaç
-            self.olcu[n] = K.kanal_sec(self.Q[n], self.c['vmax'], hmax=self.c['hmax'], hmin=150)
+            self.olcu[n] = kanal_sec_aralik(self.Q[n], self.c.get('vmin'), self.c['vmax'], self.c['hmax'])
         self.ml = {nm: K.menfez_sec(q, v_yuz=self.c['mv'])[0] / 10.0 for nm, t, q in self.menfez if t != 'A'}
 
     def w(self, n):
@@ -1068,7 +1086,7 @@ for s_ in ['CİHAZLAR — HEPSİ TAVANA ASILI (yere konmaz):',
            f"DTF-1  DUMAN TAHLİYE FANI (aksiyel) {tr(q_dt, 0)} m³/h — F400",
            'GSK-1/2/3  gaz sızdırmaz klape (el kumandalı), duvar geçişi iç yüzünde',
            'DUVAR GEÇİŞLERİ (çelik kovan, yan yana, dışta panjurlu ağız):',
-           f"        DUMAN {gdt_b}x{gdt_h} / TAZE {gth_b}x{gth_h} / EGZOZ {geg_b}x{geg_h} cm — v ≤ {tr(V_GEC, 1)} m/s"]:
+           f"        DUMAN {gdt_b}x{gdt_h} (v ≤ {tr(V_DT, 0)} m/s) / TAZE {gth_b}x{gth_h} / EGZOZ {geg_b}x{geg_h} cm (v ≤ {tr(V_GEC, 0)} m/s)"]:
     TXT((258250, _cy), s_, 9.0, CHZ, TA.MIDDLE_LEFT); _cy -= 20
 
 # ============================================================== BASINÇ KAYBI / FAN SEÇİMİ
@@ -1180,7 +1198,7 @@ def hesap_blok(x, y, r):
        [('Sığınak Brüt Alanı', f"{tr(r['A'])} m²"), ('Sığınak Yüksekliği', f"{tr(HN)} m"), ('Sığınak Hacmi', f"{tr(r['V'])} m³"),
         ('Çevrim Oranı', f"{N_DT} defa/saat"), ('Duman Tahliye İçin Gerekli Hava', f"{tr(r['qdt'])} m³/h"),
         ('Seçilen Duman Tahliye Debisi', f"{tr(r['qdts'], 0)} m³/h"),
-        (f'Duvar Geçişi - Duman Tahliye (v ≤ {tr(V_GEC, 1)} m/s)', f"{r['gdt'][0]} × {r['gdt'][1]} cm")])
+        (f'Duvar Geçişi - Duman Tahliye (v ≤ {tr(V_DT, 1)} m/s)', f"{r['gdt'][0]} × {r['gdt'][1]} cm")])
     HT(x + 20, y - 8, f"Sığınak brüt alanı {tr(r['A'])} m² > 100 m² olduğundan duman tahliye fanı eklenmiştir.", H); y -= 30
     hbox(x, y0 + 6, x + W, y, 'ROTAS-HESAP-CERCEVE', 1.0)
     return y
@@ -1399,7 +1417,7 @@ def sema(x0, y0):
             s_menfez_alt(xm, ky - hk / 2, 40 if lay != DUM else 90, ters)
         s_ok((cx0 + cw + 220, ky), (-1, 0) if ters else (1, 0)); s_ok((xi + 120, ky), (-1, 0) if ters else (1, 0))
         S_T((cx0 + cw / 2, ky - max(ch, hk) / 2 - 70), fan_ad, 9, CHZ, TA.MIDDLE_CENTER)
-        S_T((cx0 + cw + 60, ky - hk / 2 - 100), f"{ad} KANALI {tr(qq, 0)} m³/h — {ww['w']}x{ww['h']} (h ≤ 8 m/s)", 9, lay)
+        S_T((cx0 + cw + 60, ky - hk / 2 - 100), f"{ad} KANALI {tr(qq, 0)} m³/h — {ww['w']}x{ww['h']} (v ≤ {tr(V_DT if lay == DUM else V_GEC, 0)} m/s)", 9, lay)
         S_T((cx0 + cw + 60, ky - hk / 2 - 120), f"{ad} MENFEZLERİ ({nm_} AD. x {tr(qm_, 0)} m³/h)", 9, MEN)
         S_T((xw - 30, ky - gh / 2 - 30), f"DUVAR GEÇİŞİ {gb}x{gh} cm", 8, GEC, TA.MIDDLE_RIGHT)
         S_T((xw - 30, ky - gh / 2 - 44), f"ÇELİK KOVAN + PANJUR / {kod} içte", 8, GEC, TA.MIDDLE_RIGHT)
@@ -1461,6 +1479,7 @@ NOTLAR = [
     "SHC-1, DTF-1, EF-1 ve GSK'lar tavana askı çubukları ve titreşim izolatörleri ile asılacak, SHC el kolu zincir/uzatma mili ile yerden çevrilecektir.",
     "Duman tahliye fanı EN 12101-3 F400 (400 °C / 2 saat) sınıfında olacaktır.",
     "Duman egzoz kanalları en az 1,0 mm galvaniz sacdan, askıları yangına dayanıklı olarak yapılacaktır.",
+    "Duman tahliye kanalları ve duvar geçişi 11–12 m/s hıza göre, taze hava ve egzoz kanalları 8 m/s sınırına göre boyutlandırılmıştır.",
     "Kanallar tavana yakın asılacak, kanal üstü ile tavan arasında en az 25 cm askı payı bırakılacaktır.",
     "Kanallar betonarme kolon ve giriş holü duvarları içinden geçirilmeyecek, yalnız planda ölçüsü yazılı duvar geçişleri kullanılacaktır.",
     "Menfezler ayar damperli (OBD) olacak ve devreye almada plandaki debilere göre ayarlanacaktır.",
@@ -1754,7 +1773,7 @@ def kanal_satirlari():
 
 
 _i = cer_bas()
-y_t3 = tablo(259800, yb - 60, 'KANAL ÇİZELGESİ (kanal hızı 8,0 m/s sınırına yakın seçildi, v ≤ 8,0 m/s)',
+y_t3 = tablo(259800, yb - 60, 'KANAL ÇİZELGESİ (sınıra yakın seçildi: taze/egzoz v ≤ 8 m/s, duman 11–12 m/s)',
              ['AĞ', 'ÖLÇÜ (mm)', 'MAKS. DEBİ (m³/h)', 'v (m/s)', 'BOY (m)', 'SAC (mm)'], kanal_satirlari(), [120, 130, 180, 110, 110, 110])
 cer_bit(_i)
 
