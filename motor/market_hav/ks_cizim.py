@@ -389,6 +389,21 @@ def _kes_kopyala(msp, kaynak_msp, bolge, dx, dy):
             continue
         if not b.has_data or b.extmin.x < x0 or b.extmax.x > x1 or b.extmin.y < y0 or b.extmax.y > y1:
             continue
+        if t == 'POLYLINE':                         # 2B/3B polyline → hafif LWPOLYLINE (dosya boyutu)
+            try:
+                if not (e.is_2d_polyline or e.is_3d_polyline):
+                    continue
+                ocs = e.ocs()
+                pts = []
+                for v in e.vertices:
+                    w = ocs.to_wcs(v.dxf.location) if e.is_2d_polyline else v.dxf.location
+                    pts.append((w[0] + dx, w[1] + dy))
+                if len(pts) >= 2:
+                    msp.add_lwpolyline(pts, close=e.is_closed, dxfattribs={'layer': K_M})
+                    n += 1
+            except Exception:
+                pass
+            continue
         try:
             c = e.copy()
         except Exception:
@@ -527,7 +542,10 @@ def kesitler_paftasi(m, x0, y0, kes_msp, ozet, ks_b, du_b, kutular):
     for kot, s_ in ((6.00, 'KANAL ÜST KOTU +6.00 (MAKAS ALTI)'), (4.80, 'ANA KANAL ALT KOTU +4.80'),
                     (5.20, 'BRANŞMAN ALT KOTU +5.20')):
         m.add_line((ax(-2400), az(kot)), (ax(-1300), az(kot)), dxfattribs={'layer': K_Y})
-        _yazi(m, s_, ax(-2400), az(kot) + 8, 26, 'BL', K_Y, kutular=kutular)
+        if kot < 5.0:
+            _yazi(m, s_, ax(-2400), az(kot) - 8, 26, 'TL', K_Y, kutular=kutular)
+        else:
+            _yazi(m, s_, ax(-2400), az(kot) + 8, 26, 'BL', K_Y, kutular=kutular)
     _yazi(m, 'AA KESİTİ — CİHAZ VE KANAL YERLEŞİMİ  ÖLÇEK : 1/100', x0 + 800 + (AA_SRC[2] - AA_SRC[0]) / 2,
           y0 + 5900 - 950, 60, 'MC', 'ROTAS-PAFTA-YAZI', kutular=kutular)
     # ---------------- BB
