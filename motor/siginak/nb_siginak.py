@@ -29,7 +29,7 @@ ALTLIK_KUTU = (357700, -615300, 359300, -609850)    # bodrum kat planı (tamamı
 MJ = json.load(open(MIM_JSON))
 
 # ============================================================== HESAP (kullanıcı kuralı; bu projede BRÜT alan — kullanıcı isteği 16.10.2026)
-HN = 2.95; N_TH = 4; N_DT = 10; V_GEC = 2.5; ESIK = 100.0          # h = 2,95 m (planda "SIĞINAK (h 295)")
+HN = 2.95; N_TH = 4; N_DT = 10; V_GEC = 8.0; ESIK = 100.0   # geçiş hızı: kullanıcı 16.10.2026 'sınıra yaklaş' -> ≤ 8 m/s          # h = 2,95 m (planda "SIĞINAK (h 295)")
 OLCU = [(30, 20), (40, 20), (40, 25), (40, 30), (50, 30), (50, 40), (60, 40), (60, 50), (70, 50), (80, 50),
         (80, 60), (100, 60), (100, 70), (100, 80), (120, 80), (140, 80), (140, 100), (160, 100), (180, 100), (200, 100)]
 KISI_M2 = 1.0           # kişi başına alan (kabul)
@@ -42,9 +42,10 @@ def yukari(q, adim):
 
 
 def gecis(q):
-    """döşeme geçişi (riser): kullanıcının gösterdiği hiza 70 cm derin -> kısa kenar ≤ 70, uzun kenar 10 cm adımlı"""
+    """döşeme geçişi (riser): v ≤ V_GEC (8 m/s) sınırına en yakın, 10 cm adımlı en küçük kesit; kısa kenar ≤ 70 (hiza 70 cm)"""
     a = q / 3600 / V_GEC * 1e4
-    b, h = next(((b, h) for b, h in OLCU if b * h >= a and h <= 70), (int(math.ceil(a / 70 / 10) * 10), 70))
+    aday = [(b, h) for b in range(30, 210, 10) for h in range(20, 80, 10) if b >= h and b * h >= a]
+    b, h = min(aday, key=lambda t: (t[0] * t[1], t[0] - t[1]))
     return b, h, a
 
 
@@ -1026,7 +1027,7 @@ if etiket((DF_C[0] - 62, DF_C[1]), ['DTF-1 (F400)'], 9.0, CHZ, oncelik=[(358340,
 etiket((EF_C[0] + 40, EF_C[1]), ['EF-1'], 9.0, CHZ, alan=SIG_ALAN.buffer(-1), haric=fan_eg, rmax=250)
 _cy = -614880
 _CIH0 = len(msp)
-for s_ in ['CİHAZLAR (sığınak içinde, çıkış hizasının altında):',
+for s_ in ['CİHAZLAR — HEPSİ TAVANA ASILI (yere konmaz), sığınak içinde çıkış hizasının altında:',
            f"SHC-1  SIĞINAK HAVALANDIRMA CİHAZI — el + motor tahrikli, toz (G4) + kum filtreli, by-pass damperli — NORMAL {tr(q_th, 0)} m³/h / KORUMA {tr(R['qkor'], 0)} m³/h",
            f"DTF-1  DUMAN TAHLİYE FANI (aksiyel, kanal tipi) — {tr(q_dt, 0)} m³/h — F400 (400 °C / 2 saat)",
            f"EF-1   KANAL TİPİ EGZOZ FANI — {tr(q_eg, 0)} m³/h",
@@ -1307,7 +1308,7 @@ def s_gsk_g(c, w, d='y', lay=CHZ):
 def sema(x0, y0):
     """3 panel: TAZE HAVA (koruma havalandırması) | EGZOZ | DUMAN TAHLİYE. y0 sığınak döşemesi (-2,20), 1 cm = 1 cm (ölçeksiz prensip)."""
     S_T((x0, y0 + 490), 'SIĞINAK HAVALANDIRMA ŞEMASI (PRENSİP KESİT — ÖLÇEKSİZ)', 20, 'ROTAS-HAV-BASLIK')
-    Hk = 295; G = y0 + 220; ys = y0 + 150; kanal_y = y0 + 220
+    Hk = 295; G = y0 + 220; ys = y0 + 150; kanal_y = y0 + Hk - 15 - 12 - 50
     PW = 1150
     # ---------------- panel 1: taze hava (dış duvar solda)
     xw = x0 + 330                     # perde dış yüzü
@@ -1317,8 +1318,10 @@ def sema(x0, y0):
     S_L((xw + 25, y0), (xe, y0)); S_L((xw + 25, y0 - 30), (xe, y0 - 30))
     S_L((xw, y0 + Hk), (xe, y0 + Hk)); S_L((xw, y0 + Hk - 15), (xe, y0 + Hk - 15))
     hh = R['gth'][1]
-    cx0 = xw + 130; cx1 = cx0 + 320; ch = 120
-    xr0 = cx0 + 50
+    cx0 = xw + 230; cx1 = cx0 + 320; ch = 100
+    cy0 = y0 + Hk - 15 - 12 - ch                 # TAVANA ASILI cihaz (kullanıcı: cihazlar tavanda)
+    cyc = cy0 + ch / 2
+    xr0 = cx0 - 90
     S_box(xr0 - hh / 2 - 5, y0 + Hk - 20, xr0 + hh / 2 + 5, y0 + Hk + 5, GEC)              # döşemede çelik kovan
     S_PL([(xr0 - hh / 2, y0 + Hk + 5), (xr0 - hh / 2, y0 + Hk + 90)], BACA); S_PL([(xr0 + hh / 2, y0 + Hk + 5), (xr0 + hh / 2, y0 + Hk + 90)], BACA)
     S_T((xr0 + hh / 2 + 10, y0 + Hk + 70), 'DÜŞEY BACA — ZEMİN KOTUNA (dış ağız mimari projeye göre)', 8, BACA)
@@ -1326,39 +1329,40 @@ def sema(x0, y0):
     kovA = box(xr0 - hh / 2 - 5, y0 + Hk - 20, xr0 + hh / 2 + 5, y0 + Hk + 5)
     gskA = box(xr0 - hh / 2 - 4, y0 + Hk - 60, xr0 + hh / 2 + 4, y0 + Hk - 32)
     S_box(*gskA.bounds, CHZ); S_L((xr0 - hh / 2 + 2, y0 + Hk - 52), (xr0 + hh / 2 - 2, y0 + Hk - 40), CHZ); S_C((xr0, y0 + Hk - 46), 2.5, CHZ)
-    cih = box(cx0, y0, cx1, y0 + ch)
-    s_kanal_yol([(xr0, y0 + Hk + 5), (xr0, y0 + ch)], R['gth'][0] * 0.6, TAZE, [kovA, gskA, cih])
-    s_ok((xr0, y0 + ch + 30), (0, -1))
-    # cihaz
-    S_box(cx0, y0, cx1, y0 + ch, CHZ)
-    S_L((cx0 + 100, y0), (cx0 + 100, y0 + ch), CHZ); S_L((cx0 + 200, y0), (cx0 + 200, y0 + ch), CHZ)
-    pts = []; yy = y0 + ch - 10; k = 0
-    while yy > y0 + 8:
+    cih = box(cx0, cy0, cx1, cy0 + ch)
+    s_kanal_yol([(xr0, y0 + Hk + 5), (xr0, cyc), (cx0, cyc)], min(R['gth'][0] * 0.6, ch - 20), TAZE, [kovA, gskA, cih])
+    s_ok((xr0 + 45, cyc), (1, 0))
+    # cihaz (tavana askılı: askı çubukları)
+    for xa in (cx0 + 20, cx1 - 20):
+        S_L((xa, cy0 + ch), (xa, y0 + Hk - 15), CHZ)
+    S_box(cx0, cy0, cx1, cy0 + ch, CHZ)
+    S_L((cx0 + 100, cy0), (cx0 + 100, cy0 + ch), CHZ); S_L((cx0 + 200, cy0), (cx0 + 200, cy0 + ch), CHZ)
+    pts = []; yy = cy0 + ch - 10; k = 0
+    while yy > cy0 + 8:
         pts.append((cx0 + 15 if k % 2 == 0 else cx0 + 85, yy)); yy -= 10; k += 1
     S_PL(pts, CHZ)
     for i in range(6):
-        for j in range(4):
-            S_C((cx0 + 115 + i * 14, y0 + 18 + j * 25), 1.8, CHZ)
-    S_L((cx0 + 105, y0 + ch - 8), (cx0 + 195, y0 + ch - 22), CHZ)          # by-pass damper kanadı
-    fc = (cx0 + 255, y0 + 62); S_C(fc, 38, CHZ); S_C(fc, 11, CHZ)
+        for j in range(3):
+            S_C((cx0 + 115 + i * 14, cy0 + 20 + j * 28), 1.8, CHZ)
+    S_L((cx0 + 105, cy0 + ch - 8), (cx0 + 195, cy0 + ch - 22), CHZ)          # by-pass damper kanadı
+    fc = (cx0 + 255, cyc); S_C(fc, 34, CHZ); S_C(fc, 10, CHZ)
     for k in range(8):
         t = k * math.pi / 4
-        S_L((fc[0] + 11 * math.cos(t), fc[1] + 11 * math.sin(t)), (fc[0] + 36 * math.cos(t + 0.5), fc[1] + 36 * math.sin(t + 0.5)), CHZ)
-    S_box(cx1 - 34, y0 + 6, cx1 - 6, y0 + 32, CHZ); S_T((cx1 - 20, y0 + 19), 'M', 10, CHZ, TA.MIDDLE_CENTER)
-    S_PL([(cx1, y0 + 62), (cx1 + 25, y0 + 62), (cx1 + 25, y0 + 85)], CHZ); S_C((cx1 + 25, y0 + 91), 6, CHZ)
-    S_T((cx1 + 38, y0 + 91), 'EL KOLU', 8, CHZ, TA.MIDDLE_LEFT)
-    S_T((cx0 + 50, y0 - 48), 'TOZ FİLTRE (G4)', 8, CHZ, TA.MIDDLE_CENTER)
-    S_T((cx0 + 150, y0 - 48), 'KUM FİLTRE', 8, CHZ, TA.MIDDLE_CENTER)
-    S_T((cx0 + 150, y0 - 62), 'BY-PASS DAMPERLİ', 8, CHZ, TA.MIDDLE_CENTER)
-    S_T((cx0 + 260, y0 - 48), 'FAN + MOTOR', 8, CHZ, TA.MIDDLE_CENTER)
-    S_T((cx0 + 160, y0 - 90), f"SHC-1 SIĞINAK HAVALANDIRMA CİHAZI — NORMAL {tr(q_th, 0)} m³/h, KORUMA {tr(R['qkor'], 0)} m³/h, {BAS['taze']['sec']} Pa", 9, CHZ, TA.MIDDLE_CENTER)
-    # çıkış -> tavana -> üfleme kanalı
+        S_L((fc[0] + 10 * math.cos(t), fc[1] + 10 * math.sin(t)), (fc[0] + 32 * math.cos(t + 0.5), fc[1] + 32 * math.sin(t + 0.5)), CHZ)
+    S_box(cx1 - 34, cy0 + 6, cx1 - 6, cy0 + 32, CHZ); S_T((cx1 - 20, cy0 + 19), 'M', 10, CHZ, TA.MIDDLE_CENTER)
+    S_PL([(cx0 + 150, cy0), (cx0 + 150, cy0 - 40)], CHZ); S_C((cx0 + 150, cy0 - 46), 6, CHZ)
+    S_T((cx0 + 162, cy0 - 46), 'EL KOLU (zincir/uzatma mili ile yerden çevrilir)', 8, CHZ, TA.MIDDLE_LEFT)
+    S_T((cx0 + 50, cy0 - 14), 'TOZ FİLTRE (G4)', 8, CHZ, TA.MIDDLE_CENTER)
+    S_T((cx0 + 255, cy0 - 14), 'FAN + MOTOR', 8, CHZ, TA.MIDDLE_CENTER)
+    S_T((cx0 + 160, cy0 - 90), f"SHC-1 SIĞINAK HAVALANDIRMA CİHAZI (TAVANA ASILI) — NORMAL {tr(q_th, 0)} m³/h, KORUMA {tr(R['qkor'], 0)} m³/h, {BAS['taze']['sec']} Pa", 9, CHZ, TA.MIDDLE_CENTER)
+    S_T((cx0 + 160, cy0 - 104), 'KUM FİLTRE BÖLMESİ BY-PASS DAMPERLİ', 8, CHZ, TA.MIDDLE_CENTER)
+    # çıkış -> üfleme kanalı (aynı kotta)
     o0 = ta.olcu[ta.cocuk['K'][0]]
     wt = o0['h'] / 10
-    xr = cx1 - 70
-    s_kanal_yol([(xr, y0 + ch), (xr, kanal_y), (xe - 40, kanal_y)], wt, TAZE)
-    s_ok((xr, y0 + ch + 35), (0, 1)); s_ok((xr + 300, kanal_y), (1, 0))
-    for xm in (xr + 180, xr + 460, xr + 740):
+    xr = cx1
+    s_kanal_yol([(cx1, kanal_y), (xe - 40, kanal_y)], wt, TAZE)
+    s_ok((xr + 300, kanal_y), (1, 0))
+    for xm in (xr + 180, xr + 400, xr + 620):
         s_menfez_alt(xm, kanal_y - wt / 2, 30, False)
     S_T((xr + 120, kanal_y + wt / 2 + 18), f"TAZE HAVA KANALI {tr(q_th, 0)} m³/h — {o0['w']}x{o0['h']}", 9, TAZE)
     S_T((xr + 120, kanal_y - wt / 2 - 52), f"TAZE HAVA MENFEZLERİ ({n_tm} AD. x {tr(TAZE_Q, 0)} m³/h)", 9, MEN)
@@ -1384,14 +1388,14 @@ def sema(x0, y0):
             fb = box(x_fan - 50, kanal_y - 40, x_fan + 50, kanal_y + 40)
             S_box(*fb.bounds, CHZ)
             S_C((x_fan, kanal_y), 24, CHZ); S_C((x_fan, kanal_y), 8, CHZ)
-            fan_ad = f"EF-1 KANAL TİPİ EGZOZ FANI {tr(qq, 0)} m³/h {BAS['egzoz']['sec']} Pa"
+            fan_ad = f"EF-1 KANAL TİPİ EGZOZ FANI (TAVANA ASILI) {tr(qq, 0)} m³/h {BAS['egzoz']['sec']} Pa"
         else:
             fb = box(x_fan - 55, kanal_y - 50, x_fan + 55, kanal_y + 50)
             S_box(*fb.bounds, CHZ)
             S_PL([(x_fan, kanal_y), (x_fan - 18, kanal_y + 38), (x_fan + 18, kanal_y + 38)], CHZ, True)
             S_PL([(x_fan, kanal_y), (x_fan - 18, kanal_y - 38), (x_fan + 18, kanal_y - 38)], CHZ, True)
             S_L((x_fan - 45, kanal_y - 50), (x_fan - 45, kanal_y + 50), CHZ); S_L((x_fan + 45, kanal_y - 50), (x_fan + 45, kanal_y + 50), CHZ)
-            fan_ad = f"DTF-1 DUMAN TAHLİYE FANI {tr(qq, 0)} m³/h {BAS['duman']['sec']} Pa F400"
+            fan_ad = f"DTF-1 DUMAN TAHLİYE FANI (TAVANA ASILI) {tr(qq, 0)} m³/h {BAS['duman']['sec']} Pa F400"
         xr = wx - 120
         kov = box(xr - gh / 2 - 5, y0 + Hk - 20, xr + gh / 2 + 5, y0 + Hk + 5)
         S_box(*kov.bounds, GEC)
@@ -1466,6 +1470,7 @@ NOTLAR = [
     "Her döşeme geçişinin hemen altına sığınak iç tarafında el kumandalı gaz sızdırmaz klape (GSK) takılacaktır; fanlar ve SHC sığınak içindedir.",
     "Hesaba esas alan sığınak BRÜT alanıdır: 428,84 m²; yükseklik 2,95 m (mimari).",
     "WC hücrelerinin her birine egzoz hattından Ø160 tavan anemostadı (100 m³/h) bağlanmıştır.",
+    "SHC-1, DTF-1, EF-1 ve GSK'lar tavana askı çubukları ve titreşim izolatörleri ile asılır; SHC el kolu zincir/uzatma mili ile yerden çevrilecek şekilde düzenlenir.",
     "Duman tahliye fanı EN 12101-3 F400 (400 °C / 2 saat) sınıfında olacak ve yangın algılama sistemi ile otomatik devreye girecektir.",
     "Duman egzoz kanalları en az 1,0 mm galvaniz sacdan, askıları yangına dayanıklı olarak yapılacaktır.",
     "Kanallar kiriş altından geçecek şekilde kanal alt kotu sığınak döşemesinden en az +2,00 m olacak biçimde asılacaktır.",

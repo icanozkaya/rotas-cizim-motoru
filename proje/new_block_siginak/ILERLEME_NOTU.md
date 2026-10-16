@@ -12,3 +12,4 @@ Plan: motor/siginak/nb_mimari.py (mimari tanıma) -> motor/siginak/nb_siginak.py
 - Kullanıcı: "fanlar içerde kalacak şekilde yap" -> SHC/EF/DTF sığınak içinde, risere bağlı düşey (planda güneye) inişlerde; kesişmeler farklı kotta (alttaki kesikli) kabul.
 - Yerleşim v7: riser egzoz 358423 / taze 358530 / duman 358745; şerit hatları taze 358890, egzoz 358975, duman 359075; üst salon kolları taze -610670, duman -610600, egzoz WC kolu -610260.
 - 11:2x düzeltme: alan yalnız BRÜT 428,84 (tablolarda net satırı yok); tüm detaylar çerçeveli; kanal vmax 8 m/s (fan basınçları 300/350/300 Pa)
+- 11:28 çıkış delikleri v≤8 m/s (taze 60x30, egzoz 40x40, duman 80x60); tüm cihazlar tavana asılı (şema + not)

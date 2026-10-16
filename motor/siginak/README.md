@@ -9,3 +9,5 @@
 - (16.10.2026 kullanıcı) Kanal hız seçimi: çok düşük kalma, 8 m/s'yi geçme, 8 m/s'ye yakın tut (kanallar küçük kalsın) — motorlarda vmax = 8,0.
 - (16.10.2026 kullanıcı) Çizilen tüm detaylar (şema, kesit, özel parça detayları, lejant, notlar, tablolar, plan) kare/çerçeve içine alınır.
 - (16.10.2026 kullanıcı) "Brüt al" denirse projede yazan brüt alan (ör. 428,84 m²) doğrudan esas alınır; tablolarda net alan satırı gösterilmez.
+- (16.10.2026 kullanıcı) Çıkış delikleri (perde/döşeme geçişleri) küçültülebildiği kadar küçük: v ≤ 8 m/s sınırına en yakın, 10 cm adımlı en küçük kesit (2,5 m/s kuralı kaldırıldı).
+- (16.10.2026 kullanıcı) SHC, fanlar ve klapeler TAVANA ASILI tasarlanır, yere konmaz (şemada askılı gösterilir; SHC el kolu zincir/uzatma mili ile).
