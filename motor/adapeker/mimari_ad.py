@@ -195,7 +195,7 @@ TIP_ARMATUR = [
     dict(mahal=4, tip='BM', x=-292, y=-2728, gider=(-275, -2728)),
 ]
 # pis su kolonları (D1): ıslak hacim köşesinde, betonarme / M.H. şaftı dışında
-TIP_KOLON = {'P1': (-272, -2236), 'P2': (-147, -2121), 'P3': (-268, -2648)}
+TIP_KOLON = {'P1': (-278, -2236), 'P2': (-152, -2116), 'P3': (-275, -2640)}   # duvar yüzünden ≥ 6 cm içeride
 KOMBI = (-304, -2898)            # mimaride balkonda 'KOMBİ' (duvar dibinde 50x30)
 KOMBI_KUTU = (-329, -2913, -279, -2883)
 MH_SAFT = [(-294, -2153, -274, -2113)]

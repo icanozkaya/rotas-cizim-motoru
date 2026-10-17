@@ -33,15 +33,21 @@ PARSEL_V = [(-3262, -2181), (-2352, -2223), (-2173, -2231), (-2182, -3290), (-23
 PARSEL = [v2p(p) for p in PARSEL_V]
 Y_ROG = -3210.0            # rögar hattı (balkon / giriş cephesinden ~1,5 m)
 Y_PB = -3470.0             # parsel bacası (güney sınırından ~0,5 m içeride)
+Y_ROG_K = -1440.0          # kuzey rögar hattı (ODA cephesi -1578'den ~1,4 m; kuzey bahçe dar → orta baca PB2)
+Y_PB_K = -1395.0           # kuzey parsel bacası (kuzey sınırından ~0,3 m içeride)
 
 
 def ag():
     S = json.load(open(os.path.join(CIKIS, 'sihhi_model.json')))['kolonlar']
     kol = {v['gno']: tuple(v['xy']) for d in S.values() for v in d.values()}
-    # komşu kolonlar tek branşman: (P1,P3) x≈-270, (P2,P5) bina girişi ekseni, (P4,P6) x≈+22
-    # P2 / P5 (asansör kuyusunun yanında) yatay ile komşu kolon branşmanına katılır; R2 yalnız toplayıcı (giriş ekseni)
-    gruplar = [('R1', ['P1', 'P3', 'P2'], -305.0), ('R2', [], -124.0), ('R3', ['P4', 'P6', 'P5'], 57.0)]
-    return kol, gruplar
+    # İki ağ (kolon hangi cepheye yakınsa): banyo kolonları P1/P2 - P4/P5 kuzey cepheye (~6 m), mutfak kolonları P3/P6
+    # güney cepheye (~2,5 m). Her ağ kendi parsel bacasına: kuzey PB2 → 7,00 m yol, güney PB1 → 10,00 m yol.
+    # yön -1: güney (rögar hattı y < bina), +1: kuzey
+    aglar = [dict(ad='AĞ-1 (GÜNEY)', yon=-1, y_rog=Y_ROG, pb=('PB1', (-124.0, Y_PB)),
+                  gruplar=[('R1', ['P3'], -305.0), ('R2', [], -124.0), ('R3', ['P6'], 57.0)]),
+             dict(ad='AĞ-2 (KUZEY)', yon=1, y_rog=Y_ROG_K, pb=('PB2', (-124.0, Y_ROG_K)), pb_orta=True,
+                  gruplar=[('R4', ['P1', 'P2'], -305.0), ('PB2', [], -124.0), ('R5', ['P4', 'P5'], 57.0)])]
+    return kol, aglar
 
 
 def ok(m, a, b, t=0.5):
@@ -59,8 +65,8 @@ def rogar(m, c, ad, olcu='70x70', h='h:-70cm', s=1.0):
     PL(m, [(c[0] - r, c[1] - r), (c[0] + r, c[1] - r), (c[0] + r, c[1] + r), (c[0] - r, c[1] + r)], LR, True, 1.5 * s)
     m.add_circle(c, 25 * s, dxfattribs={'layer': LR})
     T(m, c[0], c[1], ad, 18 * s, 'MC', LY)
-    T(m, c[0] - r, c[1] + r + 22 * s, olcu, 11 * s, 'BL', LY)
-    T(m, c[0] - r, c[1] + r + 6 * s, h, 11 * s, 'BL', LY)
+    T(m, c[0] - r - 6 * s, c[1] - r - 4 * s, olcu, 11 * s, 'TR', LY)
+    T(m, c[0] - r - 6 * s, c[1] - r - 20 * s, h, 11 * s, 'TR', LY)
 
 
 def etiket(m, a, b, s1, s2, sc=1.0):
@@ -76,12 +82,13 @@ def etiket(m, a, b, s1, s2, sc=1.0):
 
 def ciz(m, donus=None, sc=1.0, tam=True):
     f = donus or (lambda p: p)
-    kol, gruplar = ag()
+    kol, aglar = ag()
+    KANAL = {}
     # parsel, yollar
     PL(m, [f(p) for p in PARSEL], 'ROTAS-ALTYAPI-PARSEL', True, 2 * sc)
     alt_a, alt_b = PARSEL[5], PARSEL[3]
     ust_a, ust_b = PARSEL[0], PARSEL[2]
-    for (a, b, gen, ad, isaret) in ((alt_a, alt_b, 1000, 'YOL 10,00 m (SASKİ ANA KANALI Ø200)', -1), (ust_a, ust_b, 700, 'YOL 7,00 m', 1)):
+    for (a, b, gen, ad, isaret) in ((alt_a, alt_b, 1000, 'YOL 10,00 m (SASKİ ANA KANALI Ø200)', -1), (ust_a, ust_b, 700, 'YOL 7,00 m (SASKİ ANA KANALI Ø200)', 1)):
         dx, dy = b[0] - a[0], b[1] - a[1]
         L = math.hypot(dx, dy)
         nx, ny = -dy / L * isaret, dx / L * isaret
@@ -92,67 +99,70 @@ def ciz(m, donus=None, sc=1.0, tam=True):
         m.add_lwpolyline([f((a2[0] - dx / L * 300, a2[1] - dy / L * 300)), f((b2[0] + dx / L * 300, b2[1] + dy / L * 300))], dxfattribs={'layer': 'ROTAS-ALTYAPI-YOL'})
         c = ((a[0] + b[0] + a2[0] + b2[0]) / 4, (a[1] + b[1] + a2[1] + b2[1]) / 4)
         T(m, *f((c[0] + 350, c[1])), ad, 22 * sc, 'MC', LY)
-        if isaret < 0:
-            ka, kb = (a[0] + nx * gen / 2, a[1] + ny * gen / 2), (b[0] + nx * gen / 2, b[1] + ny * gen / 2)
-            m.add_lwpolyline([f(ka), f(kb)], dxfattribs={'layer': 'ROTAS-ALTYAPI-KANAL', 'const_width': 3 * sc})
-            KANAL = ka, kb
+        ka, kb = (a[0] + nx * gen / 2, a[1] + ny * gen / 2), (b[0] + nx * gen / 2, b[1] + ny * gen / 2)
+        m.add_lwpolyline([f(ka), f(kb)], dxfattribs={'layer': 'ROTAS-ALTYAPI-KANAL', 'const_width': 3 * sc})
+        KANAL[isaret] = (ka, kb)
     # bina dış hattı
     B = M.bina_poly('Z').simplify(4)
     PL(m, [f(p) for p in B.exterior.coords], 'ROTAS-ALTYAPI-BINA', True, 1.5 * sc)
     if not tam:
         T(m, *f((-124, -2300)), '3 KATLI BETONARME MESKEN\n±0,00 = +30,00', 18 * sc, 'MC', LY)
-    # kolonlar ve branşmanlar
     rog = {}
-    for rn, ks, x in gruplar:
-        rc = (x, Y_ROG)
-        rog[rn] = rc
-        # kolonlar → kolektör düşeyi (x) → rögar; kolondan 45° kısa bağlantı
-        ys = []
-        for kn in ks:
-            c = kol[kn]
-            m.add_circle(f(c), 10 * sc, dxfattribs={'layer': 'ROTAS-SIHHI-KOLON'})
-            T(m, *f((c[0] + 14, c[1] + 14)), kn, 14 * sc, 'BL', LY)
-            if abs(c[0] - x) > 90:                         # uzak kolon: kolondan yatay, branşmana dik katılır
-                m.add_lwpolyline([f(c), f((x, c[1]))], dxfattribs={'layer': LP})
-                ok(m, f(c), f((x, c[1])), 0.5)
-                ys.append(c[1])
-            elif abs(c[0] - x) > 1:
-                d = abs(c[0] - x)
-                yy = c[1] - d
-                m.add_lwpolyline([f(c), f((x, yy))], dxfattribs={'layer': LP})
-                ys.append(yy)
-            else:
-                ys.append(c[1])
-        if not ys:
-            rogar(m, f(rc), rn, s=sc)
-            continue
-        y0 = max(ys)
-        m.add_lwpolyline([f((x, y0)), f(rc)], dxfattribs={'layer': LP, 'const_width': 2 * sc})
-        ok(m, f((x, y0)), f(rc), 0.8)
-        etiket(m, f((x, -2980)), f(rc), 'Ø125', '%1 EĞİM', sc)
-        rogar(m, f(rc), rn, s=sc)
-    # ana hat R1 → R2 ← R3 → PB
-    pb = (-124.0, Y_PB)
-    for a, b in ((rog['R1'], rog['R2']), (rog['R3'], rog['R2'])):
-        a2 = (a[0] + (35 if a[0] < b[0] else -35), a[1]); b2 = (b[0] + (-35 if a[0] < b[0] else 35), b[1])
-        m.add_lwpolyline([f(a2), f(b2)], dxfattribs={'layer': LP, 'const_width': 3 * sc})
-        ok(m, f(a2), f(b2))
-        etiket(m, f(a2), f(b2), 'Ø150', '%1 EĞİM', sc)
-    a2, b2 = (rog['R2'][0], rog['R2'][1] - 35), (pb[0], pb[1] + 35)
-    m.add_lwpolyline([f(a2), f(b2)], dxfattribs={'layer': LP, 'const_width': 3 * sc})
-    ok(m, f(a2), f(b2))
-    etiket(m, f(a2), f(b2), 'Ø150', '%1 EĞİM', sc)
-    rogar(m, f(pb), 'PB', '70x70', 'h:-100cm', s=sc)
-    # PB → SASKİ ana kanalı
-    k0 = KANAL[0]; k1 = KANAL[1]
-    t = (pb[0] - k0[0]) / (k1[0] - k0[0])
-    ky = k0[1] + (k1[1] - k0[1]) * t
-    m.add_lwpolyline([f((pb[0], pb[1] - 35)), f((pb[0], ky))], dxfattribs={'layer': LP, 'const_width': 3 * sc})
-    ok(m, f((pb[0], pb[1] - 35)), f((pb[0], ky)))
-    etiket(m, f((pb[0], pb[1] - 35)), f((pb[0], ky)), 'Ø150', '%2 EĞİM', sc)
-    m.add_circle(f((pb[0], ky)), 30 * sc, dxfattribs={'layer': 'ROTAS-ALTYAPI-KANAL'})
-    T(m, *f((pb[0] + 40, ky - 20)), 'SASKİ ANA KANAL BACASI (Ø200) - bağlantı kotu belediyeden alınacaktır', 11 * sc, 'TL', LY)
-    T(m, *f((pb[0] + 50, pb[1] - 60)), 'PARSEL BACASI → YOL KANALI (bağlantı kotu = yol kotu −80 cm)', 10 * sc, 'TL', LY)
+    for A in aglar:
+        yon = A['yon']
+        for rn, ks, x in A['gruplar']:
+            rc = (x, A['y_rog'])
+            rog[rn] = rc
+            ys = []
+            for kn in ks:
+                c = kol[kn]
+                m.add_circle(f(c), 10 * sc, dxfattribs={'layer': 'ROTAS-SIHHI-KOLON'})
+                T(m, *f((c[0] + 14, c[1] + 14)), kn, 14 * sc, 'BL', LY)
+                if abs(c[0] - x) > 90:                       # uzak kolon: kolondan dik yatay ile branşmana
+                    m.add_lwpolyline([f(c), f((x, c[1]))], dxfattribs={'layer': LP})
+                    ok(m, f(c), f((x, c[1])), 0.5)
+                    ys.append(c[1])
+                elif abs(c[0] - x) > 1:                     # kolondan kısa 45°
+                    d = abs(c[0] - x)
+                    yy = c[1] + yon * d
+                    m.add_lwpolyline([f(c), f((x, yy))], dxfattribs={'layer': LP})
+                    ys.append(yy)
+                else:
+                    ys.append(c[1])
+            if ys:
+                y0 = min(ys) if yon > 0 else max(ys)
+                y_bit = rc[1] - yon * 35
+                m.add_lwpolyline([f((x, y0)), f((x, y_bit))], dxfattribs={'layer': LP, 'const_width': 2 * sc})
+                ok(m, f((x, y0)), f((x, y_bit)), 0.85)
+                ym = y_bit - yon * 120
+                etiket(m, f((x, ym + 40)), f((x, ym - 40)), 'Ø125', '%1 EĞİM', sc)
+            if not (A.get('pb_orta') and rn == A['pb'][0]):
+                rogar(m, f(rc), rn, s=sc)
+        # ana hat: kenar rögarlar → orta toplayıcı → PB
+        g = A['gruplar']
+        orta = rog[g[1][0]]
+        for rn in (g[0][0], g[2][0]):
+            a_ = rog[rn]
+            a2 = (a_[0] + (35 if a_[0] < orta[0] else -35), a_[1]); b2 = (orta[0] + (-35 if a_[0] < orta[0] else 35), orta[1])
+            m.add_lwpolyline([f(a2), f(b2)], dxfattribs={'layer': LP, 'const_width': 3 * sc})
+            ok(m, f(a2), f(b2))
+            etiket(m, f(a2), f(b2), 'Ø150', '%1 EĞİM', sc)
+        pbn, pb = A['pb']
+        if not A.get('pb_orta'):
+            a2, b2 = (orta[0], orta[1] + yon * 35), (pb[0], pb[1] - yon * 35)
+            m.add_lwpolyline([f(a2), f(b2)], dxfattribs={'layer': LP, 'const_width': 3 * sc})
+            ok(m, f(a2), f(b2))
+        rogar(m, f(pb), pbn, '70x70', 'h:-100cm', s=sc)
+        # PB → yol kanalı
+        k0, k1 = KANAL[yon]
+        t = (pb[0] - k0[0]) / (k1[0] - k0[0])
+        ky = k0[1] + (k1[1] - k0[1]) * t
+        m.add_lwpolyline([f((pb[0], pb[1] + yon * 35)), f((pb[0], ky))], dxfattribs={'layer': LP, 'const_width': 3 * sc})
+        ok(m, f((pb[0], pb[1] + yon * 35)), f((pb[0], ky)))
+        etiket(m, f((pb[0] + 0, (pb[1] + ky) / 2 + 40)), f((pb[0], (pb[1] + ky) / 2 - 40)), 'Ø150', '%2 EĞİM', sc)
+        m.add_circle(f((pb[0], ky)), 30 * sc, dxfattribs={'layer': 'ROTAS-ALTYAPI-KANAL'})
+        T(m, *f((pb[0] + 40, ky + yon * 45)), 'SASKİ ANA KANAL BACASI (Ø200) - bağlantı kotu ve izni SASKİ\'den', 11 * sc, 'BL' if yon > 0 else 'TL', LY)
+        T(m, *f((pb[0] + 260, pb[1] + yon * 10)), '%s → %s: PARSEL BACASI (bağlantı kotu = yol kotu −80 cm)' % (A['ad'], pbn), 10 * sc, 'ML', LY)
     T(m, *f((-1100, -3420)), 'KK +29,80 [−0,20] (parsel girişi)', 11 * sc, 'BL', LY)
     return rog
 
@@ -167,7 +177,7 @@ def main():
     T(m, -124, -3700, 'ALTYAPI (PİS SU) PLANI', 34, 'MC', 'ROTAS-PAFTA-YAZI')
     T(m, -124, -3745, 'ÖLÇEK : 1 / 50', 22, 'MC', 'ROTAS-PAFTA-YAZI')
     notlar = ['NOTLAR:',
-              '1- Pis su kolonları (P1..P6) temel seviyesinde temizleme kapaklı olarak Ø125 %1 eğimle rögarlara bağlanacaktır.',
+              '1- Pis su kolonları (P1..P6) temel seviyesinde temizleme kapaklı olarak Ø125 %1 eğimle en yakın cephedeki rögarlara bağlanacaktır (banyolar kuzey AĞ-2, mutfaklar güney AĞ-1).',
               '2- Rögarlar 70x70 cm iç ölçülü, betonarme, pis su geçirmez, dökme demir kapaklı yapılacaktır.',
               '3- Rögarlar arası Ø150 PVC (SN8) %1 eğimle döşenecek, parsel bacası SASKİ ana kanalına bağlanacaktır.',
               '4- Parsel bacası bağlantı kotu ve izni SASKİ Genel Müdürlüğü\'nden alınacak, kanal durum belgesine uyulacaktır.',
@@ -187,10 +197,13 @@ def main():
 
 
 def rogar_tablo(m, x, y):
-    sat = [('R1', 'P1+P2+P3 (D1-D3-D5)', '70x70', '-70', 'Ø125 → Ø150 %1'),
-           ('R2', 'R1 + R3 toplayıcı (giriş ekseni)', '70x70', '-75', 'Ø150 %1 → PB'),
-           ('R3', 'P4+P5+P6 (D2-D4-D6)', '70x70', '-70', 'Ø125 → Ø150 %1'),
-           ('PB', 'parsel bacası', '70x70', '-100', 'Ø150 → SASKİ Ø200')]
+    sat = [('R1', 'P3 (D1-D3-D5 mutfak)', '70x70', '-70', 'Ø150 %1 → R2'),
+           ('R2', 'R1 + R3 toplayıcı', '70x70', '-75', 'Ø150 %1 → PB1'),
+           ('R3', 'P6 (D2-D4-D6 mutfak)', '70x70', '-70', 'Ø150 %1 → R2'),
+           ('PB1', 'parsel bacası (güney)', '70x70', '-100', 'Ø150 → 10 m yol Ø200'),
+           ('R4', 'P1+P2 (D1-D3-D5 banyolar, ÇM)', '70x70', '-70', 'Ø150 %1 → PB2'),
+           ('R5', 'P4+P5 (D2-D4-D6 banyolar, ÇM)', '70x70', '-70', 'Ø150 %1 → PB2'),
+           ('PB2', 'parsel bacası (kuzey, R4+R5)', '70x70', '-100', 'Ø150 → 7 m yol Ø200')]
     gen = [80, 420, 100, 100, 260]
     X = [x]
     for g in gen:

@@ -23,46 +23,49 @@ MB = {'LV': 0.75, 'WC': 0.5, 'DUS': 2.5, 'EV': 1.0, 'CM': 1.5, 'BM': 1.5, 'KOMBI
 # ------------------------------------------------------------------ TİP DAİRE GÜZERGÂHLARI (D1 zemin, cm)
 # pis su: (çizgi noktaları, çap, SB etiketi, etiket parçası indeksi)
 PIS = [
-    ('P1', [(-272, -2206), (-272, -2226)], 'Ø100', '10 SB'),                                  # klozet
-    ('P1', [(-282, -2298), (-282, -2254), (-279, -2245)], 'Ø50', '7 SB'),                      # duş
+    ('P1', [(-276, -2206), (-278, -2226)], 'Ø100', '10 SB', (-352, -2196)),                   # klozet (etiket solda)
+    ('P1', [(-282, -2298), (-282, -2254), (-280, -2246)], 'Ø50', '7 SB'),                      # duş
     ('P1', [(-372, -2066), (-404, -2066), (-404, -2236), (-340, -2236)], 'Ø50', '2 SB'),        # lavabo -> süzgeç
-    ('P1', [(-340, -2236), (-282, -2236)], 'Ø50', '4 SB'),                                     # süzgeç -> kolon
-    ('P2', [(-164, -2124), (-157, -2124)], 'Ø100', '10 SB'),                                   # klozet 2
+    ('P1', [(-340, -2236), (-288, -2236)], 'Ø50', '4 SB'),                                     # süzgeç -> kolon
+    ('P2', [(-164, -2124), (-162, -2118)], 'Ø100', '10 SB', (-218, -2100)),                    # klozet 2
     ('P2', [(-252, -1983), (-255, -1983), (-255, -1990)], 'Ø50', '2 SB'),                       # lavabo 2
     ('P2', [(-282, -1990), (-255, -1990)], 'Ø50', '4 SB'),                                     # çamaşır makinesi
-    ('P2', [(-255, -1990), (-255, -2126), (-180, -2126)], 'Ø50', '6 SB'),                       # -> klozet arkası
-    ('P3', [(-280, -2670), (-268, -2670), (-268, -2658)], 'Ø50', '4 SB'),                      # eviye
-    ('P3', [(-275, -2728), (-268, -2728), (-268, -2670)], 'Ø50', '4 SB'),                      # bulaşık makinesi
+    ('P2', [(-255, -1990), (-255, -2126), (-160, -2126), (-157, -2124)], 'Ø50', '6 SB'),        # -> kolon (klozet arkası)
+    ('P3', [(-282, -2670), (-275, -2663), (-275, -2650)], 'Ø50', '4 SB'),                      # eviye
+    ('P3', [(-282, -2728), (-282, -2670)], 'Ø50', '4 SB'),                                     # bulaşık makinesi
 ]
 YS = [(-340, -2236)]
-# temiz su: soğuk / sıcak yolları (sıcak kombiden)
+# temiz su: soğuk / sıcak yolları (sıcak kombiden). Duvar içi düşeyler x -255 / -249; 40/40 kolonların
+# (x -279..-239, y -2403..-2363 ve -2898..-2858) çevresinden dolaşır.
 SOG = [
-    [(-255, -2448), (-255, -2875), (-310, -2875), (-310, -2885)],          # giriş -> mutfak -> kombi (balkon)
-    [(-255, -2665), (-280, -2665)],                                        # eviye
+    [(-255, -2448), (-255, -2850), (-318, -2850), (-318, -2885)],          # giriş -> mutfak -> kombi (balkon)
+    [(-255, -2690), (-280, -2690)],                                        # eviye
     [(-255, -2735), (-276, -2735)],                                        # bulaşık mak.
-    [(-255, -2448), (-255, -2062), (-372, -2062)],                         # banyo 1: duş, klozet, lavabo
+    [(-255, -2448), (-255, -2418), (-293, -2418), (-293, -2346), (-255, -2346), (-255, -2180), (-306, -2180),
+     (-306, -2062), (-372, -2062)],   # banyo 1 (asansör perdesinin batısından)
     [(-255, -2298), (-266, -2298)],                                        # duş
     [(-255, -2206), (-266, -2206)],                                        # klozet rezervuarı
-    [(-255, -2062), (-255, -1950), (-150, -1950), (-150, -2090)],          # banyo 2 -> klozet 2
-    [(-255, -1983), (-247, -1983)],                                        # lavabo 2
-    [(-255, -1996), (-290, -1996)],                                        # çamaşır makinesi
+    [(-306, -2062), (-306, -2036), (-268, -2036), (-268, -1946), (-150, -1946), (-150, -2090)],   # çamaşır duvarı -> banyo 2 -> klozet 2
+    [(-268, -1975), (-247, -1975)],                                        # lavabo 2
+    [(-268, -1996), (-290, -1996)],                                        # çamaşır makinesi
 ]
 SIC = [
-    [(-318, -2885), (-318, -2869), (-249, -2869), (-249, -2056), (-366, -2056)],   # kombi -> banyo 1 lavabo
-    [(-249, -2672), (-280, -2672)],                                                 # eviye
+    [(-310, -2885), (-310, -2856), (-249, -2856), (-249, -2412), (-287, -2412), (-287, -2352), (-249, -2352),
+     (-249, -2174), (-300, -2174), (-300, -2042), (-262, -2042), (-262, -1969), (-247, -1969)],   # kombi -> banyo 1 -> lavabo 2
+    [(-300, -2056), (-366, -2056)],                                                 # lavabo 1
+    [(-249, -2697), (-280, -2697)],                                                 # eviye
     [(-249, -2304), (-266, -2304)],                                                 # duş
-    [(-249, -2056), (-249, -1977), (-247, -1977)],                                  # lavabo 2
 ]
 TS_ETIKET = [  # (nokta, yön 'Y'/'D', C1, M1)
-    ((-255, -2560), 'D', '1 1/4"', '9.5 MB'), ((-255, -2160), 'D', '1"', '6.5 MB'), ((-200, -1950), 'Y', '1/2"', '0.5 MB'),
+    ((-255, -2560), 'D', '1 1/4"', '9.5 MB'), ((-255, -2160), 'D', '1"', '6.5 MB'), ((-200, -1946), 'Y', '1/2"', '0.5 MB'),
     ((-300, -2875), 'Y', '1/2"', '0.5 MB'), ((-249, -2780), 'D', '3/4"', '5 MB')]
-VANA = [(-280, -2665), (-276, -2735), (-266, -2298), (-266, -2206), (-372, -2062), (-247, -1983), (-290, -1996),
-        (-150, -2090), (-310, -2885)]
-ASP = [((-305, -2133), (-400, -2112)), ((-240, -2110), (-232, -2045))]   # (sembol, not yeri)
+VANA = [(-280, -2690), (-276, -2735), (-266, -2298), (-266, -2206), (-372, -2062), (-247, -1975), (-290, -1996),
+        (-150, -2090), (-318, -2885)]
+ASP = [((-305, -2133), (-400, -2112)), ((-240, -2110), (-226, -1958))]   # (sembol, not yeri)
 GIRIS = (-255, -2448)
 KUTU = {'D1': (-236, -2392)}           # kat holü temiz su kolon kutusu (D2 aynası)
 SAYAC0 = (-20.0, -2770.0)              # zemin: bina girişi sahanlığında sayaç grubu (6 sayaç, aşağı doğru 16 cm)
-SEBEKE = (-124.0, -3150.0)             # 10 m'lik yoldan (güney) bina girişine
+SEBEKE = (-20.0, -3150.0)             # 10 m'lik yoldan (güney) bina girişine
 
 
 def tr(p, d, k):
@@ -84,9 +87,14 @@ def ps_etiket(m, pts, cap, sb, d, k):
 
 
 def daire_ciz(m, d, k, ns):
-    for no, pts, cap, sb in PIS:
+    for kayit in PIS:
+        no, pts, cap, sb = kayit[:4]
         cizgi(m, pts, L_PIS, d, k)
-        if math.dist(pts[0], pts[-1]) > 12:
+        if len(kayit) > 4:
+            q = tr(kayit[4], d, k)
+            P2.ekle_insert(m, 'ROTAS-S2-PS-CAP-U' if d == 'D1' else 'ROTAS-S2-PS-CAP-UL', q, L_PCAP, attr={'CAP': cap, 'SB': sb})
+            m.add_line(q, tr(pts[0], d, k), dxfattribs={'layer': 'ROTAS-SEMBOL-KILAVUZ'})
+        elif math.dist(pts[0], pts[-1]) > 12:
             ps_etiket(m, pts, cap, sb, d, k)
     for p in YS:
         P2.ekle_insert(m, 'ROTAS-S2-YER-SUZGECI', tr(p, d, k), SMB)
@@ -148,7 +156,6 @@ def zemin_sayac(m):
             m.add_lwpolyline([(sx, yy), (sx - 30 - 6 * j if d == 'D1' else sx + 30 + 6 * j, yy),
                               (sx - 30 - 6 * j if d == 'D1' else sx + 30 + 6 * j, -2540 + 6 * j), (x, -2540 + 6 * j), (x, -2392)],
                              dxfattribs={'layer': L_SEB})
-    T(m, -124, -2555, 'DAİRE BESLEMELERİ DÖŞEME ALTINDAN KOLON KUTULARINA (D1-D3-D5 / D2-D4-D6)', 7, 'TC', 'ROTAS-SIHHI-CIHAZ-YAZI')
 
 
 def kolon_semasi(m, x0, y0, ns_hepsi):
@@ -254,7 +261,7 @@ def lejant_notlar(m, x, y):
               '2- Mutfak giderleri (P3 / P6) ayrı kolondan indirilecek, mutfağa yer süzgeci konmayacaktır.',
               '3- Kolon dipleri temel seviyesinde temizleme kapaklı olarak Ø125 %1 eğimle bina dışı rögarlara bağlanacaktır.',
               '4- Temiz su tesisatı PPR (PN20), sıcak su her dairede kombiden başlayacak, sıcak hatlar yalıtılacaktır.',
-              '5- Su sayaçları bina girişinde toplu olacak, daire beslemeleri kat holündeki kolon kutusundan daire girişine verilecektir.',
+              '5- Su sayaçları bina girişinde toplu olacak; daire beslemeleri döşeme altından kat holündeki kolon kutularına (D1-D3-D5 / D2-D4-D6), oradan daire girişine verilecektir.',
               '6- Penceresiz banyolardaki WC aspiratörleri mekanik havalandırma (M.H.) şaftına bağlanacaktır.',
               '7- Kullanma suyu deposu çatıda 3 m³ olup taşma ve boşaltma uçları açık bırakılmayacaktır.',
               '8- Tesisat 10 bar basınçla test edilecek, dezenfekte edilerek kullanıma verilecektir.']

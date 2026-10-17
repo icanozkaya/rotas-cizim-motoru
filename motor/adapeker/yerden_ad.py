@@ -31,6 +31,7 @@ KAT = {L_PEX: (1, 'Continuous'), L_ET: (2, 'Continuous'), L_MAH: (2, 'Continuous
 # tip daire (D1 zemin) — ısıtılmayan alanlar (tefriş, vitrifiye) ve ayak çıkış yönleri
 YASAK = {('MUTFAK', 9.50): [box(-419, -2590, -259, -2528), box(-322, -2868, -259, -2528)],
          ('BANYO-WC', 4.33): [box(-304, -2352, -262, -2243), box(-316, -2223, -262, -2188), box(-410, -2095, -335, -2056)],
+         ('SALON', 23.08): [box(-566, -2560, -540, -2370)],        # kapı duvarı boyunca 2 devrenin ayak şeridi
          ('BANYO-WC', 2.60): [box(-264, -2033, -229, -1933), box(-190, -2132, -138, -2088)]}
 # ayak çıkışı: (hol tarafındaki kapı noktası, yön L/R/U/D, ayağın odaya girdiği nokta (kapı/duvar), tercih köşe)
 CIKIS_YON = {('YATAK ODASI', 10.28): ('L', (-549, -1983)), ('YATAK ODASI', 10.07): ('L', (-549, -2093)),
@@ -43,7 +44,7 @@ KOL_Y = -2367.0           # kollektör dolabının alt yüzü (banyo 4,33 alt du
 PORT_X0 = -318.0          # en sağdaki ağız
 ADIM_P = 13.0
 Y_DERIN = -2516.0         # en derin yatay şerit (hol alt ucu -2528)
-LANE_X0 = -537.0          # hol şeridi (x -548..-412) ilk düşey şerit
+LANE_X0 = -521.0          # (aks 3 / D 40/40 kolonu x -569..-529 dışında)          # hol şeridi (x -548..-412) ilk düşey şerit
 KOMBI_X = (-300.0, -294.0)   # kombi gidiş / dönüş düşeyi (mutfakta tezgâh altından)
 
 
@@ -92,7 +93,7 @@ def _halka_yolu(poly, a, b, o):
     return [tuple(p) for p in g.coords]
 
 
-def _ayak_geom(o, c, k, n_ust_idx, rev, swap):
+def _ayak_geom(o, c, k, n_ust_idx, rev, swap, mod=0, sira=0):
     xp = PORT_X0 - ADIM_P * k
     yg = Y_DERIN + ADIM_P * k
     yon, kapi = o['yon'], o['kapi']
@@ -121,8 +122,16 @@ def _ayak_geom(o, c, k, n_ust_idx, rev, swap):
         pts = [(pts[i][0], pts[i][1], -c['pts'][::-1][i + 1][2] if i + 1 < len(pts) else 0.0) for i in range(len(pts))]
     a_g, a_d = (pts[0][0], pts[0][1]), (pts[-1][0], pts[-1][1])
     og, od = (2.5, 5.0) if not swap else (5.0, 2.5)
-    ig = _halka_yolu(P, g[-1], a_g, og)
-    idd = _halka_yolu(P, d[-1], a_d, od)
+    og, od = og + 7.0 * sira, od + 7.0 * sira
+    if mod == 0:
+        ig = _halka_yolu(P, g[-1], a_g, og)
+        idd = _halka_yolu(P, d[-1], a_d, od)
+    elif mod == 1:
+        ig = [g[-1], (a_g[0], g[-1][1]), a_g]
+        idd = [d[-1], (a_d[0], d[-1][1]), a_d]
+    else:
+        ig = [g[-1], (g[-1][0], a_g[1]), a_g]
+        idd = [d[-1], (d[-1][0], a_d[1]), a_d]
     g += ig if Point(ig[0]).distance(Point(g[-1])) > 0.5 else ig[1:]
     d += idd if Point(idd[0]).distance(Point(d[-1])) > 0.5 else idd[1:]
     tam = [(x, y, 0.0) for x, y in g] + [(x, y, b) for x, y, b in pts] + [(x, y, 0.0) for x, y in d[::-1]]
@@ -162,10 +171,10 @@ def tip_ayaklar(odalar):
         devs = o['tas']['devreler']
         en = None
         for perm in itertools.permutations(range(len(devs))):
-            for secim in itertools.product((False, True), repeat=2 * len(devs)):
+            for secim in itertools.product(*([(False, True), (False, True), (0, 1, 2)] * len(devs))):
                 geo = []
                 for i, ci in enumerate(perm):
-                    geo.append(_ayak_geom(o, devs[ci], k + i, n_ust + i, secim[2 * i], secim[2 * i + 1]))
+                    geo.append(_ayak_geom(o, devs[ci], k + i, n_ust + i, secim[3 * i], secim[3 * i + 1], secim[3 * i + 2], sira=(len(devs) - 1 - i) if o['key'] == ('SALON', 23.08) else i))
                 lss = [_ls(g) for g in geo]
                 ceza = sum(_ceza(l, yerlesik + lss[:j]) for j, l in enumerate(lss))
                 if en is None or ceza < en[0]:
@@ -321,9 +330,10 @@ def main():
                 p1, p2 = M.donustur((kx0 + 3, yy), d, k), M.donustur((kx1 - 3, yy), d, k)
                 m.add_line(p1, p2, dxfattribs={'layer': L_KOL})
             t0 = M.donustur(((kx0 + kx1) / 2, KOL_Y + 30), d, k)
-            T(m, t0[0], t0[1], 'KOLLEKTÖR DOLABI (%d AĞIZLI)' % n, 9, 'BC', L_YAZI)
             tq = sum(v['kcal'] for v in devs_daire)
-            T(m, t0[0], t0[1] + 13, '%.0f kcal/h - Ø26 (1")' % tq, 8, 'BC', 'ROTAS-ISITMA-CAP')
+            m.add_wipeout([(t0[0] - 62, t0[1] - 3), (t0[0] + 62, t0[1] + 24)], dxfattribs={'layer': L_MASK})
+            T(m, t0[0], t0[1], 'KOLLEKTÖR DOLABI (%d AĞIZLI, NİŞ)' % n, 7, 'BC', L_YAZI)
+            T(m, t0[0], t0[1] + 12, '%.0f kcal/h - Ø26 (1")' % tq, 7, 'BC', 'ROTAS-ISITMA-CAP')
             # kombi -> kollektör (gidiş / dönüş), mutfak tezgâh altından
             for xx, lay, dy in ((KOMBI_X[0], L_KG, 0), (KOMBI_X[1], L_KD, 0)):
                 yol = [M.donustur(p, d, k) for p in ((xx, M.KOMBI_KUTU[3]), (xx, KOL_Y))]
