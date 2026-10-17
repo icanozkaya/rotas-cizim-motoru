@@ -13,3 +13,6 @@ Zamanlanmış kontroller (trig_): 017kX9aCvxCEkChQEGwr99eo, 01ST73bkywjs1muoE5PZ
 - (01:15) YERDEN ISITMA tamam (taslak): motor/adapeker/yerden_ad.py → proje/adapeker/ADAPEKER_YERDEN_ISITMA.dxf (54 devre, ayaklar kesişme araması; salon/ODA 1'er iç kesişme kalabilir), şema (yi_sema), kombi kesiti, ısı kaybı karşılaştırma tablosu.
   excel_ad.py → ADAPEKER_ISI_KAYBI_YERDEN_ISITMA_HESABI.xlsx (LibreOffice hesap hatasız; U: DD 0,40 Ta 0,30 Dö 0,35 ÇP 1,8).
 - SIRADA: sihhi_ad.py (plan + kolon şeması), saski_ad.py (altyapı/vaziyet), kontrol + teslim.
+- (02:00) SIHHİ: sihhi_ad.py → ADAPEKER_SIHHI_TESISAT.dxf (3 kat, 6 kolon P1-P6, sayaç grubu girişte, kolon kutuları, kolon şeması, lejant/notlar).
+  SASKİ: saski_ad.py → ADAPEKER_SASKI_ALTYAPI_VAZIYET.dxf (altyapı zemin koordinatında + vaziyet mimari yerleşim koordinatında; R1-R2-R3 → PB → 10 m yol Ø200).
+- SIRADA: bağımsız kontrol (render + kurallar), küçük düzeltmeler, teslim mesajı, kalan zamanlanmış kontrolleri iptal.
