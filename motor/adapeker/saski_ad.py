@@ -159,7 +159,7 @@ def ciz(m, donus=None, sc=1.0, tam=True):
         ky = k0[1] + (k1[1] - k0[1]) * t
         m.add_lwpolyline([f((pb[0], pb[1] + yon * 35)), f((pb[0], ky))], dxfattribs={'layer': LP, 'const_width': 3 * sc})
         ok(m, f((pb[0], pb[1] + yon * 35)), f((pb[0], ky)))
-        etiket(m, f((pb[0] + 0, (pb[1] + ky) / 2 + 40)), f((pb[0], (pb[1] + ky) / 2 - 40)), 'Ø150', '%2 EĞİM', sc)
+        etiket(m, f((pb[0] + 0, (pb[1] + ky) / 2 + 40)), f((pb[0], (pb[1] + ky) / 2 - 40)), 'Ø150', '%1 EĞİM', sc)
         m.add_circle(f((pb[0], ky)), 30 * sc, dxfattribs={'layer': 'ROTAS-ALTYAPI-KANAL'})
         T(m, *f((pb[0] + 40, ky + yon * 45)), 'SASKİ ANA KANAL BACASI (Ø200) - bağlantı kotu ve izni SASKİ\'den', 11 * sc, 'BL' if yon > 0 else 'TL', LY)
         T(m, *f((pb[0] + 260, pb[1] + yon * 10)), '%s → %s: PARSEL BACASI (bağlantı kotu = yol kotu −80 cm)' % (A['ad'], pbn), 10 * sc, 'ML', LY)
@@ -174,8 +174,8 @@ def main():
     mimari_altlik(m, katlar=('Z',), sadece=('YLZ-KOLON', 'YLZ-AKS'), yazi=False, pad=150)
     ciz(m, tam=True)
     x0 = -1400
-    T(m, -124, -3700, 'ALTYAPI (PİS SU) PLANI', 34, 'MC', 'ROTAS-PAFTA-YAZI')
-    T(m, -124, -3745, 'ÖLÇEK : 1 / 50', 22, 'MC', 'ROTAS-PAFTA-YAZI')
+    T(m, -650, -3700, 'ALTYAPI (PİS SU) PLANI', 34, 'MC', 'ROTAS-PAFTA-YAZI')
+    T(m, -650, -3745, 'ÖLÇEK : 1 / 50', 22, 'MC', 'ROTAS-PAFTA-YAZI')
     notlar = ['NOTLAR:',
               '1- Pis su kolonları (P1..P6) temel seviyesinde temizleme kapaklı olarak Ø125 %1 eğimle en yakın cephedeki rögarlara bağlanacaktır (banyolar kuzey AĞ-2, mutfaklar güney AĞ-1).',
               '2- Rögarlar 70x70 cm iç ölçülü, betonarme, pis su geçirmez, dökme demir kapaklı yapılacaktır.',
@@ -190,7 +190,7 @@ def main():
     vx, vy = p2v((-124, -3740))
     T(m, vx, vy, 'VAZİYET - ALTYAPI BAĞLANTI PLANI', 17, 'MC', 'ROTAS-PAFTA-YAZI')
     T(m, vx, vy - 22, 'ÖLÇEK : 1 / 100', 11, 'MC', 'ROTAS-PAFTA-YAZI')
-    antet(m, 900, -4250, 'SASKİ ALTYAPI (PİS SU) VE VAZİYET PLANI')
+    antet(m, 1300, -4500, 'SASKİ ALTYAPI (PİS SU) VE VAZİYET PLANI')
     yol = os.path.join(CIKIS, 'ADAPEKER_SASKI_ALTYAPI_VAZIYET.dxf')
     doc.saveas(yol)
     print('kaydedildi', yol)

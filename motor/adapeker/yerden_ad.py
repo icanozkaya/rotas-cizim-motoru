@@ -329,11 +329,10 @@ def main():
             for yy in (KOL_Y + 5, KOL_Y + 10):
                 p1, p2 = M.donustur((kx0 + 3, yy), d, k), M.donustur((kx1 - 3, yy), d, k)
                 m.add_line(p1, p2, dxfattribs={'layer': L_KOL})
-            t0 = M.donustur(((kx0 + kx1) / 2, KOL_Y + 30), d, k)
             tq = sum(v['kcal'] for v in devs_daire)
-            m.add_wipeout([(t0[0] - 62, t0[1] - 3), (t0[0] + 62, t0[1] + 24)], dxfattribs={'layer': L_MASK})
-            T(m, t0[0], t0[1], 'KOLLEKTÖR DOLABI (%d AĞIZLI, NİŞ)' % n, 7, 'BC', L_YAZI)
-            T(m, t0[0], t0[1] + 12, '%.0f kcal/h - Ø26 (1")' % tq, 7, 'BC', 'ROTAS-ISITMA-CAP')
+            for dx_, s_, lay_ in ((-282, 'KOLLEKTÖR DOLABI (%d AĞIZLI, NİŞ)' % n, L_YAZI), (-272, '%.0f kcal/h - Ø26 (1")' % tq, 'ROTAS-ISITMA-CAP')):
+                t0 = M.donustur((dx_, -2445), d, k)
+                T(m, t0[0], t0[1], s_, 7, 'MC', lay_, rot=90)
             # kombi -> kollektör (gidiş / dönüş), mutfak tezgâh altından
             for xx, lay, dy in ((KOMBI_X[0], L_KG, 0), (KOMBI_X[1], L_KD, 0)):
                 yol = [M.donustur(p, d, k) for p in ((xx, M.KOMBI_KUTU[3]), (xx, KOL_Y))]

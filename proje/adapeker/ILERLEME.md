@@ -16,3 +16,5 @@ Zamanlanmış kontroller (trig_): 017kX9aCvxCEkChQEGwr99eo, 01ST73bkywjs1muoE5PZ
 - (02:00) SIHHİ: sihhi_ad.py → ADAPEKER_SIHHI_TESISAT.dxf (3 kat, 6 kolon P1-P6, sayaç grubu girişte, kolon kutuları, kolon şeması, lejant/notlar).
   SASKİ: saski_ad.py → ADAPEKER_SASKI_ALTYAPI_VAZIYET.dxf (altyapı zemin koordinatında + vaziyet mimari yerleşim koordinatında; R1-R2-R3 → PB → 10 m yol Ø200).
 - SIRADA: bağımsız kontrol (render + kurallar), küçük düzeltmeler, teslim mesajı, kalan zamanlanmış kontrolleri iptal.
+- (03:30) Bağımsız kontrolör 2. tur: ONAY (taslak). Kalan küçükler düzeltildi (yazı yerleri, PB2 %1, antet/çizelge). TESLİM EDİLDİ — zamanlanmış kontroller iptal.
+  Açık: mutfakta kombi gidiş/dönüş tezgâh altından (serpantin tezgâh dışında); armatür bağlantı uçlarında kısa sıcak/soğuk kesişmeleri.
