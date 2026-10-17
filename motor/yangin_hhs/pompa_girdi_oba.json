@@ -1,0 +1,14 @@
+{
+ "tip": "yangin",
+ "kaynak": "OBA 84 PARSEL DEPOLAMA BİNASI - HHS - sprinkler 3687 l/dk + dolap 200 + hidrant 1900 = 5787 l/dk (347 m³/h); seçilen 350 m³/h / 90 mSS",
+ "olcek": 25,
+ "calisma_suresi_dk": 90,
+ "depo": {"V_m3": 530, "ic_genislik_cm": 1000, "ic_yukseklik_cm": 360, "maks_su_cm": 310, "duvar_cm": 40, "doseme_cm": 40},
+ "elektrikli": {"Q": 350, "H": 90, "P": 132, "rpm": 2900, "A": 260, "B": 110, "Hm": 260, "dn_emis_agzi": 200, "dn_basma_agzi": 150},
+ "dizel": {"Q": 350, "H": 90, "P": 160, "rpm": 2900, "A": 330, "B": 160, "Hm": 290, "yakit_L": 500},
+ "jokey": {"Q": 6, "H": 100, "P": 5.5, "Hm": 130, "Dm": 30, "Bp": 35, "mtank_L": 50, "mtank_D": 40, "mtank_H": 70},
+ "oda_genislik_cm": 1400,
+ "oda_yukseklik_cm": 450,
+ "basma_kollektor_cm": 380,
+ "itfaiye": true
+}
